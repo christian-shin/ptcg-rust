@@ -921,14 +921,13 @@ pub(crate) fn check_power<F: crate::derived::Facts>(g: &mut F, me: CardId, pw: &
 }
 
 /// The usage record the use of the power `pw` of `me` (player `p`'s) makes, by its `once` (`None`: it isn't limited):
-/// once during your turn (the card's, ending with the turn), the player's limit for every copy, once per game.
+/// once during your turn (the card's, ending with the turn), the player's limit for every copy.
 fn power_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)> {
     use crate::state::{Until, UsageBy};
     Some(match pw.once {
         Once::PerTurn => (crate::engine::usage::ability_key(&g.st, me, pw.index), UsageBy::Card(me), Until::ThisTurn(p as u8)),
         Once::PerTurnShared => (crate::engine::usage::ability_key(&g.st, me, pw.index), UsageBy::Player(p as u8), Until::ThisTurn(p as u8)),
-        Once::PerGame => (crate::engine::usage::declared_key(&g.st, me, 0x80 | pw.index), UsageBy::Player(p as u8), Until::Removed),
-        Once::No | Once::PerSubject => return None,
+        Once::No => return None,
     })
 }
 

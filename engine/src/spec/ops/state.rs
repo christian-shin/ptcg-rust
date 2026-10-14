@@ -225,16 +225,6 @@ pub struct DeclareSpec {
 // ---------------------------------------------------------------------------
 // Usage records
 
-/// What a usage record of the card's program is about.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum UsedWhat {
-    /// The printed Ability (or Pokémon Power) number `n` of this card: the record is keyed by its printed name, so "you can't
-    /// use more than 1 X Ability each turn" is the same record for every copy (`UsedBy::Player`).
-    Ability(u8),
-    /// This card's own record ("attached this turn": Ignition Energy).
-    Itself,
-}
-
 /// Whose record it is.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum UsedBy {
@@ -252,8 +242,6 @@ pub enum UsedBy {
 pub enum UsedUntil {
     /// This turn, ending before the end-of-turn effects (APR E-21).
     ThisTurn,
-    /// This turn, once the end-of-turn effects that read it are done.
-    AfterTurn,
     /// Until the card or Pokémon it is about leaves play.
     Removed,
 }
@@ -262,7 +250,9 @@ pub enum UsedUntil {
 /// or choice, when the card says it counts only when something happened).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct UsedSpec {
-    pub what: UsedWhat,
+    /// The printed Ability (or Pokémon Power) number of this card the record is about: it is keyed by its printed name, so "you
+    /// can't use more than 1 X Ability each turn" is the same record for every copy (`UsedBy::Player`).
+    pub ability: u8,
     pub by: UsedBy,
     pub until: UsedUntil,
 }
@@ -270,17 +260,14 @@ pub struct UsedSpec {
 impl UsedSpec {
     /// The use of the card's printed Ability number `n`, by `by`, for this turn.
     pub const fn ability(n: u8, by: UsedBy) -> UsedSpec {
-        UsedSpec { what: UsedWhat::Ability(n), by, until: UsedUntil::ThisTurn }
+        UsedSpec { ability: n, by, until: UsedUntil::ThisTurn }
     }
 }
 
 /// The record `u` stands for in the program of `me` (`None`: the Pokémon it is about isn't there).
 pub(crate) fn used_record(g: &Game, me: CardId, f: &Frame, u: &UsedSpec) -> Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)> {
     use crate::state::{Until, UsageBy};
-    let key = match u.what {
-        UsedWhat::Ability(n) => crate::engine::usage::ability_key(&g.st, me, n),
-        UsedWhat::Itself => crate::engine::usage::declared_key(&g.st, me, 0xFF),
-    };
+    let key = crate::engine::usage::ability_key(&g.st, me, u.ability);
     let by = match u.by {
         UsedBy::Copy => UsageBy::Card(me),
         UsedBy::Player => UsageBy::Player(f.p),
@@ -291,7 +278,6 @@ pub(crate) fn used_record(g: &Game, me: CardId, f: &Frame, u: &UsedSpec) -> Opti
     };
     let until = match u.until {
         UsedUntil::ThisTurn => Until::ThisTurn(f.p),
-        UsedUntil::AfterTurn => Until::AfterTurn(f.p),
         UsedUntil::Removed => Until::Removed,
     };
     Some((key, by, until))

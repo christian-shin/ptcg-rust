@@ -697,9 +697,9 @@ pub struct PrizeAdjustSpec {
     pub attacker: SlotPred,
     /// Only a Knock Out of the card owner's Pokémon.
     pub owner_only: bool,
-    /// "Can't be applied more than once per game" (`Once::PerGame`), or "the effect doesn't stack": once for each Knocked Out
-    /// Pokémon (`Once::PerSubject`, whatever the copies).
-    pub once: Once,
+    /// "Can't be applied more than once per game" (`PrizeOnce::PerGame`), or "the effect doesn't stack": once for each Knocked
+    /// Out Pokémon (`PrizeOnce::PerSubject`, whatever the copies).
+    pub once: PrizeOnce,
 }
 impl PrizeAdjustSpec {
     pub const DEFAULT: PrizeAdjustSpec = PrizeAdjustSpec {
@@ -710,7 +710,7 @@ impl PrizeAdjustSpec {
         guard: Cond::True,
         attacker: SlotPred::Any,
         owner_only: false,
-        once: Once::No,
+        once: PrizeOnce::No,
     };
 }
 /// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
@@ -1772,7 +1772,7 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 /// game", Legacy Energy): refused once the card's def is in the Knocked Out Pokémon's player's per-game record, and
 /// recorded when the adjustment changed the Prize count.
 pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
-    if d.once != Once::PerGame {
+    if d.once != PrizeOnce::PerGame {
         return prize_adjust_now(g, me, e, origin, d);
     }
     let Effect::KnockOut { p, prize_count: before, .. } = *g.e(e) else { return Ok(()) };
@@ -1854,7 +1854,7 @@ fn prize_adjust_with(g: &mut Game, me: CardId, at: Located, e: EffId, origin: Ru
     if !guard_ok(g, me, origin, at.owner, &d.guard) {
         return Ok(());
     }
-    if d.once == Once::PerSubject {
+    if d.once == PrizeOnce::PerSubject {
         // "The effect doesn't stack": once for each Knocked Out Pokémon, whatever the copies.
         let Some(top) = g.st.slot_pokemon(target.p as usize, target.s) else { return Ok(()) };
         let (key, by) = (prize_key(g, me, origin, d), crate::state::UsageBy::Card(top));
@@ -2080,15 +2080,14 @@ pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(cr
 }
 
 /// The usage record the use of the `index`th passive of `card` (owner `owner`) makes, by its `once` (`None`: not limited): once
-/// during your turn (the card's, ending with the turn), the player's, once per game. `Once::PerSubject` is made by its reader.
+/// during your turn (the card's, ending with the turn), the player's.
 fn declared_once(g: &Game, card: CardId, index: u8, once: Once, owner: usize) -> Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)> {
     use crate::state::{Until, UsageBy};
     let key = crate::engine::usage::declared_key(&g.st, card, index);
     Some(match once {
         Once::PerTurn => (key, UsageBy::Card(card), Until::ThisTurn(owner as u8)),
         Once::PerTurnShared => (key, UsageBy::Player(owner as u8), Until::ThisTurn(owner as u8)),
-        Once::PerGame => (key, UsageBy::Player(owner as u8), Until::Removed),
-        Once::No | Once::PerSubject => return None,
+        Once::No => return None,
     })
 }
 

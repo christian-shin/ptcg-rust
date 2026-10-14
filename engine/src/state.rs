@@ -114,9 +114,6 @@ pub enum Until {
     /// "This turn", player `p`'s: it ends when their turn ends, in the EndTurn event, before the end-of-turn effects the
     /// player orders (an expiry is not an effect: APR E-21).
     ThisTurn(u8),
-    /// Player `p`'s turn, once its end-of-turn effects are done (a record those effects read: Ignition Energy's
-    /// "attached this turn"): at the end of `phase::end_turn`.
-    AfterTurn(u8),
     /// Player `p`'s next Pokémon Checkup (Briar: the Knock Out by an attack's damage is found by the state check after the
     /// attack's turn ends, before the Checkup).
     Checkup(u8),

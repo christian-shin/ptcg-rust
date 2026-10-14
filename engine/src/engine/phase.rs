@@ -383,8 +383,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
 
     // The lasting effects' timing (`engine::lasting::end_turn`).
     crate::engine::lasting::end_turn(&mut g.st, p);
-    // What the end-of-turn effects read has done its work.
-    crate::engine::usage::expire_after_turn(&mut g.st, p);
     let pl = &mut g.st.players[p];
     // The turn's record of the Trainer cards played from the hand ends with it.
     pl.played_this_turn.clear();

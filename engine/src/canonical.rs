@@ -55,7 +55,6 @@ impl Game {
                         o.insert("declared".into(), json!(index));
                         match until {
                             crate::state::Until::ThisTurn(p) => o.insert("thisTurnOf".into(), player(p)),
-                            crate::state::Until::AfterTurn(p) => o.insert("afterTurnOf".into(), player(p)),
                             crate::state::Until::Checkup(p) => o.insert("checkupOf".into(), player(p)),
                             crate::state::Until::Removed => o.insert("untilRemoved".into(), json!(true)),
                         };
@@ -137,7 +136,6 @@ impl Game {
                 };
                 match u.until {
                     Until::ThisTurn(p) => o.insert("thisTurnOf".into(), json!(wire_player(p as usize))),
-                    Until::AfterTurn(p) => o.insert("afterTurnOf".into(), json!(wire_player(p as usize))),
                     Until::Checkup(p) => o.insert("checkupOf".into(), json!(wire_player(p as usize))),
                     Until::Removed => o.insert("untilRemoved".into(), json!(true)),
                 };

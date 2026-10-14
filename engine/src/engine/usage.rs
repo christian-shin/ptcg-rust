@@ -56,13 +56,6 @@ pub fn expire_this_turn(st: &mut State, p: usize) {
     }
 }
 
-/// The records that end once player `p`'s end-of-turn effects are done (`Until::AfterTurn`).
-pub fn expire_after_turn(st: &mut State, p: usize) {
-    if !st.usage.is_empty() {
-        st.usage.retain(|u| u.until != Until::AfterTurn(p as u8));
-    }
-}
-
 /// A Pokémon card that enters or leaves play, or is covered by an evolution, is a new Pokémon for the Abilities it used (id317):
 /// its own Ability records end. The player's records stay.
 pub fn reset_card(st: &mut State, card: CardId) {

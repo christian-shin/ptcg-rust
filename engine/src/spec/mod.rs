@@ -194,10 +194,17 @@ pub enum Once {
     /// Once during your turn for all copies together ("1 X Ability each turn"): the player's usage record for the
     /// Ability's printed name, made when the Ability is used, ending with the turn.
     PerTurnShared,
-    /// "Can't be applied / used more than once per game": the player's usage record of the declaration, never ended.
+}
+
+/// How often a `PrizeAdjust` applies (`PrizeAdjustSpec::once`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PrizeOnce {
+    /// Every time.
+    No,
+    /// "Can't be applied more than once per game": the player's usage record of the declaration, never ended.
     PerGame,
     /// "The effect doesn't stack" (id2083: Wonder Kiss; Shadowy Concealment): once for each Pokémon it is about
-    /// (`PrizeAdjustSpec`: the Knocked Out one), a usage record of that Pokémon for as long as it is in play.
+    /// (the Knocked Out one), a usage record of that Pokémon for as long as it is in play.
     PerSubject,
 }
 

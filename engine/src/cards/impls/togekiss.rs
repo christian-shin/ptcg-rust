@@ -16,10 +16,10 @@ pub static SPEC: CardSpec = CardSpec {
         origin: RuleSource::Ability,
         event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::KnockOut), EventPred::Owner(Who::Opp), EventPred::Slot(SlotPred::IsActive)])),
         steps: &[Step::new(Op::If(IfSpec {
-            cond: Cond::Used(UsedSpec { what: UsedWhat::Ability(0), by: UsedBy::Picked, until: UsedUntil::Removed }),
+            cond: Cond::Used(UsedSpec { ability: 0, by: UsedBy::Picked, until: UsedUntil::Removed }),
             yes: &[],
             no: &[
-                Step::new(Op::Used(UsedSpec { what: UsedWhat::Ability(0), by: UsedBy::Picked, until: UsedUntil::Removed })),
+                Step::new(Op::Used(UsedSpec { ability: 0, by: UsedBy::Picked, until: UsedUntil::Removed })),
                 Step::new(Op::Coin(CoinSpec { heads: &[Step::new(Op::PrizeBonus(PrizeBonusSpec { n: 1 }))], ..CoinSpec::DEFAULT })),
             ],
         }))],
