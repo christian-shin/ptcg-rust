@@ -381,7 +381,22 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
             let lists: Vec<&'static [Step]> = c.options.iter().map(|o| o.body).collect();
             any(&lists)
         }
-        Op::ForEach(fe) => any(&[fe.body]),
+        // Each pass is judged on its Pokémon (the body's "this one" is the loop's Pokémon); no Pokémon, no pass, nothing changes.
+        Op::ForEach(fe) => {
+            // The Pokémon as the loop reads them (checked reads: an Ability the Pokémon has, a lock), as the board is now.
+            let slots = slots_m(&mut crate::legal::Ctx::new(g), me, f, &fe.over).unwrap_or_else(|_| slots_of(g, me, f, &fe.over));
+            let mut out = if slots.is_empty() { Some(false) } else { None };
+            for s in slots.iter() {
+                let mut pass = *f;
+                pass.slot = s.p << 4 | s.s;
+                match super::any_effect_possible(g, me, &pass, fe.body) {
+                    Some(true) => return Some(true),
+                    Some(false) => out = Some(false),
+                    None => {}
+                }
+            }
+            out
+        }
         Op::Coin(c) => any(&[c.heads, c.tails, c.then]),
         // A choice, a precondition, and "your turn ends" (a consequence of the effect) aren't effects by themselves.
         Op::Fail(_) | Op::PickAttack(_) | Op::EndTurn(_) => None,
