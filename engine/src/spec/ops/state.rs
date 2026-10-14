@@ -94,7 +94,7 @@ pub enum Lasting {
     /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
     PreventAttackEffects,
     /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
-    /// the attacker's controller discards an Energy attached to the Attacking Pokémon (Little Grudge).
+    /// the attacker's controller discards an Energy attached to the Attacking Pokémon (e.g. Little Grudge).
     DiscardAttackerEnergyIfKnockedOut,
 }
 

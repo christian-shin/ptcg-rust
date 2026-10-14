@@ -1,0 +1,84 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Bouffalant SSP 151",
+   "3 Zeraora DRI 78",
+   "3 Handheld Fan TWM 150",
+   "4 Mist Energy TEF 161",
+   "24 Fire Energy MEE 2",
+   "23 Lightning Energy MEE 4"
+  ],
+  [
+   "3 Bouffalant SSP 151",
+   "3 Zeraora DRI 78",
+   "3 Handheld Fan TWM 150",
+   "4 Mist Energy TEF 161",
+   "24 Fire Energy MEE 2",
+   "23 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SSP 151",
+  "active_tool": "Handheld Fan TWM 150",
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Bouffalant SSP 151"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  {
+   "a": "attack",
+   "name": "Scratch"
+  },
+  0
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "prompts": [
+    "Select"
+   ],
+   "cite": "APR E-03: \"If several effects activating when a Pok\u00e9mon is damaged are activated at the same time, the player of the Pok\u00e9mon taking the damage gets to choose in which order to apply those effects\" (Handheld Fan and Ready to Ram on the damaged Bouffalant, Mist Energy on the attacker; events batch 9 C7a)"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "APR E-03: \"If several effects activating when a Pok\u00e9mon is damaged are activated at the same time, the player of the Pok\u00e9mon taking the damage gets to choose in which order to apply those effects\" (Handheld Fan and Ready to Ram on the damaged Bouffalant, Mist Energy on the attacker; events batch 9 C7a): Fan first moves the Mist Energy off the attacker (to its Bench), so the trap's 6 counters land on the attacker (40 + 60 = its 100 HP: Knocked Out, a Prize card for me)"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Zeraora DRI 78"
+   ],
+   "cite": "APR E-03: \"If several effects activating when a Pok\u00e9mon is damaged are activated at the same time, the player of the Pok\u00e9mon taking the damage gets to choose in which order to apply those effects\" (Handheld Fan and Ready to Ram on the damaged Bouffalant, Mist Energy on the attacker; events batch 9 C7a): Fan first moves the Mist Energy off the attacker (to its Bench), so the trap's 6 counters land on the attacker (40 + 60 = its 100 HP: Knocked Out, a Prize card for me)"
+  }
+ ]
+}

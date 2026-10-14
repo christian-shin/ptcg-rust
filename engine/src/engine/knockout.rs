@@ -6,7 +6,9 @@
 //!   turn, after the Checkup, between a Pokémon's two attacks: Festival Lead). Its order: (1) every Pokémon in play whose damage reaches its HP
 //!   or that an effect Knocks Out (`Slot::ko_pending`), both players, all Knocked Out at the same time; (2) the
 //!   KnockOut event of each while all are still in play (a Pokémon Knocked Out at the same time still has its Ability:
-//!   id2089 / n1623), its triggers after it (Maractus, Togekiss, the Prize adjustments, Heavy Baton, Little Grudge);
+//!   id2089 / n1623), its triggers after it, all of the check's Knock Outs together in the order the player whose turn it is picks when two
+//!   or more distinct effects apply (APR E-04; `engine::order`: e.g. Maractus, Togekiss, Heavy Baton, a lasting "when this Pokémon is
+//!   Knocked Out" trigger);
 //!   (3) the LeavePlay of each to its owner's discard pile, with every attached card; (4) TakePrizes, the player whose
 //!   turn is next first (id2239; rulings 754, 757); (5) the promotion (batch 5's ChangeActive, next-turn player first;
 //!   never refused: it is the rule); (6) the end of the game ([`game_end`]), after one more round when the step 2
@@ -338,8 +340,8 @@ pub fn take_prizes_cont(g: &mut Game, p: u8, cause: [u8; 4], res: Res) -> R {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckStage {
-    /// Resume after KO number `idx` was announced (its effect is `ko_fx`).
-    AfterKo,
+    /// Resume after an effect of the Knock Outs' step 2 window was applied (`ko_effects`).
+    AfterKoEffects,
     /// Resume after Knock Out number `idx` took its Pokémon out of play (effect `ko_fxs[idx]`).
     AfterRemove,
     AfterBenchSize,
@@ -359,7 +361,6 @@ pub struct CheckFrame {
     /// The Pokémon whose Knock Out was announced in this round.
     pub announced: SVec<CardId, 16>,
     pub idx: u8,
-    pub ko_fx: EffId,
     /// The announced Knock Out effects (retained until the Pokémon left play).
     pub ko_fxs: SVec<EffId, 16>,
     /// The Prize cards each player takes for this round's Knock Outs.
@@ -408,13 +409,12 @@ pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
         }
     }
     let f = CheckFrame {
-        stage: CheckStage::AfterKo,
+        stage: CheckStage::AfterKoEffects,
         oc,
         kos,
         by_hp,
         announced,
         idx: 0,
-        ko_fx: 0,
         ko_fxs: SVec::new(),
         prizes: [0, 0],
         prize_prompts: SVec::new(),
@@ -458,13 +458,12 @@ fn state_check_quiet(g: &mut Game, oc: OnComplete) -> R {
 /// A state check's frame with no Knock Out.
 fn empty_frame(oc: OnComplete) -> CheckFrame {
     CheckFrame {
-        stage: CheckStage::AfterKo,
+        stage: CheckStage::AfterKoEffects,
         oc,
         kos: SVec::new(),
         by_hp: SVec::new(),
         announced: SVec::new(),
         idx: 0,
-        ko_fx: 0,
         ko_fxs: SVec::new(),
         prizes: [0, 0],
         prize_prompts: SVec::new(),
@@ -668,10 +667,11 @@ fn prize_adjustments(g: &mut Game, id: EffId) -> R {
     r
 }
 
-/// Every Knock Out is announced while all Pokémon are still in play (a Pokémon Knocked
-/// Out at the same time still has its Ability: ruling 1623), then they leave play and
-/// the Prizes are counted (R7F-16).
+/// Every Knock Out is announced while all Pokémon are still in play (a Pokémon Knocked Out at the same time still has its
+/// Ability: ruling 1623), then the effects they activate are applied together (APR E-04), then they leave play and the Prizes
+/// are counted (R7F-16).
 fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
+    crate::engine::order::drop_window(g, crate::engine::order::Tag::KnockOut);
     while (f.idx as usize) < f.kos.len() {
         let t = *f.kos.get(f.idx as usize).unwrap();
         let by_hp = *f.by_hp.get(f.idx as usize).unwrap();
@@ -679,14 +679,52 @@ fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
         let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, ko_by, cause });
         prize_adjustments(g, id)?;
         g.reduce_effect(id)?;
-        f.ko_fx = id;
+        f.ko_fxs.push(id);
+        f.idx += 1;
+    }
+    collect_ko_effects(g, &f)?;
+    ko_effects(g, f)
+}
+
+/// Collect the effects the announced Knock Outs activate (APR D step 2, E-04), Knock Out by Knock Out in the order they were
+/// announced: a lasting trigger armed on the Pokémon first, then the triggers of the cards in the propagation order.
+fn collect_ko_effects(g: &mut Game, f: &CheckFrame) -> R {
+    use crate::engine::order::{Item, Tag};
+    let mut items: SVec<(Item, bool), 32> = SVec::new();
+    for &id in f.ko_fxs.iter() {
+        if g.prevented(id) {
+            continue;
+        }
+        if lasting_ko_source(g, id).is_some() {
+            assert!(items.len() < items.capacity(), "more than {} effects of one state check's Knock Outs", items.capacity());
+            items.push((Item::LastingKo { e: id }, lasting_ko_applies(g, id)));
+        }
+        if g.kinds_present.has(crate::effects::k::KNOCK_OUT) {
+            for (t, x) in crate::spec::run::timed_triggers(g, id, crate::effects::k::KNOCK_OUT)?.iter().copied() {
+                assert!(items.len() < items.capacity(), "more than {} effects of one state check's Knock Outs", items.capacity());
+                items.push((Item::Card(t), x));
+            }
+        }
+    }
+    crate::engine::order::collect(g, Tag::KnockOut, items.as_slice());
+    Ok(())
+}
+
+/// The Knock Outs' step 2 window (APR E-04: "the player whose turn is currently being played gets to decide in which order to
+/// apply those effects"): one step at a time; a prompt that is open (an effect's of this window, or of the end of the turn
+/// that opened this check) is answered before the next step and before the Pokémon leave play.
+fn ko_effects(g: &mut Game, mut f: CheckFrame) -> R {
+    let mut w = crate::engine::order::Window::KnockOut;
+    loop {
         if g.has_prompts() {
-            f.stage = CheckStage::AfterKo;
+            f.stage = CheckStage::AfterKoEffects;
             g.wait_prompt(Cont::CheckState(f));
             return Ok(());
         }
-        f.ko_fxs.push(id);
-        f.idx += 1;
+        if !crate::engine::order::pending(g, w.tag()) {
+            break;
+        }
+        crate::engine::order::step(g, &mut w)?;
     }
     f.idx = 0;
     remove_loop(g, f)
@@ -826,11 +864,7 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
 
 pub fn resume(g: &mut Game, mut f: CheckFrame) -> R {
     match f.stage {
-        CheckStage::AfterKo => {
-            f.ko_fxs.push(f.ko_fx);
-            f.idx += 1;
-            ko_loop(g, f)
-        }
+        CheckStage::AfterKoEffects => ko_effects(g, f),
         CheckStage::AfterRemove => {
             finish_ko(g, &mut f);
             remove_loop(g, f)
@@ -1134,8 +1168,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 }
 
 /// The KnockOut's consequences (before the Pokémon leaves play): the Prize cards it is worth (a Rule Box's more, the
-/// adjustments its triggers and passives made), the delayed "discard an Energy from the Attacking Pokémon" of a
-/// Pokémon Knocked Out by damage from an attack, the records of a Knock Out during the opponent's turn.
+/// adjustments its triggers and passives made), the records of a Knock Out during the opponent's turn.
 fn knock_out(g: &mut Game, id: EffId) -> R {
     let Effect::KnockOut { p, target, ko_by, .. } = *g.e(id) else { return Ok(()) };
     let p = p as usize;
@@ -1156,47 +1189,6 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
         *prize_base += extra;
     }
     let by_attack = ko_by == KoBy::AttackDamage;
-    // "If this Pokémon is Knocked Out by damage from an attack during your opponent's next turn, discard an Energy from
-    // the Attacking Pokémon": an effect of the Knocked Out Pokémon's earlier attack, its discard a LeavePlay of the Energy
-    // caused by that attack (`game_effect::little_grudge_discard`): a lasting trigger (`engine::lasting`).
-    if let (Some((attack, owner, source_card)), true) = (crate::engine::lasting::armed_discard_attacker_energy(&g.st, target.p as usize, target.s), by_attack) {
-        {
-            let prize_taker = 1 - p;
-            // "The Attacking Pokémon" is the Pokémon that used the attack, wherever it is by now (ruling 460);
-            // nothing happens when it left play.
-            let attacker_slot = g.attacker_of_knock_out(p).and_then(|a| a.1);
-            let energy: Vec<CardId> = match attacker_slot {
-                Some(sl) => g.st.slot(prize_taker, sl.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect(),
-                None => Vec::new(),
-            };
-            if energy.len() == 1 {
-                crate::engine::game_effect::little_grudge_discard(g, owner as usize, prize_taker, attack, source_card, attacker_slot.unwrap(), &energy)?;
-            } else if energy.len() > 1 {
-                let sl = attacker_slot.unwrap();
-                let mut slots = SVec::new();
-                let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
-                match g.st.players[prize_taker].bench.iter().position(|b| *b == sl.s) {
-                    Some(bi) => {
-                        slots.push(SlotType::Bench as u8);
-                        for i in 0..g.st.players[prize_taker].bench.len() {
-                            if i != bi {
-                                o.blocked_from.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
-                            }
-                        }
-                    }
-                    None => slots.push(SlotType::Active as u8),
-                }
-                let pid = g.player_id(p);
-                let o = g.stash_opts(o);
-                g.prompt(
-                    pid,
-                    "CHOOSE_ENERGIES_TO_DISCARD",
-                    PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
-                    Cont::LittleGrudge { owner, prize_taker: prize_taker as u8, attack, source_card, target: sl },
-                );
-            }
-        }
-    }
     let owner = p;
     let attacker = 1 - p;
     let during_opp_turn = matches!(g.st.phase, GamePhase::PlayerTurn | GamePhase::Attack) && g.st.active_player as usize == attacker;
@@ -1208,6 +1200,72 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     }
     if by_attack {
         g.st.players[owner].pokemon_knocked_out_by_attack_during_opponents_last_turn = true;
+    }
+    Ok(())
+}
+
+/// The lasting trigger armed on the Pokémon of the KnockOut `e` ("during your opponent's next turn, if this Pokémon is
+/// Knocked Out by damage from an attack, discard an Energy attached to the Attacking Pokémon": an effect of the Knocked Out
+/// Pokémon's own earlier attack, `engine::lasting`): its attack, the player who used it and the card that put it.
+fn lasting_ko(g: &Game, e: EffId) -> Option<(AttackRef, u8, CardId)> {
+    let Effect::KnockOut { target, ko_by, .. } = *g.e(e) else { return None };
+    if ko_by != KoBy::AttackDamage {
+        return None;
+    }
+    crate::engine::lasting::armed_discard_attacker_energy(&g.st, target.p as usize, target.s)
+}
+
+/// The card whose attack armed the lasting Knock Out trigger of the KnockOut `e`, if one is armed on its Pokémon.
+pub(crate) fn lasting_ko_source(g: &Game, e: EffId) -> Option<CardId> {
+    lasting_ko(g, e).map(|(_, _, source)| source)
+}
+
+/// "The Attacking Pokémon" of the KnockOut `e` is the Pokémon that used the attack, wherever it is by now (ruling 460):
+/// its spot and the Energy attached to it; None when it left play.
+fn attacker_energy(g: &Game, e: EffId) -> Option<(SlotRef, Vec<CardId>)> {
+    let Effect::KnockOut { p, .. } = *g.e(e) else { return None };
+    let sl = g.attacker_of_knock_out(p as usize).and_then(|a| a.1)?;
+    let energy = g.st.slot(1 - p as usize, sl.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
+    Some((sl, energy))
+}
+
+/// Does the lasting Knock Out trigger of the KnockOut `e` apply now: the Attacking Pokémon is in play with an Energy?
+pub(crate) fn lasting_ko_applies(g: &Game, e: EffId) -> bool {
+    lasting_ko(g, e).is_some() && attacker_energy(g, e).map_or(false, |(_, energy)| !energy.is_empty())
+}
+
+/// Apply the lasting Knock Out trigger of the KnockOut `e` (APR E-04 step 2): one Energy attached to the Attacking Pokémon
+/// is discarded, chosen by the Knocked Out Pokémon's owner when there are several (on a Benched Attacking Pokémon only
+/// from that Pokémon).
+pub(crate) fn lasting_ko_trigger(g: &mut Game, e: EffId) -> R {
+    let Some((attack, owner, source_card)) = lasting_ko(g, e) else { return Ok(()) };
+    let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
+    let prize_taker = 1 - p as usize;
+    let Some((sl, energy)) = attacker_energy(g, e) else { return Ok(()) };
+    if energy.len() == 1 {
+        crate::engine::game_effect::discard_attacker_energy(g, owner as usize, attack, source_card, sl, &energy)?;
+    } else if energy.len() > 1 {
+        let mut slots = SVec::new();
+        let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+        match g.st.players[prize_taker].bench.iter().position(|b| *b == sl.s) {
+            Some(bi) => {
+                slots.push(SlotType::Bench as u8);
+                for i in 0..g.st.players[prize_taker].bench.len() {
+                    if i != bi {
+                        o.blocked_from.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
+                    }
+                }
+            }
+            None => slots.push(SlotType::Active as u8),
+        }
+        let pid = g.player_id(p as usize);
+        let o = g.stash_opts(o);
+        g.prompt(
+            pid,
+            "CHOOSE_ENERGIES_TO_DISCARD",
+            PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+            Cont::DiscardAttackerEnergy { owner, attack, source_card, target: sl },
+        );
     }
     Ok(())
 }

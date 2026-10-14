@@ -408,7 +408,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 // next turn, put N damage counters on the Attacking Pokémon"): recorded for step 6 of the attack.
                 if let Some(r) = crate::engine::lasting::armed_retaliate(&g.st, tp, ts) {
                     if matches!(r.what, crate::state::LastingWhat::Retaliate { amount, .. } if amount > 0) {
-                        g.attack_trigger(b, amount, r.source, Some(r), false)?;
+                        g.attack_trigger(b, amount, r.source, Some(r))?;
                     }
                 }
             }

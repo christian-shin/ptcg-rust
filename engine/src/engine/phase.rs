@@ -82,23 +82,19 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
     // be applied before or after checking all Special Conditions"; user decision 7): two or more distinct effects
     // (identical ones are one: the order between them can't change the game; batch 8 C12b, review 8b Must 4). The
     // Special Conditions check is then an item only when an Active Pokémon has one (`order_prompt`).
-    let mut held: crate::spec::run::TimedList = SVec::new();
+    let mut held = false;
     for p in 0..2 {
         let a = g.st.players[p].active;
         let slot = g.st.slot(p, a);
         let id = g.new_fx(Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage });
         let t = crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS);
         g.release_fx(id);
-        for (x, y) in t?.iter() {
-            if *y {
-                crate::spec::run::push_timed(&mut held, *x);
-            }
-        }
+        held |= t?.iter().any(|(_, applies)| *applies);
     }
     // Any Checkup effect that applies goes through the ordered path: with one effect (or identical ones and no Special
     // Condition) nothing is asked and the rulebook's order holds, the Special Conditions first (APR F step 1), then the
     // effects (step 2; user decision 2026-10-13, batch 8 C12d).
-    if !held.is_empty() {
+    if held {
         return ordered_checkup(g, oc);
     }
     for p in 0..2 {
@@ -129,7 +125,7 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
     let mut poison = [10, 10];
     let mut burn = [20, 20];
     let mut ids = [0 as EffId; 2];
-    let mut left: crate::spec::run::TimedList = SVec::new();
+    let mut items: SVec<(crate::engine::order::Item, bool), 32> = SVec::new();
     g.checkup_held = true;
     let r = (|| -> R {
         for p in 0..2 {
@@ -140,7 +136,7 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
             checkup_damage(g, id)?;
             for (t, x) in crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS)?.iter().copied() {
                 if x {
-                    crate::spec::run::push_timed(&mut left, t);
+                    items.push((crate::engine::order::Item::Card(t), true));
                 }
             }
             g.reduce_effect(id)?;
@@ -153,12 +149,15 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
     })();
     g.checkup_held = false;
     r?;
-    let several = crate::spec::run::item_heads(g, left.as_slice()).len() >= 2;
-    order_next(g, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids, several })
+    // Every effect that applies is in the window; the order is asked only when two or more are distinct (`several`).
+    let several = crate::engine::order::asks(g, items.as_slice());
+    let w = crate::engine::order::Window::Checkup { oc, poison, burn, e: ids, several, sc: true };
+    crate::engine::order::collect(g, w.tag(), items.as_slice());
+    crate::engine::order::next(g, w)
 }
 
 /// Is the Special Conditions check an item of the Checkup order (an Active Pokémon has a Special Condition)?
-fn special_conditions_item(g: &Game) -> bool {
+pub(crate) fn special_conditions_item(g: &Game) -> bool {
     (0..2).any(|p| !g.st.slot(p, g.st.players[p].active).special_conditions.is_empty())
 }
 
@@ -166,7 +165,7 @@ fn special_conditions_item(g: &Game) -> bool {
 pub fn after_end_turn(g: &mut Game, p: usize) -> R {
     // Scenario `expect` assertions at "turn_end": Knock Outs are done, Pokémon Checkup is next.
     crate::expect::on_turn_end(g);
-    // Expire KO-time effects on the opponent (denyPrizes: not modeled): Little Grudge.
+    // Expire the effects that last until a Knock Out of the opponent's Pokémon (denyPrizes: not modeled).
     crate::engine::lasting::after_end_turn(&mut g.st, p);
     g.st.bump();
     if g.st.phase == GamePhase::Finished {
@@ -294,93 +293,34 @@ pub fn end_turn_event(g: &mut Game, p: usize) -> R {
     end_turn(g, p)
 }
 
-/// Ask `chooser` which of the effects left (and the Special Conditions check, `sc`) applies next (APR E-21: the player
-/// whose turn is ending; F step 2: the player whose turn would be next).
-pub fn order_prompt(g: &mut Game, chooser: usize, left: crate::spec::run::TimedList, sc: bool, then: crate::game::OrderThen) {
-    let mut names: SVec<&'static str, 8> = SVec::new();
-    for k in crate::spec::run::item_heads(g, left.as_slice()).iter() {
-        assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
-        names.push(g.st.cdef(left[*k as usize].c).full_name);
-    }
-    // The Special Conditions check is an item only when an Active Pokémon has one (otherwise it comes last, a no-op).
-    if sc && special_conditions_item(g) {
-        assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
-        names.push("Special Conditions");
-    }
-    let id = g.player_id(chooser);
-    g.prompt(
-        id,
-        "CHOOSE_EFFECT_ORDER",
-        PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
-        Cont::OrderEffects { left, sc, then },
-    );
-}
-
-/// The choice of the order prompt: that effect applies now (its own prompts are answered before the next choice).
-pub fn ordered_effect(g: &mut Game, mut left: crate::spec::run::TimedList, mut sc: bool, then: crate::game::OrderThen, choice: i32) -> R {
-    let heads = crate::spec::run::item_heads(g, left.as_slice());
-    let k = choice.max(0) as usize;
-    if k < heads.len() {
-        // The item's first effect (identical ones follow as the same item).
-        let t = left.remove_at(heads[k] as usize);
-        crate::spec::run::fire_timed(g, t)?;
-    } else if sc {
-        sc = false;
-        checkup_conditions(g, then)?;
-    }
-    order_next(g, left, sc, then)
-}
-
-/// After an ordered effect: once its prompts are answered, the next choice, or the last effect and what follows.
-pub fn order_next(g: &mut Game, left: crate::spec::run::TimedList, sc: bool, then: crate::game::OrderThen) -> R {
-    if g.has_prompts() {
-        g.wait_prompt(Cont::OrderNext { left, sc, then });
-        return Ok(());
-    }
-    let heads = crate::spec::run::item_heads(g, left.as_slice()).len();
-    let n = heads + (sc && special_conditions_item(g)) as usize;
-    // At Checkup the before / after choice exists only when several effects applied (APR F step 2).
-    let several = match then {
-        crate::game::OrderThen::Checkup { several, .. } => several,
-        crate::game::OrderThen::EndTurn { .. } => true,
-    };
-    if n >= 2 && several {
-        let chooser = match then {
-            crate::game::OrderThen::EndTurn { p, .. } => p as usize,
-            crate::game::OrderThen::Checkup { .. } => 1 - g.st.active_player as usize,
-        };
-        order_prompt(g, chooser, left, sc, then);
-        return Ok(());
-    }
-    if sc {
-        // No choice: the rulebook's order, the Special Conditions check first (APR F step 1), then the effects (step 2).
-        return ordered_effect(g, left, sc, then, heads as i32);
-    }
-    if heads > 0 {
-        // The effects left (identical ones), one after the other.
-        return ordered_effect(g, left, sc, then, 0);
-    }
-    match then {
-        crate::game::OrderThen::EndTurn { p, e } => {
-            g.release_fx(e);
-            end_turn(g, p as usize)
-        }
-        crate::game::OrderThen::Checkup { oc, e, .. } => {
-            g.release_fx(e[0]);
-            g.release_fx(e[1]);
-            checkup_finish(g, oc)
-        }
-    }
-}
-
-/// The Special Conditions check of Pokémon Checkup for both players, with their amounts.
-fn checkup_conditions(g: &mut Game, then: crate::game::OrderThen) -> R {
-    if let crate::game::OrderThen::Checkup { poison, burn, .. } = then {
+/// The Special Conditions check of Pokémon Checkup for both players, with their amounts: done once (APR F step 1), by the
+/// window's first step or the order's choice.
+pub(crate) fn checkup_conditions(g: &mut Game, w: &mut crate::engine::order::Window) -> R {
+    if let crate::engine::order::Window::Checkup { poison, burn, sc, .. } = w {
+        *sc = false;
         for p in 0..2 {
             handle_special_conditions(g, p, poison[p], burn[p])?;
         }
     }
     Ok(())
+}
+
+/// What follows a chained window whose effects are all applied: the rest of the end of the turn (the EndTurn event `e`
+/// released), or the rest of Pokémon Checkup.
+pub(crate) fn window_done(g: &mut Game, w: crate::engine::order::Window) -> R {
+    match w {
+        crate::engine::order::Window::EndTurn { p, e } => {
+            g.release_fx(e);
+            end_turn(g, p as usize)
+        }
+        crate::engine::order::Window::Checkup { oc, e, .. } => {
+            g.release_fx(e[0]);
+            g.release_fx(e[1]);
+            checkup_finish(g, oc)
+        }
+        // The attack's and the state check's windows end in their callers' loops.
+        crate::engine::order::Window::Damaged { .. } | crate::engine::order::Window::KnockOut => Ok(()),
+    }
 }
 
 /// After Pokémon Checkup: the state check, once the prompts it opened are answered.

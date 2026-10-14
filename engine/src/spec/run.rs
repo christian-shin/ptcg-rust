@@ -12,6 +12,7 @@
 use super::*;
 use crate::cards::CardFrame;
 use crate::cause::{Cause, CauseKind};
+use crate::engine::order;
 use crate::effects::{EffId, Effect};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
@@ -547,6 +548,11 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
     if !crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) || g.prevented(e) {
         return Ok(());
     }
+    // The triggers of the Knock Outs of one check are applied together in step 2 of the Knock Out process, in the order
+    // the player whose turn it is picks (APR E-04): the state check's window collects them (`knockout::ko_effects`).
+    if kind == crate::effects::k::KNOCK_OUT {
+        return Ok(());
+    }
     if !g.kinds_present.has(kind) {
         return Ok(());
     }
@@ -575,35 +581,8 @@ pub struct Timed {
     pub e: EffId,
 }
 
-/// The effects waiting for the order prompt (batch 8 C12b: 16, every applying trigger of a turn-structure event; a
-/// list never drops one: `push_timed` asserts).
-pub type TimedList = SVec<Timed, 16>;
-
-/// Push a timed trigger, never dropping one past the capacity.
-pub(crate) fn push_timed<const N: usize>(l: &mut SVec<Timed, N>, t: Timed) {
-    assert!(l.len() < l.capacity(), "more than {} end-of-turn / Checkup triggers at once", l.capacity());
-    l.push(t);
-}
-
-/// Two effects are the same item of the order prompt when they are the same effect of the same kind of card for the same
-/// player (two Froslass of one player: the order between them can't change the game; batch 8 C12b, review 8b Must 4).
-pub(crate) fn same_item(g: &Game, a: &Timed, b: &Timed) -> bool {
-    a.i == b.i && a.p == b.p && g.st.cards[a.c as usize].def == g.st.cards[b.c as usize].def
-}
-
-/// The distinct items among the effects: the first effect of each (in the list's order).
-pub(crate) fn item_heads(g: &Game, l: &[Timed]) -> SVec<u8, 16> {
-    let mut out: SVec<u8, 16> = SVec::new();
-    for (k, t) in l.iter().enumerate() {
-        if !l[..k].iter().any(|u| same_item(g, u, t)) {
-            out.push(k as u8);
-        }
-    }
-    out
-}
-
-/// The triggers of the turn-structure event `e` that fire now, in the propagation order, and whether each is an effect
-/// that applies (APR E-21, F step 2: "several such effects"; `applies`).
+/// The triggers of the event `e` (a turn-structure event, a Knock Out) that fire now, in the propagation order, and whether
+/// each is an effect that applies (APR E-04, E-21, F step 2: "several such effects"; `applies`).
 pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed, bool), 32>> {
     let class = crate::game::prop_class(g.e(e));
     let order = g.decl_ordered(g.decls.kind(kind), class);
@@ -618,7 +597,7 @@ pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed
             if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
                 let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
                 f.slot = slot;
-                let effect = applies(g, c, &f, t.steps);
+                let effect = applies(g, c, &f, t.steps)?;
                 assert!(out.len() < out.capacity(), "more than {} triggers of one turn-structure event", out.capacity());
                 out.push((Timed { c, i: i as u8, p: p as u8, slot, e }, effect));
             }
@@ -642,28 +621,20 @@ pub(crate) fn fire_timed(g: &mut Game, t: Timed) -> R {
 
 /// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
 /// propagation order of the declaring cards. The view is read for each trigger, as the board is when it is asked.
-/// The end of a turn with two or more effects that apply: the bookkeeping first, then the turn player orders the effects
-/// (APR E-21; batch 8 C11c, user decision 7). At Pokémon Checkup the routine orders them (`phase`); here only the
-/// triggers it doesn't hold back fire.
+/// The end of a turn with two or more distinct effects that apply: the turn player orders them (APR E-21; batch 8 C11c, user
+/// decision 7; `engine::order`). At Pokémon Checkup the routine orders them (`phase`); here only the triggers it doesn't
+/// hold back fire.
 fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
     if card.is_none() && kind == crate::effects::k::END_TURN {
-        let timed = timed_triggers(g, e, kind)?;
-        let mut effects: TimedList = SVec::new();
-        for (t, x) in timed.iter() {
-            if *x {
-                push_timed(&mut effects, *t);
-            }
+        let mut items: SVec<(order::Item, bool), 32> = SVec::new();
+        for (t, x) in timed_triggers(g, e, kind)?.iter() {
+            items.push((order::Item::Card(*t), *x));
         }
         // Asked only with two or more distinct effects (the order of identical ones can't change the game).
-        if item_heads(g, effects.as_slice()).len() >= 2 {
+        if order::asks(g, items.as_slice()) {
             let Effect::EndTurn { p } = *g.e(e) else { return Ok(()) };
-            for (t, x) in timed.iter().copied() {
-                if !x {
-                    fire_timed(g, t)?;
-                }
-            }
             g.retain_fx(e);
-            crate::engine::phase::order_prompt(g, p as usize, effects, false, crate::game::OrderThen::EndTurn { p, e });
+            order::open(g, order::Window::EndTurn { p, e }, items.as_slice())?;
             g.order_pending = true;
             return Ok(());
         }
@@ -734,12 +705,53 @@ pub(crate) fn branch_can_change(g: &Game, me: CardId, f: &Frame, steps: &[Step])
 
 /// Does a timed trigger's program apply now (batch 8 C11c): an op that isn't record bookkeeping, reached through the
 /// conditions that hold now ("if ..., discard it": only when the condition holds)?
-fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
-    steps.iter().any(|s| match &s.op {
-        Op::Used(_) | Op::Record(_) | Op::Forget(_) => false,
-        Op::If(i) => applies(g, me, f, if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no }),
-        _ => true,
-    })
+pub(crate) fn applies(g: &mut Game, me: CardId, f: &Frame, steps: &[Step]) -> R<bool> {
+    for s in steps {
+        let yes = match &s.op {
+            Op::Used(_) | Op::Record(_) | Op::Forget(_) => false,
+            Op::If(i) => {
+                let branch = if crate::spec::value::cond_m(g, me, f, &i.cond)? { i.yes } else { i.no };
+                applies(g, me, f, branch)?
+            }
+            _ => true,
+        };
+        if yes {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+/// Does a step 7 record apply now (APR E-03: "the effects activating when a Pokémon is damaged"): a lasting trigger of the
+/// damaged Pokémon, while the Attacking Pokémon is in play and the trigger's source still on the damaged Pokémon; a card's
+/// trigger, when one of its triggers fires for it now and its program can change the game (`applies`).
+pub(crate) fn damaged_applies(g: &mut Game, t: &crate::game::AtkTrig) -> R<bool> {
+    let Some(eff) = g.attack_trigger_effect(t) else { return Ok(false) };
+    let Effect::AttackTrigger { source_in_play, .. } = eff else { return Ok(false) };
+    if let Some(r) = t.retaliate {
+        let amount = match r.what {
+            crate::state::LastingWhat::Retaliate { amount, .. } => amount,
+            _ => 0,
+        };
+        return Ok(amount > 0 && source_in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(r.source));
+    }
+    let Some(spec) = crate::cards::spec_for(g.st.cards[t.card as usize].def) else { return Ok(false) };
+    let e = g.new_fx(eff);
+    let mut yes = false;
+    for (i, tr) in spec.triggers.iter().enumerate() {
+        if let Some((p, slot)) = trigger::fires(g, t.card, e, tr) {
+            let mut f = Frame::start(g, t.card, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+            f.slot = slot;
+            if !yes {
+                yes = applies(g, t.card, &f, tr.steps).map_err(|x| {
+                    g.release_fx(e);
+                    x
+                })?;
+            }
+        }
+    }
+    g.release_fx(e);
+    Ok(yes)
 }
 
 /// The walk of `usable_by_rules`: the cards the program takes from its player's hand so far (they leave it: "draw until

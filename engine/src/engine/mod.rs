@@ -14,6 +14,7 @@ pub mod knockout;
 pub mod lasting;
 pub mod game_effect;
 pub mod ops;
+pub mod order;
 pub mod phase;
 pub mod play_trainer;
 pub mod retreat;
