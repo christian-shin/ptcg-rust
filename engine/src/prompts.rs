@@ -267,7 +267,7 @@ pub enum PromptKind {
     RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: PayloadRef, same_target: bool, single_source: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
-    ChooseAttack { cards: SVec<CardId, 64>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), { crate::copy_attack::MAX_COPY_CHOICE }> },
+    ChooseAttack { cards: SVec<CardId, 64>, allow_cancel: bool, blocked: SVec<(u8, u8), { crate::copy_attack::MAX_COPY_CHOICE }> },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -1105,7 +1105,7 @@ impl Game {
                 }
                 base.insert("options".into(), Value::Object(m));
             }
-            PromptKind::ChooseAttack { cards, allow_cancel, blocked_message, blocked } => {
+            PromptKind::ChooseAttack { cards, allow_cancel, blocked } => {
                 base.insert("cards".into(), Value::Array(cards.iter().map(|c| json!(self.card_ref(*c))).collect()));
                 base.insert(
                     "attacks".into(),
@@ -1113,7 +1113,7 @@ impl Game {
                 );
                 base.insert(
                     "options".into(),
-                    json!({ "allowCancel": allow_cancel, "blockedMessage": blocked_message,
+                    json!({ "allowCancel": allow_cancel,
                             "blocked": blocked.iter().map(|(i, a)| json!({ "index": i, "attack": self.st.cdef(*cards.get(*i as usize).unwrap()).attacks[*a as usize].name })).collect::<Vec<_>>() }),
                 );
             }

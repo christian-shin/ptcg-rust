@@ -474,7 +474,7 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
     g.prompt(
         f.p as usize,
         "CHOOSE_ATTACK_TO_DISABLE",
-        crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked_message: "NOT_ENOUGH_ENERGY", blocked: crate::list::SVec::new() },
+        crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked: crate::list::SVec::new() },
         f.cont(me, 1),
     );
     true
