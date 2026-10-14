@@ -284,23 +284,9 @@ pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: 
     g.prompt(p, message, PromptKind::Confirm, cont);
 }
 
-/// Asks the player to choose cards from `list`; a non-secret deck or discard is shown sorted.
-pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef, filter: Filter, mut opts: ChooseCardsOpts, cont: Cont) {
-    if !opts.is_secret && (list == ListRef::Deck(p as u8) || list == ListRef::Discard(p as u8)) {
-        // Blocked indices follow the cards through the sort.
-        let before: Vec<CardId> = g.lst(list).to_vec();
-        let blocked_cards: Vec<CardId> = before.iter().enumerate().filter(|(i, _)| opts.blocked.contains(&(*i as u8))).map(|(_, c)| *c).collect();
-        g.sort_list(list);
-        if !blocked_cards.is_empty() {
-            let mut b = Blocked::default();
-            for (i, c) in g.lst(list).iter().enumerate() {
-                if blocked_cards.contains(c) {
-                    b.push(i as u8);
-                }
-            }
-            opts.blocked = b;
-        }
-    }
+/// Asks the player to choose cards from `list`; the prompt lists the zone in its own order (the deck in deck order, the
+/// discard pile oldest first).
+pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef, filter: Filter, opts: ChooseCardsOpts, cont: Cont) {
     g.prompt(p, message, PromptKind::ChooseCards { cards: list, filter, opts }, cont);
 }
 

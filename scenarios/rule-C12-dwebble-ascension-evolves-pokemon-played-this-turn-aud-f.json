@@ -16,6 +16,8 @@
  ],
  "me": {
   "reset": true,
+  "hand_to_deck": true,
+  "prizes": ["Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2"],
   "active": "Dwebble DRI 11",
   "active_played": "this_turn",
   "active_energy": [

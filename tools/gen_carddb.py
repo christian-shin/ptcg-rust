@@ -50,23 +50,6 @@ start = src.index('pub const TAG_NAMES')
 block = src[src.index('[', start) + 1: src.index('];', start)]
 TAG_NAMES = re.findall(r'"([^"]*)"', block)
 
-def sort_key(c):
-    # The deck / discard listing order: super type (Pokémon, Trainer, Energy), then within Trainers the
-    # subtype (Supporter, Item, Tool, Stadium), within Energy (Basic, Special), then the name in UTF-16
-    # code-unit order (big-endian bytes compare as code units, a prefix first).
-    sup = {1: 1, 2: 2, 3: 3}.get(c['superType'], 100)
-    sub = 0
-    if c['superType'] == 2:
-        sub = {1: 1, 0: 2, 3: 3, 2: 4}.get(c['trainerType'], 100)
-    elif c['superType'] == 3:
-        sub = 1 if c['energyType'] == 0 else 2
-    return (sup, sub, c['name'].encode('utf-16-be'))
-
-
-# Equal keys (same name and kind, other printings) get equal ranks.
-SORT_RANK = {k: i for i, k in enumerate(sorted({sort_key(c) for c in cards.values()}))}
-assert len(SORT_RANK) < 65536
-
 # One small number per distinct printed Ability / Pokemon Power name (the key of the usage records: "you can't use more than
 # 1 X Ability each turn" is per printed name; `PowerDef::name_id`, `ABILITY_NAMES`).
 ABILITY_ID = {n: i for i, n in enumerate(sorted({p['name'] for c in cards.values() for p in c['powers']}))}
@@ -119,7 +102,6 @@ for key, c in cards.items():
         'energy_type: %d' % c['energyType'],
         'provides: %s' % u8s(c['provides']),
         'same_name_group: %d' % SAME_NAME_GROUP_ID.get(tuple(c.get('sameNameGroup', [])), 0),
-        'sort_rank: %d' % SORT_RANK[sort_key(c)],
     ]
     out.append('    CardDef { %s },\n' % ', '.join(fields))
 out.append('];\n\n')

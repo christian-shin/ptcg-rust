@@ -16,6 +16,8 @@
  ],
  "me": {
   "reset": true,
+  "hand_to_deck": true,
+  "prizes": ["Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3"],
   "deck_top": [
    "7 Water Energy MEE 3",
    "Palafin ex PRE 151"
@@ -44,7 +46,7 @@
   },
   true,
   [
-   6
+   0
   ]
  ],
  "expect": [

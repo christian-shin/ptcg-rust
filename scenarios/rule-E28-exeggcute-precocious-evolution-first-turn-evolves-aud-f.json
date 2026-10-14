@@ -16,6 +16,8 @@
  ],
  "me": {
   "reset": true,
+  "hand_to_deck": true,
+  "prizes": ["Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2", "Fire Energy MEE 2"],
   "active": "Exeggcute SSP 1",
   "active_played": "this_turn",
   "deck_top": [
