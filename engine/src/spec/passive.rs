@@ -1534,9 +1534,8 @@ pub(crate) fn recover_now(g: &mut Game, me: CardId, origin: RuleSource, c: &Reco
 // ---------------------------------------------------------------------------
 // Ability locks
 
-/// What every Ability lock takes away: an Ability of a Pokémon in play. A power that isn't an Ability and an Ability used
-/// from the hand or the discard pile (not an Ability of a Pokémon in play) stay. The generic probe ("has no Abilities") is
-/// an Ability with no flags.
+/// What every Ability lock takes away: an Ability (a power whose type is Ability; a Fossil's rule text, say, is another type
+/// and stays). The generic probe ("has no Abilities") is an Ability with no flags.
 fn lockable_power(g: &Game, power: crate::effects::PowerRef) -> bool {
     if power.index == PROBE_GENERIC {
         return true;
@@ -3895,64 +3894,36 @@ mod non_stacking_tests {
 
 #[cfg(test)]
 mod active_lock_equality_tests {
-    //! Events batch 9 C2: `ActiveLockSpec` replaced the two card-named Active-Spot lock variants and the two card-data flags
-    //! that exempted a power from them. The pre-batch-9 reading is kept here, frozen, and compared with the declarations on
-    //! every pool card (the power and the card), and on boards for the positions.
+    //! The Active-Spot locks (`ActiveLockSpec`: Flutter Mane's Midnight Fluttering, Iron Thorns ex's Initialization): the
+    //! declarations equal the rule text each prints, read from the card data, on every pool card (the power and the card), and
+    //! on boards for the positions.
     use super::*;
     use crate::effects::PowerRef;
     use serde_json::json;
 
+    /// The two Active-Spot locks of the pool, by what their text covers.
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-    enum Old {
-        MidnightFluttering,
-        Initialization,
+    enum Lock {
+        /// "The opponent's Active Pokémon has no Abilities, except for Pokémon with the Midnight Fluttering Ability."
+        OpponentsActive,
+        /// "Each Pokémon in play with a Rule Box, except for Future Pokémon, has no Abilities."
+        RuleBoxes,
     }
-    const OLD: [Old; 2] = [Old::MidnightFluttering, Old::Initialization];
+    const LOCKS: [Lock; 2] = [Lock::OpponentsActive, Lock::RuleBoxes];
 
-    /// The powers the card-data flag that exempted a power from every Ability lock marked, frozen from data/cards.json as the
-    /// flag stood (the commit before its deletion asserted that it marked exactly these): (card, power).
-    const EXEMPT_FROM_ABILITY_LOCK: [(&str, &str); 2] = [("Antique Cover Fossil SCR 129", "Antique Cover Fossil"), ("Antique Root Fossil SCR 130", "Antique Root Fossil")];
-    /// The powers the card-data flag that exempted a power from Initialization marked, frozen likewise.
-    const EXEMPT_FROM_INITIALIZE: [(&str, &str); 6] = [
-        ("Iron Thorns ex PRE 32", "Initialization"),
-        ("Iron Thorns ex TWM 77", "Initialization"),
-        ("Iron Crown ex PRE 158", "Cobalt Command"),
-        ("Iron Crown ex TEF 81", "Cobalt Command"),
-        ("Iron Leaves ex PRE 176", "Rapid Vernier"),
-        ("Iron Leaves ex TEF 25", "Rapid Vernier"),
-    ];
-
-    fn marked(table: &[(&str, &str)], g: &Game, power: PowerRef) -> bool {
-        let d = g.st.cdef(power.card);
-        table.iter().any(|(key, name)| *key == d.full_name && d.powers[power.index as usize].name == *name)
-    }
-
-    /// `active_lock_subject` as it was: which powers the lock takes away, read from the (frozen) card-data flags.
-    fn old_subject(g: &Game, l: Old, power: PowerRef, probe: bool) -> bool {
-        if power.index == PROBE_GENERIC {
-            return true;
-        }
-        let d = &g.st.cdef(power.card).powers[power.index as usize];
-        if d.power_type != PowerType::Ability as u8 || marked(&EXEMPT_FROM_ABILITY_LOCK, g, power) {
-            return false;
-        }
+    /// The card part of what the lock's text covers, for a card in a spot where the lock's position holds.
+    fn rule_card(g: &Game, l: Lock, card: CardId) -> bool {
+        let d = g.st.cdef(card);
         match l {
-            Old::MidnightFluttering => probe || d.name != "Midnight Fluttering",
-            Old::Initialization => !marked(&EXEMPT_FROM_INITIALIZE, g, power),
+            Lock::OpponentsActive => !d.powers.iter().any(|p| p.name == "Midnight Fluttering"),
+            Lock::RuleBoxes => !d.has_tag(tag::FUTURE) && d.has_rule_box(),
         }
     }
 
-    /// The card part of `active_lock_applies` as it was, for a card in a spot where the lock's position holds: the
-    /// Midnight Fluttering lock covered the opponent's Active Pokémon whatever the card; Initialization the cards with a Rule
-    /// Box that are not Future Pokémon.
-    fn old_card(g: &Game, l: Old, card: CardId) -> bool {
-        match l {
-            Old::MidnightFluttering => true,
-            Old::Initialization => {
-                let d = g.st.cdef(card);
-                !d.has_tag(tag::FUTURE) && d.has_rule_box()
-            }
-        }
+    /// The power part: a lock takes away an Ability (never another kind of power: a Fossil's rule text), and the generic
+    /// "has no Abilities" probe.
+    fn rule_power(g: &Game, power: PowerRef) -> bool {
+        power.index == PROBE_GENERIC || g.st.cdef(power.card).powers[power.index as usize].power_type == PowerType::Ability as u8
     }
 
     fn spec_of(key: &str) -> &'static ActiveLockSpec {
@@ -3960,10 +3931,10 @@ mod active_lock_equality_tests {
         spec.passives.iter().find_map(|ps| if let Modifier::ActiveLock(l) = &ps.modifier { Some(l) } else { None }).unwrap()
     }
 
-    fn lock_spec(l: Old) -> &'static ActiveLockSpec {
+    fn lock_spec(l: Lock) -> &'static ActiveLockSpec {
         match l {
-            Old::MidnightFluttering => spec_of("Flutter Mane PRE 43"),
-            Old::Initialization => spec_of("Iron Thorns ex PRE 32"),
+            Lock::OpponentsActive => spec_of("Flutter Mane PRE 43"),
+            Lock::RuleBoxes => spec_of("Iron Thorns ex PRE 32"),
         }
     }
 
@@ -3975,8 +3946,8 @@ mod active_lock_equality_tests {
         (g, card)
     }
 
-    /// The `locked` predicate for a card that stands where the lock's position holds, read as the pre-batch-9 code did: the
-    /// opponent's Active Pokémon (Midnight Fluttering) is every card; Initialization names the Rule Box.
+    /// The `locked` predicate for a card that stands where the lock's position holds: the opponent's Active Pokémon is every
+    /// card; Initialization names the Rule Box.
     fn locked_printed(g: &Game, spec: &ActiveLockSpec, card: CardId) -> bool {
         match &spec.locked {
             SlotPred::Top(p) => pred(g, card, p),
@@ -3985,71 +3956,29 @@ mod active_lock_equality_tests {
         }
     }
 
-    /// For every card of the pool and every power it prints: what the old subject and card checks said together equals what
-    /// the declaration says (the generic rule of the lock pass for the power, the lock's `locked` and `except` for the card).
-    /// The flags marked exactly the cards this proves redundant.
+    /// For every card of the pool and every power it prints (and the generic "has no Abilities" probe): what the declaration
+    /// says (the generic rule of the lock pass for the power, the lock's `locked` and `except` for the card) equals what the
+    /// lock's printed text says. This covers both Antique Fossils (their rule text is not an Ability: no lock takes it), the
+    /// Future Iron ex Pokémon's Abilities (excepted from Initialization by the Future tag) and the two Flutter Manes (excepted
+    /// from the opponent's-Active lock, for the power and for the probe).
     #[test]
-    fn the_declarations_equal_the_old_subject_and_flags_on_every_pool_card() {
+    fn the_declarations_equal_the_rule_text_on_every_pool_card() {
+        let mut covered = [0usize; 2];
         for (id, d) in crate::carddb::cards().iter().enumerate() {
             let (g, card) = alone(id as crate::carddb::DefId);
-            for i in 0..d.powers.len() {
-                let power = PowerRef { card, index: i as u8 };
-                for l in OLD {
+            for i in (0..d.powers.len()).map(|i| i as u8).chain([PROBE_GENERIC]) {
+                let power = PowerRef { card, index: i };
+                for (n, l) in LOCKS.iter().copied().enumerate() {
                     let spec = lock_spec(l);
-                    let old = old_subject(&g, l, power, false) && old_card(&g, l, card);
+                    let text = rule_power(&g, power) && rule_card(&g, l, card);
                     let new = lockable_power(&g, power) && locked_printed(&g, spec, card) && !pred(&g, card, &spec.except);
-                    assert_eq!(old, new, "{}: power {} ({}) under {:?}", d.full_name, i, d.powers[i].name, l);
-                }
-            }
-            // The generic probe ("has no Abilities"): the card part alone. Midnight Fluttering's exception is the one
-            // difference (see `the_probe_differs...`): the old probe covered the card that has the excepted Ability.
-            let probe = PowerRef { card, index: PROBE_GENERIC };
-            for l in OLD {
-                let spec = lock_spec(l);
-                let old = old_subject(&g, l, probe, false) && old_card(&g, l, card);
-                let new = lockable_power(&g, probe) && locked_printed(&g, spec, card) && !pred(&g, card, &spec.except);
-                if old != new {
-                    assert!(l == Old::MidnightFluttering && pred(&g, card, &spec.except) && d.name == "Flutter Mane", "{}: the generic probe under {:?}", d.full_name, l);
+                    assert_eq!(text, new, "{}: power {} under {:?}", d.full_name, i, l);
+                    covered[n] += new as usize;
                 }
             }
         }
-        // The flags marked: both Antique Fossils' rule text (a power type that isn't an Ability: no lock takes it) and the Future
-        // Iron ex Pokémon's Abilities (excepted from Initialization by the Future tag).
-        for (key, name) in EXEMPT_FROM_ABILITY_LOCK {
-            let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
-            let p = d.powers.iter().find(|p| p.name == name).unwrap();
-            assert_ne!(p.power_type, PowerType::Ability as u8, "{key}: exempt from every lock but a plain Ability");
-        }
-        for (key, name) in EXEMPT_FROM_INITIALIZE {
-            let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
-            assert!(d.powers.iter().any(|p| p.name == name), "{key}");
-            assert!(d.has_tag(tag::FUTURE), "{key}: excepted from Initialization without being a Future Pokémon");
-        }
-    }
-
-    /// The old probe answer ignored the exception ("probe || name != Midnight Fluttering"): the generic "has no Abilities"
-    /// and a probe of a power read the lock as covering Midnight Fluttering itself. The declaration says "except for Midnight
-    /// Fluttering" in both reads. Only a card that has the Ability can tell: Flutter Mane (no other declaration of the pool
-    /// reads its own Ability's probe while it is the opponent's Active Pokémon: it is a lock, read as `real`).
-    #[test]
-    fn the_probe_differs_from_the_old_one_only_for_the_card_that_has_the_excepted_ability() {
-        let mut differs: Vec<&str> = Vec::new();
-        for (id, d) in crate::carddb::cards().iter().enumerate() {
-            let (g, card) = alone(id as crate::carddb::DefId);
-            let spec = lock_spec(Old::MidnightFluttering);
-            for i in 0..d.powers.len() {
-                let power = PowerRef { card, index: i as u8 };
-                let old = old_subject(&g, Old::MidnightFluttering, power, true);
-                let new = lockable_power(&g, power) && !pred(&g, card, &spec.except);
-                if old != new {
-                    differs.push(d.full_name);
-                }
-            }
-        }
-        differs.sort();
-        differs.dedup();
-        assert_eq!(differs, vec!["Flutter Mane PRE 43", "Flutter Mane TEF 78"]);
-        // Each prints no other Ability and declares nothing but the lock (the probe of its own Ability matters to nothing else).
+        assert!(covered.iter().all(|n| *n > 100), "the locks cover nothing: {covered:?}");
+        // The Flutter Manes print no other Ability and declare nothing but the lock.
         for key in ["Flutter Mane PRE 43", "Flutter Mane TEF 78"] {
             let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
             assert_eq!(d.powers.len(), 1, "{key}");
@@ -4093,11 +4022,11 @@ mod active_lock_equality_tests {
     }
 
     /// On boards with the sources Active, Benched and on either side, for every card in play: where the lock holds
-    /// (`active_lock_owner`) and what it covers (`active_lock_covers`) equal the old positions (the source is a player's
+    /// (`active_lock_owner`) and what it covers (`active_lock_covers`) equal the printed positions (the source is a player's
     /// Active Pokémon; the opponent's Active Pokémon, or any Pokémon with a Rule Box that isn't Future). The Pokémon are
     /// the tops of their spots (a Pokémon in play is its top card).
     #[test]
-    fn the_positions_equal_the_old_ones_on_boards() {
+    fn the_positions_equal_the_printed_ones_on_boards() {
         let boards = [
             json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "bench": [{"card": "Iron Thorns ex PRE 32"}, {"card": ["Frillish WHT 44", "Jellicent ex WHT 45"]}]},
                 "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"], "bench": [{"card": "Duraludon PRE 69"}, {"card": "Flutter Mane TEF 78"}]}}),
@@ -4115,14 +4044,14 @@ mod active_lock_equality_tests {
             for src in sources {
                 let ps = lock_passives(&g, src).next().unwrap();
                 let Modifier::ActiveLock(spec) = &ps.modifier else { continue };
-                let l = if g.st.cdef(src).name == "Flutter Mane" { Old::MidnightFluttering } else { Old::Initialization };
+                let l = if g.st.cdef(src).name == "Flutter Mane" { Lock::OpponentsActive } else { Lock::RuleBoxes };
                 let old_owner = (0..2usize).find(|q| g.st.active_pokemon(*q) == Some(src));
                 assert_eq!(active_lock_owner(&g, src, spec), old_owner, "{}: where the lock holds", g.st.cdef(src).full_name);
                 let Some(owner) = old_owner else { continue };
                 for (q, s, card) in tops.iter().copied() {
                     let old = match l {
-                        Old::MidnightFluttering => q == 1 - owner && s == g.st.players[q].active,
-                        Old::Initialization => old_card(&g, l, card),
+                        Lock::OpponentsActive => q == 1 - owner && s == g.st.players[q].active,
+                        Lock::RuleBoxes => rule_card(&g, l, card),
                     };
                     let mut c = Box::new(g.clone());
                     let new = active_lock_covers(&mut *c, src, spec, card).unwrap();
