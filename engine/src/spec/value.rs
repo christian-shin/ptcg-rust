@@ -210,13 +210,11 @@ pub enum Cond {
     /// Every name among the Pokémon in play of `names_of` has all 4 copies in zones the owner knows
     /// (own hand, discard pile, Lost Zone and Pokémon in play), so a search for it can't find any.
     AllNamesKnown { names_of: Who },
-    /// "If 1 of your other [Ancient] Pokémon used an attack during your last turn" (Koraidon SSP 116): the attack the
-    /// player used during their previous turn was used by a Pokémon card matching `by` other than this card (the
-    /// player's last-attack record: a turn without an attack, a failed attack and a Knock Out reset leave none).
-    OtherAttackedLastTurn { who: Who, by: Pred },
-    /// "If 1 of your Pokémon used [name] during your last turn" (Sylveon ex's Angelite): the attack the player used during
-    /// their previous turn has that name, whichever Pokémon used it (a copied attack too: the copycat used it, id2402).
-    UsedAttackLastTurn(&'static str),
+    /// "If 1 of your [other] [Ancient] Pokémon used [an attack / name] during your last turn" (Koraidon SSP 116, Sylveon ex's
+    /// Angelite): the attack the player used during their previous turn (the player's last-attack record: a turn without an
+    /// attack, a failed attack and a Knock Out reset leave none) matches `attack` and was used by a Pokémon card matching `by`,
+    /// other than this card when `other`. A copied attack counts for the copycat that used it (id2402).
+    AttackedLastTurn { who: Who, by: Pred, other: bool, attack: AttackPred },
     /// The Ability of this card is blocked for the player the program runs for (a checked read).
     AbilityBlocked,
     /// Some Basic Pokémon the player has in play can evolve now into a card in the game (a checked read).
@@ -225,6 +223,13 @@ pub enum Cond {
     ToolBlocked,
     /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
     HasEvolutionInPool(Who),
+}
+
+/// An attack predicate: which printed attack was used.
+pub enum AttackPred {
+    Any,
+    /// The attack with this printed name (as `CausePred::Attack`).
+    Named(&'static str),
 }
 
 /// A card predicate.
@@ -532,20 +537,20 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
         Cond::CanEvolveBasic(_) => panic!("Cond::CanEvolveBasic needs a checked read (cond_m)"),
         Cond::ToolBlocked => panic!("Cond::ToolBlocked needs a checked read (cond_m)"),
-        Cond::OtherAttackedLastTurn { who, by } => {
-            // The player's previous turn is two turns ago (see `UsedAttackLastTurn`).
-            let p = f.who(*who);
-            match g.st.player_last_attack[p] {
-                Some((_, src)) => g.st.player_last_attack_turn[p] == g.st.turn - 2 && src != me && pred(g, src, by),
-                None => false,
-            }
-        }
-        Cond::UsedAttackLastTurn(name) => {
+        Cond::AttackedLastTurn { who, by, other, attack } => {
             // The player's previous turn is two turns ago (turns alternate: no card in the pool skips a turn); an attack
             // that failed (Confusion) isn't used (its stamp is voided).
-            let p = f.who(Who::Me);
+            let p = f.who(*who);
             match g.st.player_last_attack[p] {
-                Some((a, _)) => g.st.player_last_attack_turn[p] == g.st.turn - 2 && crate::engine::attack::attack_def(g, a).name == *name,
+                Some((a, src)) => {
+                    g.st.player_last_attack_turn[p] == g.st.turn - 2
+                        && (!*other || src != me)
+                        && pred(g, src, by)
+                        && match attack {
+                            AttackPred::Any => true,
+                            AttackPred::Named(name) => crate::engine::attack::attack_def(g, a).name == *name,
+                        }
+                }
                 None => false,
             }
         }

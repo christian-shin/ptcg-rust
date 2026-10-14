@@ -7,7 +7,7 @@
 //! even when it does nothing.
 //!
 //! "If 1 of your Pokémon used Angelite during your last turn" reads the attack the player used during their previous turn
-//! (`Cond::UsedAttackLastTurn`), whichever Pokémon used it, a copycat too (id2402); no record is kept, so a copied Angelite or a
+//! (`Cond::AttackedLastTurn`), whichever Pokémon used it, a copycat too (id2402); no record is kept, so a copied Angelite or a
 //! Knocked Out Sylveon ex doesn't leave one behind.
 use crate::spec::prelude::*;
 
@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             steps: &[
                 // Can't be used if 1 of your Pokémon used Angelite during your last turn.
-                Step::before_damage(Op::Fail(FailSpec { unless: Cond::Not(&Cond::UsedAttackLastTurn("Angelite")), error: "BLOCKED_BY_EFFECT" })),
+                Step::before_damage(Op::Fail(FailSpec { unless: Cond::Not(&Cond::AttackedLastTurn { who: Who::Me, by: Pred::Any, other: false, attack: AttackPred::Named("Angelite") }), error: "BLOCKED_BY_EFFECT" })),
                 // Choose 2 of your opponent's Benched Pokémon; they shuffle those Pokémon and all attached cards into their deck.
                 Step::after_damage(Op::EachSlot(EachSlotSpec {
                     among: SlotSel::Bench(Who::Opp),
