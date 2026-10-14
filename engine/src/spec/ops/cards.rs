@@ -1,5 +1,4 @@
-//! Moving cards between zones, Energy, Prizes (vocabulary v1 "Operations",
-//! cards and zones).
+//! Moving cards between zones, Energy, Prizes (cards and zones).
 //!
 //! Chosen cards travel in card registers (`Frame::cards`, scratch lists):
 //! `Pick` and `Search` fill register `into`, `Move` can fill one, and later
@@ -197,7 +196,7 @@ pub struct SearchSpec {
     pub pick: PickSpec,
     pub destination: SearchDestination,
     pub msg: &'static str,
-    /// The prompt can be cancelled (`allowCancel`, as the oracle prompt has it).
+    /// The prompt can be cancelled .
     pub cancel: bool,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -243,7 +242,7 @@ pub struct AttachSpec {
     pub bounds: Bounds,
     pub same_target: bool,
     pub different_targets: bool,
-    /// The chosen cards must differ in type (the prompt's `differentTypes`).
+    /// The chosen cards must differ in type .
     pub different_types: bool,
     /// Only these Energy types (empty: any); with `max_per_type` (0: no limit).
     pub valid_types: &'static [u8],
@@ -285,7 +284,7 @@ pub enum AttachSlots {
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TargetScan {
-    /// Every Pokémon in play (Active first) that fails `target` is blocked (`blockedTo`).
+    /// Every Pokémon in play (Active first) that fails `target` is blocked.
     InPlay,
     /// Only the Benched Pokémon that fail `target` are listed as blocked (the prompt lists the Bench alone).
     Bench,
@@ -306,8 +305,8 @@ pub enum MoveEnergyMode {
     /// Up to `max` Energy cards of the Benched Pokémon move to the Active Pokémon (N's Plot: at
     /// least 1, or 0 when the Trainer is used as the effect of an attack).
     /// `ability`: an Ability's version (Iron Leaves ex) of the same rule as a Supporter's (N's Plan), as the
-    /// game plays it: the Active Pokémon is blocked as a source in the prompt's `blockedFrom` list (otherwise
-    /// as a `blockedMap` entry holding all its cards), and the cards move one source at a time.
+    /// game plays it: the Active Pokémon is blocked as a source in the prompt's blocked sources (otherwise
+    /// as a blocked entry holding all its cards), and the cards move one source at a time.
     BenchToActive { max: Option<u8>, required: bool, ability: bool },
 }
 /// Discard, or otherwise move, the Energy (or other cards) of a Pokémon: `selection` says which cards and
@@ -685,7 +684,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let n = num(g, me, f, &h.draw).max(0) as u8;
             // The resolving card is excluded only from its own player's hand (it is not there when
             // played); a Supporter used through Mr. Mime's attack is still in the opponent's hand
-            // and is shuffled in with it (Twinleaf Judge: excludeCard on the player's side only).
+            // and is shuffled in with it (the resolving card is excluded on the player's side only).
             let exclude = if matches!(h.who, Who::Me) { me } else { NO_CARD };
             shuffle_hand_into_deck_then_draw(g, p, exclude, n, Some((me, f.frame_at(1))), f.cause)?;
             Ok(Flow::Suspend)
@@ -1154,7 +1153,7 @@ fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
     slots
 }
 
-/// The Pokémon that can't receive the cards (`blockedTo`).
+/// The Pokémon that can't receive the cards.
 fn blocked_to(g: &mut Game, me: CardId, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> {
     let mut out: SVec<CardTarget, 9> = SVec::new();
     match a.scan {
@@ -2733,7 +2732,7 @@ fn decode_slot(b: u8) -> SlotRef {
     SlotRef { p: b >> 4, s: b & 15 }
 }
 
-/// A prompt of an `EnergyChoice` was answered.
+/// A prompt of an Energy choice was answered.
 fn ec_resume(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, results: &[Res], record: bool) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     if f.sub < 0x80 {

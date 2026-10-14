@@ -1,6 +1,4 @@
-//! Card-list operations with Twinleaf's exact semantics (`CardList.moveTo`,
-//! `moveCardsTo`, `PokemonCardList` overrides, `sort`), including quirks
-//! (the old double push of a slot's energies by `PokemonCardList.moveTo` is fixed).
+//! Card-list operations: moving cards between lists and slots, and sorting a list.
 
 use crate::game::Game;
 use crate::list::*;
@@ -48,11 +46,10 @@ impl Game {
         }
     }
 
-    /// `CardList.moveTo(destination, count)` / `PokemonCardList.moveTo`.
+    /// Moves the first `count` cards of `src` (all when `None`) to `dst`, for either list kind.
     ///
-    /// Fixed in Twinleaf (W1-A): a slot's `energies` is a view of the Energy
-    /// cards that are also in `cards`, so moving `cards` moves them; they used
-    /// to be pushed to the destination twice. Only an entry that is in
+    /// A slot's `energies` is a view of the Energy
+    /// cards that are also in `cards`, so moving `cards` moves them once. Only an entry that is in
     /// `energies` alone (a Pokémon acting as Energy) is moved separately, and
     /// only by a full move. Energy moved into another slot is recorded in that
     /// slot's `energies`.
@@ -112,7 +109,7 @@ impl Game {
         }
     }
 
-    /// `moveToTopOfDestination`: prepends a copy; the source keeps its cards.
+    /// Prepends a copy of the source's cards to the destination; the source keeps its cards.
     pub fn move_to_top_of_destination(&mut self, src: ListRef, dst: ListRef) {
         let mut v: SVec<CardId, 120> = SVec::new();
         for &c in self.lst(src) {
@@ -138,7 +135,7 @@ impl Game {
         }
     }
 
-    /// `moveCardsTo(cards, destination)` for either list kind.
+    /// Moves the given cards from `src` to `dst`, for either list kind.
     pub fn move_cards_to(&mut self, src: ListRef, cards: &[CardId], dst: ListRef) {
         for &c in cards {
             self.move_card_to(src, c, dst);
@@ -200,9 +197,9 @@ mod sort_rank_tests {
     use crate::carddb::CardDef;
     use crate::gen::cards::CARDS;
 
-    /// Twinleaf's `CardList.sort` comparator (frozen copy of the replaced code;
+    /// The comparator of the list sort that rank sorting replaced (frozen copy of the replaced code;
     /// it never returns 0: equal names give 1 both ways).
-    fn twinleaf_cmp(da: &CardDef, db: &CardDef) -> i32 {
+    fn old_sort_cmp(da: &CardDef, db: &CardDef) -> i32 {
         let sup = |t: u8| match t {
             1 => 1,
             2 => 2,
@@ -232,15 +229,15 @@ mod sort_rank_tests {
                 return s;
             }
         }
-        if js_str_lt(da.name, db.name) {
+        if utf16_str_lt(da.name, db.name) {
             -1
         } else {
             1
         }
     }
 
-    /// JavaScript string `<` (UTF-16 code unit order).
-    pub fn js_str_lt(a: &str, b: &str) -> bool {
+    /// String `<` by UTF-16 code unit.
+    pub fn utf16_str_lt(a: &str, b: &str) -> bool {
         let mut ai = a.encode_utf16();
         let mut bi = b.encode_utf16();
         loop {
@@ -265,7 +262,7 @@ mod sort_rank_tests {
         }
         if n >= 64 {
             // V8's merge phase (with galloping) is not reproduced; only reachable
-            // when Twinleaf's card duplication grows a deck past 63 cards.
+            // when a list grows past 63 cards.
             let mut v: Vec<T> = a.to_vec();
             merge_sort(&mut v, cmp);
             a.copy_from_slice(&v);
@@ -347,7 +344,7 @@ mod sort_rank_tests {
     }
 
     fn old_sort(ids: &mut [usize]) {
-        v8_sort(ids, &|a, b| twinleaf_cmp(&CARDS[a], &CARDS[b]));
+        v8_sort(ids, &|a, b| old_sort_cmp(&CARDS[a], &CARDS[b]));
     }
 
     fn new_sort(ids: &mut [usize]) {
@@ -358,9 +355,9 @@ mod sort_rank_tests {
     fn rank_agrees_with_the_comparator_on_every_pair() {
         for (i, a) in CARDS.iter().enumerate() {
             for (j, b) in CARDS.iter().enumerate() {
-                let old_lt = twinleaf_cmp(a, b) < 0;
+                let old_lt = old_sort_cmp(a, b) < 0;
                 assert_eq!(old_lt, a.sort_rank < b.sort_rank, "{} vs {}", a.full_name, b.full_name);
-                if i != j && !old_lt && twinleaf_cmp(b, a) >= 0 {
+                if i != j && !old_lt && old_sort_cmp(b, a) >= 0 {
                     assert_eq!(a.sort_rank, b.sort_rank, "{} vs {}", a.full_name, b.full_name);
                 }
             }

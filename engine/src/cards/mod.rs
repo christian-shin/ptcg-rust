@@ -1,6 +1,5 @@
-//! Card behaviors. Each Twinleaf card class with logic is ported as a
-//! [`CardImpl`]: a `reduce` handler for the effects it subscribes to, plus
-//! resume functions for its continuations (Twinleaf generators/closures).
+//! Card behaviors. Each card with logic is a [`CardImpl`]: a `reduce` handler for the effects it subscribes to, plus
+//! resume functions for its continuations.
 //!
 //! The registry maps a behavior class name (`CardDef::behavior`) to its
 //! implementation, so reprints share one port.
@@ -12,7 +11,7 @@ use crate::list::CardId;
 use crate::prompts::Res;
 use std::sync::OnceLock;
 
-/// Continuation payload for card generators and callbacks.
+/// Continuation payload for card routines that wait for an answer, and callbacks.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct CardFrame {
     pub stage: u8,

@@ -1,8 +1,8 @@
-//! Turn structure (`game-phase-effect.ts`): draw, end of turn, between
+//! Turn structure: draw, end of turn, between
 //! turns, special conditions.
 //!
-//! Fields Twinleaf clears here that no pool card ever sets are not modeled;
-//! they are listed next to the code that would touch them.
+//! Fields the end of a turn would clear that no pool card ever sets are not modeled; they are listed next to the code
+//! that would touch them.
 
 use crate::effects::*;
 use crate::game::{Cont, Game, OnComplete, R};
@@ -186,7 +186,7 @@ pub fn add_condition(slot: &mut Slot, sc: SpecialCondition) {
     crate::engine::condition::put_condition(slot, sc, crate::engine::condition::base_counters(sc));
 }
 
-/// `WOULD_CHANGE_SPECIAL_CONDITIONS` (prefabs/special-condition-change.ts): would making the slot's Pokémon
+/// Would making the slot's Pokémon
 /// `conds` change the game state? Re-applying a condition it has changes nothing, except an "enhanced" one
 /// (adding Poisoned / Burned / Confused sets that condition's counters back to 1 / 2 / 3).
 pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) -> bool {
@@ -345,7 +345,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::AfterAttack { opp, .. } => {
             // A Pokémon that survived this attack on 10 HP keeps 10 HP when an effect of the
-            // attack lowered its maximum HP (survive-on-ten.ts; ruling 1589).
+            // attack lowered its maximum HP (ruling 1589).
             let survivors = std::mem::replace(&mut g.ten_hp, SVec::new());
             for t in survivors.iter() {
                 let (tp, ts) = (t.p as usize, t.s);

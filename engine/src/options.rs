@@ -1,7 +1,6 @@
 //! Turn-level options: structural candidates, each answered from the declared
 //! checks (`legal.rs`); a trial on a copy of the game only for what is not
-//! declared (a counted fallback). Mirrors the oracle's `turnCandidates` +
-//! `legalTurnOptions` exactly, including order.
+//! declared (a counted fallback). Options come in a fixed order.
 
 use crate::game::{Action, Game};
 use crate::legal::{legal_fast, Ctx};
@@ -18,12 +17,12 @@ pub struct TurnOption {
 
 const BOARD: CardTarget = CardTarget::new(PlayerType::BottomPlayer, SlotType::Board, 0);
 
-/// JavaScript default sort order for strings (UTF-16 code units).
-fn js_cmp(a: &str, b: &str) -> std::cmp::Ordering {
+/// The order of option names in the recorded traces: by UTF-16 code unit.
+fn utf16_cmp(a: &str, b: &str) -> std::cmp::Ordering {
     a.encode_utf16().cmp(b.encode_utf16())
 }
 
-/// The UTF-16 units of the oracle's sort key for an attack: its name, then `\0` and the source card
+/// The UTF-16 units of the sort key for an attack: its name, then `\0` and the source card
 /// of a copied attack.
 fn attack_key(n: &'static str, from: Option<&'static str>) -> impl Iterator<Item = u16> {
     n.encode_utf16().chain(from.into_iter().flat_map(|f| std::iter::once(0u16).chain(f.encode_utf16())))
@@ -42,7 +41,7 @@ pub fn action_kind(a: &Action) -> &'static str {
     }
 }
 
-/// Canonical descriptor of a turn action (oracle `TurnOption.desc`).
+/// Canonical descriptor of a turn action (as a trace records it).
 pub fn describe_action(g: &Game, a: Action) -> Value {
     let p = g.st.active_player as usize;
     let card = match a {
@@ -73,7 +72,7 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
     candidate_actions(g).into_iter().map(|a| TurnOption { desc: describe_action(g, a), action: a }).collect()
 }
 
-/// Structural candidates for the active player's turn, in oracle order.
+/// Structural candidates for the active player's turn, in the order a trace records them.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
     let mut out = Vec::with_capacity(32);
     candidates(&mut Ctx::new(g), &mut out);
@@ -143,7 +142,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
             }
         }
     }
-    // Same order as the oracle's `[...names, ...name + '\0' + from].sort()`.
+    // The names, then the names with their source card (`name + '\0' + from`), sorted by UTF-16 code unit.
     let mut keyed: SVec<(&'static str, Option<&'static str>), 144> = SVec::new();
     for &n in names.iter() {
         keyed.push((n, None));
@@ -166,7 +165,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
                 }
             }
             // (The checked power list only removes powers: the printed names are the candidates.)
-            pn.as_mut_slice().sort_by(|a, b| js_cmp(a, b));
+            pn.as_mut_slice().sort_by(|a, b| utf16_cmp(a, b));
             for &n in pn.iter() {
                 out.push(Action::UseAbility { name: n, target: *t });
             }
@@ -340,8 +339,7 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
     // Resolve info prompts (an ability's animation wait) so checks that run
     // after them count toward legality; stop at chance prompts (except the
     // Confusion flip, see below) and decisions.
-    // Chance inside the trial draws fixed outcomes (`Rng::zero`, the oracle's
-    // `Chance.trial`): a coin callback that throws after its "Coin flip
+    // Chance inside the trial draws fixed outcomes (`Rng::zero`): a coin callback that throws after its "Coin flip
     // animation" wait would otherwise make legality depend on a draw, and the
     // real stream must not leak into the legal set.
     for _ in 0..100 {

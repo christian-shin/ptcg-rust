@@ -50,7 +50,7 @@ pub struct Deleg {
     pub copycat: CardId,
     pub source: CardId,
     pub serial: u8,
-    /// Inside `delegateToSource` (the copycat's `attacks` are the clones);
+    /// While the source's code runs for the copycat (the copycat's `attacks` are the clones);
     /// false inside callbacks created by it.
     pub attacks: bool,
 }
@@ -71,7 +71,7 @@ fn target_includes(g: &Game, t: SlotRef, c: CardId) -> bool {
     g.st.slot(t.p as usize, t.s).cards.contains(c)
 }
 
-/// `shouldDelegateCopyAttackSession`.
+/// Whether the source's code runs for this effect: the copycat is the one the effect is about.
 fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
     match *g.e(id) {
         Effect::KnockOut { .. } => g.st.phase == GamePhase::Attack && g.st.active_player == s.player,
@@ -82,7 +82,7 @@ fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
     }
 }
 
-/// `delegateToSource`: the source's `reduceEffect.call(copycat, ...)`.
+/// Runs the source card's handler of the effect for the copycat.
 fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
     let imp = match cards::impl_for(g.st.cards[s.source as usize].def) {
         Some(i) => i,
@@ -98,7 +98,7 @@ fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
     r
 }
 
-/// `resolveCopyAttackSessions` for the damage calculation's steps (they were the DealDamage / PutDamage effects; batch 8 C4,
+/// Resolves the copy-attack sessions for the damage calculation's steps (they were the DealDamage / PutDamage effects; batch 8 C4,
 /// the same order and the same sessions): after the game's own declarations, each live session's source card, run for
 /// the copycat (the copied attack's lifecycle), adds its declarations of the step when the damaged Pokémon is the copycat
 /// (step 5 also for the copied attack's own damage). A session whose copycat left play is dropped, as the effect's
@@ -145,7 +145,7 @@ pub fn delegate_damage(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc, 
     Ok(())
 }
 
-/// `resolveCopyAttackSessions` (runs after every effect's fan-out).
+/// Resolves the copy-attack sessions after an effect's fan-out.
 pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
     let mut i = g.copy_sessions.len();
     while i > 0 {
@@ -167,7 +167,7 @@ pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
-/// `openCopyAttackSession`; returns the clone of `source`'s attack `index`.
+/// Opens a copy-attack session (replacing the copycat's open one); returns the clone of `source`'s attack `index`.
 fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: u8) -> AttackRef {
     g.copy_sessions.retain(|s| s.copycat != copycat);
     g.copy_serial = g.copy_serial.wrapping_add(1);
@@ -201,7 +201,7 @@ pub fn resume_deleg(g: &mut Game, card: CardId, source: CardId, serial: u8, fram
 }
 
 // ---------------------------------------------------------------------------
-// Generators
+// Frames
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CopyStage {
@@ -225,7 +225,7 @@ pub struct CopyFrame {
     pub source: CardId,
     /// The clone being run.
     pub attack: AttackRef,
-    /// The clone's `AttackEffect` (retained while the generator runs).
+    /// The clone's attack effect (retained while the attack runs).
     pub atk: EffId,
     pub src_slot: SlotRef,
     /// The attack used another Pokémon's attack as its own (Memory Helix): the animation follows.
@@ -299,13 +299,13 @@ fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     Ok(())
 }
 
-/// `findPokemonCardForAttack`.
+/// The Pokémon card among `cards` that has the attack `a` (the card itself, or one with an attack of the same name).
 fn find_pokemon_for_attack(g: &Game, cards: &[CardId], a: AttackRef) -> Option<CardId> {
     let name = attack::attack_def(g, a).name;
     cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && (*c == a.card || g.st.cdef(*c).attacks.iter().any(|x| x.name == name)))
 }
 
-/// `findAttackIndex(source, attack)`.
+/// The index of attack `a` among the attacks of `source`.
 fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
     if a.card == source && !a.is_clone() {
         return Some(a.idx() as u8);
@@ -337,8 +337,8 @@ pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId],
     prompt_list(g, f)
 }
 
-/// useAttack's `delegateFrom` branch: `runDelegatedCopiedAttackGenerator`
-/// (skipLog), then the attack animation.
+/// The attack routine's branch for an attack whose source Pokémon's code runs for the copycat: the copied attack
+/// runs (unlogged), then the attack animation.
 pub fn run_delegated_from_use_attack(g: &mut Game, af: AttackFrame, copycat: CardId, source: CardId) -> R {
     let index = match find_attack_index(g, source, af.attack) {
         Some(i) => i,

@@ -1,4 +1,4 @@
-//! Game setup (`setup-reducer.ts`, standard setup): who begins, opening
+//! Game setup (APR G, standard setup): who begins, opening
 //! hands, mulligans, starting Pokémon, prizes, mulligan draws.
 
 use crate::carddb::{def, DefId};
@@ -50,7 +50,7 @@ pub struct SetupFrame {
     pub shown: u8,
 }
 
-/// `DeckAnalyser.isValid` (standard format).
+/// Whether the deck is legal in the Standard format.
 pub fn deck_is_valid(_st: &State, deck: &[DefId]) -> bool {
     if deck.len() != 60 {
         return false;
@@ -114,7 +114,7 @@ fn is_starting_candidate(g: &Game, c: CardId) -> bool {
     d.has_tag(tag::PLAY_DURING_SETUP) || (d.is_pokemon() && d.stage == Stage2Basic::BASIC)
 }
 
-/// `canBenchAtSetup`: a Basic Pokémon, or a non-Pokémon card played during setup (Snorlax Doll, ruling 1478). A
+/// Whether a card can be put on the Bench at setup: a Basic Pokémon, or a non-Pokémon card played during setup (Snorlax Doll, ruling 1478). A
 /// Pokémon that only starts face down as the Active Pokémon (Cinderace's Explosiveness, ruling 1714) can't be Benched
 /// (ruling 264; Advanced Rulebook I-G steps 6 and 7).
 fn can_bench_at_setup(g: &Game, c: CardId) -> bool {

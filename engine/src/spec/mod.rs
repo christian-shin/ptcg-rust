@@ -22,8 +22,8 @@
 //! `pub static IMPL: CardImpl = SPEC.card_impl();`. `build.rs` registers both;
 //! converted and hand-written cards run side by side.
 //!
-//! Parity is on what a player can observe: ops implement the
-//! rules, not Twinleaf's internal plumbing. An item that is declared but not
+//! What a player can observe is the rules' business: ops implement the
+//! rules, nothing else. An item that is declared but not
 //! implemented yet panics when a spec reaches it, so a replay reports it.
 
 pub mod event;
@@ -47,7 +47,7 @@ use crate::cards::CardImpl;
 use crate::effects::{k, KindMask};
 
 pub struct CardSpec {
-    /// Twinleaf behavior class (registry key, as `CardImpl::class`).
+    /// The behavior class (the registry key, as `CardImpl::class`).
     pub class: &'static str,
     pub attacks: &'static [AttackSpec],
     pub powers: &'static [PowerSpec],

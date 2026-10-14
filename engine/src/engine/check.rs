@@ -1,5 +1,4 @@
-//! `check-effect.ts`: knock-outs, prizes, new Active, winner; plus the
-//! check-state reducer for cost and energy checks.
+//! The state check: knock-outs, prizes, new Active, winner; plus the check-state reducer for cost and energy checks.
 
 use crate::effects::*;
 use crate::game::{Game, R};

@@ -1,6 +1,4 @@
-//! Rules enums, numbered exactly as in Twinleaf (`card-types.ts`,
-//! `pokemon-types.ts`, `state.ts`, `play-card-action.ts`) so canonical output
-//! matches byte for byte.
+//! Rules enums. Their numbers are the ones the recorded traces and the canonical state hold, so they stay fixed.
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord, Hash)]
 #[repr(u8)]
@@ -166,7 +164,7 @@ pub enum GamePhase {
     Draw = 8,
 }
 
-/// `GameWinner`: NONE = -1, PLAYER_1 = 0, PLAYER_2 = 1, DRAW = 3.
+/// The winner of the game: NONE = -1, PLAYER_1 = 0, PLAYER_2 = 1, DRAW = 3.
 pub type Winner = i8;
 pub const WINNER_NONE: Winner = -1;
 pub const WINNER_P1: Winner = 0;

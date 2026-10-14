@@ -729,7 +729,7 @@ pub enum SlotPred {
     AnyTool(Pred),
     /// An Energy card with this name is attached.
     HasEnergyNamed(&'static str),
-    /// The Pokémon is evolved (`PokemonCardList.isEvolved()`).
+    /// The Pokémon is evolved.
     Evolved,
     /// The Pokémon is on the side of the player who owns this card.
     OnMySide,

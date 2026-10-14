@@ -1,9 +1,9 @@
 //! Self-play in the Rust engine alone: one game from two decks and a seed,
 //! with a driver policy, an optional scenario (board edits at the first turn
 //! decision on or after `scenario.turn`, scripted `answers`, `expect`
-//! assertions) and an optional trace in the oracle's trace format, which
+//! assertions) and an optional trace in the recorded trace format, which
 //! `diff` replays. Used by `scen` (scenarios) and `fuzz` (fresh-seed
-//! self-play, the oracle-free tier 4).
+//! self-play).
 //!
 //! Every game checks the invariants at each turn decision and
 //! fails on engine errors, stuck prompts and turns without legal options.
@@ -46,7 +46,7 @@ fn last_text(g: &Game) -> String {
     })
 }
 
-/// The oracle runner's caps.
+/// The caps of a game.
 pub const MAX_STEPS: usize = 4000;
 pub const MAX_TURNS: i32 = 120;
 
@@ -59,7 +59,7 @@ pub enum Policy {
 }
 
 impl Policy {
-    /// The oracle's policy names; the oracle's `bot` and `mix:*` have no Rust bot and play `heur`.
+    /// The policy names; the recorded `bot` and `mix:*` have no bot here and play `heur`.
     pub fn parse(s: &str) -> Policy {
         if s == "random" {
             Policy::Random
@@ -105,7 +105,7 @@ pub struct Played {
     pub winner: i8,
 }
 
-/// Deck lines (`"4 Key"` or `"Key"`: international keys, or "Name SET" when unique) to card ids.
+/// Deck lines (a count and an international key, or just the key, or "Name SET" when unique) to card ids.
 pub fn expand_deck(lines: &Value) -> Result<Vec<DefId>, String> {
     let mut out = Vec::new();
     for l in lines.as_array().ok_or("deck: not a list")? {
@@ -226,7 +226,7 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
     Ok(sc)
 }
 
-/// Canonical JSON with sorted keys (the oracle's `stableStringify`).
+/// Canonical JSON with sorted keys .
 pub fn stable(v: &Value) -> String {
     match v {
         Value::Object(o) => {
@@ -244,7 +244,7 @@ fn is_turn_answer(v: &Value) -> bool {
     v.get("a").is_some_and(|a| a.is_string())
 }
 
-/// The oracle runner's `findScriptedByCard`: a scripted play that names its card instead of its
+/// A scripted play that names its card instead of its
 /// instance id (ids depend on the shuffle).
 fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize> {
     if let Some(prefix) = scripted.get("card_prefix").and_then(|x| x.as_str()) {
@@ -269,7 +269,7 @@ fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize
     })
 }
 
-/// A turn option by policy, as the oracle runner's `decideTurn`.
+/// A turn option by policy.
 pub fn pick_turn(opts: &[Action], policy: Policy, rng: &mut Rng) -> usize {
     let kind = |i: usize| action_kind(&opts[i]);
     let pass = (0..opts.len()).find(|&i| kind(i) == "pass");
@@ -319,7 +319,7 @@ impl Picked {
 }
 
 /// A random valid prompt answer from the selection masks; when nothing can be chosen, cancel or an
-/// empty answer if the prompt takes one (the oracle's `randomAnswer` fallbacks).
+/// empty answer if the prompt takes one .
 fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Picked> {
     let picked = (|| {
         let sel = g.select().ok()??;
@@ -370,7 +370,7 @@ fn chance_json(d: &[Draw]) -> Value {
     )
 }
 
-/// The trace being written, in the oracle's format (`runner.ts` `Trace`).
+/// The trace being written.
 struct Rec {
     on: bool,
     steps: Vec<Value>,
@@ -516,7 +516,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                 if opts.is_empty() {
                     return End::Fail(format!("no legal turn options at step {} (turn {})", step, g.st.turn));
                 }
-                // Scripted prompt answers left over: the oracle asked a prompt Rust doesn't (a "you may"
+                // Scripted prompt answers left over: the recording asked a prompt the engine doesn't (a "you may"
                 // with no possible effect), so they have nothing to answer.
                 while script.front().is_some_and(|v| !is_turn_answer(v)) {
                     script.pop_front();

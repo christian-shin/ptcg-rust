@@ -1,4 +1,4 @@
-//! Energy payment checks (`StateUtils.checkEnoughEnergy` and friends).
+//! Energy payment checks: whether Energy can pay a cost, which cards to pay it with.
 
 use crate::effects::{Cost, EnergyEntry, EnergyMap};
 use crate::list::SVec;
@@ -112,7 +112,7 @@ pub fn check_exact_energy(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
     true
 }
 
-/// `StateUtils.checkEnergyPayment`: whether `energy` is an allowed payment for an Energy cost that is discarded or paid by
+/// Whether `energy` is an allowed payment for an Energy cost that is discarded or paid by
 /// choosing Energy cards (Retreat Cost, "discard N Energy"). Ruling 1652 (retreat; Advanced Rulebook C-01 for Ignition
 /// Energy): a number of cards equal to the cost, or a sequence of discards that first met the cost with its last card;
 /// never more cards than the cost.
@@ -198,7 +198,7 @@ fn apply_provides_to_typed_costs(provides: &[CardType], costs: &mut SVec<CardTyp
     }
 }
 
-/// `StateUtils.selectMinimalEnergyForCost`.
+/// The fewest Energy entries of `map` that pay `cost`, or `None` when none do.
 pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) -> Option<SVec<EnergyEntry, 64>> {
     let mut result: SVec<EnergyEntry, 64> = SVec::new();
     if cost.is_empty() {
@@ -257,7 +257,7 @@ pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) ->
     Some(result)
 }
 
-/// `ChooseEnergyPrompt.getCostThatCanBePaid` (used when the prompt can't be cancelled).
+/// The part of `cost` the offered `energy` can pay (used when the choose-Energy prompt can't be cancelled).
 pub fn cost_that_can_be_paid(energy: &EnergyMap, cost: &Cost) -> Cost {
     let mut result = *cost;
     let mut provides: Vec<EnergyEntry> = energy.as_slice().to_vec();

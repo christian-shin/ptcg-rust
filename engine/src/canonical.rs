@@ -1,6 +1,5 @@
-//! Canonical state serialization, identical to the oracle's
-//! `oracle/canonical.ts`: sorted-key JSON, defaults omitted, cards as
-//! `SET-NUMBER#id`, then 64-bit FNV-1a over the UTF-8 text.
+//! Canonical state serialization: sorted-key JSON, defaults omitted, cards as
+//! `SET-NUMBER#id`, then 64-bit FNV-1a over the UTF-8 text. The recorded traces hold this form.
 
 use crate::carddb::def;
 use crate::game::Game;
@@ -273,8 +272,8 @@ impl Game {
             let inst = &self.st.cards[c as usize];
             let d = self.st.cdef(c);
             let mut diff = Map::new();
-            // Fossils (Antique Root Fossil) declare `movedToActiveThisTurn`
-            // but not `damageTakenLastTurn`.
+            // Fossils (Antique Root Fossil) record that they moved to the Active Spot this turn but not the damage
+            // they took last turn.
             if crate::carddb::pokemon_flags(inst.def) & crate::carddb::PF_FOSSIL != 0 && !d.is_pokemon() && inst.moved_to_active_this_turn {
                 diff.insert("movedToActiveThisTurn".into(), json!(true));
             }
@@ -383,8 +382,7 @@ const OBSERVABLE_PLAYER_KEYS: [&str; 7] = ["hand", "discard", "lostzone", "stadi
 const OBSERVABLE_STATE_KEYS: [&str; 4] = ["phase", "turn", "activePlayer", "winner"];
 
 /// The player-observable projection of a canonical state: what
-/// the observable comparator compares. Identical to the oracle's
-/// `observableState` in `oracle/canonical.ts`.
+/// the observable comparator compares.
 pub fn observable_json(can: &Value) -> Value {
     fn pick(src: &Value, keys: &[&str], out: &mut Map<String, Value>) {
         for k in keys {

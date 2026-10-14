@@ -128,7 +128,7 @@ impl<'a> Ctx<'a> {
 
     // --- the derived reads ---------------------------------------------------
 
-    /// The attacks the active player may use (`derived::compute_attacks`) and the list `AttackAction` builds from it.
+    /// The attacks the active player may use (`derived::compute_attacks`) and the list of attack actions built from it.
     pub fn attack_list(&mut self) -> Result<&(turn::CheckedAttacks, SVec<(AttackRef, bool), 64>), ()> {
         if self.attacks.is_none() {
             let g = self.g;

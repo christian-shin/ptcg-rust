@@ -215,7 +215,7 @@ pub fn remove(g: &mut Game, target: SlotRef, condition: SpecialCondition, cause:
 }
 
 /// The Pokémon in `target` recovers from every Special Condition it has except those in `keep` (the ones a card
-/// preserves when it evolves: `CheckSpecialConditionRemoval`): one RemoveCondition each, in the order it got them.
+/// preserves when it evolves): one RemoveCondition each, in the order it got them.
 pub fn recover_all(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8]) -> R {
     let conds = g.st.slot(target.p as usize, target.s).special_conditions;
     for c in conds.iter().copied() {
@@ -228,8 +228,7 @@ pub fn recover_all(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8]) -> 
 
 /// The Pokémon in `target` recovers from every Special Condition it has except those in `keep`, as a consequence the
 /// rules attach to what happened to it, not as an effect: an Active Pokémon moving to the Bench (retreat, any switch;
-/// APR A-03: "it loses all Special Conditions"), evolving (APR A-05; the preserved ones kept,
-/// `CheckSpecialConditionRemoval`) or devolving (APR C-13). One RemoveCondition each, which cards see, but no lock
+/// APR A-03: "it loses all Special Conditions"), evolving (APR A-05; the preserved ones kept) or devolving (APR C-13). One RemoveCondition each, which cards see, but no lock
 /// or prevention is asked: a Benched Pokémon can't have a Special Condition, so a "can't recover" over
 /// RemoveCondition can't keep one there. What an effect removes ("recovers from all Special Conditions", Recover,
 /// a heal that clears them) and the Checkup's recoveries go through [`remove`] / [`recover_all`] and can be refused.

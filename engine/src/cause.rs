@@ -151,7 +151,7 @@ impl Cause {
         matches!(self.kind, CauseKind::Ability)
     }
 
-    /// The effect of an attack of an `AttackEffect` (`Effect::Attack` / `AfterAttack`): the attacking
+    /// The effect of an attack of an attack effect (`Effect::Attack` / `AfterAttack`): the attacking
     /// player, the Pokémon in the attacking slot.
     pub fn of_attack_effect(g: &crate::game::Game, atk: crate::effects::EffId) -> Option<Cause> {
         if atk as usize >= g.fx.len() {

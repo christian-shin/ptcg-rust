@@ -1,8 +1,7 @@
-//! Pokémon TCG rules engine with Twinleaf parity.
+//! Pokémon TCG rules engine.
 //!
-//! See docs/ENGINE.md (local, not in git). The engine mirrors Twinleaf's store
-//! (effects propagated to cards, prompts with continuations) with plain-data
-//! state: a whole game, including pending prompts, is `Copy`.
+//! See docs/ENGINE.md (local, not in git). Effects are propagated to cards and prompts carry continuations, over
+//! plain-data state: a whole game, including pending prompts, is `Copy`.
 
 pub mod canonical;
 pub mod cause;
