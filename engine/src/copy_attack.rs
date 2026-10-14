@@ -253,6 +253,13 @@ impl CopyFrame {
     }
 }
 
+/// The most attacks a Pokémon card of the pool prints (checked against every card definition by a unit test).
+pub const MAX_ATTACKS_PER_CARD: usize = 2;
+
+/// The most attacks a choice of an attack to copy holds: it is among the attacks of at most a full Bench of Pokémon (the Active
+/// Pokémon alone, or the one card of a register, are fewer), each printing at most [`MAX_ATTACKS_PER_CARD`].
+pub const MAX_COPY_CHOICE: usize = crate::state::MAX_BENCH * MAX_ATTACKS_PER_CARD;
+
 /// Is every attack of every Pokémon of the choice blocked (nothing can be chosen)?
 fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> bool {
     !cards.iter().enumerate().any(|(ci, c)| {
@@ -264,20 +271,20 @@ fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> b
 /// The attacks of the choice the copycat could not use now: those whose own printed use restriction is unmet (the attack's
 /// declared preconditions, `spec::run::attack_gate`, the one rule normal attack legality reads: RULES.md "Choose 1 of
 /// [those] attacks and use it as this attack", ids 318, 1930). Energy is not a restriction (APR D-01).
-pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]) -> SVec<(u8, u8), 16> {
-    let mut blocked: SVec<(u8, u8), 16> = SVec::new();
+pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]) -> R<SVec<(u8, u8), MAX_COPY_CHOICE>> {
+    let mut blocked: SVec<(u8, u8), MAX_COPY_CHOICE> = SVec::new();
     for (ci, c) in cards.iter().enumerate() {
         if !g.st.cdef(*c).is_pokemon() {
             continue;
         }
         for i in 0..g.st.cdef(*c).attacks.len() {
             let a = AttackRef { card: *c, index: i as u8 };
-            if matches!(crate::spec::run::attack_gate(g, copycat, a, p), Ok(crate::spec::run::Gate::Closed) | Err(_)) {
+            if crate::spec::run::attack_gate(g, copycat, a, p)? == crate::spec::run::Gate::Closed {
                 blocked.push((ci as u8, i as u8));
             }
         }
     }
-    blocked
+    Ok(blocked)
 }
 
 /// The choice of the attack to copy: the attacks the copycat could not use are blocked; with none left to choose the copying
@@ -286,7 +293,7 @@ pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]
 fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     let p = f.p as usize;
     let pc = f.cards;
-    let blocked = blocked_attacks(g, p, f.copycat, pc.as_slice());
+    let blocked = blocked_attacks(g, p, f.copycat, pc.as_slice())?;
     if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
         return Ok(());
     }
@@ -475,3 +482,15 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
     }
 }
 
+
+#[cfg(test)]
+mod tests {
+    /// The capacity of the blocked list covers the largest choice: no card of the pool prints more than
+    /// `MAX_ATTACKS_PER_CARD` attacks (a choice holds at most a full Bench of Pokémon).
+    #[test]
+    fn no_card_prints_more_attacks_than_the_choice_holds() {
+        for d in crate::gen::cards::CARDS.iter() {
+            assert!(d.attacks.len() <= super::MAX_ATTACKS_PER_CARD, "{}: {} attacks", d.full_name, d.attacks.len());
+        }
+    }
+}
