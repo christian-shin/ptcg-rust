@@ -94,12 +94,11 @@ pub struct PickAttackSpec {
 }
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
-/// (`copy_attack.rs`): no cancel, `retries` attempts when a chosen attack
-/// can't be used. Runs before the damage, with the attack itself.
+/// (`copy_attack.rs`): no cancel, one choice (a copied attack that can't be fully done is still used and ends). Runs before
+/// the damage, with the attack itself.
 pub struct CopyAttackSpec {
     pub from: Who,
     pub predicate: Pred,
-    pub retries: u8,
     pub scope: CopyScope,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -194,6 +193,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::Fail(x) => {
             if !fail_holds(g, me, f, x)? {
+                // A copied attack that can't be done is still used, and ends (RULES.md "A copied attack is the copycat's
+                // only while it is used"): its program stops here, no error.
+                if f.cause.attack.map_or(false, |a| a.is_clone()) {
+                    return Err(crate::game::GameError(crate::copy_attack::COPIED_ATTACK_ENDS));
+                }
                 crate::bail!(x.error);
             }
             Ok(Flow::Next)
@@ -206,7 +210,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 if cards.is_empty() {
                     return Ok(Flow::Next);
                 }
-                crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+                crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &cards, false)?;
                 return Ok(Flow::Next);
             }
             let p = f.who(c.from);
@@ -215,14 +219,14 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 if cards.is_empty() {
                     return Ok(Flow::Next);
                 }
-                crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+                crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &cards, false)?;
                 return Ok(Flow::Next);
             }
             let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
             if !(pred(g, card, &Pred::HasAttacks) && pred(g, card, &c.predicate)) {
                 return Ok(Flow::Next);
             }
-            crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &[card], false, c.retries)?;
+            crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &[card], false)?;
             Ok(Flow::Next)
         }
         Op::EndGame(e) => {

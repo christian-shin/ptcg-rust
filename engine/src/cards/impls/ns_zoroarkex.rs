@@ -12,7 +12,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec {
             from: Who::Me,
             predicate: Pred::All(&[Pred::Tag(crate::types::tag::NS), Pred::Not(&Pred::Name("N's Zoroark ex"))]),
-            retries: 1,
             scope: CopyScope::Bench,
         }))],
     }],

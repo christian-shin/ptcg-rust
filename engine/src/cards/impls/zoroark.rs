@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[
         AttackSpec { index: 0, steps: &[Step::before_damage(damage_is(Num::Mul(&Num::BenchCount(Who::Opp), &Num::Lit(30))))] },
         // Foul Play: choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
-        AttackSpec { index: 1, steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Any, retries: 1 , scope: CopyScope::Active, }))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Any, scope: CopyScope::Active, }))] },
     ],
     ..CardSpec::NONE
 };
