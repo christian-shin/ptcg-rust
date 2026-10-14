@@ -2121,6 +2121,19 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
 /// it holds none.
 pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     let Some(t) = v.slot else { return Ok(false) };
+    // The `Prevent` effects cards declared and put on this Pokémon ("during your opponent's next turn, prevent all damage from and
+    // effects of attacks done to it by ...": Acerola's Mischief): the declaration's `from`, for the card that put it.
+    if g.st.lasting.iter().any(|l| matches!(l.what, crate::state::LastingWhat::Declared { .. })) {
+        for (me, ps, on) in declared_effects(g).iter().copied() {
+            let (crate::state::LastingOn::Pokemon(q, s), Modifier::Prevent(p)) = (on, &ps.modifier) else { continue };
+            if (q, s) != (t.p, t.s) || p.from.is_never() || p.coin || !ranges(&p.from, v.kind) {
+                continue;
+            }
+            if p.from.eval(g, me, v)? {
+                return Ok(true);
+            }
+        }
+    }
     for l in crate::engine::lasting::prevents(&g.st, t.p as usize, t.s).iter() {
         let crate::state::LastingWhat::Prevent { spec, pending } = l.what else { continue };
         let spec = LASTING_PREVENTS[spec as usize];
@@ -3684,7 +3697,7 @@ mod prevent_marker_tests {
         let effects = crate::spec::event::EFFECT_EVENT_KINDS;
         let mut n = 0;
         for s in crate::cards::registry::SPECS.iter() {
-            for p in s.passives {
+            for p in s.passives.iter().chain(s.effects.iter()) {
                 if let Modifier::Prevent(pr) = &p.modifier {
                     if pr.from.is_never() {
                         continue;
@@ -4130,5 +4143,61 @@ mod active_lock_equality_tests {
             }
         }
         assert!(asked > 20, "only {asked} pairs");
+    }
+}
+
+#[cfg(test)]
+mod declared_effects_tests {
+    //! The effects cards declare (`CardSpec::effects`, put by `Op::Declare`) are read by three readers only: the damage
+    //! calculation's Deal and Attack stages (`DamageDealt`), the KnockOut's Prize adjustments (`PrizeAdjust`) and the lasting
+    //! preventions (`Prevent`, on a Pokémon). A declared effect of another kind would never be read.
+    use super::*;
+    use crate::spec::ops::state::{DeclareOn, DeclareSpec};
+
+    fn declares(steps: &'static [Step], out: &mut Vec<&'static DeclareSpec>) {
+        for s in steps {
+            if let Op::Declare(d) = &s.op {
+                out.push(d);
+            }
+            for sel in 0..=8u8 {
+                declares(crate::spec::ops::child(&s.op, sel), out);
+            }
+        }
+    }
+
+    #[test]
+    fn every_declared_effect_is_read_and_put_by_an_op() {
+        let (mut effects, mut puts) = (0, 0);
+        for s in crate::cards::registry::SPECS.iter() {
+            let mut ds = Vec::new();
+            if let Some(p) = &s.play {
+                declares(p.steps, &mut ds);
+            }
+            for pw in s.powers {
+                declares(pw.steps, &mut ds);
+            }
+            for a in s.attacks {
+                declares(a.steps, &mut ds);
+            }
+            for t in s.triggers {
+                declares(t.steps, &mut ds);
+            }
+            for (i, ps) in s.effects.iter().enumerate() {
+                effects += 1;
+                let read = match &ps.modifier {
+                    Modifier::DamageDealt(_) | Modifier::PrizeAdjust(_) | Modifier::Prevent(_) => true,
+                    _ => false,
+                };
+                assert!(read, "{}: declared effect {i} is of a kind no reader of declared effects reads", s.class);
+                assert!(ds.iter().any(|d| d.effect as usize == i), "{}: declared effect {i} is never put", s.class);
+            }
+            for d in ds {
+                puts += 1;
+                let ps = s.effects.get(d.effect as usize).unwrap_or_else(|| panic!("{}: Op::Declare of effect {} the card doesn't declare", s.class, d.effect));
+                // A Prevent is held by a Pokémon (its `protects` is the holder).
+                assert!(!matches!(ps.modifier, Modifier::Prevent(_)) || matches!(d.on, DeclareOn::Pokemon(_)), "{}: a declared Prevent is on a Pokémon", s.class);
+            }
+        }
+        assert!(effects >= 7 && puts >= 7, "{effects} effects, {puts} puts");
     }
 }

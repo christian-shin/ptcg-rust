@@ -44,6 +44,9 @@ impl Game {
                         o.insert("lock".into(), json!(decl.error));
                         o.insert("turns".into(), json!(turns));
                     }
+                    LastingWhat::Recorded => {
+                        o.insert("recorded".into(), json!(true));
+                    }
                     LastingWhat::Declared { index, until } => {
                         o.insert("declared".into(), json!(index));
                         match until {

@@ -3,23 +3,21 @@
 //!
 //! Event: its own LeavePlay to the discard pile (an attached card leaving play, D1), caused by an attack whose Pokémon is the
 //! one it was attached to (`CauseOnSlot`, read on the spot it left), whatever route discards it (an after-damage removal and
-//! Volt Strike's "discard all Energy" included). The trigger marks that Pokémon; the marker stays through a switch. The
+//! Volt Strike's "discard all Energy" included). The trigger records that Pokémon (`Op::Record`); the record stays through a switch. The
 //! re-attach runs in the after-attack window, once the attack's effects and the Energy choices they ask are done and before the
 //! effects that trigger on the Defending Pokémon (Handheld Fan, id2125); the end of the turn is the fallback for a discard no
 //! window followed. It goes back to the Pokémon it was attached to if that Pokémon is still in play, otherwise it stays in the
 //! discard pile. Its Energy origin is judged as it was attached there (`trigger::fires_on`).
 use crate::spec::prelude::*;
 
-const DISCARDED: &str = "BOOMERANG_DISCARDED_MARKER";
-
 /// Attach this card from the discard pile to the Active Pokémon, once, when it was discarded by
 /// an effect of its Pokémon's attack.
 const REATTACH: &[Step] = &[Step::new(Op::If(IfSpec {
-    cond: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::MarkerFromThis(DISCARDED)),
+    cond: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Recorded),
     yes: &[
         // "That Pokémon": the one it was attached to, if it is still in play.
-        Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, onto: Some(SlotExpr::Marked(DISCARDED)), ..AttachSpec::DEFAULT })),
-        Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::EveryPokemon(Who::Me), name: DISCARDED, from: MarkerFrom::This })),
+        Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, onto: Some(SlotExpr::Recorded), ..AttachSpec::DEFAULT })),
+        Step::new(Op::Forget(ForgetSpec::Every(Who::Me))),
     ],
     no: &[],
 }))];
@@ -36,8 +34,8 @@ pub static SPEC: CardSpec = CardSpec {
                 EventPred::Cause(CausePred::Kind(crate::cause::CauseKind::Attack)),
                 EventPred::CauseOnSlot,
             ])),
-            // The marker stays on the Pokémon through a switch (a TrainerEffect source marker is kept).
-            steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: DISCARDED, source: RuleSource::TrainerEffect }))],
+            // The record stays on the Pokémon through a switch.
+            steps: &[Step::new(Op::Record(SlotExpr::Picked))],
         },
         // After the attack's effects (and the Energy choices they ask) are done; the end of the
         // turn is the fallback for a discard no after-attack window followed.
