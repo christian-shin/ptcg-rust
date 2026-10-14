@@ -193,11 +193,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::Fail(x) => {
             if !fail_holds(g, me, f, x)? {
-                // A copied attack that can't be done is still used, and ends (RULES.md "A copied attack is the copycat's
-                // only while it is used"): its program stops here, no error.
-                if f.cause.attack.map_or(false, |a| a.is_clone()) {
-                    return Err(crate::game::GameError(crate::copy_attack::COPIED_ATTACK_ENDS));
-                }
                 crate::bail!(x.error);
             }
             Ok(Flow::Next)
