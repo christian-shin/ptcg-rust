@@ -6,7 +6,9 @@
   ],
   "me": {
     "reset": true,
-    "deck_top": ["7 Water Energy MEE 3", "Palafin ex PRE 151"],
+    "hand_to_deck": true,
+    "prizes": ["Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3"],
+    "deck_top": ["11 Water Energy MEE 3", "Palafin ex PRE 151"],
     "active": ["Finizen TWM 59", "Palafin TWM 60"],
     "active_energy": ["Water Energy MEE 3"],
     "bench": [{"card": "Finizen TWM 59"}]
@@ -18,6 +20,6 @@
   "answers": [
     {"a": "retreat", "bench": 0},
     true,
-    [6]
+    [5]
   ]
 }
