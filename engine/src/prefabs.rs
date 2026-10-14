@@ -1,6 +1,5 @@
-//! Ports of Twinleaf's shared helpers (`game/store/prefabs`), with the same
-//! names in snake case. Helpers that open prompts continue through
-//! [`PrefabCont`], so card ports can reuse them without their own frames.
+//! Helpers shared by card programs and the engine. Helpers that open prompts continue through [`PrefabCont`], so
+//! callers can reuse them without their own frames.
 
 use crate::effects::*;
 use crate::game::{CoinCb, Cont, Game, R};
@@ -46,12 +45,12 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
         PrefabCont::DamageChosen { atk, damage } => {
             let sel = match first {
                 Res::Slots(s) => s,
-                // Not cancellable (`allowCancel: false`), so a result is always given.
+                // Not cancellable, so a result is always given.
                 _ => return Ok(()),
             };
             let t = match sel.get(0) {
                 Some(t) => *t,
-                // A required choice answered with nothing (Twinleaf's JavaScript TypeError string removed, batch 8 C12b).
+                // A required choice answered with nothing: the answer is refused (the legality layer never offers it).
                 None => crate::bail!("INVALID_PROMPT_RESULT"),
             };
             let r = deal_or_put_damage(g, atk, damage, t);
@@ -73,21 +72,21 @@ pub fn my_attack(g: &Game, me: CardId, index: u8) -> AttackRef {
     }
 }
 
-/// `WAS_ATTACK_USED(effect, index, this)`.
+/// Whether the effect is the use of this card's attack number `index`.
 ///
 /// While a copy-attack session runs a source handler for the copycat, the
-/// copycat's attacks are the session's clones (`withTemporaryDelegatedAttacks`).
+/// copycat's attacks are the session's clones.
 pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     let mine = my_attack(g, me, index);
     matches!(*g.e(e), Effect::Attack { attack, .. } if attack == mine)
 }
 
-/// `SURVIVE_ON_TEN_ON_COIN_FLIP(store, state, effect, player, reason)`: when the PutDamageEffect would Knock Out
-/// its target (existing damage plus `effect.damage >=` the CheckHpEffect HP) during an attack, the Pokémon is recorded:
+/// "Remaining HP becomes 10" on a coin flip: when the damage would Knock Out
+/// its target (existing damage plus the damage >= its HP) during an attack, the Pokémon is recorded:
 /// the full damage is done, then the coin is flipped and 10 HP restored AFTER all the damage (ruling 1770,
-/// `resolve_survive_coin_flips`). Outside an attack the coin is flipped right away (`CoinFlipEffect.result`, no
-/// callback: a callback would run after the flip's wait prompt, i.e. after the damage was applied); heads sets
-/// `surviveOnTenHPReason`.
+/// `resolve_survive_coin_flips`). Outside an attack the coin is flipped right away (no
+/// callback: a callback would run after the flip's wait prompt, i.e. after the damage was applied); heads records the
+/// survival.
 pub fn survive_on_ten_on_coin_flip(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc, player: usize, cause: crate::cause::Cause) -> R {
     let (t, damage) = (acc.b.target, acc.damage);
     let hp = crate::derived::hp(g, player, t.s)?;
@@ -133,7 +132,7 @@ pub fn after_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::AfterAttack { attack, .. } if attack == mine)
 }
 
-/// The attack's own AttackEffect behind an AfterAttackEffect (`effect.attackEffect`); any other effect is returned
+/// The attack's own AttackEffect behind an AfterAttack effect; any other effect is returned
 /// as is. A block moved to AfterAttack (effect text asked after the damage) calls this first and then reads the
 /// attack's state as before.
 pub fn real_attack(g: &Game, e: EffId) -> EffId {
@@ -143,9 +142,8 @@ pub fn real_attack(g: &Game, e: EffId) -> EffId {
     }
 }
 
-/// (player, opponent, attack, source) of an AttackEffect, or of the
-/// `new AttackEffect(player, opponent, effect.attack)` that a card builds in an
-/// AfterAttackEffect handler (its source is the player's Active).
+/// (player, opponent, attack, source) of an attack effect, or of
+/// the attack a card builds in an AfterAttack handler (its source is the player's Active).
 pub fn attack_data(g: &Game, e: EffId) -> Option<(u8, u8, AttackRef, SlotRef)> {
     if e as usize >= g.fx.len() {
         return None;
@@ -162,7 +160,7 @@ pub fn was_power_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Power { power, .. } if power == PowerRef { card: me, index })
 }
 
-/// `TRANSFER_POKEMON_CARD_STATE(player, oldCard, newCard)`: a Pokémon switched with another card
+/// The state a Pokémon keeps when a card replaces another: a Pokémon switched with another card
 /// (Transformation Tome, Ogre's Mask, Zero to Hero) is the same Pokémon (ruling 1840): the state
 /// kept on the card object moves to the new card.
 pub fn transfer_pokemon_card_state(g: &mut Game, p: usize, old: CardId, new: CardId) {
@@ -192,8 +190,7 @@ pub fn trainer_played(g: &Game, e: EffId, me: CardId) -> Option<usize> {
     }
 }
 
-/// `player.forEachPokemon(playerType, (cardList, pokemonCard, target) => ...)`:
-/// slots with a Pokémon card, Active first, with their targets.
+/// The slots with a Pokémon card, Active first, with their targets.
 pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(SlotId, CardId, CardTarget), 9> {
     let mut out = SVec::new();
     let pl = &g.st.players[p];
@@ -208,9 +205,9 @@ pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(Sl
     out
 }
 
-/// `ENERGY_CARDS_THAT_PROVIDE_TYPE(store, state, player, cardList, cardType)` (prefabs/costs.ts): the Energy
+/// The Energy
 /// cards attached to the slot that provide `ty` as the Pokémon's Energy provides it right now
-/// (CheckProvidedEnergyEffect); an Energy that provides every type (Legacy Energy, Prism Energy on a Basic Pokémon)
+/// (the Energy the Pokémon provides); an Energy that provides every type (Legacy Energy, Prism Energy on a Basic Pokémon)
 /// is a [R] Energy, a [W] Energy, ... for every "[X] Energy" in card text (Advanced Rulebook D-08).
 pub fn energy_cards_that_provide_type(g: &mut Game, p: usize, s: SlotId, ty: CardType) -> R<SVec<CardId, 64>> {
     let energy_map = crate::derived::provided_energy(g, p, SlotRef::new(p, s))?;
@@ -223,7 +220,7 @@ pub fn energy_cards_that_provide_type(g: &mut Game, p: usize, s: SlotId, ty: Car
     Ok(cards)
 }
 
-/// `BLOCKED_NON_TYPE_ENERGY(...)`: the prompt `blockedMap` indices of the slot's Energy cards that do not provide
+/// The prompt's blocked indices of the slot's Energy cards that do not provide
 /// `ty`; `None` when there is none.
 pub fn blocked_non_type_energy(g: &mut Game, p: usize, s: SlotId, ty: CardType) -> R<Option<Blocked>> {
     let providing = energy_cards_that_provide_type(g, p, s, ty)?;
@@ -241,7 +238,7 @@ pub fn blocked_non_type_energy(g: &mut Game, p: usize, s: SlotId, ty: CardType) 
 // ---------------------------------------------------------------------------
 // Card movement (the events are `engine::cards_zone`'s and `engine::knockout`'s)
 
-/// `SHUFFLE_DECK_AFTER_DAMAGE(store, state, attackEffect, player)`: the Shuffle waits for the attack's damage.
+/// A shuffle of the deck that waits for the attack's damage.
 pub fn shuffle_deck_after_damage(g: &mut Game, atk: EffId, p: usize) {
     if g.after_damage_open(atk) {
         g.push_after_damage(atk, crate::game::AfterDmgStep::Shuffle(p as u8));
@@ -287,8 +284,7 @@ pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: 
     g.prompt(p, message, PromptKind::Confirm, cont);
 }
 
-/// `new ChooseCardsPrompt(player, message, list, filter, options)`, including
-/// the constructor's sort of a non-secret deck or discard.
+/// Asks the player to choose cards from `list`; a non-secret deck or discard is shown sorted.
 pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef, filter: Filter, mut opts: ChooseCardsOpts, cont: Cont) {
     if !opts.is_secret && (list == ListRef::Deck(p as u8) || list == ListRef::Discard(p as u8)) {
         // Blocked indices follow the cards through the sort.
@@ -315,7 +311,7 @@ pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef
 /// `index == PROBE_GENERIC` means a plain Ability with no flags.
 pub const PROBE_GENERIC: u8 = 255;
 
-/// The power type of a (possibly probe) `PowerEffect`.
+/// The power type of a (possibly probe) Power.
 pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
     if power.index == PROBE_GENERIC {
         PowerType::Ability as u8
@@ -393,8 +389,8 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb, cause: c
     crate::engine::condition::flip_sequence(g, p, mode, cb, cause)
 }
 
-/// `ignoresDefenderEffects(effect)`: Shred ("isn't affected by any effects on your opponent's Active
-/// Pokémon"). True for damage by an attack whose `AttackEffect.ignoreDefenderEffects` is set, done to one
+/// Whether the damage ignores the effects on the Defending Pokémon: Shred ("isn't affected by any effects on your opponent's Active
+/// Pokémon"). True for damage by an attack that ignores defender effects, done to one
 /// of the opponent's Pokémon. Effects on the damaged Pokémon (prevention, reduction, extra damage taken,
 /// Tera/Bench protection) must not change it (rulings 1439, 1345, 1490, 1629, 1875); effects on the
 /// attacker, Weakness/Resistance and survive-on-10-HP effects (rulings 936, 1770) still apply.

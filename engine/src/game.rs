@@ -1,9 +1,8 @@
 //! The store: effect propagation, prompts with continuations, dispatch.
 //!
-//! A faithful port of Twinleaf's `Store`. Continuations are data
-//! ([`Cont`]) held in the state, so a game with pending prompts can be cloned
-//! and resumed. Every Twinleaf generator is an explicit frame that is moved
-//! into the continuation of the prompt it yields on.
+//! Continuations are data ([`Cont`]) held in the state, so a game with pending prompts can be cloned and resumed. A
+//! routine that must wait for an answer is an explicit frame that is moved into the continuation of the prompt it
+//! asks.
 
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
@@ -51,13 +50,13 @@ pub enum Cont {
     Reflip(crate::engine::condition::ReflipAsk),
     TrainerCleanup { p: u8, card: CardId },
     ShuffleApply { p: u8 },
-    /// `order => player.deck.applyOrder(order)` with no follow-up wait.
+    /// Applies the shuffled order to the deck, with no follow-up wait.
     ShuffleApplyNoWait { p: u8 },
     Prefab(crate::prefabs::PrefabCont),
     /// Sudden death: first-player coin flip.
     SuddenDeathCoin,
     Card { card: CardId, frame: CardFrame },
-    /// Copy-attack generators (`copy_attack.rs`).
+    /// Copy-attack frames (`copy_attack.rs`).
     CopyAttack(crate::copy_attack::CopyFrame),
     /// A card continuation created by a source card's code running as
     /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
@@ -75,20 +74,20 @@ pub enum Cont {
     SurviveOrder { grp: crate::engine::damage::SurviveGroup },
 }
 
-/// `checkState(..., onComplete)` callbacks.
+/// What happens when a state check completes.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OnComplete {
     None,
-    /// EndTurn: expire KO-time effects, then `startNextTurn`.
+    /// EndTurn: expire KO-time effects, then the next turn starts.
     AfterEndTurn { p: u8 },
-    /// betweenTurns completion: `initNextTurn` unless finished.
+    /// The time between turns is over: the next turn is initialized unless the game is finished.
     InitNextTurn,
     /// The end of player `p`'s attack (attack step 7, Knock Outs checked; `attack::attack_over`): the copied attack ends,
     /// then the end of the turn unless the game is over.
     AfterAttack { p: u8 },
 }
 
-/// Coin flip callbacks (`CoinFlipEffect.callback`).
+/// What happens when a coin flip is resolved.
 #[derive(Clone, Copy, Debug)]
 pub enum CoinCb {
     None,
@@ -127,15 +126,15 @@ pub struct EffSlot {
 pub mod fx_flag {
     /// A non-stacking damage bonus was applied to the attack's damage (Hop's Snorlax; also `passive::DamageAcc::flags`).
     pub const DAMAGE_INCREASED: u8 = 1 << 0;
-    /// `AttackEffect.afterDamageEffects` is defined (the attack's after-damage window is open).
+    /// The attack's after-damage window is open.
     pub const AFTER_DMG_OPEN: u8 = 1 << 2;
-    /// `AttackEffect.attackTriggers` is defined (the attack's step 7 trigger window is open).
+    /// The attack's step 7 trigger window is open.
     pub const TRIGGERS_OPEN: u8 = 1 << 3;
     /// The player took the attack's optional effect (`AttackFlagKind::OptionChosen`).
     pub const OPTION_CHOSEN: u8 = 1 << 4;
 }
 
-/// A step queued in an attack's after-damage window (`prefabs/after-damage.ts`).
+/// A step queued in an attack's after-damage window.
 #[derive(Clone, Copy, Debug)]
 pub enum AfterDmgStep {
     /// An attack's MoveEnergy of `card` from the Pokémon in `from` to the one in `to`, by `cause`, after the damage
@@ -148,7 +147,7 @@ pub enum AfterDmgStep {
     Shuffle(u8),
 }
 
-/// The attack in progress and what it damaged, kept until the Knock Out check (`prefabs/last-attack.ts`).
+/// The attack in progress and what it damaged, kept until the Knock Out check.
 #[derive(Clone, Copy, Debug)]
 pub struct LastAttack {
     /// The attacking player.
@@ -177,7 +176,7 @@ pub const MAX_FX: usize = 48;
 /// Scratch CardLists alive at once (duplicated cards can run one handler several times per effect).
 pub const MAX_TEMPS: usize = 32;
 
-/// Player actions (`game-actions.ts`, `play-card-action.ts`).
+/// Player actions.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
     PlayCard { hand_index: u8, target: CardTarget },
@@ -249,7 +248,7 @@ pub struct Game {
     /// One past the highest staging list ever allocated in this line of play: `copy_from` copies only those (the others
     /// were never written, so nothing reads them).
     pub temp_hw: u8,
-    /// Callbacks referenced by pending `CoinFlipEffect`s.
+    /// Callbacks referenced by pending coin flips.
     pub coin_callbacks: SVec<CoinCb, 16>,
     /// A legality trial (options.rs): work that can't change whether the
     /// action is legal is skipped (`PTCG_VERIFY_LEGAL=1` checks this).
@@ -261,22 +260,22 @@ pub struct Game {
     pub lock_cards: [u64; 4],
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
-    /// Copy-attack sessions (`copyAttackSessions`, module state in Twinleaf).
+    /// The copy-attack sessions open now (an attack that uses another Pokémon's attack as its own).
     pub copy_sessions: SVec<crate::copy_attack::CopySession, 8>,
     pub copy_serial: u8,
     /// Source card code currently running as `.call(copycat)`.
     pub deleg: Option<crate::copy_attack::Deleg>,
-    /// Energy removals waiting for the damage of an attack (`afterDamageEffects`).
+    /// Energy removals waiting for the damage of an attack.
     pub after_dmg: SVec<AfterDmg, 32>,
     /// The effects of the simultaneous-trigger windows waiting to be applied (`engine::order`: the step 7 triggers of the
     /// attack, the Knock Out step 2 effects, the end-of-turn and Checkup effects).
     pub pending: SVec<crate::engine::order::Pending, 32>,
-    /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
+    /// Pokémon that survived this attack's damage with "remaining HP becomes 10".
     pub ten_hp: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
     /// Pokémon (and the owner who flips) whose Tenacious Body / Durable Body coin waits for all the attack's damage
-    /// (ruling 1770; `survive-on-ten.ts`).
+    /// (ruling 1770).
     pub ten_hp_coin: SVec<(SlotRef, u8), 8>,
-    /// `last-attack.ts`: the attack in progress / the last attack, for the Knock Out check.
+    /// The attack in progress / the last attack, for the Knock Out check.
     pub last_attack: Option<LastAttack>,
     /// Attack choices made at step D, before the damage, by spec cards
     ///: read when the effects are carried out after the damage.
@@ -358,9 +357,8 @@ pub(crate) fn verify_cache() -> bool {
     *V.get_or_init(|| ["PTCG_VERIFY_CACHE", "PTCG_VERIFY_LEGAL"].iter().any(|k| std::env::var(k).map_or(false, |v| v == "1")))
 }
 
-/// Prompt constructor work Twinleaf does in the prompt class itself:
-/// `ChooseEnergyPrompt` with `allowCancel: false` reduces its cost to what the
-/// offered Energy can pay (`getCostThatCanBePaid`; idempotent).
+/// Work a prompt does when it is built: a choose-Energy prompt that cannot be cancelled reduces its cost to what the
+/// offered Energy can pay (idempotent).
 fn construct_prompt(g: &Game, kind: PromptKind) -> PromptKind {
     match kind {
         PromptKind::ChooseEnergy { energy, cost, allow_cancel: false } => {
@@ -625,7 +623,7 @@ impl Game {
         }
     }
 
-    /// `OPEN_AFTER_DAMAGE_EFFECTS(attackEffect)`.
+    /// Opens the attack's after-damage and trigger windows.
     pub fn open_after_damage(&mut self, atk: EffId) {
         self.drop_after_damage(atk);
         self.drop_triggers(atk);
@@ -719,7 +717,7 @@ impl Game {
         }
     }
 
-    /// `RUN_AFTER_DAMAGE_EFFECTS(state, attackEffect)`: close the window, then run the queued steps in order.
+    /// Closes the attack's after-damage window, then run the queued steps in order.
     pub fn run_after_damage(&mut self, atk: EffId) -> R {
         if (atk as usize) < self.fx.len() {
             self.fx.as_mut_slice()[atk as usize].flags &= !fx_flag::AFTER_DMG_OPEN;
@@ -855,7 +853,7 @@ impl Game {
     }
 
     /// Continuations created while delegated source code runs belong to the
-    /// source's port (Twinleaf closures capture the source's code).
+    /// source's card, so they resume in the source's code.
     pub fn tag_cont(&self, c: Cont) -> Cont {
         match (self.deleg, c) {
             (Some(d), Cont::Card { card, frame }) if card == d.copycat => Cont::DelegCard { card, source: d.source, serial: d.serial, frame },
@@ -873,7 +871,7 @@ impl Game {
         }
     }
 
-    /// `WaitPrompt` with a continuation.
+    /// A silent wait prompt with a continuation.
     pub fn wait(&mut self, player: usize, cont: Cont) {
         self.prompt(player, "", PromptKind::Wait, cont);
     }
@@ -886,7 +884,7 @@ impl Game {
         Ok(())
     }
 
-    /// `Store.reducePrompt`.
+    /// Resolves the prompt `id` with `result` and runs its group's continuation once every prompt of the group is answered.
     fn reduce_prompt(&mut self, id: u32, result: Res) -> R {
         let pi = match self.prompts.iter().position(|p| p.id == id) {
             Some(i) => i,
@@ -918,8 +916,8 @@ impl Game {
                 // Resolved prompts are no longer needed.
                 self.prompts.retain(|p| !item.ids.contains(&p.id));
                 self.answers.retain(|(x, _)| !item.ids.contains(x));
-                // Twinleaf runs `then` while the item is still queued and
-                // splices it afterwards at the index computed beforehand.
+                // The continuation runs while the item is still queued and the item is removed afterwards, at the
+                // index found beforehand (a continuation may queue prompts of its own).
                 self.run_cont(item.cont, results.as_slice())?;
                 self.items.remove_at(ii);
             }
@@ -1080,7 +1078,7 @@ impl Game {
     // The broadcast: the propagation order computed from the whole board. The dispatch index
     // (`dispatch.rs`) keeps these lists; VERIFY checks every index answer against this.
 
-    /// Cards with a handler for this effect kind, in Twinleaf's `propagateEffect` order (zone order,
+    /// Cards with a handler for this effect kind, in propagation order (zone order,
     /// then stable sort by rank), the slow way: every card of every zone looked up.
     pub(crate) fn propagation_order_slow(&self, class: u16, kind: u32) -> SVec<CardId, 120> {
         let mut set = 0u128;
@@ -1146,7 +1144,7 @@ impl Game {
         cards
     }
 
-    /// `Store.reduceEffect`.
+    /// Reduces one effect: card handlers in propagation order, then the rule's own reducer.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
         // The use of a power with no program writes nothing a fact reads: the derived facts stay fresh through it.
         let read = match *self.e(id) {
@@ -1174,7 +1172,7 @@ impl Game {
             EFFECT_TRACE.with(|v| v.borrow_mut().push(t));
         }
         // A copied attack gives the copycat the attack only: source code run for
-        // the copycat can't use or probe an Ability of the copycat (store.ts).
+        // the copycat can't use or probe an Ability of the copycat.
         if let Effect::Power { card, .. } = *self.e(id) {
             if matches!(self.deleg, Some(d) if d.attacks && d.copycat == card) {
                 return Err(GameError("BLOCKED_BY_EFFECT"));
@@ -1299,7 +1297,7 @@ impl Game {
     // -----------------------------------------------------------------------
     // Dispatch
 
-    /// `AddPlayerAction` for both players; starts setup.
+    /// Adds both players with their decks; starts setup.
     pub fn start(&mut self, decks: [&[crate::carddb::DefId]; 2]) -> R {
         for (p, deck) in decks.iter().enumerate() {
             let base = self.st.n_cards;
@@ -1351,7 +1349,7 @@ impl Game {
         }
     }
 
-    /// Resolve a prompt (`ResolvePromptAction` with a decoded result).
+    /// Resolves a prompt with a decoded result.
     pub fn resolve(&mut self, prompt_index: usize, result: Res) -> R {
         let id = self.prompts.as_slice()[prompt_index].id;
         self.st.bump();
@@ -1378,7 +1376,7 @@ impl Game {
         self.after_dispatch()
     }
 
-    /// A turn action (`Store.reduce`): all-or-nothing.
+    /// A turn action: all-or-nothing.
     pub fn act(&mut self, action: Action) -> R {
         self.act_with(action, true)
     }
@@ -1444,7 +1442,7 @@ impl Game {
         Pending::Stuck
     }
 
-    /// Chance outcome drawn from the internal RNG, as the oracle arbiter does.
+    /// Chance outcome drawn from the internal RNG.
     pub fn draw_chance(&mut self, i: usize) -> Res {
         let pr = self.prompts.as_slice()[i];
         match pr.kind {
@@ -1477,7 +1475,7 @@ impl Game {
 
 }
 
-/// `CardList.applyOrder`: ignored unless `order` is a permutation of the list.
+/// Reorders a list: ignored unless `order` is a permutation of the list.
 pub fn apply_order<L: CardList + ?Sized>(list: &mut L, order: &[u8]) {
     let n = list.len();
     if order.len() != n {

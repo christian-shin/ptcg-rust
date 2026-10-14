@@ -1,8 +1,7 @@
-//! xoshiro128** seeded exactly like the oracle's `game/core/chance.ts`, so
-//! both engines draw identical outcomes from the same seed when draws happen
-//! in the same order.
+//! xoshiro128** seeded from the game's seed: the same seed draws the same outcomes when draws happen in the same
+//! order, which is how a recorded trace replays.
 
-/// One recorded chance outcome (the oracle's `ChanceEvent`).
+/// One recorded chance outcome.
 #[derive(Clone, Debug)]
 pub enum Draw {
     Coin(bool),
@@ -54,7 +53,7 @@ fn take_from_tape(want: impl Fn(&Draw) -> bool) -> Option<Draw> {
 pub struct Rng {
     s: [u32; 4],
     /// Coin results forced by a scenario (bit i = flip i, 1 = heads), used
-    /// before the real stream: the oracle's `Chance.force`.
+    /// before the real stream.
     forced: u32,
     nforced: u8,
     /// Record every real outcome ([`take_recorded`]). Only the game's own generator records, so a
@@ -104,8 +103,8 @@ impl Rng {
 
     /// Fixed outcomes (the all-zero state, which seeding never produces):
     /// every coin is tails, every index 0, every shuffle the identity.
-    /// Legality trials use it in both engines (the oracle's `Chance.trial` /
-    /// `FixedSource`), so whether an option is legal never depends on chance.
+    /// Legality trials use it,
+    /// so whether an option is legal never depends on chance.
     pub const fn zero() -> Rng {
         Rng { s: [0; 4], forced: 0, nforced: 0, rec: false }
     }
@@ -136,7 +135,7 @@ impl Rng {
         (v % n as u64) as u32
     }
 
-    /// True for [`Rng::zero`]: a legality trial (the oracle's `Chance.inTrial`).
+    /// True for [`Rng::zero`]: a legality trial.
     #[inline]
     pub fn is_fixed(&self) -> bool {
         self.s == [0; 4]
@@ -169,7 +168,7 @@ impl Rng {
         self.below(2) == 0
     }
 
-    /// Fisher–Yates permutation of `0..n`, as `RngSource.shuffle`.
+    /// Fisher–Yates permutation of `0..n`.
     pub fn shuffle(&mut self, n: usize, out: &mut [u8]) {
         for (i, o) in out.iter_mut().enumerate().take(n) {
             *o = i as u8;
@@ -208,7 +207,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn matches_oracle_stream() {
+    fn matches_recorded_stream() {
         // Values produced by the TypeScript Rng(1): first shuffle of 60 from
         // the tier-1 trace (seed 1) starts 20,33,8,5,2,...
         let mut r = Rng::new(1);

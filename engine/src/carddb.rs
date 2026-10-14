@@ -145,7 +145,7 @@ impl CardDef {
 
 pub type DefId = u16;
 
-/// `pokemon_flags` bits: a Pokémon card; treated as one by `getPokemons()` (fossils, dolls).
+/// `pokemon_flags` bits: a Pokémon card; treated as one when the Pokémon of a slot are listed (fossils, dolls).
 pub const PF_POKEMON: u8 = 1;
 pub const PF_FOSSIL: u8 = 2;
 

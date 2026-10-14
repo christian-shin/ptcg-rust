@@ -536,7 +536,7 @@ fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_R
     Ok((out, by_hp))
 }
 
-/// `winConditionMet`: `check_winner` would end the game or start a Tiebreaker (a player has no Pokémon in
+/// Whether `check_winner` would end the game or start a Tiebreaker (a player has no Pokémon in
 /// play, an Active spot waiting for a promotion from the Bench does not count, or no Prize cards left).
 fn win_condition_met(g: &Game) -> bool {
     (0..2).any(|i| {
@@ -546,7 +546,7 @@ fn win_condition_met(g: &Game) -> bool {
     })
 }
 
-/// `knockOutPendingBeforeWinner`: a Knock Out effect at step 2 (Maractus JTG's Explosive Needle) can put counters
+/// Knock Outs pending before the winner is determined: a Knock Out effect at step 2 (Maractus JTG's Explosive Needle) can put counters
 /// on a Pokémon that is then Knocked Out in a further round. Every effect has to resolve before the winner is
 /// determined, so that round's Knock Outs and Prizes count before the game ends (rulings 1577, 1584, 1403).
 fn knock_out_pending_before_winner(g: &mut Game, f: &CheckFrame) -> R<bool> {
@@ -1074,9 +1074,8 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
     Ok(())
 }
 
-/// `initiateSuddenDeath`: a Tiebreaker game is a new game (Advanced Player's Rulebook I-E; rulings 234, 820, 1403,
-/// 1487). Every zone, the tools and the Supporter back to the deck (PokemonCardList.moveTo semantics, so attached
-/// energies are pushed twice), a fresh Player for everything else (Pokémon slots, Prize lists, per-turn and
+/// A Tiebreaker game is a new game (Advanced Player's Rulebook I-E; rulings 234, 820, 1403,
+/// 1487). Every zone, the tools and the Supporter back to the deck, a fresh Player for everything else (Pokémon slots, Prize lists, per-turn and
 /// per-game flags), the card instance flags and the last attacks reset, shuffle, then flip for the first player.
 fn initiate_sudden_death(g: &mut Game) -> R {
     for p in 0..2u8 {
@@ -1132,7 +1131,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
     Ok(())
 }
 
-/// `setupSuddenDeathGame`.
+/// Sets up the Tiebreaker game: `first` takes the first turn.
 pub fn setup_sudden_death_game(g: &mut Game, first: u8) -> R {
     g.st.active_player = first;
     g.st.turn = 0;

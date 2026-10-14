@@ -1,7 +1,5 @@
-//! Effects: one variant per Twinleaf effect class (same names), carrying
-//! indices instead of object references. Effects live in the store's arena
-//! and are addressed by [`EffId`] so continuations can share them the way
-//! Twinleaf closures share effect objects.
+//! Effects: one variant per kind of game event, carrying indices instead of object references. Effects live in the
+//! store's arena and are addressed by [`EffId`] so continuations can share them.
 
 use crate::cause::Cause;
 use crate::list::*;
@@ -74,7 +72,7 @@ pub struct EnergyEntry {
     pub provides: SVec<CardType, 4>,
 }
 
-/// 64: a long stall can pile more than 32 Energy on one Pokémon (Twinleaf has no cap; a deck holds 60 cards).
+/// 64: a long stall can pile more than 32 Energy on one Pokémon (a deck holds 60 cards).
 pub type EnergyMap = SVec<EnergyEntry, 64>;
 /// Room for Rillaboom (TWM) mirrors: every copy in the game adds a [C].
 pub type Cost = SVec<CardType, 16>;
@@ -91,10 +89,10 @@ pub struct ResistanceV {
     pub value: i32,
 }
 
-/// Fields shared by every `AbstractAttackEffect`.
+/// Fields shared by every attack effect.
 #[derive(Clone, Copy, Debug)]
 pub struct AtkBase {
-    /// The originating `AttackEffect`.
+    /// The originating attack effect.
     pub attack_effect: EffId,
     pub player: u8,
     pub opponent: u8,
@@ -132,7 +130,7 @@ pub enum Effect {
     BeginTurn { p: u8 },
     EndTurn { p: u8 },
     BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32 },
-    /// `atk` is the attack's own AttackEffect (`AfterAttackEffect.attackEffect`): effect text asked after the damage keeps
+    /// `atk` is the attack's own AttackEffect : effect text asked after the damage keeps
     /// the attack's state through it.
     AfterAttack { p: u8, opp: u8, attack: AttackRef, atk: EffId },
     /// Sent once everything the attack did (AfterAttack, prompts included) is resolved.
@@ -142,13 +140,13 @@ pub enum Effect {
     // ---- game ----
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
     RetreatStart { p: u8 },
-    /// `delegate_from`: `UseAttackEffect.delegateFrom` (copy-attack source card).
+    /// `delegate_from`: the copy-attack source card.
     /// `second_attack`: the second attack of the turn of a Pokémon that may attack again (Festival Lead); no third is offered.
     UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, second_attack: bool, delegate_from: Option<CardId> },
     UseStadium { p: u8, stadium: CardId },
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
     Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
-    /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
+    /// `ignore_defender_effects`: (Shred: effects on the damaged
     /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
     Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, second_attack: bool },
     /// The KnockOut event (events batch 6; `engine::knockout`): the Pokémon in `target` of player `p` is Knocked Out
@@ -249,7 +247,7 @@ pub enum Effect {
 }
 
 impl Effect {
-    /// Twinleaf `effect.type` string.
+    /// The effect kind's name in the recorded traces.
     pub fn type_name(&self) -> &'static str {
         use Effect::*;
         match self {

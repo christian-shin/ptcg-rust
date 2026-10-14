@@ -1427,7 +1427,7 @@ pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) ->
 // ---------------------------------------------------------------------------
 // Costs
 
-/// `AttackCost` of `me`: its change to the cost being computed (`check::AttackCostAcc`; the derived layer's
+/// `AttackCost` of `me`: its change to the cost being computed (the derived layer's
 /// `attack_cost`).
 pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::CostAcc) -> R {
     let (p, attack) = (acc.p as usize, acc.attack.expect("an attack's cost"));
@@ -1474,7 +1474,7 @@ pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, 
     Ok(())
 }
 
-/// `RetreatCost` of `me`: its change to the Retreat Cost being computed (`check::RetreatCostAcc`; the derived layer's
+/// `RetreatCost` of `me`: its change to the Retreat Cost being computed (the derived layer's
 /// `retreat_cost`).
 pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::CostAcc) -> R {
     let p = acc.p as usize;

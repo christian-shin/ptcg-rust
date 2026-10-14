@@ -1,5 +1,4 @@
-//! Attacks and abilities: the `useAttack` / `usePower` generators from
-//! `game-effect.ts` and the attack sub-effect reducer (`attack-effect.ts`).
+//! Attacks and Abilities: using an attack (APR E) or an Ability, and the effect of an attack on the Defending Pokémon.
 
 use crate::effects::*;
 use crate::energy;
@@ -32,11 +31,11 @@ pub struct AttackFrame {
     pub p: u8,
     pub attack: AttackRef,
     pub attacking: SlotRef,
-    /// The `AttackEffect` (live in the arena for the whole attack).
+    /// The attack effect (live in the arena for the whole attack).
     pub atk: EffId,
-    /// The effect that started this generator (UseAttack or Attack).
+    /// The effect that started this routine (UseAttack or Attack).
     pub origin: EffId,
-    /// `UseAttackEffect.delegateFrom`: the copy-attack source card.
+    /// The copy-attack source card, when the attack is a copied one.
     pub delegate_from: Option<CardId>,
 }
 
@@ -134,8 +133,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
     f.atk = atk;
     let copycat = g.st.slot_pokemon(p, f.attacking.s);
     if let (Some(src), Some(copycat)) = (f.delegate_from, copycat) {
-        // runDelegatedCopiedAttackGenerator: the AttackEffect above is never
-        // reduced; the copied attack runs as a clone, then the animation.
+        // The attack effect above is never reduced; the copied attack runs as a clone, then the animation.
         f.stage = AtkStage::AfterAnimation;
         return crate::copy_attack::run_delegated_from_use_attack(g, f, copycat, src);
     }
@@ -262,7 +260,7 @@ fn attack_triggers_loop(g: &mut Game, mut f: AttackFrame) -> R {
 /// `now`, also whether it holds now: its Ability working and its condition (Festival Grounds in play), read when the
 /// second attack would be offered (JP FAQ Dipplin / Flutter Mane x3: the first attack Knocks Out the Active Flutter Mane
 /// whose Midnight Fluttering turned Festival Lead off: it may; a Flutter Mane promoted after the Knock Out turns it off:
-/// it may not). Batch 8 C12c: Twinleaf stamped a flag on the attack before its damage.
+/// it may not).
 pub fn attack_twice(g: &mut Game, f: &AttackFrame, now: bool) -> bool {
     let p = f.p as usize;
     let Some(card) = g.st.slot_pokemon(f.attacking.p as usize, f.attacking.s) else { return false };
@@ -299,9 +297,8 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
 
 /// The end of player `p`'s attack: attack step 7, "Checking for Knock Outs" (APR D: a Knock Out is checked "at the end
 /// of an attack"; APR E: the game ends "as soon as" a player wins), then the end of the turn (E-21: "after an attack has
-/// been completed"), which never comes when the attack ended the game. Twinleaf ended the turn first and checked the
-/// attack's Knock Outs in the end-of-turn state check (removed in batch 8 C12b: an end-of-turn effect, Ignition Energy's
-/// discard, happened after a game-winning attack).
+/// been completed"), which never comes when the attack ended the game (so an end-of-turn effect, e.g. an Energy's
+/// discard at the end of the turn, does not happen after a game-winning attack).
 pub fn attack_over(g: &mut Game, p: usize) -> R {
     crate::engine::knockout::state_check(g, crate::game::OnComplete::AfterAttack { p: p as u8 })
 }

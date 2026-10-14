@@ -1,4 +1,4 @@
-//! `play-card-reducer.ts` and `player-turn-reducer.ts`. Changing the Active Pokémon is the ChangeActive event
+//! Playing cards and the actions of a turn. Changing the Active Pokémon is the ChangeActive event
 //! (`engine::change_active`).
 
 use crate::effects::*;
@@ -87,7 +87,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
 }
 
 /// The attacks the active player may use (`derived::attacks`): the attack list and the ones copied from a Benched
-/// Pokémon (`copiedAttacks`).
+/// Pokémon.
 pub type CheckedAttacks = (SVec<AttackRef, 32>, SVec<AttackRef, 32>);
 
 /// Attacks available to the active player, as the AttackAction reducer builds them, from the read
@@ -113,7 +113,7 @@ pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64
 }
 
 /// The attack named `name` (from the Benched Pokémon `from`, when copied by Memory Helix) in the list, as the
-/// `AttackAction` reducer finds it.
+/// attack action finds it.
 pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, from: Option<&'static str>) -> Option<(AttackRef, bool)> {
     attacks
         .iter()

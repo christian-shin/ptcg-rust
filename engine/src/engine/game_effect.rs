@@ -1,4 +1,4 @@
-//! `game-effect.ts` (gameReducer).
+//! The game-level reducer: effects on the game itself and on a slot's records.
 
 use crate::effects::*;
 use crate::engine::attack;
@@ -26,7 +26,7 @@ pub fn apply_weakness_and_resistance(damage: i32, types: &[CardType], weakness: 
     damage * multiply + modifier
 }
 
-/// `resetEmptyPokemonSlot`: spot `s` of player `p` keeps its cards and whether it is public; everything else on it,
+/// Spot `s` of player `p` keeps its cards and whether it is public; everything else on it,
 /// its lasting effects included, ends.
 pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
     let slot = &mut st.players[p].slots[s as usize];
@@ -53,7 +53,7 @@ pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
     crate::engine::lasting::clear_declared(st, p, s);
 }
 
-/// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
+/// Clears the effects on a Pokémon for the modeled fields, except the Special Conditions: a Pokémon that stays in
 /// play recovers from them through RemoveCondition events (`engine::condition::recover_by_rule`, called first by
 /// every caller), and one leaving play loses them with it (the LeavePlay reducer, `engine::knockout`). The lasting
 /// effects on it end but the cost increases and the next-turn bonus (`lasting::clear_effects`).
@@ -66,7 +66,7 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
     crate::engine::lasting::clear_effects(st, p, s);
 }
 
-/// `PokemonCardList.removeAttackEffects()` for the modeled fields: every lasting effect on the Pokémon ends.
+/// Ends the effects of attacks on a Pokémon for the modeled fields: every lasting effect on the Pokémon ends.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let slot = &mut st.players[p].slots[s as usize];
     slot.healed_this_turn = false;

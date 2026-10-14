@@ -1,5 +1,5 @@
 //! Scenario `expect` assertions: rules outcomes a scenario asserts about the
-//! Rust engine's state (the oracle ignores the key). Evaluated by `diff` at
+//! engine's state (a recorded trace ignores the key). Evaluated by `diff` at
 //! the end of the scenario turn (`turn_end`, after the attack and Knock Outs,
 //! before Pokémon Checkup) or at the first turn decision of the next turn
 //! (`next_turn`, after Checkup). Format: docs/ENGINE.md, "Scenarios and expect" (local).

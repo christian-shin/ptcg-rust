@@ -1,8 +1,7 @@
-//! Prompts: the decision taxonomy (Twinleaf `game/store/prompts`).
+//! Prompts: the decision taxonomy.
 //!
-//! `describe` emits the same canonical descriptor as the oracle's
-//! `describePrompt`; `decode` turns a raw wire answer into a resolved value,
-//! applying the same validation as `prompt.decode` + `prompt.validate`.
+//! `describe` emits a prompt's canonical descriptor (the form the recorded traces hold); `decode` turns a raw wire
+//! answer into a resolved value, validating it.
 
 use crate::carddb::CardDef;
 use crate::effects::{Cost, EnergyEntry, EnergyMap, SlotRef};
@@ -29,7 +28,7 @@ impl Blocked {
     }
 }
 
-/// Partial-card filter (`FilterType`), keys in insertion order.
+/// Partial-card filter: a card matches when it has every key given.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Filter {
     pub super_type: Option<u8>,
@@ -39,9 +38,9 @@ pub struct Filter {
     pub card_type: Option<CardType>,
     pub tags: Option<u32>,
     pub name: Option<&'static str>,
-    /// `evolvesFrom` (compared with `!==`; non-Pokémon never match).
+    /// The name of the Pokémon it evolves from (non-Pokémon never match).
     pub evolves_from: Option<&'static str>,
-    /// `cardType` was given as a one-element array (`cardType: [T]`).
+    /// The card type was given as a one-element list (the descriptor writes it as a list).
     pub card_type_list: bool,
 }
 
@@ -52,7 +51,7 @@ impl Filter {
     pub fn super_type(s: SuperType) -> Filter {
         Filter { super_type: Some(s as u8), ..Default::default() }
     }
-    /// `matchesPromptFilter`.
+    /// Whether the card matches the filter.
     pub fn matches(&self, d: &CardDef) -> bool {
         if let Some(v) = self.super_type {
             if d.super_type != v {
@@ -346,7 +345,7 @@ pub struct PromptRec {
     pub partial: bool,
 }
 
-/// Decoded prompt result (what Twinleaf stores in `prompt.result`).
+/// A decoded prompt result.
 #[derive(Clone, Copy, Debug)]
 pub enum Res {
     Null,
@@ -369,15 +368,15 @@ pub enum Res {
     /// PutDamagePrompt: (target, damage).
     DamageMap(SVec<(CardTarget, i32), 16>),
     /// Move/RemoveDamagePrompt: (from, to, count). One entry per run of identical
-    /// consecutive transfers: Twinleaf's resolver answers with one transfer per
+    /// consecutive transfers: a wire answer holds one transfer per
     /// damage counter (32 and more in one answer), so the list is run-length
     /// encoded; [`damage_transfers`] expands it back to one pair per transfer.
     DamageTransfers(SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS>),
     Attack(AttackRef),
 }
 
-/// Runs of a decoded Move/RemoveDamagePrompt answer (the bot's answers have at
-/// most one run per from/to Pokémon, 17 at the most; the oracle's random
+/// Runs of a decoded move- or remove-damage-counters answer (recorded answers have at
+/// most one run per from/to Pokémon, 17 at the most; the random
 /// policy and the agent interface answer with at most 12 transfers).
 pub const MAX_DAMAGE_RUNS: usize = 32;
 
@@ -479,7 +478,7 @@ impl PromptRec {
 // ---------------------------------------------------------------------------
 // Target helpers
 
-/// Resolve a `CardTarget` relative to player `p` (`StateUtils.getTarget`).
+/// Resolves a `CardTarget` relative to player `p`.
 pub fn get_target(st: &State, p: usize, t: CardTarget) -> Result<SlotRef, GameError> {
     let q = if t.player == PlayerType::TopPlayer { 1 - p } else { p };
     match t.slot {
@@ -492,7 +491,7 @@ pub fn get_target(st: &State, p: usize, t: CardTarget) -> Result<SlotRef, GameEr
     }
 }
 
-/// In-play targets for (playerType, slots) relative to `p`, in oracle order.
+/// In-play targets for (playerType, slots) relative to `p`, Active first.
 pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<CardTarget> {
     let mut out = Vec::new();
     let sides: &[PlayerType] = match pt {
@@ -591,7 +590,7 @@ impl Game {
         }
     }
 
-    /// Canonical descriptor (`describePrompt` in the oracle).
+    /// The prompt's canonical descriptor.
     pub fn describe_prompt(&self, pr: &PromptRec) -> Value {
         let mut base = serde_json::Map::new();
         base.insert("kind".into(), json!("prompt"));
@@ -760,7 +759,7 @@ impl Game {
         }
     }
 
-    /// `ChooseCardsPrompt` answer from the indices into the offered list (`None`: not an index).
+    /// A choose-cards prompt's answer from the indices into the offered list (`None`: not an index).
     pub(crate) fn decode_choose_cards(&self, cards: ListRef, filter: &Filter, o: &ChooseCardsOpts, partial: bool, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let o = &ChooseCardsOpts { min: if partial { 0 } else { o.min }, ..*o };
@@ -777,7 +776,7 @@ impl Game {
         }
     }
 
-    /// `ChoosePokemonPrompt` answer from the chosen targets (`None`: not a target).
+    /// A choose-Pokémon prompt's answer from the chosen targets (`None`: not a target).
     pub(crate) fn decode_choose_pokemon(&self, pr: &PromptRec, targets: impl Iterator<Item = Option<CardTarget>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -806,7 +805,7 @@ impl Game {
         Ok(Res::Slots(out))
     }
 
-    /// `ChoosePrizePrompt` answer from the indices among the remaining prizes.
+    /// A choose-Prize prompt's answer from the indices among the remaining prizes.
     pub(crate) fn decode_choose_prize(&self, pr: &PromptRec, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -840,7 +839,7 @@ impl Game {
         Ok(Res::Prizes(out))
     }
 
-    /// `ChooseEnergyPrompt` answer from the indices into the offered Energy.
+    /// A choose-Energy prompt's answer from the indices into the offered Energy.
     pub(crate) fn decode_choose_energy(&self, energy: &EnergyMap, cost: &Cost, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let mut out: SVec<EnergyEntry, 64> = SVec::new();
@@ -858,7 +857,7 @@ impl Game {
         }
     }
 
-    /// `chooseCardsSelectionValid`.
+    /// Whether the chosen cards are a valid selection: the count, the filter, the blocked ones.
     pub fn choose_cards_valid(&self, cards: &[CardId], result: &[CardId], filter: &Filter, o: &ChooseCardsOpts) -> bool {
         if result.len() < o.min as usize || result.len() > o.max as usize {
             return false;
@@ -918,12 +917,12 @@ impl Game {
 }
 
 /// A discard prompt whose filter asks for Pokémon Tools chooses attached Tools (across Pokémon)
-/// instead of Energy (`isToolFilter` in discard-energy-prompt.ts).
+/// instead of Energy.
 pub fn is_tool_filter(f: &Filter) -> bool {
     f.super_type == Some(SuperType::Trainer as u8) && f.trainer_type == Some(TrainerType::Tool as u8)
 }
 
-/// `ChooseCardsPrompt.getCardType`.
+/// The card type a choose-cards prompt shows for a card.
 fn choose_cards_card_type(d: &CardDef) -> CardType {
     if d.is_energy() {
         return d.provides.first().copied().unwrap_or(ct::NONE);
@@ -976,7 +975,7 @@ fn target_from(v: &Value, key: &str) -> Option<CardTarget> {
 }
 
 impl Game {
-    /// `energySources` in the oracle: slots and energy card indices offered.
+    /// The slots and Energy card indices offered as sources.
     pub fn energy_sources(&self, p: usize, pt: PlayerType, slots: &[u8], filter: &Filter, o: &MoveOpts) -> Vec<(CardTarget, Vec<u8>)> {
         let mut out = Vec::new();
         for from in slot_targets(&self.st, p, pt, slots) {
@@ -1124,7 +1123,7 @@ impl Game {
     }
 
     /// The longest answer the energy / damage prompt kinds take: longer ones are rejected, not a panic
-    /// (only reachable from agents; no oracle answer comes close, except the bot's Move damage answers,
+    /// (only reachable from agents; no recorded answer comes close, except the move-damage answers,
     /// which are run-length encoded).
     pub(crate) fn extra_cap(kind: &PromptKind) -> usize {
         match kind {
@@ -1165,7 +1164,7 @@ impl Game {
         })
     }
 
-    /// `AttachEnergyPrompt` answer from (target, index into the offered list) pairs.
+    /// An attach-Energy prompt's answer from (target, index into the offered list) pairs.
     pub(crate) fn decode_attach(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let PromptKind::AttachEnergy { cards, o, .. } = pr.kind else { return Err(invalid) };
@@ -1229,7 +1228,7 @@ impl Game {
         Ok(Res::Attach(out))
     }
 
-    /// `DiscardEnergyPrompt` answer from (slot, index) pairs.
+    /// A discard-Energy prompt's answer from (slot, index) pairs.
     pub(crate) fn decode_discard_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -1259,7 +1258,7 @@ impl Game {
         Ok(Res::CardsFrom(out))
     }
 
-    /// `MoveEnergyPrompt` answer from (from, to, index) triples.
+    /// A move-Energy prompt's answer from (from, to, index) triples.
     pub(crate) fn decode_move_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -1285,7 +1284,7 @@ impl Game {
         Ok(Res::Transfers(out))
     }
 
-    /// `PutDamageCountersPrompt` answer from (target, damage) pairs.
+    /// A put-damage-counters prompt's answer from (target, damage) pairs.
     pub(crate) fn decode_put_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, i32)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -1316,7 +1315,7 @@ impl Game {
         Ok(Res::DamageMap(out))
     }
 
-    /// `MoveDamageCountersPrompt` / `RemoveDamageCountersPrompt` answer from one (from, to) pair per counter.
+    /// A move- or remove-damage-counters prompt's answer from one (from, to) pair per counter.
     pub(crate) fn decode_move_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = pr.player as usize;
@@ -1391,7 +1390,7 @@ impl Game {
         Ok(Res::DamageTransfers(out))
     }
 
-    /// `OrderCardsPrompt` answer: the new order as indices into the list (`None`: not an index).
+    /// An order-cards prompt's answer: the new order as indices into the list (`None`: not an index).
     pub(crate) fn decode_order(&self, pr: &PromptRec, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let PromptKind::OrderCards { cards, .. } = pr.kind else { return Err(invalid) };
@@ -1403,8 +1402,7 @@ impl Game {
         if v.len() != n {
             return Err(invalid);
         }
-        // The oracle checks `s.sort()` against 0..n, and `sort()` orders numbers as strings: only for up
-        // to ten cards is a permutation sorted into 0..n.
+        // The wire answer of an order-cards prompt is a permutation of 0..n; only up to ten cards are accepted.
         let mut seen = [false; 10];
         if n > 10 || v.iter().any(|x| *x >= n || std::mem::replace(&mut seen[*x], true)) {
             return Err(invalid);

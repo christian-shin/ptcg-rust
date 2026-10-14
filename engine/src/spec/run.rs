@@ -423,7 +423,7 @@ fn list_at(spec: &'static CardSpec, f: &Frame) -> &'static [Step] {
 /// The cause of card `me`'s program `prog` run for player `p` (events design, section 3), from what
 /// starts it:
 /// - an attack: `Attack`, the attacking Pokémon (`me`, also the copycat of a copied attack), the attack of
-///   the frame's `AttackEffect`;
+///   the frame's attack effect;
 /// - a Trainer: its own kind (Item / Supporter: `Trainer`, Tool, Stadium); used as the effect of an attack
 ///   (Look-Alike Show): that attack, the Pokémon that used it;
 /// - an Ability: `Ability`; the Stadium's use: `Stadium`;

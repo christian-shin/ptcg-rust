@@ -2,8 +2,7 @@
 //! tools at every turn decision.
 //!
 //! Every check here must hold in any reachable state of a correct game. A
-//! violation that the oracle shares (the state hash still matches) is a card
-//! bug in both engines, e.g. a card duplicated into two zones.
+//! violation is a card or engine bug, e.g. a card duplicated into two zones.
 
 use crate::game::{Game, Pending};
 use crate::list::CardList;

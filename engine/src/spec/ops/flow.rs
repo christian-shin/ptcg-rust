@@ -275,7 +275,7 @@ pub(crate) fn resume(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results:
             let branch = (0..c.options.len()).filter(|i| mask & (1 << i) != 0).nth(idx.max(0) as usize);
             match branch {
                 Some(i) if idx >= 0 => Ok(if c.options[i].body.is_empty() { Flow::Next } else { Flow::Enter(i as u8) }),
-                // An answer outside the offered options (Twinleaf's JavaScript TypeError string removed, batch 8 C12b).
+                // An answer outside the offered options is refused (the legality layer never offers one).
                 _ => crate::bail!("INVALID_PROMPT_RESULT"),
             }
         }

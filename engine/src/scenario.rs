@@ -1,8 +1,6 @@
-//! Scenarios: the board edits of the oracle's `scenario.ts`, applied at the
-//! same point of a replay (the first turn decision on or after
-//! `scenario.turn`) with the same primitives, so a trace that starts from a
-//! crafted position replays like any other. Keep this file and scenario.ts
-//! identical; the format is documented there and in docs/ENGINE.md (local).
+//! Scenarios: board edits, applied at the same point of a replay (the first turn decision on or after
+//! `scenario.turn`), so a trace that starts from a crafted position replays like any other. The format is documented
+//! in docs/ENGINE.md (local).
 //! Scripted `answers` need nothing here: the trace records every answer.
 
 use crate::engine::game_effect::reset_empty_slot;
@@ -13,7 +11,7 @@ use crate::state::{ListRef, SlotId};
 use crate::types::SpecialCondition;
 use serde_json::Value;
 
-/// `scenarioTurn`: the turn the edits wait for (default 2).
+/// The turn the edits wait for (default 2).
 pub fn scenario_turn(sc: &Value) -> i32 {
     sc["turn"].as_i64().unwrap_or(2) as i32
 }
@@ -89,7 +87,7 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
     Ok(())
 }
 
-/// `resetPlayer`: everything back to the deck, every slot emptied (bench first, then Active).
+/// Everything back to the deck, every slot emptied (bench first, then Active).
 fn reset_player(g: &mut Game, p: usize) {
     let pu = p as u8;
     let deck = ListRef::Deck(pu);
@@ -238,7 +236,7 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
     Ok(())
 }
 
-/// `applyScenario`: `me` is the player whose turn it is.
+/// Applies a scenario's edits: `me` is the player whose turn it is.
 pub fn apply(g: &mut Game, sc: &Value) -> Result<(), String> {
     let me = g.st.active_player as usize;
     // Resets first (both players), so later edits see the cleared board.

@@ -673,7 +673,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 }
 
 /// What evolving does to the Pokémon: it keeps its Energy, Tools and damage counters, and loses its Special
-/// Conditions (except the ones a card preserves: `CheckSpecialConditionRemoval`) and the effects on it; it is a
+/// Conditions (except the ones a card preserves) and the effects on it; it is a
 /// new Pokémon for once-per-turn Abilities (id317) and has none of the old card's card-bound facts (id2265).
 /// Rare Candy counts as evolving (id1045).
 fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause) -> R {

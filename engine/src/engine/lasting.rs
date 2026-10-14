@@ -411,7 +411,7 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
     });
 }
 
-/// The effects of attacks on the Pokémon end (`removeAttackEffects`): every lasting effect of an attack on it.
+/// The effects of attacks on the Pokémon end: every lasting effect of an attack on it.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
     let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer() || matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)).collect();

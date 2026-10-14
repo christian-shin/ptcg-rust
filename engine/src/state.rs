@@ -1,9 +1,8 @@
 //! Game state: plain `Copy` data, no heap. Cloning is a memcpy.
 //!
-//! Mirrors Twinleaf's `State` / `Player` / `PokemonCardList` / `CardList`,
-//! keeping only fields that rules or pool cards read or write. Pokémon slots
-//! live in a per-player arena so a slot keeps its identity when it moves
-//! between the Active Spot and the Bench (Twinleaf swaps the objects).
+//! The game, its players, their Pokémon slots and card lists, keeping only fields that rules or pool cards read or
+//! write. Pokémon slots live in a per-player arena so a slot keeps its identity when it moves between the Active Spot
+//! and the Bench.
 
 use crate::carddb::{def, CardDef, DefId, PF_FOSSIL, PF_POKEMON};
 use crate::list::*;
@@ -15,12 +14,11 @@ pub const MAX_SLOTS: usize = 9;
 pub const MAX_SLOT_REFS: usize = 2 * MAX_SLOTS;
 pub const MAX_BENCH: usize = 8;
 
-/// Zone lists hold up to 120: Twinleaf can duplicate cards (energies of a
-/// fully moved Pokémon slot are pushed twice), so zones may exceed 60.
+/// Zone lists hold up to 120 cards, twice a deck's 60: headroom no legal game uses (a card is in one zone only).
 pub type Deck = ZoneList<120>;
 pub type SlotId = u8;
 
-/// `PokemonCardList`: one board slot.
+/// One board slot: the Pokémon, its attachments, damage and conditions.
 #[derive(Clone, Copy, Debug)]
 pub struct Slot {
     pub cards: ZoneList<60>,
@@ -35,12 +33,12 @@ pub struct Slot {
     /// The turn the Pokémon in this spot came into play: put into play, evolved or devolved (APR A-05,
     /// C-13; id2229). Slot-bound (events design 4.5). No permission rewrites it: permissions lift limits
     /// (`Modifier::Permit`) instead. The one record of the fact: evolution timing, "played this turn"
-    /// (`SlotPred::PlayedThisTurn`), the observation and the canonical JSON (`pokemonPlayedTurn`) read it. The
+    /// (`SlotPred::PlayedThisTurn`), the observation and the canonical JSON read it. The
     /// Pokémon set up before the first turn count as entering on their owner's first turn (1 or 2,
     /// `setup::finish`).
     pub entered_turn: i32,
     pub sleep_flips: i32,
-    /// `attacksThisTurn` (absent until first written).
+    /// The attacks this Pokémon used this turn (absent until first written).
     pub attacks_this_turn: Option<i32>,
     pub healed_this_turn: bool,
     /// An effect Knocked this Pokémon Out ("is Knocked Out", "Knock Out ..."; `engine::knockout::by_effect`): it is
@@ -246,10 +244,10 @@ pub struct Player {
     pub supporter: ZoneList<8>,
     pub prizes: [ZoneList<4>; 6],
     pub prize_count: u8,
-    /// Prize `CardList.isSecret == false` (Cresselia SFA turns one public);
-    /// all prize lists start secret.
+    /// The Prize card is public (Cresselia SFA turns one public);
+    /// all Prize cards start secret.
     pub prize_public: [bool; 6],
-    /// Prize `CardList.faceUpPrize` (canonical `faceUpPrizes`).
+    /// The Prize card is face up.
     pub prize_face_up: [bool; 6],
     pub slots: [Slot; MAX_SLOTS],
     pub slot_used: [bool; MAX_SLOTS],
@@ -330,7 +328,7 @@ impl Player {
     pub fn bench_slot(&self, i: usize) -> &Slot {
         &self.slots[self.bench.as_slice()[i] as usize]
     }
-    /// `forEachPokemon` order: active, then bench in order (occupied only).
+    /// The occupied slots: the Active Spot, then the Bench in order.
     pub fn in_play(&self) -> SVec<SlotId, MAX_SLOTS> {
         let mut out = SVec::new();
         if !self.slots[self.active as usize].cards.is_empty() {
@@ -379,7 +377,7 @@ pub struct AttackRef {
     /// Card instance that owns the attack object.
     pub card: CardId,
     /// Attack index; with [`AttackRef::CLONE`] set it is a copy-attack
-    /// clone (`cloneAttacks`, see `copy_attack.rs`): bits 4..6 hold the
+    /// clone (see `copy_attack.rs`): bits 4..6 hold the
     /// session serial, bits 0..3 the index into `card`'s attacks.
     pub index: u8,
 }
@@ -410,14 +408,13 @@ pub struct State {
     pub n_cards: u8,
     pub skip_opponent_turn: bool,
     pub last_attack: Option<AttackRef>,
-    /// Indexed by player index (Twinleaf keys by player id).
+    /// Indexed by player index.
     pub player_last_attack: [Option<(AttackRef, CardId)>; 2],
-    /// `playerLastAttack[player].turn` (phase 4b): `state.turn` when it was set.
+    /// The turn on which each player's last attack was set.
     pub player_last_attack_turn: [i32; 2],
     pub is_sudden_death: bool,
     pub bench_size_change_handled: bool,
-    /// Players Twinleaf actually added (an invalid deck finishes the game
-    /// before its AddPlayerAction adds the player).
+    /// The players added to the game (an invalid deck finishes the game before its player is added).
     pub players_added: u8,
     pub ability_lock_order_counter: u16,
     /// Events batch 8: a counter bumped by every write to the game (the event routines, the physical moves, every
@@ -591,7 +588,7 @@ impl State {
 
     // ---- PokemonCardList queries --------------------------------------
 
-    /// `getPokemons()`.
+    /// The Pokémon cards of a slot (the Pokémon on it, fossils and dolls that count as one included).
     pub fn slot_pokemons(&self, p: usize, s: SlotId) -> SVec<CardId, 8> {
         let slot = self.slot(p, s);
         let mut out = SVec::new();
@@ -604,7 +601,7 @@ impl State {
         out
     }
 
-    /// `getPokemonCard()`: the top Pokémon of the slot (the last Pokémon card of its list: scanned from the end).
+    /// The top Pokémon of the slot (the last Pokémon card of its list: scanned from the end).
     #[inline]
     pub fn slot_pokemon(&self, p: usize, s: SlotId) -> Option<CardId> {
         let slot = self.slot(p, s);
@@ -635,7 +632,7 @@ impl State {
         self.slot_pokemon(p, self.players[p].active)
     }
 
-    /// Where a card currently is (for `findCardList` style lookups): the first of the Active Spot, deck, discard pile,
+    /// Where a card currently is (for lookups): the first of the Active Spot, deck, discard pile,
     /// hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes of player 0, then of player 1, that holds it (a Tool is
     /// in none). Answered from the hint [`State::at`] when the card is still there, else by the scan.
     #[inline]
@@ -746,7 +743,7 @@ impl State {
         None
     }
 
-    /// `StateUtils.findPokemonSlot`: slot whose cards, energies or tools contain `c`.
+    /// The slot whose cards, energies or tools contain `c`.
     pub fn find_pokemon_slot(&self, c: CardId) -> Option<(usize, SlotId)> {
         for p in 0..2 {
             let pl = &self.players[p];
@@ -809,7 +806,7 @@ impl Default for State {
     }
 }
 
-/// Address of a card list (Twinleaf passes `CardList` objects around).
+/// Address of a card list.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ListRef {
     Deck(u8),

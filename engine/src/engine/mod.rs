@@ -1,5 +1,4 @@
-//! Built-in rules, ported from Twinleaf `game/store/reducers` and
-//! `game/store/effect-reducers`.
+//! The built-in rules: one module per rule or phase of the game.
 
 pub mod apply;
 pub mod attach;

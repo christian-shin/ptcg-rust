@@ -69,9 +69,9 @@ pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions
     Ok(())
 }
 
-/// The checked reads of a retreat: the effective cost (`CheckRetreatCost`)
+/// The checked reads of a retreat: the effective cost
 /// and, when the cost isn't empty, the Energy the Active Pokémon provides
-/// (`CheckProvidedEnergy`; the map is empty otherwise, as no read is run).
+/// (the map is empty otherwise, as no read is run).
 pub fn retreat_read(g: &mut Game, p: usize) -> R<(Cost, EnergyMap)> {
     let active = g.st.players[p].active;
     let cost = crate::derived::retreat_cost(g, p)?;
@@ -114,7 +114,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     // Interchangeable Energy cards (each provides the same) paid in one way only: which of them is discarded can't change
     // the game, nothing is asked. Paid in two ways, as many cards as the cost or until the units are met (id2127, n1652:
     // "you could discard either 1 or 2 Double Turbo Energy"; never more cards than the cost), the retreat asks (user
-    // decision 2026-10-13, batch 8 C12d: Twinleaf's all-provides-identical shortcut counted map entries, not cards).
+    // decision 2026-10-13; the cards are counted, not the entries of the Energy map).
     if let Some(cards) = energy::only_payment(map.as_slice(), cost.as_slice()) {
         pay(g, p, active, &cards, move_to)?;
         return retreat_pokemon(g, p, bench_index);
@@ -155,7 +155,7 @@ fn pay(g: &mut Game, p: usize, active: crate::state::SlotId, cards: &[CardId], t
     crate::engine::knockout::leave_play_cards_by_rule(g, SlotRef::new(p, active), cards, zone, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8))
 }
 
-/// `new CheckRetreatCostEffect(player)`: the Active Pokémon's printed Retreat
+/// The Active Pokémon's printed Retreat
 /// Cost, plus one [C] per point of retreatCostIncreaseNextTurn (Rillaboom's
 /// Drum Beating), which is part of the base cost so a "no Retreat Cost" effect
 /// still wins.

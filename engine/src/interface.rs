@@ -3,9 +3,8 @@
 //! `max_count` and an explicit `option` list; the agent answers with option
 //! indices.
 //!
-//! Answers are translated to Twinleaf wire answers and go through the same
-//! decode + validate path as oracle traces, so the interface cannot accept
-//! anything the rules engine would reject.
+//! Answers are translated to the wire answers of the recorded traces and go through the same decode + validate path,
+//! so the interface cannot accept anything the rules engine would reject.
 
 use crate::game::{Action, Game, GameError, Pending, R};
 use crate::options::TurnOption;
@@ -133,7 +132,7 @@ pub struct SelectData {
 }
 
 impl SelectData {
-    /// The oracle wire answer for option indices `chosen` (the `a` field of a
+    /// The wire answer for option indices `chosen` (the `a` field of a
     /// trace step), for prompt selects.
     pub fn wire_answer(&self, chosen: &[usize]) -> Result<Value, GameError> {
         raw_answer(self, chosen)
@@ -174,7 +173,7 @@ enum Source {
 }
 
 /// The wire answer of one option. The common kinds are kept typed so a pick can be decoded without
-/// building JSON; [`Wire::json`] makes the value the oracle's trace has.
+/// building JSON; [`Wire::json`] makes the value a trace holds.
 #[derive(Clone, Debug)]
 enum Wire {
     /// An index into the prompt's list.
@@ -698,7 +697,7 @@ impl Game {
     }
 }
 
-/// Twinleaf wire answer for option indices `chosen` of a prompt select.
+/// The wire answer (the form a recorded trace holds) for option indices `chosen` of a prompt select.
 fn raw_answer(sel: &SelectData, chosen: &[usize]) -> Result<Value, GameError> {
     let (vals, shape) = match &sel.source {
         Source::Prompt(_, vals, shape) => (vals, shape),
