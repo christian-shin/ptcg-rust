@@ -95,8 +95,8 @@ pub struct Ctx<'a> {
     types: SVec<((u8, u8), crate::game::R<SVec<CardType, 4>>), { crate::state::MAX_SLOT_REFS }>,
     retreat: [Option<crate::game::R<Cost>>; 2],
     attack_cost: SVec<((u8, AttackRef), crate::game::R<Cost>), 16>,
-    powers: SVec<((u8, CardId), crate::game::R<SVec<PowerRef, 8>>), 16>,
-    abil: SVec<((u8, CardId, u8), bool), 48>,
+    powers: SVec<(CardId, crate::game::R<SVec<PowerRef, 8>>), 16>,
+    abil: SVec<((CardId, u8), bool), 48>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
     /// The readers' card lists of the decision (`decl::OrderCache`).
@@ -228,22 +228,22 @@ impl crate::derived::Facts for Ctx<'_> {
         }
         r
     }
-    fn powers(&mut self, p: usize, card: CardId) -> crate::game::R<SVec<PowerRef, 8>> {
-        if let Some((_, r)) = self.powers.iter().find(|(k, _)| *k == (p as u8, card)) {
+    fn powers(&mut self, card: CardId) -> crate::game::R<SVec<PowerRef, 8>> {
+        if let Some((_, r)) = self.powers.iter().find(|(k, _)| *k == card) {
             return *r;
         }
-        let r = crate::derived::compute_powers(self, p, card);
+        let r = crate::derived::compute_powers(self, card);
         if self.powers.len() < self.powers.capacity() {
-            self.powers.push(((p as u8, card), r));
+            self.powers.push((card, r));
         }
         r
     }
-    fn has_no_ability(&mut self, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-        let k = (p as u8, card, power_index.unwrap_or(crate::prefabs::PROBE_GENERIC));
+    fn has_no_ability(&mut self, card: CardId, power_index: Option<u8>) -> bool {
+        let k = (card, power_index.unwrap_or(crate::prefabs::PROBE_GENERIC));
         if let Some((_, r)) = self.abil.iter().find(|(x, _)| *x == k) {
             return *r;
         }
-        let r = crate::derived::compute_has_no_ability(self, p, card, power_index);
+        let r = crate::derived::compute_has_no_ability(self, card, power_index);
         if self.abil.len() < self.abil.capacity() {
             self.abil.push((k, r));
         }
@@ -338,9 +338,9 @@ impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
         let Ok(map) = self.provided(slot.s) else { return Ok(false) };
         Ok(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
     }
-    fn ability_gone(&mut self, p: usize, power: crate::effects::PowerRef, card: CardId) -> bool {
+    fn ability_gone(&mut self, power: crate::effects::PowerRef, card: CardId) -> bool {
         debug_assert_eq!(power.card, card);
-        crate::derived::Facts::has_no_ability(self, p, card, Some(power.index))
+        crate::derived::Facts::has_no_ability(self, card, Some(power.index))
     }
 }
 
@@ -385,7 +385,6 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
         }
         Action::Attack { name, from } => fast_attack(ctx, name, from),
         Action::UseAbility { name, target } => fast_ability(ctx, name, target),
-        Action::UseTrainerAbility { .. } => ctx.none("trainer ability"),
         Action::UseStadium => fast_use_stadium(ctx),
         Action::Retreat { bench_index } => fast_retreat(ctx, bench_index),
     }
@@ -551,7 +550,7 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
     }
     // The powers the card has now (in a game with an Ability lock).
     if g.kinds_present.has(k::DECLARES_ABILITY_LOCK) {
-        match crate::derived::Facts::powers(ctx, p, card) {
+        match crate::derived::Facts::powers(ctx, card) {
             Ok(after) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                 Some(r) => power = *r,
                 None => return Some(false),

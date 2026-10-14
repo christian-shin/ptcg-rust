@@ -5,11 +5,11 @@
 //! one it was attached to (`CauseOnSlot`, read on the spot it left), whatever route discards it (an after-damage removal and
 //! Volt Strike's "discard all Energy" included). The trigger records that Pokémon (`Op::Record`); the record stays through a switch. The
 //! re-attach runs in the after-attack window, once the attack's effects and the Energy choices they ask are done and before the
-//! effects that trigger on the Defending Pokémon (Handheld Fan, id2125); the end of the turn is the fallback for a discard no
-//! window followed. It goes back to the Pokémon it was attached to if that Pokémon is still in play, otherwise it stays in the
+//! effects that trigger on the Defending Pokémon (Handheld Fan, id2125). It goes back to the Pokémon it was attached to if that Pokémon is still in play, otherwise it stays in the
 //! discard pile. Its Energy origin is judged as it was attached there (`trigger::fires_on`): at its own LeavePlay, and afterwards
 //! through the record of its Pokémon. The after-attack window is the `AttackDone` event (the attack routine makes it; "after
-//! attacking") of its owner's attack.
+//! attacking") of its owner's attack: every attack that is used raises it once its effects are done, an attack that ends the
+//! game or Knocks Out its own Pokémon included (the Knock Outs are checked after it, APR D; `engine::attack`).
 use crate::spec::prelude::*;
 
 /// Attach this card from the discard pile to the Active Pokémon, once, when it was discarded by
@@ -39,10 +39,8 @@ pub static SPEC: CardSpec = CardSpec {
             // The record stays on the Pokémon through a switch.
             steps: &[Step::new(Op::Record(SlotExpr::Picked))],
         },
-        // After the attack's effects (and the Energy choices they ask) are done; the end of the
-        // turn is the fallback for a discard no after-attack window followed.
+        // After the attack's effects (and the Energy choices they ask) are done.
         Trigger { origin: RuleSource::Energy, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::AttackDone), EventPred::Owner(Who::Me)])), steps: REATTACH },
-        Trigger { origin: RuleSource::Energy, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: REATTACH },
     ],
     ..CardSpec::NONE
 };

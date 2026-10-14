@@ -64,7 +64,7 @@ pub trait ActionChecks {
     /// Can the Pokémon in `slot` pay the cost of `attack` (the checked cost against the Energy it provides)?
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool>;
     /// Has `card` (player `p`'s) lost the Ability `power` to an Ability lock (`derived::has_no_ability`)?
-    fn ability_gone(&mut self, p: usize, power: PowerRef, card: CardId) -> bool;
+    fn ability_gone(&mut self, power: PowerRef, card: CardId) -> bool;
 }
 
 impl ActionChecks for Game {
@@ -81,8 +81,8 @@ impl ActionChecks for Game {
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool> {
         crate::engine::attack::attack_payable(self, slot.p as usize, attack, slot)
     }
-    fn ability_gone(&mut self, p: usize, power: PowerRef, card: CardId) -> bool {
-        crate::engine::attack::power_use_blocked(self, p, power, card)
+    fn ability_gone(&mut self, power: PowerRef, card: CardId) -> bool {
+        crate::engine::attack::power_use_blocked(self, power, card)
     }
 }
 
@@ -116,7 +116,7 @@ pub fn ability_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, power: Powe
     if let Err(e) = crate::engine::turn::can_use_ability_core(c.game(), power, zone) {
         return Ok(Some(e.0));
     }
-    if c.ability_gone(p, power, card) {
+    if c.ability_gone(power, card) {
         return Ok(Some("CANNOT_USE_POWER"));
     }
     let v = ability_view(c.game(), p, power, card);

@@ -161,7 +161,7 @@ pub enum Side {
 pub enum NonStack {
     /// "The effect of <Ability> doesn't stack" (Bouffalant SCR 119's Curly Wall: "only 1 Curly Wall applies"): one
     /// application per damage per Ability name, whichever card declares it. The accumulator records the declaring
-    /// Ability's name (`DamageAcc::applied`).
+    /// Ability's name (`DamageAcc::applied`, by `PowerDef::name_id`).
     SameAbility,
 }
 
@@ -958,7 +958,7 @@ fn locate_slow(st: &crate::state::State, me: CardId, origin: RuleSource) -> Opti
 /// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
 pub(crate) fn blocked<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
     match origin {
-        RuleSource::Ability => g.has_no_ability(at.owner, me, None),
+        RuleSource::Ability => g.has_no_ability(me, None),
         RuleSource::Tool => g.tool_off(at.owner, me),
         RuleSource::Energy => match at.held {
             Some(_) => crate::derived::special_energy_off(g.g(), me),
@@ -1043,7 +1043,7 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
     let player = target.p as usize;
     let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
     // Whether the Ability works is a fact about its own Pokémon, whoever owns the Pokémon whose Weakness is read.
-    if g.has_no_ability(at.owner, me, None) {
+    if g.has_no_ability(me, None) {
         return Ok(None);
     }
     if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
@@ -1080,14 +1080,14 @@ pub struct DamageAcc {
     pub survive: bool,
     /// The non-stacking bonus already applied (`fx_flag::DAMAGE_INCREASED`).
     pub flags: u8,
-    /// The names of the Abilities whose non-stacking reduction already applied to this damage (`NonStack::SameAbility`).
-    pub applied: SVec<&'static str, 4>,
+    /// The Abilities (`PowerDef::name_id`) whose non-stacking reduction already applied to this damage (`NonStack::SameAbility`).
+    pub applied: SVec<u16, 4>,
 }
 
-/// The name of the Ability the passive of the card `me` is (a `NonStack::SameAbility` declaration keys on it).
-fn declaring_ability(g: &Game, me: CardId) -> &'static str {
-    let d = g.st.cdef(me);
-    d.powers.iter().find(|p| p.power_type == PowerType::Ability as u8).map_or(d.name, |p| p.name)
+/// The printed name (`PowerDef::name_id`) of the Ability the passive of the card `me` is (a `NonStack::SameAbility`
+/// declaration keys on it); none when the card has no Ability.
+fn declaring_ability(g: &Game, me: CardId) -> Option<u16> {
+    g.st.cdef(me).powers.iter().find(|p| p.power_type == PowerType::Ability as u8).map(|p| p.name_id)
 }
 
 /// `DamageDealt` at the Attack stage, over the `Attack` effect ("this attack does N more damage" before it is dealt).
@@ -1288,7 +1288,7 @@ fn damage_taken_prelude(
 /// `DamageTaken` of `me`: the defender-side modifier on the damage being calculated (step 5).
 pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageTakenSpec, acc: &mut DamageAcc) -> R {
     let Some((b, _)) = damage_taken_prelude(g, me, acc.b, origin, d.side, &d.subject, &d.source, &d.guard, d.from_any_attack)? else { return Ok(()) };
-    let ability = d.nonstacking.map(|NonStack::SameAbility| declaring_ability(g, me));
+    let ability = d.nonstacking.and_then(|NonStack::SameAbility| declaring_ability(g, me));
     if let Some(name) = ability {
         if acc.applied.iter().any(|n| *n == name) {
             return Ok(());
@@ -1566,8 +1566,9 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
 
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
 fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
-    let owner = locker_owner(g.g(), me, l.locker);
-    let Some(owner) = owner else { return Ok(false) };
+    if locker_owner(g.g(), me, l.locker).is_none() {
+        return Ok(false);
+    }
     let slot = match g.g().st.locate(card) {
         None => return Ok(pred(g.g(), card, &l.missing)),
         Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
@@ -1587,7 +1588,7 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
     }
     match l.probe {
         LockerProbe::Generic => {
-            if !slot_pred_m(g, me, slot, &l.slot)? || g.has_no_ability(owner, me, None) {
+            if !slot_pred_m(g, me, slot, &l.slot)? || g.has_no_ability(me, None) {
                 return Ok(false);
             }
         }
@@ -1597,7 +1598,7 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
             }
             let power = crate::effects::PowerRef { card: me, index: i };
             // CAN_APPLY_LOCKER_ABILITY: a real use of the locker's power must not be blocked.
-            if power_blocked(g, owner, power, me, false) {
+            if power_blocked(g, power, me, false) {
                 return Ok(false);
             }
         }
@@ -2308,7 +2309,7 @@ pub(crate) fn event_lock_blocks<F: crate::derived::Facts>(g: &mut F, me: CardId,
     if !b.lock.forbids.eval(g, me, v)? {
         return Ok(None);
     }
-    if b.ability && !source_ability_on(g, at.owner, me) {
+    if b.ability && !source_ability_on(g, me) {
         return Ok(None);
     }
     // A lock of an opponent's Ability on an event done to a Pokémon: a continuous effect done to that Pokémon.
@@ -2321,15 +2322,15 @@ pub(crate) fn event_lock_blocks<F: crate::derived::Facts>(g: &mut F, me: CardId,
 }
 
 /// Does the lock source `me` have its Ability (`derived::has_no_ability`, the lock pass)?
-fn source_ability_on<F: crate::derived::Facts>(g: &mut F, owner: usize, me: CardId) -> bool {
-    !g.has_no_ability(owner, me, None)
+fn source_ability_on<F: crate::derived::Facts>(g: &mut F, me: CardId) -> bool {
+    !g.has_no_ability(me, None)
 }
 
 /// The lock pass for one use of a power (what the `Power` effect's handlers decided; a lock probe when `probe`, a real
 /// use otherwise): is it blocked? A copied attack's source code, run for the copycat, can't use the copycat's own
 /// Abilities; otherwise each Ability lock of the game (`Game::lock_cards`, any zone: each checks where its source is) is
 /// asked, undelegated as the card handlers were. A blocked answer of one lock, or an error of its reads, blocks.
-pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, _p: usize, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
+pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
     if matches!(g.g().deleg, Some(d) if d.attacks && d.copycat == card) {
         return true;
     }
@@ -2364,7 +2365,7 @@ pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, _p: usize, powe
 
 /// The powers player `p`'s Pokémon card `card` has now: its printed ones, less those each Ability lock of the game takes
 /// away, in the propagation order of the powers a Pokémon has (`game::PROP_POWERS_NOW`).
-pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, _p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
+pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
     let mut powers: SVec<crate::effects::PowerRef, 8> = SVec::new();
     for i in 0..g.g().st.cdef(card).powers.len() {
         powers.push(crate::effects::PowerRef { card, index: i as u8 });
@@ -2798,15 +2799,15 @@ fn lock_beats<F: crate::derived::Facts>(g: &mut F, a: CardId, s: CardId) -> R<bo
 
 /// Does the source of lock `p` have its Ability (it is in place, `owner`'s)? Probed as the lock itself does.
 /// A Stadium has none to turn off.
-fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive, owner: usize) -> bool {
+fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive) -> bool {
     if p.origin != RuleSource::Ability {
         return true;
     }
-    let real = |g: &mut F, index: u8| !power_blocked(g, owner, crate::effects::PowerRef { card: c, index }, c, false);
+    let real = |g: &mut F, index: u8| !power_blocked(g, crate::effects::PowerRef { card: c, index }, c, false);
     match &p.modifier {
         Modifier::ActiveLock(_) => real(g, 0),
         Modifier::AbilityLock(l) => match l.probe {
-            LockerProbe::Generic => !g.has_no_ability(owner, c, None),
+            LockerProbe::Generic => !g.has_no_ability(c, None),
             LockerProbe::OwnPower(i) => real(g, i),
             LockerProbe::StadiumOnSlot => true,
         },
@@ -2930,8 +2931,8 @@ fn lock_sync_now(g: &mut Game) {
         for c in sources.iter().copied() {
             let mut holds = false;
             for p in lock_passives(g, c) {
-                if let Some(owner) = lock_position(g, c, p) {
-                    holds |= lock_has_ability(g, c, p, owner);
+                if lock_position(g, c, p).is_some() {
+                    holds |= lock_has_ability(g, c, p);
                 }
             }
             let stamp = g.st.cards[c as usize].lock_stamp;
@@ -2990,7 +2991,9 @@ fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: &Acti
         return Ok(false);
     }
     // Only a source in its place locks (a card anywhere else, a deck or a list of cards being looked at, is none).
-    let Some(owner) = active_lock_owner(g.g(), me, l) else { return Ok(false) };
+    if active_lock_owner(g.g(), me, l).is_none() {
+        return Ok(false);
+    }
     if !active_lock_covers(g, me, l, card)? {
         return Ok(false);
     }
@@ -2998,7 +3001,7 @@ fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: &Acti
     if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
         return Ok(false);
     }
-    Ok(!power_blocked(g, owner, own, me, false))
+    Ok(!power_blocked(g, own, me, false))
 }
 
 fn active_lock(g: &mut Game, me: CardId, e: EffId, l: &ActiveLockSpec) -> R {
@@ -3270,7 +3273,7 @@ mod play_lock_tests {
     fn ability_off(g: &Game, card: CardId) -> Option<bool> {
         let mut c = Box::new(*g);
         let owner = c.st.locate(card).and_then(|l| l.owner()).unwrap_or_else(|| c.st.owner(card));
-        Some(crate::derived::has_no_ability(&mut c, owner, card, None))
+        Some(crate::derived::has_no_ability(&mut c, card, None))
     }
 
     /// The lock answer for player `p` playing the Trainer `card` from the hand (the PlayTrainer event).
@@ -3821,7 +3824,7 @@ mod attached_lock_tests {
             P::All(qs) | P::OneOf(qs) => qs.iter().all(layout_pred),
             P::Any | P::False | P::Pokemon | P::Basic | P::Energy | P::BasicEnergy | P::Trainer | P::Item | P::Supporter
             | P::Tool | P::Stadium | P::Name(_) | P::Tag(_) | P::Stage(_) | P::NameContains(_) | P::StageIs(_)
-            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::PokemonEx | P::PokemonV | P::SpecialEnergy | P::PrintsAbility | P::HasAbilityNamed(_) => true,
+            | P::PokemonType(_) | P::RuleBox | P::PokemonEx | P::PokemonV | P::SpecialEnergy | P::PrintsAbility | P::HasAbilityNamed(_) => true,
             _ => false,
         }
     }
