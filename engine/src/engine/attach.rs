@@ -491,18 +491,20 @@ mod tests {
         }
     }
 
-    /// Ignition Energy is discarded at the end of the turn it is attached by any route (its marker was set by the
-    /// attach effect only, which the raw-move routes didn't produce).
+    /// Ignition Energy attached to one of your Pokémon is discarded at the end of your turn, whatever route attached it (APR
+    /// E-21; the card's own text, no record of the attaching).
     #[test]
-    fn ignition_energy_marker_on_every_route() {
+    fn ignition_energy_is_discarded_at_the_end_of_the_turn_on_every_route() {
         let mut g = game(json!({"me": {"reset": true, "active": DURA, "discard": [IGNITION]}, "opp": {"reset": true, "active": DURA}}));
         let me = g.st.active_player as usize;
         let e = copy_in(&g, me, IGNITION, ListRef::Discard(me as u8));
         let a = active(&g, me);
         assert!(attach(&mut g, e, a, ability(me)).unwrap());
         g.settle().ok();
-        let id = crate::markers::marker_id("IGNITION_ENERGY_MARKER").unwrap();
-        assert!(g.st.players[me].marker.has(id));
+        assert!(g.st.slot(me, a.s).energies.contains(e), "attached");
+        crate::engine::phase::end_turn_event(&mut g, me).unwrap();
+        assert!(g.st.players[me].discard.contains(e), "discarded at the end of the turn");
+        assert!(!g.st.slot(me, a.s).energies.contains(e));
     }
 
     /// Team Rocket's Energy can only be attached to a Team Rocket's Pokémon, and is discarded at the move when it

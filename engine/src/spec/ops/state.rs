@@ -189,9 +189,10 @@ pub struct ArmEachSpec {
 pub enum DeclareOn {
     /// A player ("during this turn, attacks used by your Pokémon ...": a Trainer's effect is on its player, APR C-19).
     Player(Who),
-    /// This Pokémon ("this turn, attacks used by this Pokémon ...": an Ability's effect on its own Pokémon, APR C-15): it ends
-    /// with the Pokémon's effects (evolving, devolving, leaving play).
-    ThisPokemon,
+    /// A Pokémon ("this turn, attacks used by this Pokémon ...": an Ability's effect on its own Pokémon, APR C-15; "choose 1 of
+    /// your Pokémon": a Trainer's effect on a Pokémon, Acerola's Mischief): it stays when the Pokémon moves to the Bench and
+    /// ends with the Pokémon's effects (evolving, devolving, leaving play).
+    Pokemon(SlotExpr),
 }
 
 /// Until when a declared effect lasts.
@@ -202,6 +203,17 @@ pub enum DeclareUntil {
     /// Until the player's next Pokémon Checkup (Briar: "this turn, if ... Knocked Out ..." is read by the state check after the
     /// attack's turn ends).
     Checkup,
+    /// "During your opponent's next turn": it ends when the user's opponent's turn ends.
+    OpponentsNextTurn,
+}
+
+/// The card forgets what it recorded (`Op::Forget`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ForgetSpec {
+    /// The Pokémon (the card's record of it).
+    Pokemon(SlotExpr),
+    /// Every Pokémon of the player.
+    Every(Who),
 }
 
 /// `effect` of `CardSpec::effects` is put on `on` until `until`.
@@ -411,18 +423,37 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> 
             Ok(Flow::Next)
         }
         Op::Declare(d) => {
-            let (on, p) = match d.on {
-                DeclareOn::Player(w) => (crate::state::LastingOn::Player(f.who(w) as u8), f.who(w)),
-                DeclareOn::ThisPokemon => match slot_of(g, me, f, SlotExpr::This) {
-                    Some(s) => (crate::state::LastingOn::pokemon(s.p as usize, s.s), s.p as usize),
+            let on = match d.on {
+                DeclareOn::Player(w) => crate::state::LastingOn::Player(f.who(w) as u8),
+                DeclareOn::Pokemon(e) => match slot_of(g, me, f, e) {
+                    Some(s) => crate::state::LastingOn::pokemon(s.p as usize, s.s),
                     None => return Ok(Flow::Next),
                 },
             };
+            // The user's turn: the program's player.
             let until = match d.until {
-                DeclareUntil::EndOfTurn => crate::state::Until::ThisTurn(p as u8),
-                DeclareUntil::Checkup => crate::state::Until::Checkup(p as u8),
+                DeclareUntil::EndOfTurn => crate::state::Until::ThisTurn(f.p),
+                DeclareUntil::Checkup => crate::state::Until::Checkup(f.p),
+                DeclareUntil::OpponentsNextTurn => crate::state::Until::ThisTurn(1 - f.p),
             };
             crate::engine::lasting::add_declared(&mut g.st, on, me, d.effect, until);
+            Ok(Flow::Next)
+        }
+        Op::Record(e) => {
+            if let Some(s) = slot_of(g, me, f, *e) {
+                crate::engine::lasting::add_record(&mut g.st, s.p as usize, s.s, me);
+            }
+            Ok(Flow::Next)
+        }
+        Op::Forget(x) => {
+            match *x {
+                ForgetSpec::Pokemon(e) => {
+                    if let Some(s) = slot_of(g, me, f, e) {
+                        crate::engine::lasting::remove_record(&mut g.st, s.p as usize, s.s, me);
+                    }
+                }
+                ForgetSpec::Every(w) => crate::engine::lasting::remove_records_of(&mut g.st, f.who(w), me),
+            }
             Ok(Flow::Next)
         }
         Op::Used(u) => {

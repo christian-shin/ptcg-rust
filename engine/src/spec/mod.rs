@@ -342,6 +342,10 @@ pub enum Op {
     Used(UsedSpec),
     /// An effect the card declares is put on a player or a Pokémon for a time (`DeclareSpec`).
     Declare(DeclareSpec),
+    /// The card records a Pokémon ("that Pokémon": the Pokémon a Boomerang Energy was attached to; `SlotExpr`).
+    Record(SlotExpr),
+    /// The card forgets the Pokémon it recorded (`ForgetSpec`).
+    Forget(ForgetSpec),
     /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
     /// `count` and the Pokémon to pick from).
     /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.

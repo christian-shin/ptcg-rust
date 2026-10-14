@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::This), counters: Num::Lit(5) })),
-            Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::ThisPokemon, until: DeclareUntil::EndOfTurn })),
+            Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Pokemon(SlotExpr::This), until: DeclareUntil::EndOfTurn })),
         ],
     }],
     effects: &[

@@ -10,7 +10,7 @@
 //! end of that turn, in force during the opponent's next turn, and gone at the end of it; a lock counts the turns of the
 //! locked player.
 
-use crate::list::{CardId, SVec};
+use crate::list::{CardId, CardList, SVec};
 use crate::state::{AttackRef, LastingEffect, LastingOn, LastingWhat, SlotId, State};
 
 /// Which kind of entry (one entry per Pokémon for each kind but the locks and the preventions).
@@ -42,7 +42,7 @@ fn kind_of(w: &LastingWhat) -> Option<Kind> {
         LastingWhat::NoWeakness { .. } => Kind::NoWeakness,
         LastingWhat::NextTurnBonus { pending: true, .. } => Kind::BonusPending,
         LastingWhat::NextTurnBonus { pending: false, .. } => Kind::BonusArmed,
-        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } => return None,
+        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => return None,
     })
 }
 
@@ -399,7 +399,7 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
         .iter()
         .map(|l| {
             l.on != on
-                || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Declared { .. })
+                || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded)
                 // A Trainer's effect on the Pokémon (Iron Defender) isn't an effect of an attack: it stays (APR A-05, C-15).
                 || by_trainer(st, l.source)
         })
@@ -414,7 +414,7 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
 /// The effects of attacks on the Pokémon end (`removeAttackEffects`): every lasting effect of an attack on it.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer() || matches!(l.what, LastingWhat::Declared { .. })).collect();
+    let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer() || matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)).collect();
     let mut i = 0;
     st.lasting.retain(|_| {
         i += 1;
@@ -422,11 +422,49 @@ pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     });
 }
 
-/// The effects cards declared and put on the Pokémon in spot `s` of player `p` end with the Pokémon's other effects when it
-/// evolves or is devolved (APR C-13: every effect on it ends, a Trainer's and an Ability's included).
+/// The effects cards declared and put on the Pokémon in spot `s` of player `p`, and the records cards made of it, end with
+/// the Pokémon's other effects when it evolves or is devolved (APR C-13: every effect on it ends, a Trainer's and an Ability's
+/// included).
 pub fn clear_declared(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Declared { .. })));
+    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)));
+}
+
+/// `source` records the Pokémon in spot `s` of player `p` (once).
+pub fn add_record(st: &mut State, p: usize, s: SlotId, source: CardId) {
+    if !is_recorded(st, p, s, source) {
+        st.lasting.push(LastingEffect { on: LastingOn::pokemon(p, s), source, what: LastingWhat::Recorded });
+    }
+}
+
+/// Does `source` record the Pokémon in spot `s` of player `p`?
+pub fn is_recorded(st: &State, p: usize, s: SlotId, source: CardId) -> bool {
+    let on = LastingOn::pokemon(p, s);
+    st.lasting.iter().any(|l| l.on == on && l.source == source && matches!(l.what, LastingWhat::Recorded))
+}
+
+/// `source` forgets the Pokémon in spot `s` of player `p`.
+pub fn remove_record(st: &mut State, p: usize, s: SlotId, source: CardId) {
+    let on = LastingOn::pokemon(p, s);
+    st.lasting.retain(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::Recorded)));
+}
+
+/// `source` forgets every Pokémon of player `p`.
+pub fn remove_records_of(st: &mut State, p: usize, source: CardId) {
+    st.lasting.retain(|l| !(matches!(l.on, LastingOn::Pokemon(q, _) if q as usize == p) && l.source == source && matches!(l.what, LastingWhat::Recorded)));
+}
+
+/// The Pokémon in play that `source` records (the first, Active first; none when it left play).
+pub fn recorded_slot(st: &State, source: CardId) -> Option<(usize, SlotId)> {
+    for p in 0..2 {
+        let pl = &st.players[p];
+        for s in pl.in_play().iter().copied() {
+            if !pl.slots[s as usize].cards.is_empty() && is_recorded(st, p, s, source) {
+                return Some((p, s));
+            }
+        }
+    }
+    None
 }
 
 /// Put the declared effect `index` of card `source` on `on`, until `until` (one of a card and a declaration on the same

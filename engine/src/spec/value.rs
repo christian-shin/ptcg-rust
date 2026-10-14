@@ -47,8 +47,8 @@ pub enum SlotExpr {
     Picked,
     /// The Pokémon the program's last attachment went to (none when nothing was attached).
     Attached,
-    /// The Pokémon in play that carries the marker `name` set by this card (none when it left play).
-    Marked(&'static str),
+    /// The Pokémon in play this card recorded (`Op::Record`; none when it left play).
+    Recorded,
     /// The Pokémon whose attack or Ability caused the event the program reacts to ("the Attacking Pokémon"), where it is
     /// now (none when it left play).
     CausePokemon,
@@ -352,19 +352,7 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
             let (q, s) = g.st.find_pokemon_slot(c)?;
             (g.st.slot_pokemon(q, s) == Some(c)).then(|| SlotRef::new(q, s))
         }
-        SlotExpr::Marked(name) => {
-            let id = crate::markers::marker_id(name)?;
-            for p in 0..2 {
-                let pl = &g.st.players[p];
-                for s in pl.in_play().iter().copied() {
-                    let sl = &pl.slots[s as usize];
-                    if !sl.cards.is_empty() && sl.marker.has_from(id, me) {
-                        return Some(SlotRef::new(p, s));
-                    }
-                }
-            }
-            None
-        }
+        SlotExpr::Recorded => crate::engine::lasting::recorded_slot(&g.st, me).map(|(p, s)| SlotRef::new(p, s)),
         SlotExpr::This => {
             for p in 0..2 {
                 let pl = &g.st.players[p];
@@ -734,8 +722,8 @@ pub enum SlotPred {
     HasCard(Pred),
     /// The Pokémon is affected by this Special Condition.
     Condition(SpecialCondition),
-    /// The Pokémon carries the marker `name` set by this card.
-    MarkerFromThis(&'static str),
+    /// This card recorded the Pokémon (`Op::Record`).
+    Recorded,
     /// The Stadium in play still has effect on this Pokémon (a checked read: effects can block it).
     StadiumEffectActive,
     /// The Pokémon has a Special Energy card attached.
@@ -783,7 +771,7 @@ impl SlotPred {
             | SlotPred::IsThisPokemon
             | SlotPred::Named(_)
             | SlotPred::Condition(_)
-            | SlotPred::MarkerFromThis(_)
+            | SlotPred::Recorded
             | SlotPred::Evolved
             | SlotPred::OnMySide => false,
             _ => true,
@@ -895,7 +883,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::AnyTool(q) => slot.tools.iter().any(|c| pred(g, c, q)),
         SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
-        SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
+        SlotPred::Recorded => crate::engine::lasting::is_recorded(&g.st, p, id, me),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
         SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
             let d = g.st.cdef(c);

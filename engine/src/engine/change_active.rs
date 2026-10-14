@@ -363,7 +363,7 @@ mod tests {
     fn no_prevention_matches_a_rule_cause() {
         let mut n = 0;
         for s in crate::cards::registry::SPECS.iter() {
-            for ps in s.passives {
+            for ps in s.passives.iter().chain(s.effects.iter()) {
                 let crate::spec::passive::Modifier::Prevent(p) = &ps.modifier else { continue };
                 if p.from.is_never() || !p.from.effect_kinds().has(crate::effects::k::CHANGE_ACTIVE) {
                     continue;
