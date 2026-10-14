@@ -320,12 +320,6 @@ pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
     }
 }
 
-#[cfg(test)]
-thread_local! {
-    /// A stand-in for an effect that turns Special Energy text off (Temple of Sinnoh, not in the pool; id2033).
-    pub static TEST_SPECIAL_ENERGY_OFF: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
-}
-
 // ---------------------------------------------------------------------------
 // Ability bookkeeping
 

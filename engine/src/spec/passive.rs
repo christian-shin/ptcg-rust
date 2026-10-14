@@ -560,8 +560,9 @@ pub enum LockerProbe {
     Generic,
     /// A real use of the locker's own power `n` is not blocked.
     OwnPower(u8),
-    /// The Stadium's effect is not blocked on the checked Pokémon's slot.
-    StadiumOnSlot,
+    /// The locker is a Stadium in play: nothing turns its text off (no pool text does), so only the checked Pokémon's spot
+    /// decides.
+    Stadium,
 }
 
 /// Which powers a lock strips.
@@ -660,8 +661,6 @@ pub enum SurviveKind {
 pub struct ProvidesEnergySpec {
     /// One Energy map entry per element whose condition holds for the Pokémon.
     pub entries: &'static [ProvidedEntry],
-    /// Skip when a Special Energy lock probe fails (otherwise pushed unconditionally).
-    pub probe: bool,
 }
 
 /// An entry of the Energy map: the types of one unit of Energy provided.
@@ -954,21 +953,13 @@ fn locate_slow(st: &crate::state::State, me: CardId, origin: RuleSource) -> Opti
     }
 }
 
-/// Is the card's effect off: the lock probe derived from its origin. `affected`
-/// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
-pub(crate) fn blocked<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
+/// Is the card's effect off: the lock probe derived from its origin. Only an Ability (Abilities locks) and a Tool (Tool
+/// locks) can be turned off: no pool text turns a Stadium's or a Special Energy's text off.
+pub(crate) fn blocked<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource) -> bool {
     match origin {
         RuleSource::Ability => g.has_no_ability(me, None),
-        RuleSource::Tool => g.tool_off(at.owner, me),
-        RuleSource::Energy => match at.held {
-            Some(_) => crate::derived::special_energy_off(g.g(), me),
-            None => false,
-        },
-        RuleSource::Stadium => match affected {
-            Some(_) => crate::derived::stadium_off(g.g()),
-            None => false,
-        },
-        RuleSource::TrainerEffect | RuleSource::CardRule => false,
+        RuleSource::Tool => g.tools_off(),
+        RuleSource::Energy | RuleSource::Stadium | RuleSource::TrainerEffect | RuleSource::CardRule => false,
     }
 }
 
@@ -1030,7 +1021,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
 /// derived layer's `types`).
 pub(crate) fn type_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, t: &TypeOverrideSpec, target: SlotRef) -> R<Option<&'static [CardType]>> {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
-    if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin, at, Some(target)) || !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
+    if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin) || !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
         return Ok(None);
     }
     Ok(Some(t.set))
@@ -1059,7 +1050,7 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
 /// adds them up.
 pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(0) };
-    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
+    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin) || !guard_ok_m(g, me, origin, at.owner, guard)? {
         return Ok(0);
     }
     if !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
@@ -1221,8 +1212,7 @@ fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDea
     if d.needs_printed_damage && crate::engine::attack::attack_def(g, attack).damage <= 0 {
         return Ok(());
     }
-    let affected = target.unwrap_or(SlotRef::new(opp, g.st.players[opp].active));
-    if blocked(g, me, origin, at, Some(affected)) {
+    if blocked(g, me, origin) {
         return Ok(());
     }
     if !slot_pred_m(g, me, source, &d.attacker)? || !guard_ok_m(g, me, origin, at.owner, &d.guard)? {
@@ -1273,7 +1263,7 @@ fn damage_taken_prelude(
     if side == Side::Owner && at.owner != t.p as usize {
         return Ok(None);
     }
-    if !slot_pred_m(g, me, t, subject)? || blocked(g, me, origin, at, Some(t)) {
+    if !slot_pred_m(g, me, t, subject)? || blocked(g, me, origin) {
         return Ok(None);
     }
     if !guard_ok(g, me, origin, at.owner, guard) || !slot_pred_m(g, me, b.source, source)? {
@@ -1324,9 +1314,6 @@ pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: Card
         return Ok(());
     }
     let _ = p;
-    if pe.probe && crate::derived::special_energy_off(g.g(), me) {
-        return Ok(());
-    }
     for entry in pe.entries {
         if !slot_pred_m(g, me, source, &entry.when)? {
             continue;
@@ -1343,7 +1330,7 @@ pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: Card
 /// `ProvidesEnergyBoost` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
 pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, b: &ProvidesEnergyBoostSpec, p: usize, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
-    if at.owner != p || blocked(g, me, origin, at, Some(source)) {
+    if at.owner != p || blocked(g, me, origin) {
         return Ok(());
     }
     let cards: SVec<CardId, 60> = {
@@ -1395,7 +1382,7 @@ pub fn attach_guard_discards(g: &mut Game, card: CardId, target: SlotRef) -> R<b
     for ps in passives {
         if let Modifier::AttachGuard(a) = &ps.modifier {
             let p = target.p as usize;
-            if !g.st.slot(p, target.s).cards.contains(card) || g.st.slot_pokemon(p, target.s).is_none() || crate::derived::special_energy_off(g, card) {
+            if !g.st.slot(p, target.s).cards.contains(card) || g.st.slot_pokemon(p, target.s).is_none() {
                 continue;
             }
             if !slot_pred_m(g, card, target, &a.allow)? {
@@ -1412,7 +1399,7 @@ pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) ->
     for p in 0..2usize {
         for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
             let t = SlotRef::new(p, s);
-            if !g.st.slot(p, s).cards.contains(me) || crate::derived::special_energy_off(g, me) {
+            if !g.st.slot(p, s).cards.contains(me) {
                 continue;
             }
             if g.st.slot_pokemon(p, s).is_some() && !slot_pred_m(g, me, t, &a.allow)? {
@@ -1441,7 +1428,7 @@ pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, 
         return Ok(());
     }
     let active = SlotRef::new(p, g.g().st.players[p].active);
-    if !slot_pred_m(g, me, active, &c.subject)? || blocked(g, me, origin, at, Some(active)) || !ability_effect_reaches(g, me, origin, at.owner, active, false)? {
+    if !slot_pred_m(g, me, active, &c.subject)? || blocked(g, me, origin) || !ability_effect_reaches(g, me, origin, at.owner, active, false)? {
         return Ok(());
     }
     let n = {
@@ -1492,7 +1479,7 @@ pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId,
         }
     }
     let Some(slot) = matched else { return Ok(()) };
-    if blocked(g, me, origin, at, Some(slot)) || !ability_effect_reaches(g, me, origin, at.owner, slot, false)? {
+    if blocked(g, me, origin) || !ability_effect_reaches(g, me, origin, at.owner, slot, false)? {
         return Ok(());
     }
     let n = {
@@ -1528,7 +1515,7 @@ pub(crate) fn recover_now(g: &mut Game, me: CardId, origin: RuleSource, c: &Reco
         for p in 0..2usize {
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
                 let t = SlotRef::new(p, s);
-                if g.st.slot(p, s).special_conditions.is_empty() || !slot_pred_m(g, me, t, &c.subject)? || blocked(g, me, origin, at, Some(t)) {
+                if g.st.slot(p, s).special_conditions.is_empty() || !slot_pred_m(g, me, t, &c.subject)? || blocked(g, me, origin) {
                     continue;
                 }
                 // The Pokémon recovers: one RemoveCondition per condition, by the card's effect.
@@ -1602,20 +1589,12 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
                 return Ok(false);
             }
         }
-        LockerProbe::StadiumOnSlot => {
-            if crate::derived::stadium_off(g.g()) {
-                return Ok(false);
-            }
-            match slot_pred_m(g, me, slot, &l.slot) {
-                Ok(v) => {
-                    if !v {
-                        return Ok(false);
-                    }
-                }
-                // The type check failed: the printed data decides.
-                Err(_) => return Ok(pred(g.g(), card, &l.missing)),
-            }
-        }
+        LockerProbe::Stadium => match slot_pred_m(g, me, slot, &l.slot) {
+            Ok(true) => {}
+            Ok(false) => return Ok(false),
+            // The type check failed: the printed data decides.
+            Err(_) => return Ok(pred(g.g(), card, &l.missing)),
+        },
     }
     Ok(true)
 }
@@ -1669,7 +1648,7 @@ pub(crate) fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p:
             for c in conds.iter().copied() {
                 let x = SpecialCondition::from_u8(c);
                 let v = crate::engine::condition::condition_view(g, super::event::EventKind::GainCondition, t, x, cause);
-                if !p.from.eval(g, me, &v)? || !slot_pred_m(g, me, t, &p.protects)? || blocked(g, me, origin, at, Some(t)) {
+                if !p.from.eval(g, me, &v)? || !slot_pred_m(g, me, t, &p.protects)? || blocked(g, me, origin) {
                     continue;
                 }
                 crate::engine::condition::remove(g, t, x, cause)?;
@@ -1857,7 +1836,7 @@ fn prize_adjust_with(g: &mut Game, me: CardId, at: Located, e: EffId, origin: Ru
     if d.owner_only && at.owner != p {
         return Ok(());
     }
-    if blocked(g, me, origin, at, Some(target)) {
+    if blocked(g, me, origin) {
         return Ok(());
     }
     // "Knocked Out by damage from an attack": the KnockOut event's `ko_by`.
@@ -1894,7 +1873,7 @@ fn prize_adjust_with(g: &mut Game, me: CardId, at: Located, e: EffId, origin: Ru
 /// `GrantAttacks` of `me` (Relicanth's Memory Dive): the attacks it adds to player `p`'s attack list.
 pub(crate) fn grant_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
-    if at.owner != p || blocked(g, me, origin, at, None) {
+    if at.owner != p || blocked(g, me, origin) {
         return Ok(());
     }
     let mut add: SVec<AttackRef, 32> = SVec::new();
@@ -2091,7 +2070,7 @@ pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(cr
             if used.map_or(false, |(key, by, _)| crate::engine::usage::has(&g.st, key, by)) {
                 continue;
             }
-            if blocked(g, c, ps.origin, at, at.held) || !r.on.eval(g, c, v)? {
+            if blocked(g, c, ps.origin) || !r.on.eval(g, c, v)? {
                 continue;
             }
             return Ok(used);
@@ -2178,7 +2157,7 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
             Some(s) => slot_pred_m(g, me, s, &p.protects)? && ability_effect_reaches(g, me, ps.origin, at.owner, s, false)?,
             None => matches!(p.protects, SlotPred::Any),
         };
-        if protected && !blocked(g, me, ps.origin, at, v.slot) {
+        if protected && !blocked(g, me, ps.origin) {
             return Ok(true);
         }
     }
@@ -2210,7 +2189,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
                 Some(s) => slot_pred_m(g, me, s, &p.protects)? && ability_effect_reaches(g, me, ps.origin, at.owner, s, false)?,
                 None => matches!(p.protects, SlotPred::Any),
             };
-            if !protected || blocked(g, me, ps.origin, at, v.slot) {
+            if !protected || blocked(g, me, ps.origin) {
                 continue;
             }
             let cause = crate::cause::Cause::of_origin(ps.origin, me, at.owner as u8);
@@ -2434,8 +2413,8 @@ pub(crate) fn ability_effect_reaches<F: crate::derived::Facts>(g: &mut F, source
             if p.from.is_never() || p.coin || !ranges(&p.from, v.kind) || !p.from.eval(g, c, &v)? {
                 continue;
             }
-            let Some(at) = locate(g.g(), c, ps.origin) else { continue };
-            if slot_pred_m(g, c, target, &p.protects)? && (in_lock_pass || !blocked(g, c, ps.origin, at, Some(target))) {
+            let Some(_) = locate(g.g(), c, ps.origin) else { continue };
+            if slot_pred_m(g, c, target, &p.protects)? && (in_lock_pass || !blocked(g, c, ps.origin)) {
                 return Ok(false);
             }
         }
@@ -2468,8 +2447,8 @@ pub(crate) fn survive_applies(g: &mut Game, me: CardId, origin: RuleSource, spec
             if !g.st.slot(owner, t.s).tools.contains(me) || acc.b.player as usize == owner || !is_attack_phase(g) {
                 return Ok(false);
             }
-            let Some(at) = locate(g, me, origin) else { return Ok(false) };
-            if blocked(g, me, origin, at, Some(t)) || g.st.slot(owner, t.s).damage != 0 {
+            let Some(_) = locate(g, me, origin) else { return Ok(false) };
+            if blocked(g, me, origin) || g.st.slot(owner, t.s).damage != 0 {
                 return Ok(false);
             }
             lethal(g)
@@ -2478,7 +2457,7 @@ pub(crate) fn survive_applies(g: &mut Game, me: CardId, origin: RuleSource, spec
             if !g.st.slot(owner, t.s).cards.contains(me) || g.st.slot_pokemon(owner, t.s) != Some(me) {
                 return Ok(false);
             }
-            if blocked(g, me, origin, Located { owner, held: Some(t) }, Some(t)) {
+            if blocked(g, me, origin) {
                 return Ok(false);
             }
             if spec.kind == SurviveKind::IfFullHp && g.st.slot(owner, t.s).damage != 0 {
@@ -2498,8 +2477,7 @@ pub(crate) fn survive_on_ten_into(g: &mut Game, me: CardId, origin: RuleSource, 
     if !g.st.slot(owner, t.s).cards.contains(me) {
         return Ok(());
     }
-    let at = Located { owner, held: Some(t) };
-    if blocked(g, me, origin, at, Some(t)) {
+    if blocked(g, me, origin) {
         return Ok(());
     }
     match spec.kind {
@@ -2542,7 +2520,7 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
         }
     }
     let victim = SlotRef::new(p, g.st.players[p].active);
-    if blocked(g, me, origin, at, Some(victim)) || !slot_pred_m(g, me, victim, &c.victim)? {
+    if blocked(g, me, origin) || !slot_pred_m(g, me, victim, &c.victim)? {
         return Ok(());
     }
     // "Put N more damage counters on your opponent's Burned / Poisoned Pokémon" is a continuous effect of the Ability
@@ -2609,8 +2587,7 @@ fn first_turn_grants<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: Ru
     if a.first_turn != Some(FirstTurnAttack::ThisPokemon) || !g.g().st.slot(p, active).cards.contains(me) || g.g().st.turn != 1 {
         return false;
     }
-    let at = Located { owner: p, held: None };
-    !blocked(g, me, origin, at, None)
+    !blocked(g, me, origin)
 }
 
 /// Does the printed attack declare "if you go first, you can use this attack during your first turn"
@@ -2656,7 +2633,7 @@ pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize, a
 /// `BenchAttacks` of `me` (Mew ex's Memory Helix): the Benched Pokémon's attacks it adds to player `p`'s attack list, as
 /// copied ones.
 pub(crate) fn bench_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
-    if g.g().st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
+    if g.g().st.active_pokemon(p) != Some(me) || blocked(g, me, origin) {
         return Ok(());
     }
     let mut add: SVec<AttackRef, 32> = SVec::new();
@@ -2809,7 +2786,7 @@ fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive)
         Modifier::AbilityLock(l) => match l.probe {
             LockerProbe::Generic => !g.has_no_ability(c, None),
             LockerProbe::OwnPower(i) => real(g, i),
-            LockerProbe::StadiumOnSlot => true,
+            LockerProbe::Stadium => true,
         },
         _ => true,
     }
@@ -2823,7 +2800,7 @@ fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive)
 /// reads the printed card. The `ActiveLock`s read the Active Spot, the printed card, its Rule Box and
 /// tags: never this (`ActiveLockSpec::reads_attached`).
 pub const fn lock_reads_attached(l: &AbilityLockSpec) -> bool {
-    l.slot.reads_attached() || matches!(l.probe, LockerProbe::StadiumOnSlot)
+    l.slot.reads_attached()
 }
 
 /// Does the card declare an Ability lock (`ActiveLock` / `AbilityLock`)?
@@ -2869,9 +2846,9 @@ pub(crate) fn lock_sync(g: &mut Game) {
         return;
     }
     // Batch 8 C6: a lock source holds by where the cards are (the layout), the turn (the turn player first when several
-    // take hold together; the lasting "Stadium and Tool cards have no effect") and the stamps: with none of them changed
+    // take hold together) and the stamps: with none of them changed
     // since the last sync, a sync changes nothing (`PTCG_VERIFY_CACHE=1` runs it and asserts so).
-    let key = (g.st.layout_gen, g.st.turn, g.st.active_player, crate::derived::stadium_off(g));
+    let key = (g.st.layout_gen, g.st.turn, g.st.active_player);
     if g.st.lock_synced == Some(key) {
         if crate::game::verify_cache() {
             let before: Vec<u16> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp).collect();
@@ -3053,8 +3030,8 @@ fn survive_on_ten_tool(g: &mut Game, me: CardId, origin: RuleSource, acc: &mut D
     if attacker == owner || !is_attack_phase(g) {
         return Ok(());
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if blocked(g, me, origin, at, Some(t)) || g.st.slot(owner, t.s).damage != 0 {
+    let Some(_) = locate(g, me, origin) else { return Ok(()) };
+    if blocked(g, me, origin) || g.st.slot(owner, t.s).damage != 0 {
         return Ok(());
     }
     let hp = crate::derived::hp(g, owner, t.s)?;
@@ -3078,8 +3055,8 @@ fn shred_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, attacker:
         Effect::Attack { source, .. } => source,
         _ => return Ok(()),
     };
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if !slot_pred_m(g, me, source, attacker)? || blocked(g, me, origin, at, None) {
+    let Some(_) = locate(g, me, origin) else { return Ok(()) };
+    if !slot_pred_m(g, me, source, attacker)? || blocked(g, me, origin) {
         return Ok(());
     }
     if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
@@ -3814,8 +3791,8 @@ mod attached_lock_tests {
         }
     }
 
-    /// Card predicates `lock_sync`'s gate (`State::lock_synced`: the layout generation, the turn, the turn player,
-    /// "Stadium and Tool cards have no effect") accounts for: the printed card.
+    /// Card predicates `lock_sync`'s gate (`State::lock_synced`: the layout generation, the turn, the turn player)
+    /// accounts for: the printed card.
     fn layout_pred(p: &crate::spec::value::Pred) -> bool {
         use crate::spec::value::Pred as P;
         match p {
@@ -3855,7 +3832,7 @@ mod attached_lock_tests {
                         assert!(layout_pred(&l.card) && layout_pred(&l.missing), "{}: an Ability lock's card predicate outside the gate's key", s.class);
                         assert!(layout_slot_pred(&l.slot), "{}: an Ability lock's spot predicate outside the gate's key", s.class);
                         // Every probe reads the lock pass (locks over the locker) or the Stadium's effect on the spot.
-                        assert!(matches!(l.probe, LockerProbe::Generic | LockerProbe::OwnPower(_) | LockerProbe::StadiumOnSlot));
+                        assert!(matches!(l.probe, LockerProbe::Generic | LockerProbe::OwnPower(_) | LockerProbe::Stadium));
                         locks.push(s.class);
                     }
                     // The Active Spot, the printed card, its Rule Box and tags.

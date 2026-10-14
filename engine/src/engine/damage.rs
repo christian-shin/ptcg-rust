@@ -608,25 +608,6 @@ mod tests {
         assert_eq!(g.st.slot(o, t.s).damage, 60);
     }
 
-    /// A Special Energy whose text is off declares nothing (id2033: Mist Energy under Temple of Sinnoh doesn't protect)
-    /// but is still a Special Energy card (Bring Down the Axe still counts it). Temple of Sinnoh isn't in the pool: a
-    /// stand-in turns the text off.
-    #[test]
-    fn special_energy_with_its_text_off_declares_nothing() {
-        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX, "active_energy": [MIST]}}));
-        let me = g.st.active_player as usize;
-        let o = 1 - me;
-        let t = SlotRef::new(o, g.st.players[o].active);
-        let cause = attack_on(&mut g, me, t).cause;
-        assert!(!place(&mut g, t, 10, cause).unwrap(), "Mist Energy prevents the attack's counters");
-        crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.set(true));
-        let placed = place(&mut g, t, 10, cause).unwrap();
-        crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.set(false));
-        assert!(placed, "with its text off it declares nothing");
-        assert_eq!(g.st.slot(o, t.s).damage, 10);
-        assert!(g.st.slot(o, t.s).energies.iter().any(|c| g.st.cdef(c).energy_type == crate::types::EnergyType::Special as u8), "still a Special Energy card");
-    }
-
     /// One action is one MoveCounters event however many pairs it has (id66): up to `prompts::MAX_DAMAGE_RUNS`, the
     /// most runs a MOVE_DAMAGE answer holds.
     #[test]

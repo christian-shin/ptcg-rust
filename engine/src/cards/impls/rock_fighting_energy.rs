@@ -14,7 +14,7 @@ use crate::types::ct;
 pub static SPEC: CardSpec = CardSpec {
     class: "RockFightingEnergy",
     passives: &[
-        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::FIGHTING])], probe: true }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::FIGHTING])] }) },
         // Prevent all effects of attacks used by your opponent's Pokémon done to the [F] Pokémon this is attached to (every
         // event they cause, the switches included: APR C-04 / C-05, id2025, id2155; damage is not an effect).
         Passive { origin: RuleSource::Energy, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::FIGHTING)]), EFFECTS_OF_OPP_ATTACKS)) },

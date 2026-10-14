@@ -2,7 +2,7 @@
 //!
 //! An Ability lock (`Modifier::AbilityLock`, the Stadium in play as the locker): it strips and blocks the Abilities of every Pokémon in
 //! play whose type, read after effects, is [C]; the Stadium's own effect must not be blocked on that Pokémon's spot
-//! (`LockerProbe::StadiumOnSlot`).
+//! (`LockerProbe::Stadium`).
 use crate::spec::prelude::*;
 use crate::types::ct;
 
@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 slot: SlotPred::TypeIs(ct::COLORLESS),
                 missing: Pred::PokemonType(ct::COLORLESS),
                 powers: LockedPowers { generic_probe: true, only_knocks_out_self: false },
-                probe: LockerProbe::StadiumOnSlot,
+                probe: LockerProbe::Stadium,
             }),
         },
     ],

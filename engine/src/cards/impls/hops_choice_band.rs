@@ -4,7 +4,7 @@
 //! Two Tool passives, each bound to the Pokémon holding this card and a Hop's Pokémon (`Holder` and the Hop's tag):
 //! `AttackCost` ([C] less, summed with the other changes and floored at zero, D-11 / D-12) and `DamageDealt` (+30 in the
 //! attacker-side pass of the damage calculation, before Weakness: only when the attack does damage and the target is the
-//! opponent's Active Pokémon, id675, APR "does nothing"). Both work while the Tool does (`tool_off`: Jamming Tower). They add up
+//! opponent's Active Pokémon, id675, APR "does nothing"). Both work while the Tool does (`tools_off`: Jamming Tower). They add up
 //! with Hop's Snorlax's Extra Helpings (JP FAQ Hop's Choice Band: +30 and +30).
 use crate::spec::prelude::*;
 use crate::types::tag;

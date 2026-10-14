@@ -249,8 +249,8 @@ impl crate::derived::Facts for Ctx<'_> {
         }
         r
     }
-    fn tool_off(&mut self, p: usize, card: CardId) -> bool {
-        crate::derived::compute_tool_off(self.g, p, card)
+    fn tools_off(&mut self) -> bool {
+        crate::derived::compute_tools_off(self.g)
     }
     #[inline]
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {

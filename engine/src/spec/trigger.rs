@@ -91,11 +91,11 @@ pub(crate) fn fires_on(g: &mut Game, me: CardId, v: &super::event::EventView, t:
         RuleSource::Energy | RuleSource::Tool if !g.st.lasting.is_empty() => crate::engine::lasting::recorded_slot(&g.st, me).map(|(p, s)| super::passive::Located { owner: p, held: Some(crate::effects::SlotRef::new(p, s)) }),
         _ => None,
     };
-    let Some(at) = super::passive::locate(g, me, t.origin).or(left).or_else(recorded) else { return Ok(None) };
+    let Some(_) = super::passive::locate(g, me, t.origin).or(left).or_else(recorded) else { return Ok(None) };
     if !pred.eval(g, me, v)? {
         return Ok(None);
     }
-    if super::passive::blocked(g, me, t.origin, at, v.slot) {
+    if super::passive::blocked(g, me, t.origin) {
         return Ok(None);
     }
     let p = if t.origin == RuleSource::Stadium { v.owner as usize } else { g.st.owner(me) };

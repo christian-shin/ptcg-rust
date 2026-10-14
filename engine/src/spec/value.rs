@@ -223,8 +223,6 @@ pub enum Cond {
     CanEvolveBasic(Who),
     /// This Tool's effect is blocked for the player the program runs for (a checked read).
     ToolBlocked,
-    /// This Stadium's effect is blocked on the Pokémon (the lock probe). A checked read.
-    StadiumBlocked(SlotExpr),
     /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
     HasEvolutionInPool(Who),
 }
@@ -567,7 +565,6 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             };
             in_play(g, f.who(*names_of), PlayScope::All).iter().all(|(_, top, _)| known(g.st.cdef(*top).name) >= 4)
         }
-        Cond::StadiumBlocked(_) => panic!("Cond::StadiumBlocked needs a checked read (cond_m)"),
         Cond::HasEvolutionInPool(w) => {
             let p = f.who(*w);
             for (_, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
@@ -717,8 +714,6 @@ pub enum SlotPred {
     Condition(SpecialCondition),
     /// This card recorded the Pokémon (`Op::Record`).
     Recorded,
-    /// The Stadium in play still has effect on this Pokémon (a checked read: effects can block it).
-    StadiumEffectActive,
     /// The Pokémon has a Special Energy card attached.
     HasSpecialEnergy,
     /// A Pokémon Tool attached to the slot matches the card predicate.
@@ -733,7 +728,7 @@ pub enum SlotPred {
 
 impl SlotPred {
     /// Can the answer depend on the cards attached to the Pokémon (the attached cards themselves, or a checked
-    /// read they can change: type, Energy provided, HP, Abilities, the Stadium's effect)? Conservative: a
+    /// read they can change: type, Energy provided, HP, Abilities)? Conservative: a
     /// predicate not known to read only the Pokémon card, its position, counters, conditions and records says
     /// yes.
     pub const fn reads_attached(&self) -> bool {
@@ -877,7 +872,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::AnyTool(q) => slot.tools.iter().any(|c| pred(g, c, q)),
         SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::Recorded => crate::engine::lasting::is_recorded(&g.st, p, id, me),
-        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
+        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
         SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_energy() && d.name == *n
@@ -923,7 +918,6 @@ pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, 
             }
             false
         }
-        SlotPred::StadiumEffectActive => !crate::derived::stadium_off(g.g()),
         SlotPred::TypeIs(t) => g.types(s)?.contains(t),
         SlotPred::Provides(t) => g.provided_energy(s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
         SlotPred::NoEnergyProvided => g.provided_energy(s.p as usize, s)?.is_empty(),
@@ -1112,13 +1106,9 @@ pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Co
         Cond::CanEvolveSkippingStage1 => super::ops::board::can_evolve_skipping_stage1(g, me, f.p as usize)?,
         Cond::AbilityBlocked => g.has_no_ability(me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
-        Cond::ToolBlocked => g.tool_off(f.p as usize, me),
+        Cond::ToolBlocked => g.tools_off(),
         Cond::Slot(e, sp) => match slot_of(g.g(), me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
-            None => false,
-        },
-        Cond::StadiumBlocked(e) => match slot_of(g.g(), me, f, *e) {
-            Some(_) => crate::derived::stadium_off(g.g()),
             None => false,
         },
         Cond::TypesShared(a, b) => {

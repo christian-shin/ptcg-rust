@@ -11,7 +11,7 @@ use crate::types::Stage;
 pub static SPEC: CardSpec = CardSpec {
     class: "IgnitionEnergy",
     passives: &[
-        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry { when: SlotPred::Basic, provides: &[ct::COLORLESS] }, ProvidedEntry { when: SlotPred::All(&[SlotPred::Top(Pred::Pokemon), SlotPred::Not(&SlotPred::Basic), SlotPred::Not(&SlotPred::StageIs(Stage::Restored))]), provides: &[ct::COLORLESS, ct::COLORLESS, ct::COLORLESS] }], probe: false }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry { when: SlotPred::Basic, provides: &[ct::COLORLESS] }, ProvidedEntry { when: SlotPred::All(&[SlotPred::Top(Pred::Pokemon), SlotPred::Not(&SlotPred::Basic), SlotPred::Not(&SlotPred::StageIs(Stage::Restored))]), provides: &[ct::COLORLESS, ct::COLORLESS, ct::COLORLESS] }] }) },
     ],
     triggers: &[
         Trigger { origin: RuleSource::Energy, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: &[Step::new(Op::If(IfSpec { cond: Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::Any), yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::This, ..DiscardSpec::DEFAULT }))], no: &[] }))] },

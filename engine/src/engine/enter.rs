@@ -212,7 +212,7 @@ fn permit_lifts<F: crate::derived::Facts>(g: &mut F, me: CardId, ps: &Passive, v
     if !while_ok(g.g(), me, at, pm.while_, v.card) || !pm.for_.eval(g, me, v)? {
         return Ok(false);
     }
-    Ok(!passive::blocked(g, me, ps.origin, at, v.slot))
+    Ok(!passive::blocked(g, me, ps.origin))
 }
 
 /// The declaration marker kind of a permission lifting `limit` (`effects::k::PERMIT_*`, set in the declaring

@@ -17,7 +17,6 @@ pub static SPEC: CardSpec = CardSpec {
                 ProvidedEntry { when: SlotPred::StageIs(Stage::Stage2), provides: &[ct::ANY, ct::ANY] },
                 ProvidedEntry { when: SlotPred::Not(&SlotPred::StageIs(Stage::Stage2)), provides: &[ct::COLORLESS] },
             ],
-            probe: true,
         }),
     }],
     ..CardSpec::NONE

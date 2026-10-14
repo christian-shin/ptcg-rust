@@ -429,9 +429,9 @@ pub struct State {
     /// still be there) before trusting it, so a write that doesn't update it costs a scan, never a wrong answer
     /// (`PTCG_VERIFY_CACHE=1` checks every answer against the scan).
     pub at: [Loc; MAX_CARDS],
-    /// What the Ability-lock stamps were last synced at (`passive::lock_sync`): the layout generation, the turn, the turn
-    /// player and whether Stadium and Tool cards had no effect; the sync is skipped while they are the same.
-    pub lock_synced: Option<(u32, i32, u8, bool)>,
+    /// What the Ability-lock stamps were last synced at (`passive::lock_sync`): the layout generation, the turn and the turn
+    /// player; the sync is skipped while they are the same.
+    pub lock_synced: Option<(u32, i32, u8)>,
     /// The lasting effects attacks left on Pokémon and players (events batch 8 C7; `engine::lasting`), in the order they
     /// were put.
     pub lasting: SVec<LastingEffect, 32>,

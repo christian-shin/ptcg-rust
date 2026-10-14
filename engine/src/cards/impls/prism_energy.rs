@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PrismEnergy",
     passives: &[Passive {
         origin: RuleSource::Energy,
-        modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry { when: SlotPred::Basic, provides: &[crate::types::ct::ANY] }], probe: true }),
+        modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry { when: SlotPred::Basic, provides: &[crate::types::ct::ANY] }] }),
     }],
     ..CardSpec::NONE
 };

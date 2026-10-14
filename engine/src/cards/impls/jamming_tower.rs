@@ -1,6 +1,6 @@
 //! Jamming Tower (TWM / ASC, Stadium): Pokémon Tools attached to each Pokémon (both yours and your opponent's) have no effect.
 //!
-//! A `Prevent` of `PreventWhat::ToolEffects` while the Stadium works, read through `derived::tool_off` by every Tool declaration
+//! A `Prevent` of `PreventWhat::ToolEffects` while the Stadium works, read through `derived::tools_off` by every Tool declaration
 //! (a Tool stays attached; its Ability-like effects, damage modifiers, HP and cost changes and triggers are off for both
 //! players); scenarios jamming-tower-*, fix-*-jamming-tower-f1.
 use crate::spec::prelude::*;

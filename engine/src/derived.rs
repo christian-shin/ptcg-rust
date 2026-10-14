@@ -520,7 +520,7 @@ pub trait Facts {
     fn attack_cost(&mut self, p: usize, attack: AttackRef) -> R<Cost>;
     fn powers(&mut self, card: CardId) -> R<SVec<PowerRef, 8>>;
     fn has_no_ability(&mut self, card: CardId, power_index: Option<u8>) -> bool;
-    fn tool_off(&mut self, p: usize, card: CardId) -> bool;
+    fn tools_off(&mut self) -> bool;
     /// The cards of declaration family `f` in place, in the propagation order of rank class `class` (`decl::in_place`,
     /// through the provider's order cache).
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120>;
@@ -575,8 +575,8 @@ impl Facts for Game {
         has_no_ability(self, card, power_index)
     }
     #[inline]
-    fn tool_off(&mut self, p: usize, card: CardId) -> bool {
-        tool_off(self, p, card)
+    fn tools_off(&mut self) -> bool {
+        tools_off(self)
     }
     #[inline]
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
@@ -891,19 +891,16 @@ pub fn compute_has_no_ability<F: Facts>(g: &mut F, card: CardId, power_index: Op
     crate::spec::passive::power_blocked(g, power, card, true)
 }
 
-/// Is the text of the Tool `card` (player `p`'s) off: "Pokémon Tools have no effect" for some turns (an attack's lasting
-/// effect), or a declaration that turns Tools off in place (Jamming Tower: `PreventWhat::ToolEffects`, unless its own
-/// Stadium effect is off on the Pokémon holding the Tool)? (Batch 8 C3b; the Tool probe was `prefabs::is_tool_blocked`.)
-pub fn tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
-    compute_tool_off(g, p, card)
+/// Is the text of Pokémon Tools off: a declaration that turns Tools off in place (Jamming Tower:
+/// `PreventWhat::ToolEffects`)? It is the same for every Tool in play. (Batch 8 C3b; the Tool probe was
+/// `prefabs::is_tool_blocked`.)
+pub fn tools_off(g: &mut Game) -> bool {
+    compute_tools_off(g)
 }
 
-/// [`tool_off`] by direct code (plain reads).
-pub fn compute_tool_off(g: &Game, p: usize, card: CardId) -> bool {
+/// [`tools_off`] by direct code (plain reads).
+pub fn compute_tools_off(g: &Game) -> bool {
     use crate::spec::passive::{Modifier, PreventWhat};
-    if stadium_off(g) {
-        return true;
-    }
     if g.decls.sets[crate::decl::fam::TOOLS_OFF] == 0 {
         return false;
     }
@@ -913,34 +910,8 @@ pub fn compute_tool_off(g: &Game, p: usize, card: CardId) -> bool {
             if pv.what != PreventWhat::ToolEffects || crate::spec::passive::locate(g, me, ps.origin).is_none() {
                 continue;
             }
-            // The Pokémon of player `p` holding the Tool: the Stadium's own effect off there spares it.
-            let held = crate::prefabs::for_each_pokemon(g, p, crate::types::PlayerType::BottomPlayer).iter().any(|(s, _, _)| g.st.slot(p, *s).tools.contains(card));
-            if held && stadium_off(g) {
-                continue;
-            }
             return true;
         }
-    }
-    false
-}
-
-/// Is a Stadium's text off on the Pokémon it would affect? No declaration in the pool turns it off (batch 8 C3b: the
-/// Stadium probe had no handler; the counter "Stadium and Tool cards have no effect" that stood for one was never
-/// set, events batch 9 C1 deleted it): the hook the Stadium readers share, like [`special_energy_off`].
-#[inline]
-pub fn stadium_off(g: &Game) -> bool {
-    let _ = g;
-    false
-}
-
-/// Is the text of the attached Special Energy `card` off? No declaration in the pool turns it off (batch 8 C3b: the
-/// SpecialEnergy and Energy probes had no handler); the unit tests' stand-in for one (Temple of Sinnoh, id2033) says so.
-#[inline]
-pub fn special_energy_off(g: &Game, card: CardId) -> bool {
-    let _ = (g, card);
-    #[cfg(test)]
-    if crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.get()) {
-        return true;
     }
     false
 }

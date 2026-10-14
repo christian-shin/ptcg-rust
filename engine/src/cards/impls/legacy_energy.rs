@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LegacyEnergy",
     passives: &[
-        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::ANY])], probe: false }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::ANY])] }) },
         Passive { origin: RuleSource::Energy, modifier: Modifier::PrizeAdjust(PrizeAdjustSpec { delta: -1, subject: SlotPred::Holder, by_attack_damage: true, by_own_attack: None, guard: Cond::True, once: Once::PerGame, ..PrizeAdjustSpec::DEFAULT }) },
     ],
     ..CardSpec::NONE

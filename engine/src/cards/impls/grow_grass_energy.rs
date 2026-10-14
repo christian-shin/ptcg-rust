@@ -8,7 +8,7 @@ use crate::types::ct;
 pub static SPEC: CardSpec = CardSpec {
     class: "GrowGrassEnergy",
     passives: &[
-        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::GRASS])], probe: false }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::GRASS])] }) },
         Passive {
             origin: RuleSource::Energy,
             modifier: Modifier::HpMod(HpModSpec { amount: 20, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::GRASS)]), guard: Cond::True }),
