@@ -597,7 +597,7 @@ pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed
             if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
                 let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
                 f.slot = slot;
-                let effect = applies(g, c, &f, t.steps)?;
+                let effect = applies(g, c, &f, t.steps);
                 assert!(out.len() < out.capacity(), "more than {} triggers of one turn-structure event", out.capacity());
                 out.push((Timed { c, i: i as u8, p: p as u8, slot, e }, effect));
             }
@@ -690,7 +690,7 @@ fn usable<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, needs: &[C
 /// (a Pick, a PickSlot: the program's gates), and at least one of its effects would change the game (an op under
 /// `If(Done)` counts only through the op it depends on: E-20's "If you do"). A program with no effect op is usable.
 pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
-    let mut w = RulesWalk { left_hand: 0, gates_ok: true, regs: [None; 4] };
+    let mut w = RulesWalk::new(false);
     let fx = w.walk(g, me, f, steps, true);
     w.gates_ok && fx != Some(false)
 }
@@ -699,64 +699,56 @@ pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -
 /// branch: an effect op that would do something, a coin flip through its results)? A branch with no effect op can (it is
 /// asked). Events batch 8 C10 (user decision 2a): a "you may" whose yes can't change the game isn't asked.
 pub(crate) fn branch_can_change(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
-    let mut w = RulesWalk { left_hand: 0, gates_ok: true, regs: [None; 4] };
+    let mut w = RulesWalk::new(false);
     w.walk(g, me, f, steps, false) != Some(false)
 }
 
-/// Does a timed trigger's program apply now (batch 8 C11c): an op that isn't record bookkeeping, reached through the
-/// conditions that hold now ("if ..., discard it": only when the condition holds)?
-pub(crate) fn applies(g: &mut Game, me: CardId, f: &Frame, steps: &[Step]) -> R<bool> {
-    for s in steps {
-        let yes = match &s.op {
-            Op::Used(_) | Op::Record(_) | Op::Forget(_) => false,
-            Op::If(i) => {
-                let branch = if crate::spec::value::cond_m(g, me, f, &i.cond)? { i.yes } else { i.no };
-                applies(g, me, f, branch)?
-            }
-            _ => true,
-        };
-        if yes {
-            return Ok(true);
-        }
-    }
-    Ok(false)
+/// Does an effect's program apply now: could it change the game (APR E-03, E-04, E-21, F step 2: the order of simultaneous
+/// effects is asked only among effects that do; RULES.md "The order of simultaneous effects")? The walk of `usable_by_rules`
+/// and `branch_can_change` over the program as it would run now: a condition on the board decides its branch, and a program
+/// with no effect op (record bookkeeping) or whose every effect op would do nothing doesn't apply.
+pub(crate) fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
+    RulesWalk::new(true).walk(g, me, f, steps, false) == Some(true)
 }
 
 /// Does a step 7 record apply now (APR E-03: "the effects activating when a Pokémon is damaged"): a lasting trigger of the
 /// damaged Pokémon, while the Attacking Pokémon is in play and the trigger's source still on the damaged Pokémon; a card's
 /// trigger, when one of its triggers fires for it now and its program can change the game (`applies`).
-pub(crate) fn damaged_applies(g: &mut Game, t: &crate::game::AtkTrig) -> R<bool> {
-    let Some(eff) = g.attack_trigger_effect(t) else { return Ok(false) };
-    let Effect::AttackTrigger { source_in_play, .. } = eff else { return Ok(false) };
+pub(crate) fn damaged_applies(g: &mut Game, t: &crate::game::AtkTrig) -> bool {
+    let Some(eff) = g.attack_trigger_effect(t) else { return false };
+    let Effect::AttackTrigger { source_in_play, .. } = eff else { return false };
     if let Some(r) = t.retaliate {
         let amount = match r.what {
             crate::state::LastingWhat::Retaliate { amount, .. } => amount,
             _ => 0,
         };
-        return Ok(amount > 0 && source_in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(r.source));
+        return amount > 0 && source_in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(r.source);
     }
-    let Some(spec) = crate::cards::spec_for(g.st.cards[t.card as usize].def) else { return Ok(false) };
+    let Some(spec) = crate::cards::spec_for(g.st.cards[t.card as usize].def) else { return false };
     let e = g.new_fx(eff);
     let mut yes = false;
     for (i, tr) in spec.triggers.iter().enumerate() {
         if let Some((p, slot)) = trigger::fires(g, t.card, e, tr) {
             let mut f = Frame::start(g, t.card, Prog::Trigger(i as u8), Phase::Use, e, p, false);
             f.slot = slot;
-            if !yes {
-                yes = applies(g, t.card, &f, tr.steps).map_err(|x| {
-                    g.release_fx(e);
-                    x
-                })?;
-            }
+            yes = yes || applies(g, t.card, &f, tr.steps);
         }
     }
     g.release_fx(e);
-    Ok(yes)
+    yes
+}
+
+/// A condition read as the board is now, checked reads included (`None`: the read fails).
+fn cond_now(g: &Game, me: CardId, f: &Frame, c: &Cond) -> Option<bool> {
+    crate::spec::value::cond_m(&mut crate::legal::Ctx::new(g), me, f, c).ok()
 }
 
 /// The walk of `usable_by_rules`: the cards the program takes from its player's hand so far (they leave it: "draw until
 /// you have 6 cards" counts after the discard), and whether every top-level cost and choice can be made.
 struct RulesWalk {
+    /// The program runs now (`applies`): a condition on the board decides its branch; otherwise (a usability walk, a
+    /// "you may" asked before the program's earlier ops ran) only the conditions that stay the same through the program do.
+    now: bool,
     left_hand: i32,
     gates_ok: bool,
     /// Per card register: whether the op that fills it would find cards (`None`: not filled by the program yet).
@@ -764,6 +756,9 @@ struct RulesWalk {
 }
 
 impl RulesWalk {
+    fn new(now: bool) -> Self {
+        RulesWalk { now, left_hand: 0, gates_ok: true, regs: [None; 4] }
+    }
     fn reg(&self, r: u8) -> Option<bool> {
         self.regs.get(r as usize).copied().flatten()
     }
@@ -836,10 +831,18 @@ impl RulesWalk {
                 self.gates_ok &= whole || ops::implied_ok(g, me, f, &s.op);
                 continue;
             }
+            let holds_now = match &s.op {
+                Op::If(i) if self.now && !ops::reads_done(&i.cond) => cond_now(g, me, f, &i.cond),
+                _ => None,
+            };
             let fx = match &s.op {
                 _ if reg_fx.is_some() => reg_fx,
                 Op::Draw(d) if self.left_hand > 0 => Some(ops::draw_possible_after(g, me, f, d, self.left_hand)),
                 Op::If(i) if ops::reads_done(&i.cond) => None,
+                Op::If(i) if holds_now.is_some() => {
+                    let l = if holds_now == Some(true) { i.yes } else { i.no };
+                    self.walk(g, me, f, l, false)
+                }
                 Op::If(i) if crate::spec::value::cond_stable(&i.cond) => {
                     let l = if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no };
                     self.walk(g, me, f, l, false)

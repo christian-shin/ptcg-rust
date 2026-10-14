@@ -771,11 +771,17 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         let sl = g.st.slot(s.p as usize, s.s);
         sl.damage > 0 || (h.clear_conditions && !sl.special_conditions.is_empty())
     };
-    // An op on the Pokémon an earlier op picked or attached to counts through that op.
-    let dependent = |t: Option<&SlotTarget>| matches!(t, Some(SlotTarget::Slot(SlotExpr::Picked | SlotExpr::Attached)));
+    // An op on the Pokémon an earlier op picked or attached to counts through that op; one on a Pokémon the frame already
+    // carries (a trigger's: the damaged Pokémon's attacker, a Knocked Out Pokémon's slot) is judged on that Pokémon.
+    let waits = |e: &SlotExpr| match e {
+        SlotExpr::Picked => f.slot == NONE,
+        SlotExpr::Attached => true,
+        _ => false,
+    };
+    let dependent = |t: Option<&SlotTarget>| matches!(t, Some(SlotTarget::Slot(e)) if waits(e));
     let on_dependent = match op {
-        Op::Conditions(c) => matches!(c.target, SlotExpr::Picked | SlotExpr::Attached),
-        Op::KnockOut(k) => matches!(k.target, SlotExpr::Picked | SlotExpr::Attached),
+        Op::Conditions(c) => waits(&c.target),
+        Op::KnockOut(k) => waits(&k.target),
         _ => false,
     };
     if on_dependent || dependent(target_of(op)) {

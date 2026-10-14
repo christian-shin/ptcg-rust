@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora DRI 78",
+   "4 Handheld Fan TWM 150",
+   "4 Spiky Energy JTG 159",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Zeraora DRI 78",
+   "4 Handheld Fan TWM 150",
+   "4 Spiky Energy JTG 159",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_tool": "Handheld Fan TWM 150",
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scratch"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "absent": [
+    "Select"
+   ],
+   "cite": "RULES.md 'The order of simultaneous effects: only effects that can change the game count' (user, 2026-10-14; APR E-03): the attacker has no Benched Pokemon, so Handheld Fan has nothing to move and isn't an effect to order; Spiky Energy alone applies, no order prompt"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Zeraora DRI 78",
+   "damage": 20,
+   "cite": "RULES.md 'The order of simultaneous effects' (user, 2026-10-14): Spiky Energy still puts its 2 damage counters on the Attacking Pokemon, without an order prompt"
+  }
+ ]
+}

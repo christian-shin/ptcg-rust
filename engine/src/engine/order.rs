@@ -245,13 +245,13 @@ fn indices(g: &Game, tag: Tag) -> SVec<usize, 32> {
 }
 
 /// A window of step 7 records is decided at its first step: ordered when two or more distinct effects apply now.
-fn decide(g: &mut Game, idx: &[usize]) -> R {
+fn decide(g: &mut Game, idx: &[usize]) {
     let mut items: SVec<(Item, bool), 32> = SVec::new();
     for &i in idx {
         let item = g.pending.as_slice()[i].item;
         // Only a step 7 record is recorded undecided; a single effect is never asked about.
         let x = match item {
-            Item::Damaged(t) if idx.len() >= 2 => run::damaged_applies(g, &t)?,
+            Item::Damaged(t) if idx.len() >= 2 => run::damaged_applies(g, &t),
             _ => false,
         };
         items.push((item, x));
@@ -260,7 +260,6 @@ fn decide(g: &mut Game, idx: &[usize]) -> R {
     for (k, &i) in idx.iter().enumerate() {
         g.pending.as_mut_slice()[i].mode = if ordered { Mode::Ordered { applies: items.as_slice()[k].1 } } else { Mode::Plain };
     }
-    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -273,7 +272,7 @@ pub fn step(g: &mut Game, w: &mut Window) -> R<Step> {
     let tag = w.tag();
     let idx = indices(g, tag);
     if idx.as_slice().iter().any(|&i| g.pending.as_slice()[i].mode == Mode::Recorded) {
-        decide(g, idx.as_slice())?;
+        decide(g, idx.as_slice());
     }
     let ordered = idx.as_slice().first().map_or(false, |&i| matches!(g.pending.as_slice()[i].mode, Mode::Ordered { .. }));
     if ordered {

@@ -1685,7 +1685,31 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
             RevealWhat::Chosen(_) => true,
         },
         Op::HandShuffleDraw(_) => true,
+        Op::DiscardEnergy(d) => energy_move_possible(g, me, f, d),
         _ => implied_ok(g, me, f, op),
+    })
+}
+
+/// A move of Energy from a known Pokémon to a Benched one (`EnergySelection::ToBench`) changes the game when the Pokémon has
+/// an Energy card of the kind and there is another Benched Pokémon to move it to (nothing else is judged here: the other
+/// ways to discard Energy are assumed possible, as `implied_ok` does).
+fn energy_move_possible(g: &Game, me: CardId, f: &Frame, d: &DiscardEnergySpec) -> bool {
+    let EnergySelection::ToBench { kind, .. } = &d.selection else { return true };
+    let SlotTarget::Slot(e) = &d.target else { return true };
+    let Some(src) = slot_of(g, me, f, *e) else { return true };
+    if !super::board::occupied(g, src) {
+        return false;
+    }
+    let who = if src.p == f.p { Who::Me } else { Who::Opp };
+    if !slots_of(g, me, f, &SlotSel::Bench(who)).iter().any(|b| *b != src) {
+        return false;
+    }
+    g.st.slot(src.p as usize, src.s).cards.iter().any(|c| {
+        let def = g.st.cdef(c);
+        def.is_energy() && match kind {
+            EnergyKind::Any | EnergyKind::Provides(_) => true,
+            EnergyKind::Basic => def.energy_type == EnergyType::Basic as u8,
+        }
     })
 }
 
