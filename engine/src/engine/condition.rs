@@ -66,8 +66,7 @@ pub fn flip_coin(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) 
 pub fn flip_raw(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
     let result = g.rng.coin();
     coin_flipped(g, p, CoinPurpose::Effect, result, cause)?;
-    let pid = g.player_id(p);
-    g.prompt(pid, "", crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
+    g.prompt(p, "", crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
     Ok(result)
 }
 

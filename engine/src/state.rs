@@ -238,8 +238,6 @@ impl LastingWhat {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Player {
-    /// Twinleaf client id (1 or 2).
-    pub id: u8,
     pub deck: Deck,
     pub hand: Deck,
     pub discard: Deck,
@@ -280,10 +278,9 @@ pub struct Player {
 }
 
 impl Player {
-    /// `createPlayer`: 6 face-down prize lists, 5 empty bench slots.
-    pub fn new(id: u8) -> Player {
+    /// A player with 6 face-down prize lists, 5 empty bench slots and no cards.
+    pub fn new() -> Player {
         let mut p = Player {
-            id,
             deck: List::new(),
             hand: List::new(),
             discard: List::new(),
@@ -525,7 +522,7 @@ impl State {
             active_player: 0,
             winner: WINNER_NONE,
             end_reason: None,
-            players: [Player::new(1), Player::new(2)],
+            players: [Player::new(), Player::new()],
             cards: [CardInst::default(); MAX_CARDS],
             n_cards: 0,
             skip_opponent_turn: false,
@@ -590,13 +587,6 @@ impl State {
     }
     pub fn opp(p: usize) -> usize {
         1 - p
-    }
-    pub fn player_index_by_id(&self, id: u8) -> usize {
-        if self.players[0].id == id {
-            0
-        } else {
-            1
-        }
     }
 
     // ---- PokemonCardList queries --------------------------------------

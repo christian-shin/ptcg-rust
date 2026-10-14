@@ -335,9 +335,8 @@ pub enum PromptClass {
 #[derive(Clone, Copy, Debug)]
 pub struct PromptRec {
     pub id: u32,
-    /// Answering player's id.
-    pub player_id: u8,
-    pub perspective: Option<u8>,
+    /// The answering player's index.
+    pub player: u8,
     pub message: &'static str,
     pub kind: PromptKind,
     /// Answered (its answer waits in `Game::answers` for the other prompts of its group).
@@ -475,9 +474,6 @@ impl PromptRec {
             _ => PromptClass::Decision,
         }
     }
-    pub fn perspective_id(&self) -> u8 {
-        self.perspective.unwrap_or(self.player_id)
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -584,7 +580,7 @@ impl Game {
 
     pub fn choose_pokemon_candidates(&self, pr: &PromptRec) -> Vec<CardTarget> {
         if let PromptKind::ChoosePokemon { player_type, slots, blocked, .. } = pr.kind {
-            let p = self.st.player_index_by_id(pr.perspective_id());
+            let p = pr.player as usize;
             let bl = blocked_slots(&self.st, p, blocked.as_slice());
             slot_targets(&self.st, p, player_type, slots.as_slice())
                 .into_iter()
@@ -601,14 +597,11 @@ impl Game {
         base.insert("kind".into(), json!("prompt"));
         base.insert("type".into(), json!(pr.type_name()));
         base.insert("cls".into(), json!(pr.class_name()));
-        base.insert("player".into(), json!(self.st.player_index_by_id(pr.player_id)));
-        if let Some(pp) = pr.perspective {
-            base.insert("perspective".into(), json!(self.st.player_index_by_id(pp)));
-        }
+        base.insert("player".into(), json!(pr.player));
         if !pr.message.is_empty() {
             base.insert("message".into(), json!(pr.message));
         }
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         match pr.kind {
             PromptKind::ChooseCards { cards, filter, opts } => {
                 let list = self.prompt_list(cards);
@@ -787,7 +780,7 @@ impl Game {
     /// `ChoosePokemonPrompt` answer from the chosen targets (`None`: not a target).
     pub(crate) fn decode_choose_pokemon(&self, pr: &PromptRec, targets: impl Iterator<Item = Option<CardTarget>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         let PromptKind::ChoosePokemon { min, max, blocked, .. } = pr.kind else { return Err(invalid) };
         let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
         for t in targets {
@@ -816,7 +809,7 @@ impl Game {
     /// `ChoosePrizePrompt` answer from the indices among the remaining prizes.
     pub(crate) fn decode_choose_prize(&self, pr: &PromptRec, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         let PromptKind::ChoosePrize { count, use_opponent_prizes, face_down_only, .. } = pr.kind else { return Err(invalid) };
         let q = if use_opponent_prizes { 1 - p } else { p };
         let nonempty: SVec<u8, 6> = {
@@ -1015,7 +1008,7 @@ impl Game {
 
     /// Descriptor fields for the energy / damage prompt kinds.
     pub fn describe_extra(&self, pr: &PromptRec, base: &mut serde_json::Map<String, Value>) -> bool {
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         match pr.kind {
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
                 let list = self.prompt_list(cards);
@@ -1239,7 +1232,7 @@ impl Game {
     /// `DiscardEnergyPrompt` answer from (slot, index) pairs.
     pub(crate) fn decode_discard_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         let PromptKind::DiscardEnergy { o, filter, .. } = pr.kind else { return Err(invalid) };
         let o = *self.payload_opts(o);
         let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
@@ -1269,7 +1262,7 @@ impl Game {
     /// `MoveEnergyPrompt` answer from (from, to, index) triples.
     pub(crate) fn decode_move_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         // The destinations the continuation refuses (`MoveOpts::to_required`: Bubble Gathering's "to this Pokémon").
         let blocked_to = match pr.kind {
             PromptKind::MoveEnergy { o, .. } if self.payload_opts(o).to_required => self.payload_opts(o).blocked_to,
@@ -1295,7 +1288,7 @@ impl Game {
     /// `PutDamageCountersPrompt` answer from (target, damage) pairs.
     pub(crate) fn decode_put_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, i32)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         let PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, .. } = pr.kind else { return Err(invalid) };
         let mut out: SVec<(CardTarget, i32), 16> = SVec::new();
         let mut sum = 0;
@@ -1326,7 +1319,7 @@ impl Game {
     /// `MoveDamageCountersPrompt` / `RemoveDamageCountersPrompt` answer from one (from, to) pair per counter.
     pub(crate) fn decode_move_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
+        let p = pr.player as usize;
         let (player_type, slots, o, single_source, single_destination) = match pr.kind {
             PromptKind::MoveDamage { player_type, slots, o, single_source, single_destination, .. } => {
                 (player_type, slots, o, single_source, single_destination)

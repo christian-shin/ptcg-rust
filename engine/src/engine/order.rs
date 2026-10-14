@@ -315,9 +315,8 @@ pub fn step(g: &mut Game, w: &mut Window) -> R<Step> {
             assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
             names.push("Special Conditions");
         }
-        let pid = g.player_id(w.chooser(g));
         g.prompt(
-            pid,
+            w.chooser(g),
             "CHOOSE_EFFECT_ORDER",
             PromptKind::Select { values: SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
             Cont::OrderEffects { w: *w },

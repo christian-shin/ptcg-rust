@@ -822,7 +822,7 @@ impl Game {
     }
 
     /// `store.prompt(state, prompt, then)`.
-    pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
+    pub fn prompt(&mut self, player: usize, message: &'static str, kind: PromptKind, cont: Cont) {
         let kind = construct_prompt(self, kind);
         let cont = self.tag_cont(cont);
         let id = self.next_id();
@@ -830,20 +830,20 @@ impl Game {
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false, partial: false });
+        self.prompts.push(PromptRec { id, player: player as u8, message, kind, answered: false, partial: false });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
     }
 
     /// `store.prompt(state, [prompts...], then)`.
-    pub fn prompt_group(&mut self, prompts: &[(u8, &'static str, PromptKind)], cont: Cont) {
+    pub fn prompt_group(&mut self, prompts: &[(usize, &'static str, PromptKind)], cont: Cont) {
         let cont = self.tag_cont(cont);
         let mut ids = SVec::new();
-        for &(player_id, message, kind) in prompts {
+        for &(player, message, kind) in prompts {
             let id = self.next_id();
             let kind = construct_prompt(self, kind);
-            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false, partial: false });
+            self.prompts.push(PromptRec { id, player: player as u8, message, kind, answered: false, partial: false });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -874,8 +874,8 @@ impl Game {
     }
 
     /// `WaitPrompt` with a continuation.
-    pub fn wait(&mut self, player_id: u8, cont: Cont) {
-        self.prompt(player_id, "", PromptKind::Wait, cont);
+    pub fn wait(&mut self, player: usize, cont: Cont) {
+        self.prompt(player, "", PromptKind::Wait, cont);
     }
 
     fn resolve_wait_items(&mut self) -> R {
@@ -996,8 +996,7 @@ impl Game {
                     self.st.bump_layout();
                 }
                 // SHUFFLE_DECK's silent wait prompt.
-                let id = self.st.players[p as usize].id;
-                self.wait(id, Cont::Noop);
+                self.wait(p as usize, Cont::Noop);
                 Ok(())
             }
             Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
@@ -1450,7 +1449,7 @@ impl Game {
         let pr = self.prompts.as_slice()[i];
         match pr.kind {
             PromptKind::ShuffleDeck => {
-                let p = self.st.player_index_by_id(pr.perspective_id());
+                let p = pr.player as usize;
                 let n = self.st.players[p].deck.len();
                 let mut o = [0u8; 120];
                 self.rng.shuffle(n, &mut o);
@@ -1476,9 +1475,6 @@ impl Game {
         bail!("settle: too many automatic prompts")
     }
 
-    pub fn player_id(&self, p: usize) -> u8 {
-        self.st.players[p].id
-    }
 }
 
 /// `CardList.applyOrder`: ignored unless `order` is a permutation of the list.

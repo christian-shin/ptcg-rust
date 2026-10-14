@@ -333,9 +333,8 @@ pub(crate) fn ask_range(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec
             }
         }
     }
-    let id = g.player_id(chooser);
     g.prompt(
-        id,
+        chooser,
         pick.msg,
         PromptKind::ChoosePokemon { player_type, slots, min, max, allow_cancel: matches!(pick.among, SlotSel::Cancelable(_)), blocked },
         f.cont(me, sub),
@@ -472,9 +471,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let mut slots = SVec::new();
             slots.push(SlotType::Active as u8);
             slots.push(SlotType::Bench as u8);
-            let id = g.player_id(p);
             g.prompt(
-                id,
+                p,
                 "CHOOSE_POKEMON_TO_EVOLVE",
                 PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
                 f.cont(me, 1),
@@ -562,8 +560,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
             slots.push(SlotType::Active as u8);
-            let id = g.player_id(p);
-            g.prompt(id, "CHOOSE_POKEMON_TO_EVOLVE", PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked }, f.cont(me, 1));
+            g.prompt(p, "CHOOSE_POKEMON_TO_EVOLVE", PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked }, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
@@ -893,9 +890,8 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                         disabled |= 1 << i;
                     }
                 }
-                let id = g.player_id(f.p as usize);
                 g.prompt(
-                    id,
+                    f.p as usize,
                     "CHOOSE_OPTION",
                     PromptKind::SelectOption { values: CONDITION_NAMES, allow_cancel: false, default_value: conds[0] as i32, disabled: Some(disabled) },
                     f.cont(me, 1),
@@ -1023,9 +1019,8 @@ fn spread_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SpreadCountersSpec) 
     }
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
-    let id = g.player_id(p);
     g.prompt(
-        id,
+        p,
         "CHOOSE_POKEMON_TO_DAMAGE",
         PromptKind::PutDamage {
             player_type: PlayerType::BottomPlayer,
@@ -1085,10 +1080,9 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
-    let id = g.player_id(f.p as usize);
     let o = g.stash_opts(o);
     g.prompt(
-        id,
+        f.p as usize,
         "MOVE_DAMAGE",
         PromptKind::MoveDamage { player_type, slots, max_allowed, o, single_source: false, single_destination: false, damage_multiple: 10 },
         f.cont(me, 1),
@@ -1245,9 +1239,8 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
-    let id = g.player_id(p);
     let opts = g.stash_opts(opts);
-    g.prompt(id, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true, single_source: true }, f.cont(me, 1));
+    g.prompt(p, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true, single_source: true }, f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -1327,9 +1320,8 @@ fn spread_damage_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SpreadDamageSpe
         slots.push(SlotType::Active as u8);
     }
     slots.push(SlotType::Bench as u8);
-    let id = g.player_id(chooser);
     g.prompt(
-        id,
+        chooser,
         "CHOOSE_POKEMON_TO_DAMAGE",
         PromptKind::PutDamage { player_type, slots, damage: s.total_hp, max_allowed, allow_cancel: false, blocked: SVec::new(), allow_partial: false, damage_multiple: s.unit_hp },
         f.cont(me, 1),
@@ -1665,8 +1657,7 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
                 if !crate::engine::knockout::leave_play(g, slot, crate::state::ListRef::Deck(slot.p), f.cause, me)? {
                     continue;
                 }
-                let id = g.player_id(slot.p as usize);
-                g.prompt(id, "", PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApplyNoWait { p: slot.p });
+                g.prompt(slot.p as usize, "", PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApplyNoWait { p: slot.p });
             }
         }
     }

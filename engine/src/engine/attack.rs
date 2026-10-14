@@ -108,8 +108,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     g.retain_fx(id);
     let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id, delegate_from };
     if sp.contains(&(SpecialCondition::Confused as u8)) {
-        let pid = g.player_id(p);
-        g.prompt(pid, "FLIP_CONFUSION", PromptKind::CoinFlip, Cont::UseAttack(f));
+        g.prompt(p, "FLIP_CONFUSION", PromptKind::CoinFlip, Cont::UseAttack(f));
         return Ok(());
     }
     begin_attack(g, f)
@@ -152,8 +151,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
 
 pub fn animation(g: &mut Game, mut f: AttackFrame) -> R {
     f.stage = AtkStage::AfterAnimation;
-    let pid = g.player_id(f.p as usize);
-    g.prompt(pid, "", PromptKind::Wait, Cont::UseAttack(f));
+    g.prompt(f.p as usize, "", PromptKind::Wait, Cont::UseAttack(f));
     Ok(())
 }
 
@@ -348,8 +346,7 @@ fn attack_again_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -
         return after_attack_check(g, f.p as usize);
     }
     f.stage = AtkStage::AfterAttackAgainConfirm;
-    let pid = g.player_id(f.p as usize);
-    g.prompt(pid, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::UseAttack(f));
+    g.prompt(f.p as usize, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::UseAttack(f));
     Ok(())
 }
 
@@ -432,8 +429,7 @@ pub fn start_use_power(g: &mut Game, id: EffId) -> R {
     // The UseAbility checks were made before the event (`turn_action::ability_checks`, from the turn action).
     let f = PowerFrame { p: p as u8, power, card, bench_target };
     if target.slot == SlotType::Active || target.slot == SlotType::Bench {
-        let pid = g.player_id(p);
-        g.prompt(pid, "", PromptKind::Wait, Cont::UsePower(f));
+        g.prompt(p, "", PromptKind::Wait, Cont::UsePower(f));
         return Ok(());
     }
     resume_use_power(g, f)

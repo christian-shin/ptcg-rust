@@ -456,7 +456,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
             Pending::Chance(_) | Pending::Info(_) => g.settle(),
             Pending::Decision(pi) => {
                 let pr = g.prompts.as_slice()[pi];
-                let p = g.st.player_index_by_id(pr.player_id);
+                let p = pr.player as usize;
                 let picked = match script.front().filter(|v| !is_turn_answer(v)).cloned() {
                     Some(v) => {
                         script.pop_front();

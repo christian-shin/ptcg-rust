@@ -144,8 +144,7 @@ fn needs_starter_confirm(g: &Game, p: usize) -> bool {
 
 fn starter_confirm(g: &mut Game, p: usize, mut f: SetupFrame, stage: Stage) {
     f.stage = stage;
-    let id = g.player_id(p);
-    g.prompt(id, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::Setup(f));
+    g.prompt(p, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::Setup(f));
 }
 
 /// Both hands are dealt: ask player 0 (when needed), then player 1.
@@ -208,15 +207,13 @@ fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool)
 pub fn start(g: &mut Game) -> R {
     // The coin flip for who goes first (APR G).
     let frame = SetupFrame { stage: Stage::Coin, who_begins: false, pm: 0, om: 0, php: false, ohp: false, branch: 0, shown: 0 };
-    let id = g.player_id(0);
-    g.prompt(id, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::Setup(frame));
+    g.prompt(0, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::Setup(frame));
     Ok(())
 }
 
 fn deal(g: &mut Game, mut f: SetupFrame) -> R {
     f.stage = Stage::Dealt;
-    let (a, b) = (g.player_id(0), g.player_id(1));
-    g.prompt_group(&[(a, "", PromptKind::ShuffleDeck), (b, "", PromptKind::ShuffleDeck)], Cont::Setup(f));
+    g.prompt_group(&[(0, "", PromptKind::ShuffleDeck), (1, "", PromptKind::ShuffleDeck)], Cont::Setup(f));
     Ok(())
 }
 
@@ -229,9 +226,8 @@ fn choose_starting(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
         }
     }
     f.stage = next;
-    let id = g.player_id(p);
     g.prompt(
-        id,
+        p,
         "CHOOSE_STARTING_POKEMONS",
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
         Cont::Setup(f),
@@ -268,8 +264,7 @@ fn setup_draw(g: &mut Game, p: usize, n: usize) -> R {
 fn mulligan_shuffle(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     crate::engine::cards_zone::mulligan(g, p);
     f.stage = next;
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Setup(f));
+    g.prompt(p, "", PromptKind::ShuffleDeck, Cont::Setup(f));
 }
 
 /// Number of show-mulligan prompts for the frame's branch, in order.
@@ -319,8 +314,7 @@ fn show_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
         let (p, msg) = owners[f.shown as usize];
         f.shown += 1;
         f.stage = Stage::ShowMulligans;
-        let id = g.player_id(p);
-        g.prompt(id, msg, PromptKind::ShowMulligan, Cont::Setup(f));
+        g.prompt(p, msg, PromptKind::ShowMulligan, Cont::Setup(f));
         return Ok(());
     }
     after_mulligans(g, f)
@@ -337,9 +331,8 @@ fn after_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
         return finish(g);
     }
     f.stage = Stage::ExtraDraw;
-    let id = g.player_id(drawer);
     g.prompt(
-        id,
+        drawer,
         "WANT_TO_DRAW_CARDS",
         PromptKind::Select { values: SelectValues::DrawCards(extra), allow_cancel: false, default_value: 0 },
         Cont::Setup(f),
@@ -367,9 +360,8 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
         }
     }
     f.stage = Stage::ExtraBench;
-    let id = g.player_id(p);
     g.prompt(
-        id,
+        p,
         "CHOOSE_STARTING_POKEMONS",
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
         Cont::Setup(f),
@@ -385,8 +377,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             crate::engine::condition::coin_flipped(g, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
             f.who_begins = first.as_bool();
             f.stage = Stage::GoFirst;
-            let id = if f.who_begins { g.player_id(0) } else { g.player_id(1) };
-            g.prompt(id, "GO_FIRST", PromptKind::Confirm, Cont::Setup(f));
+            g.prompt(if f.who_begins { 0 } else { 1 }, "GO_FIRST", PromptKind::Confirm, Cont::Setup(f));
             Ok(())
         }
         Stage::GoFirst => {

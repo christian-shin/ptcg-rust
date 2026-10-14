@@ -290,9 +290,8 @@ fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
         return Ok(());
     }
-    let id = g.player_id(p);
     g.prompt(
-        id,
+        p,
         "CHOOSE_ATTACK_TO_COPY",
         PromptKind::ChooseAttack { cards: pc, allow_cancel: f.allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
         Cont::CopyAttack(f),
