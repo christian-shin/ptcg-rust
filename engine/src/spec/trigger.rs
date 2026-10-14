@@ -31,14 +31,11 @@ pub enum Event {
 pub struct OnDamagedByAttackSpec {
     /// The program runs for the attacking player (otherwise for the damaged Pokémon's owner).
     pub as_attacker: bool,
-    /// The effect may take an Energy off the Attacking Pokémon (Handheld Fan): it resolves before the
-    /// effects that could be blocked by it.
-    pub removes_attacker_energy: bool,
     /// It runs only while the Attacking Pokémon is still in play.
     pub attacker_required: bool,
 }
 impl OnDamagedByAttackSpec {
-    pub const DEFAULT: OnDamagedByAttackSpec = OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: false, attacker_required: true };
+    pub const DEFAULT: OnDamagedByAttackSpec = OnDamagedByAttackSpec { as_attacker: false, attacker_required: true };
 }
 /// The attack's after-attack triggers of the player run (step 7 window).
 pub struct OnAfterAttackTriggersSpec {}
@@ -75,7 +72,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                     // Record the step 7 trigger; it resolves later as an AttackTrigger effect.
                     let t0 = b.target;
                     if holds(g, t0) && damage > 0 && b.player != t0.p && g.st.players[t0.p as usize].active == t0.s {
-                        let _ = g.attack_trigger(b, damage, me, None, d.removes_attacker_energy);
+                        let _ = g.attack_trigger(b, damage, me, None);
                     }
                     None
                 }

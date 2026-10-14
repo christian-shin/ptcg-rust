@@ -1,7 +1,7 @@
 //! The lasting table (events batch 8 C7; plan section 5.3; events design 4.4: "lasting effects become declarations stored
 //! with a timing"): every effect an attack leaves on a Pokémon or a player for a time is one entry of `State::lasting`
 //! ([`LastingEffect`]): the locks (APR C-15, C-19), the preventions, the damage and cost changes, "no Weakness", the
-//! next-turn bonus, and the two lasting triggers (Retaliate, Little Grudge). The ApplyEffect event's reducer puts them
+//! next-turn bonus, and the two lasting triggers (a delayed trap's Retaliate; the discard of the Attacking Pokémon's Energy when this Pokémon is Knocked Out). The ApplyEffect event's reducer puts them
 //! (`engine::apply`); the readers here answer what is in force; the end of each turn rolls their timing over
 //! ([`end_turn`], [`after_end_turn`]); a Pokémon's go with its other effects ([`clear_effects`],
 //! [`remove_attack_effects`], [`clear_spot`]; APR C-13, C-15).
@@ -148,7 +148,7 @@ pub fn armed_retaliate(st: &State, p: usize, s: SlotId) -> Option<LastingEffect>
     find(st, on, Kind::RetaliateArmed).copied()
 }
 
-/// The armed Little Grudge trigger on the Pokémon in spot `s` of player `p`: (its attack, the attacking player, the
+/// The armed "when this Pokémon is Knocked Out, discard an Energy from the Attacking Pokémon" trigger on the Pokémon in spot `s` of player `p`: (its attack, the attacking player, the
 /// source card), when armed and not pending.
 pub fn armed_discard_attacker_energy(st: &State, p: usize, s: SlotId) -> Option<(AttackRef, u8, CardId)> {
     match find(st, LastingOn::pokemon(p, s), Kind::DiscardEnergy) {
@@ -349,7 +349,7 @@ pub fn set_retaliate(st: &mut State, p: usize, s: SlotId, amount: i32, attack: A
     set(st, on, Kind::RetaliatePending, Some(LastingEffect { on, source, what: LastingWhat::Retaliate { amount: amount as i16, attack, attacker, pending: true } }));
 }
 
-/// A Little Grudge trigger put this turn.
+/// The "when this Pokémon is Knocked Out, discard an Energy from the Attacking Pokémon" trigger put this turn.
 pub fn set_discard_attacker_energy(st: &mut State, p: usize, s: SlotId, attack: AttackRef, attacker: u8, source: CardId) {
     let on = LastingOn::pokemon(p, s);
     set(st, on, Kind::DiscardEnergy, Some(LastingEffect { on, source, what: LastingWhat::DiscardAttackerEnergy { attack, attacker, armed: true, pending: true } }));
@@ -389,7 +389,7 @@ pub fn set_bonus_pending(st: &mut State, p: usize, s: SlotId, spec: &'static cra
 // Ending them
 
 /// The Pokémon's effects end ("PokemonCardList.clearEffects()" for the lasting ones: moving to the Bench, leaving play):
-/// its locks, damage changes, "no Weakness", Little Grudge, the TakesMore damage, Retaliate and the preventions; not the
+/// its locks, damage changes, "no Weakness", the Knock Out trigger, the TakesMore damage, Retaliate and the preventions; not the
 /// cost increases nor the next-turn bonus (the attacking side's).
 pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
@@ -495,7 +495,7 @@ pub fn clear_spot(st: &mut State, p: usize, s: SlotId) {
 /// The end of player `p`'s turn (`phase::end_turn`): the opponent's Pokémon lose what lasted "during your opponent's next
 /// turn" from `p`'s last turn ("takes less damage", "no Weakness", Retaliate, the preventions); `p`'s Pokémon count a
 /// turn of their locks, and what was put during this turn comes into force (the preventions, "no Weakness", Retaliate,
-/// Little Grudge, the next-turn bonus replacing the previous); the "attacks do less damage" on `p`'s Pokémon ends; the
+/// the Knock Out trigger, the next-turn bonus replacing the previous); the "attacks do less damage" on `p`'s Pokémon ends; the
 /// TakesMore damage and the cost increases roll over (both players', `p`'s side first); `p`'s player locks count a turn.
 pub fn end_turn(st: &mut State, p: usize) {
     let o = 1 - p;
@@ -650,7 +650,7 @@ fn cost_increase_end_of_turn(st: &mut State, p: usize) {
     }
 }
 
-/// After the end-of-turn state check of player `p`'s turn (`phase::after_end_turn`): Little Grudge on the opponent's
+/// After the end-of-turn state check of player `p`'s turn (`phase::after_end_turn`): the Knock Out trigger on the opponent's
 /// Pokémon ends.
 pub fn after_end_turn(st: &mut State, p: usize) {
     let o = 1 - p;

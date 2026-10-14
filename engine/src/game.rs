@@ -62,30 +62,20 @@ pub enum Cont {
     /// A card continuation created by a source card's code running as
     /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
-    /// Little Grudge DiscardEnergyPrompt (KnockOutEffect reducer).
-    /// Order of the step 7 triggers: the defending player's choice of the one to resolve first.
-    TriggerOrder { atk: EffId },
-    /// The order of several end-of-turn or Pokémon Checkup effects (APR E-21, F step 2; batch 8 C11c): the effects left,
-    /// whether the Special Conditions are still to be checked, and what follows.
-    OrderEffects { left: crate::spec::run::TimedList, sc: bool, then: OrderThen },
-    /// The ordered effect's prompts are answered: the next choice (`phase::order_next`).
-    OrderNext { left: crate::spec::run::TimedList, sc: bool, then: OrderThen },
-    LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
+    /// The order of several simultaneous triggers (APR E-03, E-04, E-21, F step 2): the window's chooser picks which
+    /// pending effect applies next (`engine::order`).
+    OrderEffects { w: crate::engine::order::Window },
+    /// The ordered effect's prompts are answered: the next step of the window (`engine::order::next`).
+    OrderNext { w: crate::engine::order::Window },
+    /// The Attacking Pokémon's Energy to discard when a lasting "when this Pokémon is Knocked Out" trigger applies
+    /// (`engine::game_effect::discard_attacker_energy_cont`): the Knocked Out Pokémon's owner `owner`, the effect's source
+    /// `source_card` and its attack.
+    DiscardAttackerEnergy { owner: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
     /// The owner chose which survive-on-10 replacement of a group applies first (`damage::survive_order_chosen`).
     SurviveOrder { grp: crate::engine::damage::SurviveGroup },
 }
 
 /// `checkState(..., onComplete)` callbacks.
-/// What follows the ordered end-of-turn or Checkup effects.
-#[derive(Clone, Copy, Debug)]
-pub enum OrderThen {
-    /// The rest of player `p`'s end of turn (`phase::end_turn`), the EndTurn event `e` released.
-    EndTurn { p: u8, e: EffId },
-    /// The rest of Pokémon Checkup: the Special Conditions' amounts per player, the Checkup events, the continuation.
-    /// `several`: two or more distinct effects applied at the start (the before / after choice exists only then).
-    Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2], several: bool },
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OnComplete {
     None,
@@ -171,10 +161,9 @@ pub struct AtkTrig {
     /// The Attacking Pokémon's slot and the Pokémon card that was in it.
     pub source: SlotRef,
     pub source_pokemon: Option<CardId>,
-    /// Delayed trap of the damaged Pokémon.
+    /// The lasting trigger of the damaged Pokémon ("if this Pokémon is damaged by an attack, put N damage counters on the
+    /// Attacking Pokémon") this record is for, instead of a card's trigger.
     pub retaliate: Option<crate::state::LastingEffect>,
-    /// The trigger moves an Energy off the Attacking Pokémon (Handheld Fan).
-    pub removes_attacker_energy: bool,
 }
 
 /// The attack in progress and what it damaged, kept until the Knock Out check (`prefabs/last-attack.ts`).
@@ -297,8 +286,9 @@ pub struct Game {
     pub deleg: Option<crate::copy_attack::Deleg>,
     /// Energy removals waiting for the damage of an attack (`afterDamageEffects`).
     pub after_dmg: SVec<AfterDmg, 32>,
-    /// Step 7 triggers waiting for the end of the attack (`attackTriggers`).
-    pub triggers: SVec<AtkTrig, 16>,
+    /// The effects of the simultaneous-trigger windows waiting to be applied (`engine::order`: the step 7 triggers of the
+    /// attack, the Knock Out step 2 effects, the end-of-turn and Checkup effects).
+    pub pending: SVec<crate::engine::order::Pending, 32>,
     /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
     pub ten_hp: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
     /// Pokémon (and the owner who flips) whose Tenacious Body / Durable Body coin waits for all the attack's damage
@@ -435,7 +425,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, temp_hw, coin_callbacks,
-                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
+                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
                 derived: _,
                 decls,
                 order_cache: _,
@@ -474,7 +464,7 @@ impl Game {
             f!((*d).copy_serial).write(*copy_serial);
             f!((*d).deleg).write(*deleg);
             after_dmg.copy_live_to(f!((*d).after_dmg));
-            triggers.copy_live_to(f!((*d).triggers));
+            pending.copy_live_to(f!((*d).pending));
             ten_hp.copy_live_to(f!((*d).ten_hp));
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             spec_choices.copy_live_to(f!((*d).spec_choices));
@@ -523,7 +513,7 @@ impl Game {
             copy_serial: 0,
             deleg: None,
             after_dmg: SVec::new(),
-            triggers: SVec::new(),
+            pending: SVec::new(),
             ten_hp: SVec::new(),
             ten_hp_coin: SVec::new(),
             last_attack: None,
@@ -700,20 +690,13 @@ impl Game {
     }
 
     fn drop_triggers(&mut self, atk: EffId) {
-        let mut i = 0;
-        while i < self.triggers.len() {
-            if self.triggers.as_slice()[i].atk == atk {
-                self.triggers.remove_at(i);
-            } else {
-                i += 1;
-            }
-        }
+        crate::engine::order::drop_window(self, crate::engine::order::Tag::Damaged(atk));
     }
 
     /// `ATTACK_TRIGGER(store, state, afterDamageEffect, card, retaliate)`: record the step 7 trigger of `card` on the
-    /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in `run_attack_triggers`, or at once when
-    /// no window is open. Triggers resolve in the order they were recorded.
-    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::LastingEffect>, removes_attacker_energy: bool) -> R {
+    /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in the attack's E-03 window
+    /// (`engine::order`), or at once when no window is open.
+    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::LastingEffect>) -> R {
         let t = AtkTrig {
             atk: b.attack_effect,
             card,
@@ -722,22 +705,22 @@ impl Game {
             source: b.source,
             source_pokemon: self.st.slot_pokemon(b.source.p as usize, b.source.s),
             retaliate,
-            removes_attacker_energy,
         };
         if self.triggers_open(b.attack_effect) {
-            self.triggers.push(t);
+            crate::engine::order::record(self, crate::engine::order::Tag::Damaged(b.attack_effect), crate::engine::order::Item::Damaged(t));
             return Ok(());
         }
         self.resolve_attack_trigger(t)
     }
 
-    fn resolve_attack_trigger(&mut self, t: AtkTrig) -> R {
+    /// The effect that resolves a step 7 trigger record: the AttackTrigger event, as the record says it is now.
+    pub(crate) fn attack_trigger_effect(&self, t: &AtkTrig) -> Option<Effect> {
         let (p, opp, attack) = match *self.e(t.atk) {
             Effect::Attack { p, opp, attack, .. } => (p, opp, attack),
-            _ => return Ok(()),
+            _ => return None,
         };
         let source_in_play = t.source_pokemon.is_some() && self.st.slot_pokemon(t.source.p as usize, t.source.s) == t.source_pokemon;
-        self.run_fx(Effect::AttackTrigger {
+        Some(Effect::AttackTrigger {
             attack_effect: t.atk,
             p,
             opp,
@@ -748,85 +731,27 @@ impl Game {
             source: t.source,
             source_in_play,
             retaliate: t.retaliate,
-        })?;
+        })
+    }
+
+    pub(crate) fn resolve_attack_trigger(&mut self, t: AtkTrig) -> R {
+        if let Some(e) = self.attack_trigger_effect(&t) {
+            self.run_fx(e)?;
+        }
         Ok(())
     }
 
     /// There are step 7 triggers of the attack left to resolve.
     pub fn attack_triggers_pending(&self, atk: EffId) -> bool {
-        self.triggers.as_slice().iter().any(|t| t.atk == atk)
+        crate::engine::order::pending(self, crate::engine::order::Tag::Damaged(atk))
     }
 
-    fn trigger_indices(&self, atk: EffId) -> SVec<usize, 16> {
-        let mut idx: SVec<usize, 16> = SVec::new();
-        for (i, t) in self.triggers.as_slice().iter().enumerate() {
-            if t.atk == atk {
-                idx.push(i);
-            }
-        }
-        idx
-    }
-
-    /// Two pending triggers can give different results in a different order: Handheld Fan moves an Energy off the
-    /// Attacking Pokémon, which can be the Mist Energy that blocks a delayed trap. All others commute.
-    fn trigger_order_matters(&self, idx: &[usize]) -> bool {
-        for &i in idx {
-            let a = self.triggers.as_slice()[i];
-            if !a.removes_attacker_energy {
-                continue;
-            }
-            for &j in idx {
-                let b = self.triggers.as_slice()[j];
-                if b.retaliate.is_none() || b.source_pokemon.is_none() || self.st.slot_pokemon(b.source.p as usize, b.source.s) != b.source_pokemon {
-                    continue;
-                }
-                if self.st.slot(b.source.p as usize, b.source.s).cards.iter().any(|c| self.st.cdef(c).is_energy() && self.st.cdef(c).name == "Mist Energy") {
-                    return true;
-                }
-            }
-        }
-        false
-    }
-
-    /// `RESOLVE_NEXT_ATTACK_TRIGGER` (Advanced Player's Rulebook E-03): resolve the next recorded step 7 trigger, in the
-    /// order recorded, except that the defending player picks the one to resolve first (a Select prompt over the
-    /// cards' names) while 2 or more are pending and the order matters. The caller waits for prompts between calls.
+    /// `RESOLVE_NEXT_ATTACK_TRIGGER` (APR E-03, "the player of the Pokémon taking the damage gets to choose in which
+    /// order to apply those effects"): the next step of the attack's window, in the order recorded unless two or more
+    /// distinct effects apply (`engine::order`). The caller waits for prompts between calls.
     pub fn resolve_next_attack_trigger(&mut self, atk: EffId) -> R {
-        let idx = self.trigger_indices(atk);
-        if idx.is_empty() {
-            return Ok(());
-        }
-        if idx.len() >= 2 && self.trigger_order_matters(idx.as_slice()) {
-            let mut names: SVec<&'static str, 8> = SVec::new();
-            for &i in idx.iter() {
-                names.push(self.st.cdef(self.triggers.as_slice()[i].card).full_name);
-            }
-            let opp = match *self.e(atk) {
-                Effect::Attack { opp, .. } => opp as usize,
-                _ => return Ok(()),
-            };
-            let pid = self.player_id(opp);
-            self.prompt(
-                pid,
-                "CHOOSE_OPTION",
-                crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
-                Cont::TriggerOrder { atk },
-            );
-            return Ok(());
-        }
-        let t = self.triggers.remove_at(idx.as_slice()[0]);
-        self.resolve_attack_trigger(t)
-    }
-
-    /// The choice of the `TriggerOrder` prompt: resolve that trigger now.
-    fn resolve_chosen_trigger(&mut self, atk: EffId, choice: i32) -> R {
-        let idx = self.trigger_indices(atk);
-        if choice < 0 || choice as usize >= idx.len() {
-            // An answer outside the offered triggers (Twinleaf's JavaScript TypeError string removed, batch 8 C12b).
-            crate::bail!("INVALID_PROMPT_RESULT");
-        }
-        let t = self.triggers.remove_at(idx.as_slice()[choice as usize]);
-        self.resolve_attack_trigger(t)
+        let mut w = crate::engine::order::Window::Damaged { atk };
+        crate::engine::order::step(self, &mut w).map(|_| ())
     }
 
     /// `CLOSE_ATTACK_TRIGGERS`: close the step 7 trigger window of the attack.
@@ -1089,11 +1014,10 @@ impl Game {
             }
             Cont::CheckState(f) => crate::engine::knockout::resume(self, f),
             Cont::TakePrizes { p, cause } => crate::engine::knockout::take_prizes_cont(self, p, cause, first),
-            Cont::TriggerOrder { atk } => self.resolve_chosen_trigger(atk, first.as_int()),
-            Cont::OrderEffects { left, sc, then } => crate::engine::phase::ordered_effect(self, left, sc, then, first.as_int()),
-            Cont::OrderNext { left, sc, then } => crate::engine::phase::order_next(self, left, sc, then),
+            Cont::OrderEffects { w } => crate::engine::order::chosen(self, w, first.as_int()),
+            Cont::OrderNext { w } => crate::engine::order::next(self, w),
             Cont::SurviveOrder { grp } => crate::engine::damage::survive_order_chosen(self, grp, first.as_int()),
-            Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
+            Cont::DiscardAttackerEnergy { owner, attack, source_card, target } => crate::engine::game_effect::discard_attacker_energy_cont(self, owner, attack, source_card, target, first),
             Cont::ChooseActive { p } => crate::engine::knockout::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => crate::engine::knockout::bench_shrink_cont(self, p, empty, first),
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),

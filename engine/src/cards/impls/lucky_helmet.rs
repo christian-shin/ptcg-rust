@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LuckyHelmet",
     triggers: &[
-        Trigger { origin: RuleSource::Tool, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: false }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::Not(&Cond::ToolBlocked), yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(2)) }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Tool, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, attacker_required: false }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::Not(&Cond::ToolBlocked), yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(2)) }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };
