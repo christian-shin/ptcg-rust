@@ -1299,11 +1299,6 @@ fn leave(g: &mut Game, id: EffId) -> R {
     };
     match how {
         LeaveHow::KnockOut => {
-            let card = g.st.slot_pokemon(tp, ts);
-            let lost_city = card.map_or(false, |c| g.st.cdef(c).has_tag(tag::PRISM_STAR));
-            if lost_city {
-                crate::bail!("LOST_CITY_KO_NOT_PORTED");
-            }
             let tools: Vec<CardId> = g.st.slot(tp, ts).tools.iter().collect();
             for t in tools {
                 g.move_card_to(target.list(), t, dest);

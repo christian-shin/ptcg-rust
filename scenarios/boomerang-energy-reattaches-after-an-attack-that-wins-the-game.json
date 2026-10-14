@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "4 Boomerang Energy TWM 166",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "4 Boomerang Energy TWM 166",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Shinx FST 91",
+   "Luxio FST 92",
+   "Luxray ex TWM 68"
+  ],
+  "active_energy": [
+   "2 Lightning Energy MEE 4",
+   "Boomerang Energy TWM 166"
+  ],
+  "prizes_left": 1
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shinx FST 91"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Volt Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "APR E: the game ends as soon as a player wins (the opponent's last Pokemon in play is Knocked Out)"
+  },
+  {
+   "at": "game_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Boomerang Energy TWM 166"
+   ],
+   "cite": "Boomerang Energy: discarded by an effect of the attack of the Pokemon it is attached to, it is attached again after attacking; an attack that wins the game is still an attack used, and its after-attack step comes before the Knock Out check (APR D, E-03)"
+  }
+ ]
+}

@@ -262,10 +262,7 @@ pub enum Pred {
     /// The Pokémon card is of this Stage.
     StageIs(Stage),
     /// The Pokémon's printed type includes the type.
-    PrintedType(CardType),
-    /// Card tag (`types::tag`).
-    /// Printed Pokémon type.
-    PokemonType(u8),
+    PokemonType(CardType),
     /// Energy card that provides the type.
     Provides(u8),
     // --- S3 agent 3 appends ---
@@ -619,7 +616,6 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::HasAttackNamed(n) => d.attacks.iter().any(|a| a.name == *n),
         Pred::ProvidesType(t) => d.provides.contains(t),
         Pred::StageIs(st) => mon && d.stage == *st as u8,
-        Pred::PrintedType(t) => mon && d.card_type.contains(t),
         Pred::PokemonType(t) => mon && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::RuleBox => d.has_rule_box(),
@@ -940,11 +936,11 @@ pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, 
         }
         SlotPred::HasAbility => {
             let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
-            g.powers(s.p as usize, src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
+            g.powers(src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
         }
         SlotPred::HasAbilityNamed(n) => {
             let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
-            g.powers(s.p as usize, src)?.iter().any(|r| {
+            g.powers(src)?.iter().any(|r| {
                 let pw = &g.g().st.cdef(r.card).powers[r.index as usize];
                 pw.power_type == PowerType::Ability as u8 && pw.name == *n
             })
@@ -1114,7 +1110,7 @@ pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Co
             }
         }
         Cond::CanEvolveSkippingStage1 => super::ops::board::can_evolve_skipping_stage1(g, me, f.p as usize)?,
-        Cond::AbilityBlocked => g.has_no_ability(f.p as usize, me, None),
+        Cond::AbilityBlocked => g.has_no_ability(me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
         Cond::ToolBlocked => g.tool_off(f.p as usize, me),
         Cond::Slot(e, sp) => match slot_of(g.g(), me, f, *e) {

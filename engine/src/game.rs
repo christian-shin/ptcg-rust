@@ -183,7 +183,6 @@ pub enum Action {
     /// `from`: full name of the Benched Pokémon whose attack this is (Memory Helix), else None.
     Attack { name: &'static str, from: Option<&'static str> },
     UseAbility { name: &'static str, target: CardTarget },
-    UseTrainerAbility { name: &'static str, target: CardTarget },
     UseStadium,
     Retreat { bench_index: u8 },
     Pass,

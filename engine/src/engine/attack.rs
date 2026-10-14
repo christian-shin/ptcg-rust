@@ -273,7 +273,7 @@ pub fn attack_twice(g: &mut Game, f: &AttackFrame, now: bool) -> bool {
         if !now {
             return true;
         }
-        if ps.origin == crate::spec::passive::RuleSource::Ability && crate::derived::has_no_ability(g, p, card, None) {
+        if ps.origin == crate::spec::passive::RuleSource::Ability && crate::derived::has_no_ability(g, card, None) {
             return false;
         }
         let fr = crate::spec::run::Frame::passive(g, card, p, ps.origin);
@@ -413,9 +413,9 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
 }
 
 /// Has the Ability lost to a lock (`turn_action::ability_checks`): `derived::has_no_ability`.
-pub fn power_use_blocked(g: &mut Game, p: usize, power: PowerRef, card: CardId) -> bool {
+pub fn power_use_blocked(g: &mut Game, power: PowerRef, card: CardId) -> bool {
     debug_assert_eq!(power.card, card);
-    crate::derived::has_no_ability(g, p, card, Some(power.index))
+    crate::derived::has_no_ability(g, card, Some(power.index))
 }
 
 pub fn start_use_power(g: &mut Game, id: EffId) -> R {

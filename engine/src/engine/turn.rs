@@ -196,7 +196,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
         Action::UseAbility { name, target } => {
             let card = ability_source(g, p, target)?;
             if let Some(c) = card {
-                let powers = crate::derived::powers(g, p, c)?;
+                let powers = crate::derived::powers(g, c)?;
                 let power = match powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                     Some(r) => *r,
                     None => crate::bail!("UNKNOWN_POWER"),
@@ -207,9 +207,6 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                 }
                 g.run_fx_unit(Effect::UsePower { p: p as u8, power, card: c, target, bench_target: None })?;
             }
-        }
-        Action::UseTrainerAbility { .. } => {
-            // Trainer powers from hand/discard: no pool card has one.
         }
         Action::UseStadium => {
             // The UseStadium event's checks (`engine::turn_action::stadium_checks`, the function legality calls).

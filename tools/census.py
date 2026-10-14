@@ -8,7 +8,7 @@ Three modes (one pass over the core's Rust files each; deterministic output, sta
   --idents    every identifier in the core matched against the CamelCase / snake_case forms of the same names, plus the
               card-data behavior flags and the dead Player / Rules fields the core still names
   --twinleaf  "Twinleaf" comment lines, JS-method names in backticks that are no Rust identifier, `TypeError` strings,
-              `// Bn-OLD` markers, "as today"
+              `// Bn-OLD` markers, "as today", the retired engine's sources named in comments (.ts, oracle, JavaScript, V8)
 
 The core is every .rs file under engine/src except cards/impls/, gen/ and bin/, minus `#[cfg(test)]` items and
 `#[test]` functions. Run from anywhere: the repository root is found from this file's location (override with --root).
@@ -394,58 +394,57 @@ OWNER_IDENT = {
     "DAMP": "C1", "Switch": "legitimate? (Op::Switch is the rules word)", "TRUMP_CARD_MARKER": "C6", "BOOMERANG_DISCARDED_MARKER": "C6",
 }
 
-# Card-data behavior flags and card-shaped state fields the core reads (found by reading carddb.rs, state.rs and what
-# tools/gen_carddb.py emits from a Twinleaf flag). ident -> (where it lives, owner task, note). Matching is on the
-# identifier token; `first_turn` only counts as a field read (`.first_turn`) because `first_turn` is also a rules word.
+# Card-data behavior flags and card-shaped state fields: the forms batch 9 deleted (a hit is a regression: the card
+# knowledge went back into the core) and the registry names that remain. ident -> (where it lived, task that deleted it,
+# note). Matching is on the identifier token; `class` / `behavior` only count as field reads (`.class`, `.behavior`).
 FLAGS = {
-    # CardDef / AttackDef / PowerDef fields that are Twinleaf behavior flags, not printed fields
-    "exempt_from_initialize": ("PowerDef", "C4", "Twinleaf flag"),
-    "exempt_from_ability_lock": ("PowerDef", "C4", "Twinleaf flag (Antique Fossils)"),
-    "knocks_out_self": ("PowerDef", "C4", "Twinleaf flag"),
-    "ability_lock": ("PowerDef", "C4", "Twinleaf flag, true on Flutter Mane / Iron Thorns ex (the lock Abilities)"),
-    "is_fossil": ("PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, true on the Antique Fossils; never read by the core (field declaration only)"),
-    "barrage": ("AttackDef / PowerDef", "C3/C4", "Twinleaf flag, false on every def in data/cards.json; AttackDef's is read (attack.rs), PowerDef's never"),
-    "use_on_bench": ("AttackDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; read at turn.rs / attack.rs / options.rs (dead branches)"),
-    "gx_attack": ("AttackDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; never read (field declaration only)"),
-    "shred_attack": ("AttackDef", "NOT IN PLAN (C4)", "Twinleaf flag, true on 9 pool attacks; never read by the core (Shred is the AttackFlags declaration)"),
-    "has_effect_fn": ("AttackDef / PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; never read (field declaration only)"),
-    "use_when_in_play": ("PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, true on 67 defs (48 pool: the usable Abilities); read at turn.rs:52 and the usability sweep"),
-    "use_from_hand": ("PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; read at turn.rs / passive.rs (dead branches)"),
-    "use_from_hand_to_bench": ("PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; never read"),
-    "use_from_discard": ("PowerDef", "NOT IN PLAN (C4)", "Twinleaf flag, false on every def; read at turn.rs / passive.rs (dead branches)"),
-    "copycat_attack": ("AttackDef", "C4", "Twinleaf flag"),
-    "can_use_on_first_turn": ("AttackDef", "C4", "Twinleaf flag"),
-    "attaches_to_opponents_pokemon": ("CardDef", "C4", "Twinleaf flag"),
-    "fossil_doll": ("CardDef", "C4", "Twinleaf flag"),
-    "methods": ("CardDef", "NOT IN PLAN", "Twinleaf class method list (`has_method`: carddb.rs only)"),
-    "has_method": ("CardDef", "NOT IN PLAN", "reader of the Twinleaf method list"),
-    "class": ("CardDef", "decision 8.5 (class rename)", "Twinleaf class name (read as `.class`)"),
-    "behavior": ("CardDef", "decision 8.5 (class rename)", "Twinleaf behavior class name (read as `.behavior`)"),
-    # Player / Slot / CardInst / Rules fields
-    "used_dragons_wish": ("Player", "C1", "plan 2.2 claims dead"),
-    "unlimited_energy_attach_turns_remaining": ("Player", "C1", "plan 2.2 claims dead"),
-    "stadium_and_tool_have_no_effect_turns_remaining": ("Player", "C1", "plan 2.2 claims dead"),
-    "can_evolve": ("Player", "C1", "plan 2.2 claims dead"),
-    "unlimited_energy_attachments": ("Rules", "C1", "plan 2.2 claims dead"),
-    "ancient_pokemon_attacked_last_turn": ("Player", "C1", "card-shaped record"),
-    "legacy_energy_used": ("Player", "C1", "card-shaped record"),
-    "attack_barrage": ("CardInst", "C3", "Festival Lead flag on the card"),
-    "barrage_used": ("Effect::UseAttack / Attack", "C3 (rename, not delete)", "LIVE: written true at attack.rs:409 (the second use), read at attack.rs:306-311; HANDOFF calls it dead"),
-    "write_barrage": ("fn", "C3", "Festival Lead flag writer"),
-    "player_id": ("fn", "C9", "Player::id reader"),
-    "player_index_by_id": ("fn", "C9", "Player::id reader"),
-    "intern": ("markers.rs", "C6", "string-keyed markers"),
-    "marker_id": ("markers.rs", "C6", "string-keyed markers"),
+    # CardDef / AttackDef / PowerDef flags deleted by C4 (the rules read declarations instead)
+    "exempt_from_initialize": ("PowerDef", "C4", "deleted card-data flag"),
+    "exempt_from_ability_lock": ("PowerDef", "C4", "deleted card-data flag"),
+    "knocks_out_self": ("PowerDef", "C4", "deleted card-data flag (the program's consequence says it)"),
+    "is_fossil": ("PowerDef", "C4", "deleted card-data flag"),
+    "barrage": ("AttackDef / PowerDef", "C3/C4", "deleted card-data flag"),
+    "use_on_bench": ("AttackDef", "C4", "deleted card-data flag"),
+    "gx_attack": ("AttackDef", "C4", "deleted card-data flag"),
+    "shred_attack": ("AttackDef", "C4", "deleted card-data flag"),
+    "has_effect_fn": ("AttackDef / PowerDef", "C4", "deleted card-data flag"),
+    "use_when_in_play": ("PowerDef", "C4", "deleted card-data flag"),
+    "use_from_hand": ("PowerDef", "C4", "deleted card-data flag"),
+    "use_from_hand_to_bench": ("PowerDef", "C4", "deleted card-data flag"),
+    "use_from_discard": ("PowerDef", "C4", "deleted card-data flag"),
+    "copycat_attack": ("AttackDef", "C4", "deleted card-data flag"),
+    "can_use_on_first_turn": ("AttackDef", "C4", "deleted card-data flag"),
+    "attaches_to_opponents_pokemon": ("CardDef", "C4", "deleted card-data flag"),
+    "fossil_doll": ("CardDef", "C4", "deleted card-data flag"),
+    "methods": ("CardDef", "C4", "deleted class method list"),
+    "has_method": ("CardDef", "C4", "deleted reader of the method list"),
+    # the behavior class names that remain: the registry key of a card's port (card knowledge by design)
+    "class": ("CardDef", "kept", "the behavior class name (registry key, read as `.class`)"),
+    "behavior": ("CardDef", "kept", "the behavior class name (registry key, read as `.behavior`)"),
+    # Player / Slot / CardInst / Rules fields deleted by C1 / C3 / C9
+    "used_dragons_wish": ("Player", "C1", "deleted dead field"),
+    "unlimited_energy_attach_turns_remaining": ("Player", "C1", "deleted dead field"),
+    "stadium_and_tool_have_no_effect_turns_remaining": ("Player", "C1", "deleted dead field"),
+    "can_evolve": ("Player", "C1", "deleted dead field"),
+    "unlimited_energy_attachments": ("Rules", "C1", "deleted dead field"),
+    "ancient_pokemon_attacked_last_turn": ("Player", "C1", "deleted card-shaped record"),
+    "legacy_energy_used": ("Player", "C1", "deleted card-shaped record"),
+    "attack_barrage": ("CardInst", "C3", "deleted Festival Lead flag on the card"),
+    "barrage_used": ("Effect::UseAttack / Attack", "C3", "deleted"),
+    "write_barrage": ("fn", "C3", "deleted Festival Lead flag writer"),
+    "player_id": ("fn", "C9", "deleted: a player is the player index (the trace boundary writes index + 1)"),
+    "player_index_by_id": ("fn", "C9", "deleted: a player is the player index"),
+    "perspective_id": ("fn", "C9", "deleted: a prompt names its player by index"),
+    "intern": ("markers.rs", "C6", "deleted string-keyed markers"),
+    "marker_id": ("markers.rs", "C6", "deleted string-keyed markers"),
 }
 # `.field` reads whose bare word is common: counted only after a dot.
-FLAGS_DOT_ONLY = {"first_turn": ("CardDef or AttackFlagsSpec", "C4", "`.first_turn` is two fields: CardDef (Carmine PRE 103 / Proton ASC 208, play_trainer.rs:79 only) and AttackFlagsSpec (a declaration)"), "id": ("Player", "C9", "Twinleaf client id"),
-                  "class": FLAGS["class"], "behavior": FLAGS["behavior"], "methods": FLAGS["methods"]}
-# `.barrage` etc. are fields of two structs; both are Twinleaf flags.
-# Identifiers (not field names) of the marker machinery: counted in --idents so C6's work is visible.
-MARKER_IDENTS = {"SetMarker": "C6", "ClearMarker": "C6", "HasMarker": "C6", "marker": "C6", "Marker": "C6",
-                 "PlayerMarker": "C6", "DAMAGE_DEALT_MARKER": "C1", "KNOCKOUT_MARKER": "C1",
-                 "CLEAR_KNOCKOUT_MARKER": "C1", "LOST_CITY_MARKER": "C1", "COIN_REFLIP_AGAIN_USED": "C6",
-                 "EXTRA_LEN": "C6"}
+FLAGS_DOT_ONLY = {"class": FLAGS["class"], "behavior": FLAGS["behavior"], "methods": FLAGS["methods"]}
+# Identifiers of the deleted marker machinery (C1 / C6): any hit is a regression.
+MARKER_IDENTS = {"SetMarker": "C6", "ClearMarker": "C6", "HasMarker": "C6", "PlayerMarker": "C6",
+                 "DAMAGE_DEALT_MARKER": "C1", "KNOCKOUT_MARKER": "C1", "CLEAR_KNOCKOUT_MARKER": "C1",
+                 "LOST_CITY_MARKER": "C1", "COIN_REFLIP_AGAIN_USED": "C6", "EXTRA_LEN": "C6",
+                 "TRUMP_CARD_MARKER": "C6", "BOOMERANG_DISCARDED_MARKER": "C6"}
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -512,7 +511,6 @@ def mode_idents(root, files):
     rows = []
     flag_rows = []
     marker_rows = []
-    id_dot = {}
     seen = set()
     for rel, toks, mask in files:
         for idx, ((k, t, ln), m) in enumerate(zip(toks, mask)):
@@ -524,10 +522,7 @@ def mode_idents(root, files):
             if t in FLAGS and not (t in ("class", "behavior", "methods") and prev != "."):
                 flag_rows.append((rel, ln, t, FLAGS[t]))
             elif t in FLAGS_DOT_ONLY and prev == "." and prev_kind == "p":
-                if t == "id":
-                    id_dot[rel] = id_dot.get(rel, 0) + 1
-                else:
-                    flag_rows.append((rel, ln, "." + t, FLAGS_DOT_ONLY[t]))
+                flag_rows.append((rel, ln, "." + t, FLAGS_DOT_ONLY[t]))
             if t in MARKER_IDENTS:
                 marker_rows.append((rel, ln, t, MARKER_IDENTS[t]))
             key = (rel, ln, t)
@@ -578,7 +573,7 @@ def mode_idents(root, files):
     print("# identifier matches: %d (OPEN %d, low-confidence %d)" % (len(rows), sum(1 for r in rows if r[4] == "OPEN"),
                                                                     sum(1 for r in rows if r[4] == "low")))
     print()
-    print("## behavior flags and card-shaped fields read by the core (identifier tokens; one line per use)")
+    print("## behavior flags and card-shaped fields (identifier tokens; one line per use; every one but class / behavior is a regression)")
     flag_rows.sort(key=lambda r: (r[2], r[0], r[1]))
     for rel, ln, t, (where, owner, note) in flag_rows:
         print("%s:%d\t%s\t%s\towner %s\t%s" % (rel, ln, t, where, owner, note))
@@ -587,7 +582,7 @@ def mode_idents(root, files):
         by[r[2]] = by.get(r[2], 0) + 1
     print("# flag uses by name: " + ", ".join("%s=%d" % kv for kv in sorted(by.items())))
     print()
-    print("## marker machinery (identifier tokens)")
+    print("## deleted marker machinery (identifier tokens; every hit is a regression)")
     marker_rows.sort(key=lambda r: (r[2], r[0], r[1]))
     mc = {}
     for rel, ln, t, owner in marker_rows:
@@ -595,20 +590,18 @@ def mode_idents(root, files):
     print("# marker identifier uses by name: " + ", ".join("%s=%d" % kv for kv in sorted(mc.items())))
     for rel, ln, t, owner in marker_rows:
         print("%s:%d\t%s\towner %s" % (rel, ln, t, owner))
-    print()
-    print("## `.id` field reads by file (Player::id and kin; the field name is shared, so this over-counts): total %d" % sum(id_dot.values()))
-    for rel in sorted(id_dot):
-        print("%s\t%d" % (rel, id_dot[rel]))
     return len(rows)
 
 
 BT_RE = re.compile(r"`([^`\n]+)`")
 OLD_RE = re.compile(r"\bB\d+[a-z]?-OLD\b")
+# The retired engine's sources named in a comment: TypeScript file names, the oracle, JavaScript, V8.
+SOURCE_RE = re.compile(r"\b[a-z][a-z0-9-]*\.ts\b|\boracle\b|\bJavaScript\b|\bV8\b", re.I)
 
 
 def mode_twinleaf(root, files):
     rust = all_rust_idents(root)
-    out = {"twinleaf": [], "js": [], "typeerror": [], "old": [], "today": []}
+    out = {"twinleaf": [], "js": [], "typeerror": [], "old": [], "today": [], "source": []}
     for rel, toks, mask in files:
         for (k, t, ln), m in zip(toks, mask):
             if m:
@@ -622,14 +615,18 @@ def mode_twinleaf(root, files):
                         out["twinleaf"].append((rel, l, text.strip()))
                     if "TypeError" in text:
                         out["typeerror"].append((rel, l, "(comment) " + text.strip()))
+                    if SOURCE_RE.search(text):
+                        out["source"].append((rel, l, text.strip()))
                     if OLD_RE.search(text):
                         out["old"].append((rel, l, text.strip()))
                     if re.search(r"\bas today\b", text, re.I):
                         out["today"].append((rel, l, text.strip()))
                     for span in BT_RE.findall(text):
+                        if "@" in span:
+                            continue  # a registry key (`Class@SET`), not a method name
                         bad = []
                         for w in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", span):
-                            if re.search(r"[a-z]", w) and re.search(r"[A-Z]", w) and "_" not in w and w not in rust:
+                            if re.search(r"[a-z][A-Z]", w) and "_" not in w and w not in rust:
                                 bad.append(w)
                         if bad:
                             out["js"].append((rel, l, "`%s` -> %s" % (span, ",".join(sorted(set(bad))))))
@@ -641,7 +638,8 @@ def mode_twinleaf(root, files):
                 if re.search(r"\bas today\b", t, re.I):
                     out["today"].append((rel, ln, "(string) " + json.dumps(t, ensure_ascii=False)))
     titles = [("twinleaf", "\"Twinleaf\" in comments / strings"), ("js", "backticked JS-method names that are no Rust identifier"),
-              ("typeerror", "TypeError strings and comments"), ("old", "// Bn-OLD markers"), ("today", "\"as today\"")]
+              ("typeerror", "TypeError strings and comments"), ("old", "// Bn-OLD markers"), ("today", "\"as today\""),
+              ("source", "the retired engine's sources in comments (.ts file names, oracle, JavaScript, V8)")]
     for key, title in titles:
         rows = sorted(set(out[key]))
         print("## %s: %d lines in %d files" % (title, len(rows), len(set(r[0] for r in rows))))
@@ -657,13 +655,12 @@ def card_files(root):
 
 
 def mode_markers(root):
-    """Marker census over the card files (cards/impls): who sets / clears / reads which marker, the usage limits
-    (`Once::PerTurn`, `Once::PerTurnShared`), the EndTurn triggers and what their programs do. A name is a literal or a
-    `const NAME: &str = ".."` of the same file; an identifier imported from elsewhere prints as <IDENT>."""
+    """Usage-limit census over the card files (cards/impls): who declares which usage limit (`Once::PerTurn`,
+    `Once::PerTurnShared`, a `once:` field), and the EndTurn triggers with what their programs do. A name is a literal or a
+    `const NAME: &str = ".."` of the same file; an identifier imported from elsewhere prints as <IDENT>. (The string-keyed
+    marker forms C6 deleted are reported by `--idents` as regressions.)"""
     files = {}
-    names = {"SetMarker": set(), "ClearMarker": set(), "HasMarker": set(), "PerTurn": set(), "PerTurnShared": set(),
-             "marker!": set(), "MarkerFromThis": set(), "once:": set()}
-    scope_slot = {}
+    names = {"PerTurn": set(), "PerTurnShared": set(), "once:": set()}
     endturn = []
     for path in card_files(root):
         rel = os.path.basename(path)
@@ -694,38 +691,13 @@ def mode_markers(root):
         for i, (k, t, ln) in enumerate(toks):
             if k != "id":
                 continue
-            if t in ("SetMarker", "ClearMarker", "HasMarker", "MarkerFromThis") and i >= 2 and toks[i - 1][1] == ":" and toks[i - 2][1] == ":":
-                nm = None
-                scope = None
-                depth = 0
-                for j in range(i, min(i + 60, n)):
-                    if toks[j][0] == "p" and toks[j][1] in "({[":
-                        depth += 1
-                    elif toks[j][0] == "p" and toks[j][1] in ")}]":
-                        depth -= 1
-                        if depth <= 0:
-                            break
-                    if toks[j][0] == "id" and toks[j][1] == "name" and j + 1 < n and toks[j + 1][1] == ":":
-                        nm = resolve(j + 2)
-                    if toks[j][0] == "id" and toks[j][1] == "MarkerScope" and scope is None and j + 3 < n:
-                        scope = toks[j + 3][1]
-                if t == "MarkerFromThis":
-                    nm = resolve(i + 2)
-                files.setdefault(rel, []).append((ln, t, nm, scope))
-                names[t].add(nm)
-                if scope == "Slot":
-                    scope_slot.setdefault(rel, set()).add(nm)
-            elif t in ("PerTurn", "PerTurnShared") and i >= 3 and toks[i - 3][1] == "Once":
+            if t in ("PerTurn", "PerTurnShared") and i >= 3 and toks[i - 3][1] == "Once":
                 nm = resolve(i + 2)
-                files.setdefault(rel, []).append((ln, "Once::" + t, nm, None))
+                files.setdefault(rel, []).append((ln, "Once::" + t, nm))
                 names[t].add(nm)
-            elif t == "marker" and i + 1 < n and toks[i + 1][1] == "!":
-                nm = resolve(i + 3)
-                files.setdefault(rel, []).append((ln, "marker!", nm, None))
-                names["marker!"].add(nm)
             elif t == "once" and i + 2 < n and toks[i + 1][1] == ":" and toks[i + 2][0] == "id" and toks[i + 2][1] != "Once":
                 nm = resolve(i + 2)
-                files.setdefault(rel, []).append((ln, "once:", nm, None))
+                files.setdefault(rel, []).append((ln, "once:", nm))
                 names["once:"].add(nm)
             elif t == "Trigger" and i + 1 < n and toks[i + 1][1] == "{":
                 depth = 0
@@ -746,31 +718,22 @@ def mode_markers(root):
                     ops = sorted({body[x + 3][1] for x in range(m - 3) if body[x][1] == "Op" and body[x + 1][1] == ":"})
                     via_const = (not ops) and any(b[1] == "steps" for b in body)
                     endturn.append((rel, ln, ops, via_const))
-    print("## card files using SetMarker / ClearMarker / HasMarker / marker! / MarkerFromThis / Once::PerTurn(Shared) / once: : %d" % len(files))
+    print("## card files declaring a usage limit (Once::PerTurn(Shared) / once:): %d" % len(files))
     for rel in sorted(files):
-        print("%s: %s" % (rel, "; ".join("%d %s %s%s" % (ln, op, nm, "" if sc is None else " [%s]" % sc) for ln, op, nm, sc in files[rel])))
+        print("%s: %s" % (rel, "; ".join("%d %s %s" % (ln, op, nm) for ln, op, nm in files[rel])))
     print()
     for kk in sorted(names):
         print("# distinct names for %-14s %d: %s" % (kk, len(names[kk]), ", ".join(sorted(str(x) for x in names[kk]))))
     allp = names["PerTurn"] | names["PerTurnShared"]
     print("# distinct PerTurn + PerTurnShared names: %d" % len(allp))
-    print("# card files with a Slot-scoped marker op: %d: %s" % (len(scope_slot), ", ".join("%s(%s)" % (r, "/".join(sorted(map(str, v)))) for r, v in sorted(scope_slot.items()))))
     print()
     print("## triggers whose event is EventKind::EndTurn (the card's `Trigger { .. }` blocks)")
-    only_clear = set()
     files_end = set()
     for rel, ln, ops, via_const in endturn:
         files_end.add(rel)
-        if ops == ["ClearMarker"]:
-            flag = "ONLY ClearMarker"
-            only_clear.add(rel)
-        elif via_const:
-            flag = "(steps via a const: read the file)"
-        else:
-            flag = "other ops"
-        print("%s:%d\tops %s\t%s" % (rel, ln, ",".join(ops) or "-", flag))
-    print("# files with an EndTurn trigger: %d; files whose EndTurn trigger program is only ClearMarker: %d" % (len(files_end), len(only_clear)))
-    print("# ONLY-ClearMarker files: " + ", ".join(sorted(only_clear)))
+        flag = "(steps via a const: read the file)" if via_const else "ops"
+        print("%s:%d\t%s\t%s" % (rel, ln, ",".join(ops) or "-", flag))
+    print("# files with an EndTurn trigger: %d" % len(files_end))
     return 0
 
 
@@ -779,7 +742,7 @@ def main():
     ap.add_argument("--literals", action="store_true")
     ap.add_argument("--idents", action="store_true")
     ap.add_argument("--twinleaf", action="store_true")
-    ap.add_argument("--markers", action="store_true", help="marker census over the card files (batch 9 C6)")
+    ap.add_argument("--markers", action="store_true", help="usage-limit and EndTurn-trigger census over the card files")
     ap.add_argument("--root", default=None, help="repository root (default: the checkout this script is in)")
     a = ap.parse_args()
     if not (a.literals or a.idents or a.twinleaf or a.markers):
