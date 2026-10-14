@@ -5,6 +5,7 @@
 //! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Matcha Spin does no damage; the counters are one
 //! PlaceCounters event per Pokémon with the attack as its cause (APR C-07: no Weakness, Resistance or damage modifiers).
 //! Mist Energy or Hide 'n' Sneak on a Pokémon refuses its counters and the others still get theirs.
+use super::shuppet::HIDE_N_SNEAK;
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

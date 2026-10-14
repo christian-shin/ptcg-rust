@@ -9,6 +9,10 @@
 //! off nothing is prevented.
 use crate::spec::prelude::*;
 
+/// Hide 'n' Sneak (Shuppet, Banette, Sinistcha, Poltchageist): no Bench condition (the printed text has none; id2426
+/// has it work on an Active Pokémon).
+pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES);
+
 pub static SPEC: CardSpec = CardSpec {
     class: "Shuppet",
     passives: &[

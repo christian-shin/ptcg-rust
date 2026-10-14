@@ -5,6 +5,17 @@
 //! Out are off while Damp works, Damp itself excepted (JP FAQ Dusknoir / Dusclops, id2043).
 use crate::spec::prelude::*;
 
+/// Damp (Psyduck, Golduck): Pokémon in play lose Abilities that require them to Knock Out themselves.
+pub const DAMP: AbilityLockSpec = AbilityLockSpec {
+    error: "BLOCKED_BY_ABILITY",
+    locker: Locker::InPlayEitherSide,
+    card: Pred::Any,
+    slot: SlotPred::Any,
+    missing: Pred::False,
+    powers: LockedPowers { generic_probe: false, only_knocks_out_self: true },
+    probe: LockerProbe::OwnPower(0),
+};
+
 pub static SPEC: CardSpec = CardSpec {
     class: "Psyduck@ASC|MEP",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AbilityLock(DAMP) }],

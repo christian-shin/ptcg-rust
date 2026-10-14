@@ -8,6 +8,7 @@
 //! Drop is a PlaceCounters event of 1 (cause: this attack; no Weakness or Resistance, APR C-07),
 //! refused by Hide 'n' Sneak, Mist Energy, and nothing else on the Active Pokémon (Battle Cage
 //! protects the Bench only).
+use super::shuppet::HIDE_N_SNEAK;
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

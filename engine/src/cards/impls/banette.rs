@@ -4,6 +4,7 @@
 //! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Puppet Pull asks first (a "may"); on yes with a
 //! non-empty deck (id840) one card of any kind goes into the hand (a PutIntoHand event, this attack its cause; nothing is
 //! revealed, the text doesn't say so), then the deck is shuffled (APR E-19).
+use super::shuppet::HIDE_N_SNEAK;
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

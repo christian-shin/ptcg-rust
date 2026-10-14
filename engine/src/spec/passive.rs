@@ -1611,18 +1611,6 @@ fn ability_lock(g: &mut Game, me: CardId, e: EffId, l: &AbilityLockSpec) -> R {
     Ok(())
 }
 
-/// Damp (Psyduck, Golduck): Pokémon in play lose Abilities that require them to Knock Out
-/// themselves.
-pub const DAMP: AbilityLockSpec = AbilityLockSpec {
-    error: "BLOCKED_BY_ABILITY",
-    locker: Locker::InPlayEitherSide,
-    card: Pred::Any,
-    slot: SlotPred::Any,
-    missing: Pred::False,
-    powers: LockedPowers { generic_probe: false, only_knocks_out_self: true },
-    probe: LockerProbe::OwnPower(0),
-};
-
 // ---------------------------------------------------------------------------
 // Prevent
 
@@ -1689,10 +1677,6 @@ pub const EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES: super::event::EventPred = super:
 /// "Damage from and effects of": the Damage event or any event with an effect (`All[DAMAGE_OR_EFFECTS, Cause(..)]`
 /// restricts both to the cause: Rabsca, Acerola's Mischief, Milotic ex).
 pub const DAMAGE_OR_EFFECTS: super::event::EventPred = super::event::EventPred::Any(&[super::event::EventPred::Kind(super::event::EventKind::Damage), super::event::EventPred::ALWAYS]);
-
-/// Hide 'n' Sneak (Shuppet, Banette, Sinistcha, Poltchageist): no Bench condition (the printed text has none; id2426
-/// has it work on an Active Pokémon).
-pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES);
 
 /// "During your opponent's next turn, prevent all effects of attacks done to this Pokémon" (an attack's lasting effect on
 /// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (the lasting table, `engine::lasting`).

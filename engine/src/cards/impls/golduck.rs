@@ -2,6 +2,7 @@
 //!
 //! Hydro Pump adds 20 per [W] Energy provided on the attacking Pokémon (`EnergyUnit::Provided`, so a Prism Energy counts
 //! as [W]) before the damage. Damp is `DAMP`, the Ability lock on Abilities that Knock Out their user.
+use super::psyduck::DAMP;
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Golduck@ASC|MEP",
