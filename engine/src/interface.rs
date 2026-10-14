@@ -621,10 +621,14 @@ impl Game {
                 }
                 mk(SelectType::Count, ctx, 1, 1, options, vals, AnswerShape::Single)
             }
-            PromptKind::ChooseAttack { cards, .. } => {
+            PromptKind::ChooseAttack { cards, blocked, .. } => {
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for (i, c) in cards.iter().enumerate() {
                     for (a, at) in self.st.cdef(*c).attacks.iter().enumerate() {
+                        // A blocked attack is shown in the prompt's `blocked` list and is not an option.
+                        if blocked.iter().any(|(bi, ba)| *bi as usize == i && *ba as usize == a) {
+                            continue;
+                        }
                         options.push(Opt {
                             kind: OptionType::Attack as u8,
                             attack_id: Some(a as u8),

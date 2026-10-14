@@ -31,7 +31,23 @@
     },
     {
       "index": 0,
-      "attack": "Unified Beatdown"
+      "attack": "Crown Opal"
+    }
+  ],
+  "expect": [
+    {
+      "prompts": [
+        "ChooseAttack"
+      ],
+      "cite": "RULES.md 'Choose 1 of [those] attacks and use it as this attack' (user, 2026-10-13; id318, id1930): the choice is offered with Unified Beatdown blocked"
+    },
+    {
+      "at": "turn_end",
+      "who": "opp",
+      "slot": "active",
+      "card": "Terapagos ex ASC 179",
+      "damage": 180,
+      "cite": "RULES.md 'Choose 1 of [those] attacks and use it as this attack' (user, 2026-10-13; id318, id1930): Unified Beatdown can't be used during the second player's first turn (turn 2), so only Crown Opal is chosable; it does its 180"
     }
   ]
 }
