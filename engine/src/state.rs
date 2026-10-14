@@ -7,7 +7,6 @@
 
 use crate::carddb::{def, CardDef, DefId, PF_FOSSIL, PF_POKEMON};
 use crate::list::*;
-use crate::markers::*;
 use crate::types::*;
 
 pub const MAX_CARDS: usize = 120;
@@ -21,70 +20,6 @@ pub const MAX_BENCH: usize = 8;
 pub type Deck = ZoneList<120>;
 pub type SlotId = u8;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
-pub struct MarkerItem {
-    pub name: MarkerName,
-    pub source: CardId,
-    pub source_type: SourceType,
-    pub target_scope: TargetScope,
-}
-
-/// `Marker`: ordered list of marker items. Slots hold up to 12; a player's
-/// list holds up to 48 ([`PlayerMarker`]): many cards add a marker per copy
-/// in either deck (Team Rocket's Archer: one per Archer, 8 in a mirror match).
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Marker<const N: usize = 12> {
-    pub items: SVec<MarkerItem, N>,
-}
-
-pub type PlayerMarker = Marker<48>;
-
-impl<const N: usize> Default for Marker<N> {
-    fn default() -> Self {
-        Marker { items: SVec::new() }
-    }
-}
-
-impl<const N: usize> Marker<N> {
-    pub fn has(&self, name: MarkerName) -> bool {
-        self.items.iter().any(|m| m.name == name)
-    }
-    pub fn has_from(&self, name: MarkerName, source: CardId) -> bool {
-        self.items.iter().any(|m| m.name == name && m.source == source)
-    }
-    pub fn remove(&mut self, name: MarkerName) {
-        self.items.retain(|m| m.name != name);
-    }
-    pub fn remove_from(&mut self, name: MarkerName, source: CardId) {
-        self.items.retain(|m| !(m.source == source && m.name == name));
-    }
-    pub fn add(&mut self, name: MarkerName, source: CardId, st: SourceType, scope: TargetScope) {
-        if self.has_from(name, source) {
-            return;
-        }
-        self.items.push(MarkerItem { name, source, source_type: st, target_scope: scope });
-    }
-    /// `addMarkerToState`: sourceless marker, once.
-    pub fn add_to_state(&mut self, name: MarkerName) {
-        if self.has(name) {
-            return;
-        }
-        self.items.push(MarkerItem { name, source: NO_CARD, ..Default::default() });
-    }
-    pub fn remove_attack_effects(&mut self) {
-        self.items.retain(|m| m.source_type != SourceType::Attack);
-    }
-    pub fn clear(&mut self) {
-        self.items.clear();
-    }
-    /// `removeAllExceptTrainerEffects`: keeps the markers a Trainer card put on a Pokémon when it moves to the Bench
-    /// (Acerola's Mischief, id2228; an Ability's effect too, id1651). Evolving and devolving end them all
-    /// (`game_effect::clear_effects_evolving`).
-    pub fn remove_all_except_trainer_effects(&mut self) {
-        self.items.retain(|m| m.source_type == SourceType::Trainer);
-    }
-}
-
 /// `PokemonCardList`: one board slot.
 #[derive(Clone, Copy, Debug)]
 pub struct Slot {
@@ -97,7 +32,6 @@ pub struct Slot {
     pub poison_damage: i32,
     pub burn_damage: i32,
     pub confusion_damage: i32,
-    pub marker: Marker,
     /// The turn the Pokémon in this spot came into play: put into play, evolved or devolved (APR A-05,
     /// C-13; id2229). Slot-bound (events design 4.5). No permission rewrites it: permissions lift limits
     /// (`Modifier::Permit`) instead. The one record of the fact: evolution timing, "played this turn"
@@ -126,7 +60,6 @@ impl Default for Slot {
             poison_damage: 10,
             burn_damage: 20,
             confusion_damage: 30,
-            marker: Marker::default(),
             entered_turn: 0,
             sleep_flips: 1,
             attacks_this_turn: None,
@@ -332,7 +265,6 @@ pub struct Player {
     pub retreated_turn: i32,
     pub energy_played_turn: i32,
     pub stadium_used_turn: i32,
-    pub marker: PlayerMarker,
     pub used_vstar: bool,
     pub used_gx: bool,
     pub prizes_taken: i32,
@@ -370,7 +302,6 @@ impl Player {
             retreated_turn: 0,
             energy_played_turn: 0,
             stadium_used_turn: 0,
-            marker: Marker::default(),
             used_vstar: false,
             used_gx: false,
             prizes_taken: 0,
@@ -532,7 +463,7 @@ pub struct State {
     /// were put.
     pub lasting: SVec<LastingEffect, 32>,
     /// The usage records (events batch 9 C6; `engine::usage`), in the order they were made.
-    pub usage: SVec<Usage, 20>,
+    pub usage: SVec<Usage, 32>,
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`

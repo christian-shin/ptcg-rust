@@ -1,16 +1,15 @@
-//! Lasting effects and markers: attack flags, "during your opponent's next
+//! Lasting effects, declared effects, usage and slot records: attack flags, "during your opponent's next
 //! turn" effects (vocabulary v1 "Operations", state; "Core trackers").
 //!
-//! `Arm` writes the engine's own lasting-effect state (the slot fields that
-//! roll over at the end of the turn, `effects.rs` effects); markers use the
-//! engine's marker lists. No op here asks a question.
+//! `Arm` writes the engine's own lasting-effect state (the lasting table, `engine::lasting`); `Declare` puts an effect the
+//! card declares there; `Used` makes a usage record (`engine::usage`); `Record` / `Forget` make and end a card's record of a
+//! Pokémon. No op here asks a question.
 
 use super::super::run::{Flow, Frame};
 use super::super::*;
 use crate::effects::{ApplyTarget, Effect, SlotRef};
 use crate::game::{Game, R};
 use crate::list::{CardId, SVec};
-use crate::markers::{MarkerName, SourceType, TargetScope};
 use crate::prompts::Res;
 use crate::types::Stage;
 
@@ -304,52 +303,6 @@ pub fn is_used(g: &Game, me: CardId, f: &Frame, u: &UsedSpec) -> bool {
 }
 
 // ---------------------------------------------------------------------------
-// Markers
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum MarkerScope {
-    /// A marker on a player (`Who::Me` = the player the program runs for).
-    Player(Who),
-    /// A marker on a Pokémon (a Trainer effect when the source is `TrainerEffect`: it stays on
-    /// the Pokémon when it moves or evolves).
-    Slot(SlotExpr),
-    /// A marker on every Pokémon of a player.
-    EveryPokemon(Who),
-}
-
-/// Which markers of a name count: only the one set by this card, or any.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum MarkerFrom {
-    This,
-    Any,
-}
-
-pub struct SetMarkerSpec {
-    pub scope: MarkerScope,
-    pub name: &'static str,
-    pub source: RuleSource,
-}
-
-pub struct ClearMarkerSpec {
-    pub scope: MarkerScope,
-    pub name: &'static str,
-    pub from: MarkerFrom,
-}
-
-pub(crate) fn marker_of(name: &'static str) -> MarkerName {
-    crate::markers::intern(name)
-}
-
-/// Does the player's marker list hold the marker `name` (set by `me` only for `From::This`)?
-pub fn has_marker(g: &Game, me: CardId, p: usize, name: &'static str, from: MarkerFrom) -> bool {
-    let Some(id) = crate::markers::marker_id(name) else { return false };
-    match from {
-        MarkerFrom::This => g.st.players[p].marker.has_from(id, me),
-        MarkerFrom::Any => g.st.players[p].marker.has(id),
-    }
-}
-
-// ---------------------------------------------------------------------------
 // Execution
 
 /// Arm a lasting effect of the attack being used: the ApplyEffect event (`engine::apply`) on its target, by the frame's
@@ -459,74 +412,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> 
         Op::Used(u) => {
             if let Some((key, by, until)) = used_record(g, me, f, u) {
                 crate::engine::usage::record(&mut g.st, key, by, until);
-            }
-            Ok(Flow::Next)
-        }
-        Op::SetMarker(m) => {
-            let w = match m.scope {
-                MarkerScope::Player(w) => w,
-                MarkerScope::Slot(e) => {
-                    if let Some(t) = slot_of(g, me, f, e) {
-                        let source = if m.source == RuleSource::TrainerEffect { SourceType::Trainer } else { SourceType::None };
-                        g.st.players[t.p as usize].slots[t.s as usize].marker.add(marker_of(m.name), me, source, TargetScope::Pokemon);
-                    }
-                    return Ok(Flow::Next);
-                }
-                MarkerScope::EveryPokemon(w) => {
-                    let p = f.who(w);
-                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
-                        g.st.players[p].slots[s as usize].marker.add(marker_of(m.name), me, SourceType::Trainer, TargetScope::Pokemon);
-                    }
-                    return Ok(Flow::Next);
-                }
-            };
-            let p = f.who(w);
-            let source = match m.source {
-                RuleSource::Ability => SourceType::Ability,
-                RuleSource::Energy => SourceType::Energy,
-                RuleSource::Stadium => SourceType::Stadium,
-                RuleSource::TrainerEffect => SourceType::Trainer,
-                _ => SourceType::None,
-            };
-            let _ = source;
-            g.st.players[p].marker.add(marker_of(m.name), me, SourceType::None, TargetScope::None);
-            Ok(Flow::Next)
-        }
-        Op::ClearMarker(m) => {
-            let w = match m.scope {
-                MarkerScope::Player(w) => w,
-                MarkerScope::EveryPokemon(w) => {
-                    let p = f.who(w);
-                    let id = marker_of(m.name);
-                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
-                        let mk = &mut g.st.players[p].slots[s as usize].marker;
-                        match m.from {
-                            MarkerFrom::This => mk.remove_from(id, me),
-                            MarkerFrom::Any => mk.remove(id),
-                        }
-                    }
-                    return Ok(Flow::Next);
-                }
-                MarkerScope::Slot(e) => {
-                    if let Some(t) = slot_of(g, me, f, e) {
-                        let mk = &mut g.st.players[t.p as usize].slots[t.s as usize].marker;
-                        match m.from {
-                            MarkerFrom::This => mk.remove_from(marker_of(m.name), me),
-                            MarkerFrom::Any => mk.remove(marker_of(m.name)),
-                        }
-                    }
-                    return Ok(Flow::Next);
-                }
-            };
-            let p = f.who(w);
-            let id = marker_of(m.name);
-            match m.from {
-                MarkerFrom::This => {
-                    if g.st.players[p].marker.has_from(id, me) {
-                        g.st.players[p].marker.remove_from(id, me);
-                    }
-                }
-                MarkerFrom::Any => g.st.players[p].marker.remove(id),
             }
             Ok(Flow::Next)
         }

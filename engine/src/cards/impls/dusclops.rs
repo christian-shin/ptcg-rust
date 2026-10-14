@@ -5,7 +5,7 @@
 //! The counters are a PlaceCounters event with the Ability as its cause (not damage, APR C-07). When Hide 'n' Sneak or
 //! Battle Cage refuses them nothing is placed and this Pokémon is still Knocked Out (id2264, id2425, JP FAQ Dusclops PRE
 //! 36 / Battle Cage with Dusknoir). `Op::KnockOut` on this Pokémon is a KnockOut by an effect: it waits for the state
-//! check with every other Knock Out (D1) and the opponent takes the Prize. No once-per-turn marker: the card leaves play.
+//! check with every other Knock Out (D1) and the opponent takes the Prize. No once-per-turn usage record: the card leaves play.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

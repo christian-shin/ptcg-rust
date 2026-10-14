@@ -1045,7 +1045,7 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
 
 /// `initiateSuddenDeath`: a Tiebreaker game is a new game (Advanced Player's Rulebook I-E; rulings 234, 820, 1403,
 /// 1487). Every zone, the tools and the Supporter back to the deck (PokemonCardList.moveTo semantics, so attached
-/// energies are pushed twice), a fresh Player for everything else (Pokémon slots, Prize lists, markers, per-turn and
+/// energies are pushed twice), a fresh Player for everything else (Pokémon slots, Prize lists, per-turn and
 /// per-game flags), the card instance flags and the last attacks reset, shuffle, then flip for the first player.
 fn initiate_sudden_death(g: &mut Game) -> R {
     for p in 0..2u8 {
@@ -1090,6 +1090,10 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         }
         g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
     }
+    // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
+    // players are new (they held them before the usage records and the lasting table did).
+    g.st.usage.clear();
+    g.st.lasting.retain(|l| !matches!(l.what, crate::state::LastingWhat::Declared { .. } | crate::state::LastingWhat::Recorded));
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];
     g.st.player_last_attack_turn = [0, 0];

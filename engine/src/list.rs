@@ -133,7 +133,7 @@ impl<const N: usize, const Z: bool> List<N, Z> {
     }
 }
 
-/// Small fixed-capacity vector of `Copy` values (markers, conditions, ...).
+/// Small fixed-capacity vector of `Copy` values (conditions, usage records, ...).
 #[derive(Clone, Copy)]
 pub struct SVec<T: Copy, const N: usize> {
     len: u8,

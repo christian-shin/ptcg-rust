@@ -5,7 +5,6 @@
 use crate::carddb::def;
 use crate::game::Game;
 use crate::list::*;
-use crate::markers::marker_name;
 use crate::state::*;
 use crate::types::*;
 use serde_json::{json, Map, Value};
@@ -145,30 +144,6 @@ impl Game {
         out.into_iter().map(|(_, v)| v).collect()
     }
 
-    fn markers_json<const N: usize>(&self, m: &Marker<N>) -> Vec<Value> {
-        let mut out: Vec<(String, Value)> = m
-            .items
-            .iter()
-            .map(|it| {
-                let mut o = Map::new();
-                o.insert("name".into(), json!(marker_name(it.name)));
-                if it.source != NO_CARD {
-                    o.insert("source".into(), json!(self.card_ref(it.source)));
-                }
-                if let Some(s) = it.source_type.as_str() {
-                    o.insert("sourceType".into(), json!(s));
-                }
-                if let Some(s) = it.target_scope.as_str() {
-                    o.insert("targetScope".into(), json!(s));
-                }
-                let v = Value::Object(o);
-                (serde_json::to_string(&v).unwrap(), v)
-            })
-            .collect();
-        out.sort_by(|a, b| a.0.cmp(&b.0));
-        out.into_iter().map(|x| x.1).collect()
-    }
-
     fn slot_json(&self, p: usize, si: SlotId) -> Value {
         let s = &self.st.players[p].slots[si as usize];
         let mut o = Map::new();
@@ -203,10 +178,6 @@ impl Game {
         }
         if !s.tools.is_empty() {
             o.insert("tools".into(), self.refs_of(s.tools.as_slice()));
-        }
-        let m = self.markers_json(&s.marker);
-        if !m.is_empty() {
-            o.insert("markers".into(), Value::Array(m));
         }
         if !s.special_conditions.is_empty() {
             let mut v: Vec<u8> = s.special_conditions.as_slice().to_vec();
@@ -281,10 +252,6 @@ impl Game {
         if !pl.pokemon_knocked_out_last_turn_entries.is_empty() {
             let v: Vec<Value> = pl.pokemon_knocked_out_last_turn_entries.iter().map(|d| json!(def(*d).tag_names)).collect();
             o.insert("pokemonKnockedOutLastTurnEntries".into(), Value::Array(v));
-        }
-        let m = self.markers_json(&pl.marker);
-        if !m.is_empty() {
-            o.insert("markers".into(), Value::Array(m));
         }
         Value::Object(o)
     }

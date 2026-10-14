@@ -158,8 +158,6 @@ pub enum Cond {
     /// A printed type (of a top Pokémon card) is held by a Pokémon in each selection.
     TypesShared(SlotSel, SlotSel),
     // --- F-passive appends ---
-    /// The player's marker `name` is set (by this card for `MarkerFrom::This`).
-    HasMarker { who: Who, name: &'static str, from: super::ops::state::MarkerFrom },
     /// There is a usage record (`Op::Used`): the Ability was used ("once during your turn"), the effect was applied.
     Used(super::ops::state::UsedSpec),
     /// The attack in progress has the flag (`Op::AttackFlag`).
@@ -494,7 +492,6 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             Some(s) => crate::engine::phase::would_change_special_conditions(g.st.slot(s.p as usize, s.s), cs),
             None => false,
         },
-        Cond::HasMarker { who, name, from } => super::ops::state::has_marker(g, me, f.who(*who), name, *from),
         Cond::Used(u) => super::ops::state::is_used(g, me, f, u),
         Cond::AttackFlag(k) => (f.eff as usize) < g.fx.len() && matches!(k, super::ops::state::AttackFlagKind::OptionChosen) && g.fx_flags(f.eff) & crate::game::fx_flag::OPTION_CHOSEN != 0,
         Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
@@ -741,7 +738,7 @@ pub enum SlotPred {
 impl SlotPred {
     /// Can the answer depend on the cards attached to the Pokémon (the attached cards themselves, or a checked
     /// read they can change: type, Energy provided, HP, Abilities, the Stadium's effect)? Conservative: a
-    /// predicate not known to read only the Pokémon card, its position, counters, conditions and markers says
+    /// predicate not known to read only the Pokémon card, its position, counters, conditions and records says
     /// yes.
     pub const fn reads_attached(&self) -> bool {
         match self {
