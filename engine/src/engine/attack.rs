@@ -20,10 +20,10 @@ pub enum AtkStage {
     AfterAfterAttack,
     /// AfterAttackTriggersEffect resolved (and its prompts).
     AfterTriggers,
-    /// Barrage: after the first / second `checkState` wait, and the confirm.
-    AfterBarrageCheck1,
-    AfterBarrageCheck2,
-    AfterBarrageConfirm,
+    /// Festival Lead's second attack: after the first / second wait of the state check, and the confirm.
+    AfterAttackAgainCheck1,
+    AfterAttackAgainCheck2,
+    AfterAttackAgainConfirm,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -129,7 +129,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
         ignore_resistance: false,
         ignore_defender_effects: false,
         source: f.attacking,
-        barrage_used: false,
+        second_attack: false,
     });
     // whileActiveAttackDamageBonus: not modeled.
     f.atk = atk;
@@ -287,12 +287,12 @@ pub fn attack_twice(g: &mut Game, f: &AttackFrame, now: bool) -> bool {
 }
 
 fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
-    let barrage_used = match *g.e(f.origin) {
-        Effect::UseAttack { barrage_used, .. } | Effect::Attack { barrage_used, .. } => barrage_used,
+    let second_attack = match *g.e(f.origin) {
+        Effect::UseAttack { second_attack, .. } | Effect::Attack { second_attack, .. } => second_attack,
         _ => false,
     };
-    if attack_twice(g, &f, false) && !barrage_used {
-        return barrage_check(g, f, AtkStage::AfterBarrageCheck1);
+    if attack_twice(g, &f, false) && !second_attack {
+        return attack_again_check(g, f, AtkStage::AfterAttackAgainCheck1);
     }
     g.release_fx(f.atk);
     g.release_fx(f.origin);
@@ -319,44 +319,42 @@ pub fn after_attack_check(g: &mut Game, p: usize) -> R {
     crate::engine::phase::end_turn_event(g, p)
 }
 
-/// `state = checkState(store, state); if (store.hasPrompts()) yield waitPrompt`
-/// (twice), then `ConfirmPrompt(WANT_TO_USE_ABILITY)`.
-fn barrage_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
+/// Before a Pokémon that may attack again is asked: the Knock Outs of the first attack are checked (twice: the check may
+/// take a prompt, the Prizes and the new Active Pokémon, and the second check the promotions bring), then the Confirm.
+fn attack_again_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     let below = g.waits.len();
     crate::engine::knockout::state_check(g, crate::game::OnComplete::None)?;
     if g.has_prompts() {
         f.stage = stage;
         // The attack resumes after the check's own continuations (its remaining prize and new-Active
-        // prompts, then the next check), not before them. Twinleaf pops the waits last-in first-out, so the
-        // attack continued while the check was half done: the Prize for the Defending Pokemon went unasked
-        // and, once the turn ended, a stale prompt asked for a second new Active (ILLEGAL_ACTION).
+        // prompts, then the next check), not before them: resumed earlier, the Prize for the Defending Pokemon
+        // went unasked and, once the turn ended, a stale prompt asked for a second new Active.
         g.waits.insert(below, Cont::UseAttack(f));
         return Ok(());
     }
-    barrage_after_check(g, f, stage)
+    attack_again_after_check(g, f, stage)
 }
 
-fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
-    if stage == AtkStage::AfterBarrageCheck1 {
-        return barrage_check(g, f, AtkStage::AfterBarrageCheck2);
+fn attack_again_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
+    if stage == AtkStage::AfterAttackAgainCheck1 {
+        return attack_again_check(g, f, AtkStage::AfterAttackAgainCheck2);
     }
-    // The second use runs through `useAttack` again: it isn't offered when it
-    // would throw (the attacker lost its Energy, e.g. to Handheld Fan, or is now
-    // Asleep / Paralyzed); the turn just ends.
-    if !attack_twice(g, &f, true) || !barrage_can_attack_again(g, &f)? {
+    // The second attack is made through the UseAttack checks again: it isn't offered when they would refuse it (the attacker
+    // lost its Energy, e.g. to Handheld Fan, or is now Asleep / Paralyzed); the turn just ends.
+    if !attack_twice(g, &f, true) || !can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
-        // The Knock Outs were checked (`barrage_check`).
+        // The Knock Outs were checked (`attack_again_check`).
         return after_attack_check(g, f.p as usize);
     }
-    f.stage = AtkStage::AfterBarrageConfirm;
+    f.stage = AtkStage::AfterAttackAgainConfirm;
     let pid = g.player_id(f.p as usize);
     g.prompt(pid, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::UseAttack(f));
     Ok(())
 }
 
-/// The status and Energy checks `useAttack` would make for the barrage attack.
-fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
+/// The status and Energy checks the UseAttack of the second attack would make.
+fn can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
     let p = f.p as usize;
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
@@ -369,19 +367,18 @@ fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
     Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
 }
 
-/// Confirm answered: attack again with a `UseAttackEffect` marked
-/// `_barrageUsed`, run straight through `useAttack` (never reduced, so no
-/// card sees it), or end the turn.
-fn barrage_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
+/// Confirm answered: attack again with a UseAttack marked `second_attack` ("this is the second attack of the turn": no third
+/// one is offered), run straight through the UseAttack checks (never dispatched, so no card sees it), or end the turn.
+fn attack_again_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
     g.release_fx(f.atk);
     g.release_fx(f.origin);
     if !want {
-        // The Knock Outs were checked (`barrage_check`).
+        // The Knock Outs were checked (`attack_again_check`).
         return after_attack_check(g, f.p as usize);
     }
     let p = f.p as usize;
     let source = SlotRef::new(p, g.st.players[p].active);
-    let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, barrage_used: true, delegate_from: None });
+    let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, second_attack: true, delegate_from: None });
     let r = start_use_attack(g, id);
     g.release_fx(id);
     r
@@ -416,8 +413,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
         AtkStage::AfterDamageEffects => after_attack_effect(g, f),
         AtkStage::AfterAfterAttack => attack_triggers(g, f),
         AtkStage::AfterTriggers => attack_triggers_loop(g, f),
-        AtkStage::AfterBarrageCheck1 | AtkStage::AfterBarrageCheck2 => barrage_after_check(g, f, f.stage),
-        AtkStage::AfterBarrageConfirm => barrage_confirm(g, f, res.as_bool()),
+        AtkStage::AfterAttackAgainCheck1 | AtkStage::AfterAttackAgainCheck2 => attack_again_after_check(g, f, f.stage),
+        AtkStage::AfterAttackAgainConfirm => attack_again_confirm(g, f, res.as_bool()),
     }
 }
 

@@ -3,7 +3,7 @@
 //!
 //! - [`state_check`] (a routine, not a dispatched event: no card reacts to "a check"; user decision D5): runs where the
 //!   Check State step always ran (after each action or prompt with nothing pending, after the attack, at the end of the
-//!   turn, after the Checkup, inside a barrage attack). Its order: (1) every Pokémon in play whose damage reaches its HP
+//!   turn, after the Checkup, between a Pokémon's two attacks: Festival Lead). Its order: (1) every Pokémon in play whose damage reaches its HP
 //!   or that an effect Knocks Out (`Slot::ko_pending`), both players, all Knocked Out at the same time; (2) the
 //!   KnockOut event of each while all are still in play (a Pokémon Knocked Out at the same time still has its Ability:
 //!   id2089 / n1623), its triggers after it (Maractus, Togekiss, the Prize adjustments, Heavy Baton, Little Grudge);

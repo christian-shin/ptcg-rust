@@ -475,7 +475,7 @@ mod tests {
         let source = SlotRef::new(p, g.st.players[p].active);
         let card = g.st.slot_pokemon(p, source.s).unwrap();
         let attack = crate::state::AttackRef { card, index: 0 };
-        let atk = g.new_fx(Effect::Attack { p: p as u8, opp: (1 - p) as u8, attack, damage: 0, ignore_weakness: true, ignore_resistance: true, ignore_defender_effects: false, source, barrage_used: false });
+        let atk = g.new_fx(Effect::Attack { p: p as u8, opp: (1 - p) as u8, attack, damage: 0, ignore_weakness: true, ignore_resistance: true, ignore_defender_effects: false, source, second_attack: false });
         g.st.phase = GamePhase::Attack;
         g.last_attack = Some(crate::game::LastAttack { p: p as u8, effect: atk, attack, source, pokemon: Some(card), damaged_active: SVec::new(), damaged: SVec::new() });
         AtkBase { attack_effect: atk, player: p as u8, opponent: (1 - p) as u8, attack, source, target, cause: Cause::of_attack_at(g, p as u8, attack, source) }
