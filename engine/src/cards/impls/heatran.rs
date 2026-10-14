@@ -2,8 +2,8 @@
 //! Pokémon (even if this Pokémon is Knocked Out), the Attacking Pokémon is now Burned. Steel Burst — 50×; discard all [M]
 //! Energy from this Pokémon. This attack does 50 damage for each card you discarded in this way.
 //!
-//! Incandescent Body is an `OnDamagedByAttack` trigger (the damaged Pokémon is Active; it fires even for a Knock Out, and the
-//! Attacking Pokémon is read where it is then): a GainCondition(Burned) on the Attacker caused by this Ability, so Hide 'n'
+//! Incandescent Body is an `Event::On` trigger over the Damage event of an opponent's attack (the damaged Pokémon is Active:
+//! `DamagedActive`; it fires even for a Knock Out, and the Attacking Pokémon, `CausePokemon`, is read where it is then): a GainCondition(Burned) on the Attacker caused by this Ability, so Hide 'n'
 //! Sneak and the other Ability immunities stop it. Steel Burst counts the [M] Energy cards on this Pokémon,
 //! adds 50 per card before the damage and discards those cards after it.
 use crate::spec::prelude::*;
@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     triggers: &[
-        Trigger { origin: RuleSource::Ability, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::AbilityBlocked), Cond::Slot(SlotExpr::Picked, SlotPred::IsActive)]), yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Picked, change: ConditionChange::Add(&[SpecialCondition::Burned]), when: Cond::True }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Ability, event: Event::On(EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Slot(SlotPred::Holder), EventPred::DamagedActive])), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::AbilityBlocked), Cond::Slot(SlotExpr::CausePokemon, SlotPred::IsActive)]), yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::CausePokemon, change: ConditionChange::Add(&[SpecialCondition::Burned]), when: Cond::True }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };

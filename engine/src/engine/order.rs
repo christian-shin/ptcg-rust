@@ -21,8 +21,8 @@
 //! [`pending`] is false and wait for the prompts a step opened; E-21 and F are chained ([`next`]: a step, the effect's
 //! prompts answered, the next step; [`crate::engine::phase::window_done`] when nothing is left).
 
-use crate::effects::{EffId, Effect};
-use crate::game::{AtkTrig, Cont, Game, OnComplete, R};
+use crate::effects::{AtkBase, EffId, Effect};
+use crate::game::{Cont, Game, OnComplete, R};
 use crate::list::*;
 use crate::prompts::{PromptKind, SelectValues};
 use crate::spec::run::{self, Timed};
@@ -33,12 +33,25 @@ use crate::types::GamePhase;
 pub enum Item {
     /// Trigger `i` of card `c` that fires on the event `e` (a Knock Out, the end of a turn, a Checkup).
     Card(Timed),
-    /// A step 7 record of the attack: a card's "is damaged by an attack" trigger or a lasting trigger of the damaged
-    /// Pokémon (`AtkTrig::retaliate`).
-    Damaged(AtkTrig),
+    /// Trigger `i` of card `c` over the Damage `b.target` took from an attack (APR E-03): the card's "is damaged by an
+    /// attack" effect, recorded when the damage is done.
+    Damaged(DamagedTrigger),
+    /// The lasting trigger of the damaged Pokémon "if this Pokémon is damaged by an attack, put N damage counters on the
+    /// Attacking Pokémon" (`engine::damage::retaliate`), recorded when the damage is done.
+    Retaliation(crate::engine::damage::Retaliation),
     /// The lasting trigger "when this Pokémon is Knocked Out" armed on the Pokémon of the KnockOut `e`
     /// (`knockout::lasting_ko_trigger`).
     LastingKo { e: EffId },
+}
+
+/// A trigger over the Damage an attack did (E-03): the card and its trigger, and the Damage as it was when it was done (the
+/// program reads it again when it applies: the Damage event is made once more for it, `run::fire_damaged`).
+#[derive(Clone, Copy, Debug)]
+pub struct DamagedTrigger {
+    pub c: CardId,
+    pub i: u8,
+    pub b: AtkBase,
+    pub amount: i32,
 }
 
 /// Which window a pending effect belongs to (the windows of nested attacks are kept apart by the attack's effect).
@@ -147,7 +160,8 @@ fn def_of(g: &Game, c: CardId) -> u16 {
 fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
     match (a, b) {
         (Item::Card(a), Item::Card(b)) => a.i == b.i && a.p == b.p && def_of(g, a.c) == def_of(g, b.c),
-        (Item::Damaged(a), Item::Damaged(b)) => a.retaliate.is_some() == b.retaliate.is_some() && def_of(g, a.card) == def_of(g, b.card) && a.target.p == b.target.p,
+        (Item::Damaged(a), Item::Damaged(b)) => a.i == b.i && def_of(g, a.c) == def_of(g, b.c) && a.b.target.p == b.b.target.p,
+        (Item::Retaliation(a), Item::Retaliation(b)) => def_of(g, a.lasting.source) == def_of(g, b.lasting.source) && a.target.p == b.target.p,
         (Item::LastingKo { e: a }, Item::LastingKo { e: b }) => matches!((*g.e(*a), *g.e(*b)), (Effect::KnockOut { p: x, .. }, Effect::KnockOut { p: y, .. }) if x == y),
         _ => false,
     }
@@ -157,7 +171,8 @@ fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
 fn label(g: &Game, item: &Item) -> &'static str {
     let card = match *item {
         Item::Card(t) => t.c,
-        Item::Damaged(t) => t.card,
+        Item::Damaged(t) => t.c,
+        Item::Retaliation(t) => t.lasting.source,
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e).unwrap_or(0),
     };
     g.st.cdef(card).full_name
@@ -167,7 +182,8 @@ fn label(g: &Game, item: &Item) -> &'static str {
 fn fire(g: &mut Game, item: Item) -> R {
     match item {
         Item::Card(t) => run::fire_timed(g, t),
-        Item::Damaged(t) => g.resolve_attack_trigger(t),
+        Item::Damaged(t) => run::fire_damaged(g, &t),
+        Item::Retaliation(t) => crate::engine::damage::retaliate(g, &t),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_trigger(g, e),
     }
 }
@@ -252,6 +268,7 @@ fn decide(g: &mut Game, idx: &[usize]) {
         // Only a step 7 record is recorded undecided; a single effect is never asked about.
         let x = match item {
             Item::Damaged(t) if idx.len() >= 2 => run::damaged_applies(g, &t),
+            Item::Retaliation(t) if idx.len() >= 2 => crate::engine::damage::retaliation_applies(g, &t),
             _ => false,
         };
         items.push((item, x));

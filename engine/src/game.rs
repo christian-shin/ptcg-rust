@@ -148,24 +148,6 @@ pub enum AfterDmgStep {
     Shuffle(u8),
 }
 
-/// Step 7 of the attack flow chart: an effect that activates when a Pokémon receives the attack, recorded when the
-/// damage is done (`AttackTrigger` in Twinleaf, `prefabs/after-damage.ts`).
-#[derive(Clone, Copy, Debug)]
-pub struct AtkTrig {
-    pub atk: EffId,
-    /// The card whose effect triggered.
-    pub card: CardId,
-    /// The damaged Pokémon.
-    pub target: SlotRef,
-    pub damage: i32,
-    /// The Attacking Pokémon's slot and the Pokémon card that was in it.
-    pub source: SlotRef,
-    pub source_pokemon: Option<CardId>,
-    /// The lasting trigger of the damaged Pokémon ("if this Pokémon is damaged by an attack, put N damage counters on the
-    /// Attacking Pokémon") this record is for, instead of a card's trigger.
-    pub retaliate: Option<crate::state::LastingEffect>,
-}
-
 /// The attack in progress and what it damaged, kept until the Knock Out check (`prefabs/last-attack.ts`).
 #[derive(Clone, Copy, Debug)]
 pub struct LastAttack {
@@ -691,54 +673,6 @@ impl Game {
 
     fn drop_triggers(&mut self, atk: EffId) {
         crate::engine::order::drop_window(self, crate::engine::order::Tag::Damaged(atk));
-    }
-
-    /// `ATTACK_TRIGGER(store, state, afterDamageEffect, card, retaliate)`: record the step 7 trigger of `card` on the
-    /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in the attack's E-03 window
-    /// (`engine::order`), or at once when no window is open.
-    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::LastingEffect>) -> R {
-        let t = AtkTrig {
-            atk: b.attack_effect,
-            card,
-            target: b.target,
-            damage,
-            source: b.source,
-            source_pokemon: self.st.slot_pokemon(b.source.p as usize, b.source.s),
-            retaliate,
-        };
-        if self.triggers_open(b.attack_effect) {
-            crate::engine::order::record(self, crate::engine::order::Tag::Damaged(b.attack_effect), crate::engine::order::Item::Damaged(t));
-            return Ok(());
-        }
-        self.resolve_attack_trigger(t)
-    }
-
-    /// The effect that resolves a step 7 trigger record: the AttackTrigger event, as the record says it is now.
-    pub(crate) fn attack_trigger_effect(&self, t: &AtkTrig) -> Option<Effect> {
-        let (p, opp, attack) = match *self.e(t.atk) {
-            Effect::Attack { p, opp, attack, .. } => (p, opp, attack),
-            _ => return None,
-        };
-        let source_in_play = t.source_pokemon.is_some() && self.st.slot_pokemon(t.source.p as usize, t.source.s) == t.source_pokemon;
-        Some(Effect::AttackTrigger {
-            attack_effect: t.atk,
-            p,
-            opp,
-            attack,
-            card: t.card,
-            target: t.target,
-            damage: t.damage,
-            source: t.source,
-            source_in_play,
-            retaliate: t.retaliate,
-        })
-    }
-
-    pub(crate) fn resolve_attack_trigger(&mut self, t: AtkTrig) -> R {
-        if let Some(e) = self.attack_trigger_effect(&t) {
-            self.run_fx(e)?;
-        }
-        Ok(())
     }
 
     /// There are step 7 triggers of the attack left to resolve.
@@ -1295,7 +1229,6 @@ impl Game {
             k::PLAY_TRAINER => crate::engine::play_trainer::reducer(self, id)?,
             k::RETREAT => retreat::reducer(self, id)?,
             k::USE_ATTACK | k::USE_POWER | k::USE_STADIUM => crate::engine::game_effect::reducer(self, id)?,
-            k::ATTACK_TRIGGER => attack::reducer(self, id)?,
             _ => {}
         }
         if matches!(
@@ -1322,13 +1255,17 @@ impl Game {
         if crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
         }
+        // The damaged Pokémon's own lasting trigger, after the cards' triggers over the Damage (APR E-03).
+        if kind == k::DAMAGE {
+            crate::engine::damage::record_retaliation(self, id)?;
+        }
         Ok(())
     }
 
     /// The cards effect `id` (of kind `kind`, rank class `class`) reaches, in the propagation order: the acting card's
-    /// program (the attack's, the Ability's, the Trainer's, the Stadium's; a step-7 trigger's card) and the declarations its kind is read by (the Attack-stage
+    /// program (the attack's, the Ability's, the Trainer's, the Stadium's) and the declarations its kind is read by (the Attack-stage
     /// damage bonuses, the next-turn bonus and Shred on an `Attack`; the Ability locks on a `Power`; the end-of-turn,
-    /// Checkup, first-turn and damaged-by-an-attack handlers; the check effects of the slow path). An event the routines
+    /// Checkup and first-turn handlers; the check effects of the slow path). An event the routines
     /// and the triggers after it read reaches no card (its declarations are read through `decl::kind_listeners`).
     fn handler_cards(&mut self, id: EffId, kind: u32, class: u16) -> SVec<CardId, 120> {
         if !self.kinds_present.has(kind) {
@@ -1346,7 +1283,6 @@ impl Game {
             Effect::Power { card, .. } => (bit(card) | locks) & all,
             Effect::PlayTrainer { card, .. } => bit(card) & all,
             Effect::UseStadium { stadium, .. } => bit(stadium) & all,
-            Effect::AttackTrigger { card, .. } => bit(card) & all,
             // Read by their routines and by the triggers after the event, never by a handler (`decl::UNHANDLED_KINDS`).
             _ if crate::decl::UNHANDLED_KINDS.has(kind) => 0,
             _ => all,

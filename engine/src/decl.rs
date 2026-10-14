@@ -49,6 +49,10 @@ pub const UNHANDLED_KINDS: crate::effects::KindMask = crate::effects::mask(&[
     crate::effects::k::ENTER_PLAY,
     crate::effects::k::EVOLVE,
     crate::effects::k::USE_ATTACK,
+    // Batch 9 C7b: Damage (the triggers over it are read after the event, in the attack's E-03 window) and the end of an
+    // attack's effects (trigger-only).
+    crate::effects::k::DAMAGE,
+    crate::effects::k::AFTER_ATTACK_TRIGGERS,
 ]);
 
 /// The reader families (C3a: the derived facts' modifiers).
@@ -545,13 +549,12 @@ mod tests {
         }
     }
 
-    /// A `PlayTrainer`, a `UseStadium`, an `AfterAttack` and an `AttackTrigger` reach only the acting card (the played
-    /// Trainer, the used Stadium, the attack's card, the step-7 trigger's card: `Game::handler_cards`): no other card's
-    /// passive or dispatch trigger is over them (an `Event::On` trigger is read after the event, `run::after_event`; a
-    /// damaged-by-an-attack trigger records its card, which the AttackTrigger names).
+    /// A `PlayTrainer`, a `UseStadium` and an `AfterAttack` reach only the acting card (the played Trainer, the used Stadium,
+    /// the attack's card: `Game::handler_cards`): no other card's passive or dispatch trigger is over them (an `Event::On`
+    /// trigger is read after the event, `run::after_event`).
     #[test]
     fn acting_card_kinds_have_no_other_handler() {
-        let acting = crate::effects::mask(&[k::PLAY_TRAINER, k::USE_STADIUM, k::AFTER_ATTACK, k::ATTACK_TRIGGER]);
+        let acting = crate::effects::mask(&[k::PLAY_TRAINER, k::USE_STADIUM, k::AFTER_ATTACK]);
         for s in crate::cards::registry::SPECS.iter() {
             for ps in s.passives {
                 if crate::spec::passive::modifier_kinds(&ps.modifier).intersects(acting) {
@@ -565,25 +568,25 @@ mod tests {
             }
             for t in s.triggers {
                 if crate::spec::trigger::event_kinds(&t.event).intersects(acting) {
-                    assert!(matches!(t.event, Event::On(_) | Event::OnDamagedByAttack(_)), "{}: a dispatch trigger over an effect that reaches only its acting card", s.class);
+                    assert!(matches!(t.event, Event::On(_)), "{}: a dispatch trigger over an effect that reaches only its acting card", s.class);
                 }
             }
         }
     }
 
-    /// No declaration naming no kind ranges over the turn-structure events (BeginTurn, EndTurn, Checkup): they aren't in the
-    /// base of a kind-free predicate (`EVENT_KINDS`, `EFFECT_EVENT_KINDS`), and a trigger reads them only by naming them.
+    /// No declaration naming no kind ranges over the turn-structure events (BeginTurn, EndTurn, Checkup) and the end of an
+    /// attack (AttackDone): they aren't in the base of a kind-free predicate (`EVENT_KINDS`, `EFFECT_EVENT_KINDS`), and a
+    /// trigger reads them only by naming them.
     #[test]
     fn no_kind_free_declaration_ranges_over_the_turn_structure() {
-        let turn = crate::effects::mask(&[k::BEGIN_TURN, k::END_TURN, k::BETWEEN_TURNS]);
+        let turn = crate::effects::mask(&[k::BEGIN_TURN, k::END_TURN, k::BETWEEN_TURNS, k::AFTER_ATTACK_TRIGGERS]);
         assert!(!crate::spec::event::EVENT_KINDS.intersects(turn));
         assert!(!crate::spec::event::EFFECT_EVENT_KINDS.intersects(turn));
         for s in crate::cards::registry::SPECS.iter() {
             for t in s.triggers {
-                if let Event::On(p) = &t.event {
-                    if p.effect_kinds().intersects(turn) {
-                        assert!(!p.effect_kinds().intersects(crate::spec::event::EVENT_KINDS), "{}: a trigger over a turn-structure event and others", s.class);
-                    }
+                let Event::On(p) = &t.event;
+                if p.effect_kinds().intersects(turn) {
+                    assert!(!p.effect_kinds().intersects(crate::spec::event::EVENT_KINDS), "{}: a trigger over a turn-structure event and others", s.class);
                 }
             }
         }

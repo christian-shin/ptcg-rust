@@ -228,21 +228,6 @@ pub enum Effect {
     /// in `b.target`, after the whole calculation and its preventions (APR A-01 step 6). `survive`: a survive-on-10
     /// replacement armed in the calculation.
     Damage { b: AtkBase, amount: i32, survive: bool },
-    /// `AttackTriggerEffect`: a step 7 trigger resolves (`target` is the damaged Pokémon, `source` the Attacking
-    /// Pokémon). Only `card` reacts. Has no AtkBase: it is not an effect of the attack for Mist Energy.
-    AttackTrigger {
-        attack_effect: EffId,
-        p: u8,
-        opp: u8,
-        attack: AttackRef,
-        card: CardId,
-        target: SlotRef,
-        damage: i32,
-        source: SlotRef,
-        source_in_play: bool,
-        /// The Retaliate lasting trigger it resolves (`engine::lasting`).
-        retaliate: Option<crate::state::LastingEffect>,
-    },
 
     // ---- play card ----
     /// The Attach event (events batch 3; `engine::attach`): an Energy or a Pokémon Tool card goes onto the Pokémon
@@ -296,7 +281,6 @@ impl Effect {
             PlaceCounters { .. } => "PLACE_COUNTERS_EVENT",
             ChangeActive { .. } => "CHANGE_ACTIVE_EVENT",
             Damage { .. } => "DAMAGE_EVENT",
-            AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
             Devolve { .. } => "DEVOLVE_EVENT",
             Swap { .. } => "SWAP_EVENT",
@@ -357,7 +341,6 @@ impl Effect {
             PlaceCounters { .. } => 100,
             ChangeActive { .. } => 48,
             Damage { .. } => 94,
-            AttackTrigger { .. } => 246,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
@@ -379,7 +362,6 @@ pub mod k {
     pub const BETWEEN_TURNS: u32 = 5;
     pub const AFTER_ATTACK: u32 = 6;
     pub const AFTER_ATTACK_TRIGGERS: u32 = 245;
-    pub const ATTACK_TRIGGER: u32 = 246;
     pub const BEFORE_DOING_DAMAGE: u32 = 7;
     pub const RETREAT: u32 = 20;
     pub const RETREAT_START: u32 = 21;

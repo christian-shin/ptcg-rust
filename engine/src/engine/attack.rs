@@ -444,28 +444,6 @@ pub fn resume_use_power(g: &mut Game, f: PowerFrame) -> R {
     Ok(())
 }
 
-// ---------------------------------------------------------------------------
-// attackReducer
-
-pub fn reducer(g: &mut Game, id: EffId) -> R {
-    match *g.e(id) {
-        Effect::AttackTrigger { opp, card, target, source, source_in_play, retaliate: Some(r), .. } => {
-            // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
-            // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
-            // 482, 1839); the trap is an effect of the damaged Pokémon, gone when that Pokémon left play.
-            let crate::state::LastingWhat::Retaliate { amount, attack, .. } = r.what else { return Ok(()) };
-            if card == r.source && amount > 0 && source_in_play && g.st.slot(target.p as usize, target.s).cards.contains(r.source) {
-                // The retaliation is an effect of the retaliator's own earlier attack (id2408, id1958): its counters on the
-                // Attacking Pokémon are a PlaceCounters by that attack.
-                let cause = crate::cause::Cause::attack(opp, Some(r.source), attack);
-                crate::engine::damage::place(g, source, amount as i32, cause)?;
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
-
 #[cfg(test)]
 mod attack_twice_tests {
     //! Festival Lead's second attack is offered only while Festival Grounds is in play when it would be offered (Dipplin PRE

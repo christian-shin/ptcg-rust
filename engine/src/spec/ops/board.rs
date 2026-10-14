@@ -262,7 +262,7 @@ pub(crate) fn frame_attack(g: &Game, f: &Frame) -> Option<(crate::effects::EffId
         return None;
     }
     // A program resumed after a prompt may outlive the effect that started it (a step 7 trigger after its
-    // AttackTrigger is released): no attack then. (g0500007065 crashed here when a Trainer used through an attack
+    // Damage event is released): no attack then. (g0500007065 crashed here when a Trainer used through an attack
     // read its released effect; that case is the branch above now.)
     if f.eff as usize >= g.fx.len() {
         return None;
@@ -272,12 +272,6 @@ pub(crate) fn frame_attack(g: &Game, f: &Frame) -> Option<(crate::effects::EffId
 }
 
 pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
-    // A step 7 trigger acts for the attack it belongs to.
-    if !f.via_attack && (f.eff as usize) < g.fx.len() {
-        if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
-            return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause });
-        }
-    }
     let (attack_effect, p, opp, attack, source) = frame_attack(g, f)?;
     Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause })
 }

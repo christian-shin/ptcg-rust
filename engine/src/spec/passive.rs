@@ -1988,6 +1988,7 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         | E::BeginTurn
         | E::EndTurn
         | E::Checkup
+        | E::AttackDone
         | E::Retreat => None,
     }
 }
@@ -2048,6 +2049,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::BeginTurn
         | E::EndTurn
         | E::Checkup
+        | E::AttackDone
         | E::UseAttack
         | E::UseAbility
         | E::UseStadium
@@ -3625,6 +3627,7 @@ mod event_lock_marker_tests {
         E::BeginTurn,
         E::EndTurn,
         E::Checkup,
+        E::AttackDone,
         E::UseAttack,
         E::UseAbility,
         E::UseStadium,
@@ -3637,7 +3640,7 @@ mod event_lock_marker_tests {
             E::EnterPlay | E::Evolve | E::Devolve | E::Swap | E::Attach | E::MoveEnergy | E::MoveTool | E::PlayTrainer | E::ChangeActive | E::Damage => ALL.contains(&k),
             E::PlaceCounters | E::MoveCounters | E::RemoveCounters | E::GainCondition | E::RemoveCondition | E::KnockOut | E::TakePrizes | E::Discard => ALL.contains(&k),
             E::Draw | E::PutIntoHand | E::PutIntoDeck | E::LeavePlay | E::Shuffle | E::Look | E::Reveal | E::CoinFlip | E::ApplyEffect | E::ContinuousEffect | E::StateCheck | E::GameEnd => ALL.contains(&k),
-            E::Mulligan | E::SetPrizes | E::BeginTurn | E::EndTurn | E::Checkup | E::UseAttack | E::UseAbility | E::UseStadium | E::Retreat => ALL.contains(&k),
+            E::Mulligan | E::SetPrizes | E::BeginTurn | E::EndTurn | E::Checkup | E::AttackDone | E::UseAttack | E::UseAbility | E::UseStadium | E::Retreat => ALL.contains(&k),
         }
     }
 
