@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
                 from: DECK,
                 bounds: Bounds { min: Num::Min(&Num::Lit(2), &Num::ZoneSize(DECK)), max: Num::Min(&Num::Lit(2), &Num::ZoneSize(DECK)) },
                 into: 0,
-                purpose: Some(PromptPurpose::ChooseCards),
                 ..PickSpec::DEFAULT
             })),
             // The found cards are set aside while the deck is shuffled, then put on top in the order chosen.

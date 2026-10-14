@@ -23,7 +23,6 @@ pub static SPEC: CardSpec = CardSpec {
                     Cap { kind: CapKind::Energy, max: Num::Min(&Num::Lit(4), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]))) },
                 ],
                 into: 0,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

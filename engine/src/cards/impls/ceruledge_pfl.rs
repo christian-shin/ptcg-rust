@@ -21,7 +21,6 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: FIRE_ENERGY,
                 bounds: Bounds { min: Num::If(&HAS_FOUR, &Num::Lit(4), &Num::Lit(0)), max: Num::If(&HAS_FOUR, &Num::Lit(4), &Num::Lit(0)) },
                 into: 0,
-                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

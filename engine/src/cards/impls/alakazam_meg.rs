@@ -25,7 +25,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
-            purpose: PromptPurpose::Activate,
             yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) }))],
             no: &[],
         }))],

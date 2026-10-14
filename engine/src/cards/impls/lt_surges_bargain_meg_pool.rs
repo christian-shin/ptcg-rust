@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::May(MaySpec { asker: Who::Opp, when: Cond::True, purpose: PromptPurpose::Activate, yes: &[Step::new(Op::If(IfSpec { cond: Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Gt, Num::Lit(0)), yes: &[Step::new(Op::TakePrize(TakePrizeSpec { who: Who::Me, count: Num::Lit(1) })), Step::new(Op::TakePrize(TakePrizeSpec { who: Who::Opp, count: Num::Lit(1) }))], no: &[] }))], no: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(4)) }))] })),
+            Step::new(Op::May(MaySpec { asker: Who::Opp, when: Cond::True, yes: &[Step::new(Op::If(IfSpec { cond: Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Gt, Num::Lit(0)), yes: &[Step::new(Op::TakePrize(TakePrizeSpec { who: Who::Me, count: Num::Lit(1) })), Step::new(Op::TakePrize(TakePrizeSpec { who: Who::Opp, count: Num::Lit(1) }))], no: &[] }))], no: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(4)) }))] })),
         ],
     }),
     ..CardSpec::NONE

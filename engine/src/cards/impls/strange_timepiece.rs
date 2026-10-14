@@ -13,11 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         // One of your evolved [P] Pokémon.
         needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Evolved, SlotPred::TypeIs(ct::PSYCHIC)]))],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec {
-                chooser: Who::Me,
-                among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Evolved, SlotPred::TypeIs(ct::PSYCHIC)])),
-                purpose: PromptPurpose::ChoosePokemon,
-            })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Evolved, SlotPred::TypeIs(ct::PSYCHIC)])) }, purpose: PromptPurpose::Devolve })),
             Step::new(Op::Devolve(DevolveSpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Me, Zone::Hand), chooser: Some(Who::Me) })),
         ],
     }),

@@ -47,13 +47,22 @@ pub enum SelectContext {
     ToPrize = 11,
     NotMove = 12,
     DamageCounter = 13,
+    Damage = 15,
+    Heal = 17,
+    EvolvesFrom = 18,
+    EvolvesTo = 19,
+    Devolve = 20,
+    AttachFrom = 21,
     AttachTo = 22,
     Look = 24,
     EffectTarget = 25,
     DiscardEnergyCard = 26,
     SwitchEnergyCard = 28,
     DiscardEnergy = 30,
+    ToHandEnergy = 31,
+    SkillOrder = 34,
     Attack = 35,
+    DisableAttack = 36,
     DrawCount = 38,
     IsFirst = 41,
     Mulligan = 42,
@@ -217,55 +226,40 @@ enum AnswerShape {
     Counters(i32),
 }
 
-/// The cabt select context of a prompt purpose.
+/// The cabt select context of a prompt purpose (the outcome the prompt asks for).
 pub(crate) fn context_for(purpose: PromptPurpose) -> SelectContext {
     use PromptPurpose as P;
     match purpose {
         P::SetupActive => SelectContext::SetupActivePokemon,
-        P::NewActive | P::SwitchPokemon => SelectContext::Switch,
+        P::NewActive => SelectContext::ToActive,
+        P::SwitchPokemon => SelectContext::Switch,
         P::TakePrize | P::PutIntoHand => SelectContext::ToHand,
-        P::DiscardPrize
-        | P::DiscardCard
-        | P::DiscardPokemon
-        | P::DiscardAttachedFrom
-        | P::DiscardStadiumToolOrSpecialEnergy
-        | P::MayDiscardCard
-        | P::MayDiscardEnergy => SelectContext::Discard,
-        P::DiscardEnergy | P::PayRetreatCost => SelectContext::DiscardEnergy,
+        P::DiscardCard => SelectContext::Discard,
+        P::DiscardEnergy => SelectContext::DiscardEnergy,
         P::DrawCount => SelectContext::DrawCount,
         P::ChooseFirstPlayer => SelectContext::IsFirst,
         P::Activate => SelectContext::Activate,
-        P::PutOntoBench | P::AttachEnergyToBench => SelectContext::ToBench,
-        P::PutIntoDeck | P::PutOnDeckBottom | P::MaySearchDeck => SelectContext::ToDeck,
+        P::PutOntoBench => SelectContext::ToBench,
+        P::PutIntoDeck | P::OrderCards => SelectContext::ToDeck,
+        P::PutOnDeckBottom => SelectContext::ToDeckBottom,
         P::FirstPlayerFlip | P::ConfusionFlip | P::BurnFlip | P::SleepFlip => SelectContext::CoinHead,
         P::Shuffle => SelectContext::Shuffle,
-        P::Look => SelectContext::Look,
+        P::Look | P::TurnPrizeFaceUp => SelectContext::Look,
         P::MulliganYours | P::MulliganOpponents => SelectContext::Mulligan,
-        P::Wait
-        | P::MayUseAttackEffect
-        | P::MayDrawUntilHandSize
-        | P::MaySwitch
-        | P::ChooseTarget
-        | P::ChoosePokemon
-        | P::ChooseCard
-        | P::ChooseCards
-        | P::ChooseOption
-        | P::OrderEffects
-        | P::OrderCards
-        | P::CopyAttack
-        | P::DisableAttack
-        | P::CopyEffect
-        | P::ShufflePokemonIntoDeck
-        | P::PickUpPokemon
-        | P::EvolutionCard
-        | P::EvolvePokemon
-        | P::AttachCard
-        | P::AttachTo
-        | P::AttachEnergy
-        | P::MoveEnergy
-        | P::MoveDamage
-        | P::DamageTarget
-        | P::HealTarget => SelectContext::EffectTarget,
+        P::EvolutionCard => SelectContext::EvolvesTo,
+        P::EvolvePokemon => SelectContext::EvolvesFrom,
+        P::Devolve => SelectContext::Devolve,
+        P::AttachCard => SelectContext::AttachTo,
+        P::AttachTo => SelectContext::AttachFrom,
+        P::MoveEnergy => SelectContext::SwitchEnergyCard,
+        P::MoveDamage | P::PutDamageCounters => SelectContext::DamageCounter,
+        P::DamageTarget => SelectContext::Damage,
+        P::HealTarget => SelectContext::Heal,
+        P::OrderEffects => SelectContext::SkillOrder,
+        P::CopyAttack => SelectContext::Attack,
+        P::DisableAttack => SelectContext::DisableAttack,
+        // Not decisions of a select, or a choice among the labels of one effect.
+        P::Wait | P::ChooseOption | P::CopyEffect | P::EffectTarget | P::SwapPokemon => SelectContext::EffectTarget,
     }
 }
 
@@ -524,6 +518,8 @@ impl Game {
                 // A payment never has more cards than the cost (ruling 1652); a larger bound made the
                 // pick-mask search run out of budget and offer cards that lead to a dead end.
                 let max = n.min(cost.len().max(1));
+                // An Energy select that puts the cards into the hand is its own context.
+                let ctx = if ctx == SelectContext::ToHand { SelectContext::ToHandEnergy } else { ctx };
                 mk(SelectType::Energy, ctx, 0, max, options, (0..n).map(Wire::Idx).collect(), AnswerShape::Array)
             }
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {

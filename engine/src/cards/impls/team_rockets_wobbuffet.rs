@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
                 from: PickSlotSpec {
                     chooser: Who::Me,
                     among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET)), SlotPred::Damaged])),
-                    purpose: PromptPurpose::DamageTarget,
                 },
                 to: SlotTarget::Slot(OPP_ACTIVE),
             },

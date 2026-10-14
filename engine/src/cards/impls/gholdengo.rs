@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
-                Step::after_damage(Op::May(MaySpec { asker: Who::Me, when: Cond::True, purpose: PromptPurpose::Activate, yes: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Deck) })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+                Step::after_damage(Op::May(MaySpec { asker: Who::Me, when: Cond::True, yes: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Deck) })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
             ],
         },
     ],

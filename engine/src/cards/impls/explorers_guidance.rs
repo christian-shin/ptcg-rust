@@ -21,7 +21,6 @@ pub static SPEC: CardSpec = CardSpec {
                 from: LOOKED_AT,
                 bounds: Bounds { min: Num::Min(&Num::Lit(2), &Num::ZoneSize(LOOKED_AT)), max: Num::Lit(2) },
                 into: 0,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: LOOKED_AT, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

@@ -13,17 +13,12 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec {
-                chooser: Who::Me,
-                among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::HasSpecialEnergy),
-                purpose: PromptPurpose::DiscardAttachedFrom,
-            })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::HasSpecialEnergy) }, purpose: PromptPurpose::DiscardCard })),
             Step::new(Op::Pick(PickSpec {
                 from: ATTACHED,
                 predicate: Pred::SpecialEnergy,
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::Discard(DiscardSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

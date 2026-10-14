@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Choose(ChooseSpec { chooser: Who::Me, purpose: PromptPurpose::ChooseOption, options: &[ChoiceBranch { label: "SWITCH_POKEMON", avail: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), body: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false }))] }, ChoiceBranch { label: "INCREASE_DAMAGE_BY_30_AGAINST_OPPONENTS_EX_AND_V_POKEMON", avail: Cond::True, body: &[Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Player(Who::Me), until: DeclareUntil::EndOfTurn }))] }] })),
+            Step::new(Op::Choose(ChooseSpec { chooser: Who::Me, options: &[ChoiceBranch { label: "SWITCH_POKEMON", avail: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), body: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, required: false }))] }, ChoiceBranch { label: "INCREASE_DAMAGE_BY_30_AGAINST_OPPONENTS_EX_AND_V_POKEMON", avail: Cond::True, body: &[Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Player(Who::Me), until: DeclareUntil::EndOfTurn }))] }] })),
         ],
     }),
     effects: &[

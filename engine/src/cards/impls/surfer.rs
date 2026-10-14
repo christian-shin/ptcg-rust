@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: true })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, required: true })),
             // "If you do" (the switch happened); the draw does not decide whether the card can be played.
             Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(5)) }))], no: &[] })),
         ],

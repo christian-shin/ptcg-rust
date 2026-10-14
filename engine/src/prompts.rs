@@ -1461,7 +1461,7 @@ mod answer_tests {
             p => panic!("no decision pending: {:?}", p),
         };
         let pr = g.prompts.as_slice()[i];
-        assert_eq!(pr.purpose, crate::purpose::PromptPurpose::AttachEnergy);
+        assert_eq!(pr.purpose, crate::purpose::PromptPurpose::AttachCard);
         let list = g.prompt_list(match pr.kind {
             crate::prompts::PromptKind::AttachEnergy { cards, .. } => cards,
             _ => unreachable!(),

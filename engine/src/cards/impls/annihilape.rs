@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::PlaceCounters(PlaceCountersSpec {
-            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), purpose: PromptPurpose::DamageTarget }),
+            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), }),
             counters: Num::Lit(5)
         }))],
     }],

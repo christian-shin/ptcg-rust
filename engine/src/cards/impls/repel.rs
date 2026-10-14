@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchOut, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: true })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchOut, among: SwitchAmong::Bench, required: true })),
         ],
     }),
     ..CardSpec::NONE

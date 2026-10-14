@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Printed(&Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Le, Num::Lit(2)))],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Me), purpose: PromptPurpose::ChoosePokemon })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Me) }, purpose: PromptPurpose::EffectTarget })),
             // A Trainer effect on the Pokémon: it stays when the Pokémon moves to the Bench or switches.
             Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Pokemon(SlotExpr::Picked), until: DeclareUntil::OpponentsNextTurn })),
         ],

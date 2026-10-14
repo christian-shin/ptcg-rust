@@ -14,11 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         // Heal all damage from 1 of your Mega Evolution Pokémon ex; if you do, put all Energy attached to it into your hand.
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec {
-                chooser: Who::Me,
-                among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::Top(Pred::All(&[Pred::Tag(tag::POKEMON_SV_MEGA), Pred::PokemonEx]))])),
-                purpose: PromptPurpose::HealTarget,
-            })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::Top(Pred::All(&[Pred::Tag(tag::POKEMON_SV_MEGA), Pred::PokemonEx]))])) }, purpose: PromptPurpose::HealTarget })),
             Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::DamageOn(SlotExpr::Picked), clear_conditions: false })),
             // "If you healed any damage in this way": the Heal's outcome.
             Step::new(Op::If(IfSpec {

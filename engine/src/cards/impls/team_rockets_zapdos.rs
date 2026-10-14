@@ -15,7 +15,6 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::All(&[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any), Cond::Slot(OPP_ACTIVE, SlotPred::HasEnergy)]),
-                purpose: PromptPurpose::Activate,
                 yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: true, kind: EnergyKind::Any }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
                 no: &[],
             }))],

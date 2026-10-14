@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Kyurem",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(3), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(3), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), purpose: PromptPurpose::DamageTarget }), what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(110), ..EachSlotSpec::DEFAULT })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(3), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(3), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), }), what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(110), ..EachSlotSpec::DEFAULT })),
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],

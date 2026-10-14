@@ -15,8 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any),
-            purpose: PromptPurpose::MaySwitch,
-            yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::NewActive, required: false }))],
+            yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, required: false }))],
             no: &[],
         }))],
     }],

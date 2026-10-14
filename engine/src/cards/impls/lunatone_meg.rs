@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Player))), Cond::InPlay(Who::Me, PlayScope::All, Pred::Name("Solrock")), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })), Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player)))], no: &[] })),
         ],
     }],

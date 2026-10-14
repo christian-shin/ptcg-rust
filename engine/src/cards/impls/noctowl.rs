@@ -15,7 +15,6 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::Search(SearchSpec {
                         pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Trainer, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, ..PickSpec::DEFAULT },

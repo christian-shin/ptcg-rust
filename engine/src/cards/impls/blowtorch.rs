@@ -26,23 +26,18 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::Any(&[HAS_TOOL, HAS_SPECIAL, STADIUM_IN_PLAY])],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
             Step::cost(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Choose(ChooseSpec {
                 chooser: Who::Me,
-                purpose: PromptPurpose::DiscardStadiumToolOrSpecialEnergy,
                 options: &[
                     ChoiceBranch {
                         label: "CHOICE_TOOL",
                         avail: HAS_TOOL,
                         body: &[
-                            Step::new(Op::PickSlot(PickSlotSpec {
-                                chooser: Who::Me,
-                                among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::AnyTool(Pred::Any)),
-                                purpose: PromptPurpose::DiscardAttachedFrom,
-                            })),
+                            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::AnyTool(Pred::Any)) }, purpose: PromptPurpose::DiscardCard })),
                             // One Tool of the Pokémon, chosen when it has several.
-                            Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
+                            Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
                             Step::new(Op::Discard(DiscardSpec { from: TOOLS, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                         ],
                     },
@@ -50,17 +45,12 @@ pub static SPEC: CardSpec = CardSpec {
                         label: "CHOICE_SPECIAL_ENERGY",
                         avail: HAS_SPECIAL,
                         body: &[
-                            Step::new(Op::PickSlot(PickSlotSpec {
-                                chooser: Who::Me,
-                                among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::HasSpecialEnergy),
-                                purpose: PromptPurpose::DiscardAttachedFrom,
-                            })),
+                            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::HasSpecialEnergy) }, purpose: PromptPurpose::DiscardCard })),
                             Step::new(Op::Pick(PickSpec {
                                 from: ATTACHED,
                                 predicate: Pred::SpecialEnergy,
                                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                                 into: 0,
-                                purpose: Some(PromptPurpose::DiscardCard),
                                 ..PickSpec::DEFAULT
                             })),
                             Step::new(Op::Discard(DiscardSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Stadium,
         needs: &[],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::PutIntoDeck), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT })),
         ],
     }),

@@ -21,7 +21,6 @@ pub static SPEC: CardSpec = CardSpec {
                 yes: &[Step::new(Op::May(MaySpec {
                     asker: Who::Me,
                     when: Cond::True,
-                    purpose: PromptPurpose::Activate,
                     yes: &[
                         Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player))),
                         Step::new(Op::Search(SearchSpec {

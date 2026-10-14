@@ -27,7 +27,6 @@ pub static SPEC: CardSpec = CardSpec {
                 into: 0,
                 caps: &[Cap { kind: CapKind::Trainer, max: TRAINERS }, Cap { kind: CapKind::Pokemon, max: POKEMON }],
                 distinct_types: true,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: LOOKED_AT, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

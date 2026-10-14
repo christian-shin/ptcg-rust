@@ -27,7 +27,6 @@ pub static SPEC: CardSpec = CardSpec {
                     from: ZoneRef(Who::Opp, Zone::Hand),
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                     into: 0,
-                    purpose: Some(PromptPurpose::DiscardCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

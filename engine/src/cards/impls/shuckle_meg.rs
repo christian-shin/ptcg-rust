@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::PerTurn,
         needs: &[Cond::Slot(SlotExpr::This, SlotPred::Provides(ct::GRASS))],
         steps: &[Step::new(Op::Heal(HealSpec {
-            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Damaged), purpose: PromptPurpose::HealTarget }),
+            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Damaged), }),
             hp: Num::Lit(30),
             clear_conditions: false,
         }))],

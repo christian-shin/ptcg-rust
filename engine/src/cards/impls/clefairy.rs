@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false })),
+                Step::after_damage(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, required: false })),
             ],
         },
     ],

@@ -1047,7 +1047,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         slots.push(SlotType::Bench as u8);
         g.prompt(
             p,
-            PromptPurpose::DiscardPokemon,
+            PromptPurpose::DiscardCard,
             PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
             Cont::BenchShrink { p: p as u8, empty: mask },
         );

@@ -18,7 +18,6 @@ pub static SPEC: CardSpec = CardSpec {
                     Cap { kind: CapKind::Pokemon, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::Pokemon), &Num::Lit(1)) },
                     Cap { kind: CapKind::Energy, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy), &Num::Lit(1)) },
                 ],
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

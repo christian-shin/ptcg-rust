@@ -305,7 +305,7 @@ pub enum Op {
     TakePrize(TakePrizeSpec),
     HandShuffleDraw(HandShuffleDrawSpec),
     // ops/board.rs
-    PickSlot(PickSlotSpec),
+    PickSlot(PickSlotOp),
     Switch(SwitchSpec),
     Heal(HealSpec),
     Damage(DamageSpec),

@@ -27,7 +27,6 @@ pub static SPEC: CardSpec = CardSpec {
                                 predicate: EVOLUTION,
                                 bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                                 into: 0,
-                                purpose: Some(PromptPurpose::EvolutionCard),
                                 ..PickSpec::DEFAULT
                             })),
                             Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot: SlotExpr::This, card: 0 } })),

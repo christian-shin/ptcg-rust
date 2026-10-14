@@ -112,8 +112,6 @@ pub struct PickSpec {
     pub caps: &'static [Cap],
     /// The chosen cards must differ in type (`different_types`).
     pub distinct_types: bool,
-    /// Why the choice is asked (`None`: choose a card).
-    pub purpose: Option<PromptPurpose>,
     /// Nothing to choose does not make a Trainer unplayable (another step still has an effect).
     pub soft: bool,
     /// Only cards named like one of the Pokémon in play of this player (Love Ball).
@@ -134,7 +132,6 @@ impl PickSpec {
         cancel: false,
         caps: &[],
         distinct_types: false,
-        purpose: None,
         soft: false,
         same_name_as: None,
         not_discarded_by_cost: None,
@@ -427,8 +424,8 @@ pub struct PlayFromZoneSpec {
     pub cards: u8,
     pub who: Who,
 }
-/// The player chooses one of their Prize cards (face down only when asked); its position is
-/// kept for `PrizeVisibility`.
+/// The player chooses one of their Prize cards (face down only when asked) to turn it face up: its position is
+/// kept for `PrizeVisibility` (the prompt's purpose is `TurnPrizeFaceUp`).
 pub struct PickPrizeSpec {
     pub chooser: Who,
     pub face_down_only: bool,
@@ -575,7 +572,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 f.outcome = Outcome::count(cards.len(), cards.len(), 0);
                 return Ok(Flow::Next);
             }
-            if ask_pick(g, me, f, p, i32::MAX, pick_purpose(p), 1, false) {
+            if ask_pick(g, me, f, p, i32::MAX, pick_purpose(g, me, f, op, p), 1, false) {
                 Ok(Flow::Suspend)
             } else {
                 set_reg(g, f, p.into, &[]);
@@ -619,7 +616,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::PickPrize(pp) => {
             g.prompt(
                 f.who(pp.chooser),
-                PromptPurpose::ChoosePokemon,
+                PromptPurpose::TurnPrizeFaceUp,
                 PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: pp.face_down_only },
                 f.cont(me, 1),
             );
@@ -761,8 +758,69 @@ mod prize_bonus_tests {
     }
 }
 
-fn pick_purpose(p: &PickSpec) -> PromptPurpose {
-    p.purpose.unwrap_or(PromptPurpose::ChooseCard)
+/// What a `Pick` is for (its prompt's purpose). The pick only chooses cards into a register; the first op after it that
+/// takes the register does something with them, and that is the outcome the player is choosing for (`pick_outcome`).
+fn pick_purpose(g: &Game, me: CardId, f: &Frame, op: &Op, p: &PickSpec) -> PromptPurpose {
+    pick_outcome(crate::spec::run::program_steps(g, me, f), op, p.into)
+        .expect("a Pick's cards are taken by a later op (every spec card is checked by the unit test pick_outcome_exists_for_every_pick)")
+}
+
+/// What an op does with the cards of register `reg`, when it takes them.
+enum RegisterUse {
+    /// The op does not take them.
+    Not,
+    /// The op moves or uses them: the outcome.
+    Does(PromptPurpose),
+    /// The op only stages them in another register (a `Look` while the deck is shuffled): the outcome is the next op's.
+    Stages(u8),
+}
+
+fn register_use(op: &Op, reg: u8) -> RegisterUse {
+    let takes = |c: &CardSel| matches!(c, CardSel::Chosen(r) if *r == reg);
+    let from_reg = |z: &ZoneRef| z.1 == Zone::Scratch(reg);
+    use RegisterUse::*;
+    match op {
+        Op::Discard(d) if takes(&d.cards) || from_reg(&d.from) => Does(PromptPurpose::DiscardCard),
+        Op::PutIntoHand(h) if takes(&h.cards) || from_reg(&h.from) => Does(PromptPurpose::PutIntoHand),
+        Op::PutIntoDeck(d) if takes(&d.cards) || from_reg(&d.from) => Does(match d.position {
+            crate::spec::event::DeckPosition::Bottom => PromptPurpose::PutOnDeckBottom,
+            _ => PromptPurpose::PutIntoDeck,
+        }),
+        Op::PlayFromZone(p) if p.cards == reg => Does(PromptPurpose::PutOntoBench),
+        Op::Attach(a) if a.onto.is_some() && (takes(&a.cards) || from_reg(&a.from)) => Does(PromptPurpose::AttachCard),
+        Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { card, .. } | EvolveHow::FromRegister { card, .. } }) if *card == reg => Does(PromptPurpose::EvolutionCard),
+        Op::SwapPokemonCard(s) if s.cards == reg => Does(PromptPurpose::SwapPokemon),
+        Op::DiscardEnergy(d) if matches!(d.selection, EnergySelection::Register(r) if r == reg) => Does(d.purpose()),
+        Op::Look(l) if takes(&l.cards) || from_reg(&l.from) => Stages(l.into),
+        _ => Not,
+    }
+}
+
+/// The purpose of the `Pick` `pick` (an op of `steps`, filling register `into`): the outcome of the first op after it, in
+/// program order, that takes the register (`None` when no op does).
+pub(crate) fn pick_outcome(steps: &[Step], pick: &Op, into: u8) -> Option<PromptPurpose> {
+    fn walk(steps: &[Step], pick: &Op, seen: &mut bool, reg: &mut u8) -> Option<PromptPurpose> {
+        for s in steps {
+            if std::ptr::eq(&s.op, pick) {
+                *seen = true;
+                continue;
+            }
+            if *seen {
+                match register_use(&s.op, *reg) {
+                    RegisterUse::Does(p) => return Some(p),
+                    RegisterUse::Stages(r) => *reg = r,
+                    RegisterUse::Not => {}
+                }
+            }
+            for sel in 0..=8 {
+                if let Some(p) = walk(super::child(&s.op, sel), pick, seen, reg) {
+                    return Some(p);
+                }
+            }
+        }
+        None
+    }
+    walk(steps, pick, &mut false, &mut { into })
 }
 
 /// The cards a verb op takes (`sel` of `from`) and the list they physically are in; `None` when the zone names no list
@@ -1024,16 +1082,14 @@ fn search_room(g: &Game, f: &Frame, s: &SearchSpec) -> i32 {
     }
 }
 
+/// What a search is for: where the found cards go.
 fn search_purpose(s: &SearchSpec) -> PromptPurpose {
-    if let Some(p) = s.pick.purpose {
-        return p;
-    }
     match s.destination {
         SearchDestination::Bench => PromptPurpose::PutOntoBench,
         SearchDestination::Hand { .. } => PromptPurpose::PutIntoHand,
         SearchDestination::Discard { .. } => PromptPurpose::DiscardCard,
-        SearchDestination::Deck { .. } => PromptPurpose::PutIntoDeck,
-        SearchDestination::AttachToPicked | SearchDestination::AttachToolToThis => PromptPurpose::PutIntoHand,
+        SearchDestination::Deck { .. } => PromptPurpose::PutOnDeckBottom,
+        SearchDestination::AttachToPicked | SearchDestination::AttachToolToThis => PromptPurpose::AttachCard,
     }
 }
 
@@ -1203,7 +1259,7 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
     }
     g.prompt(
         p,
-        PromptPurpose::AttachEnergy,
+        PromptPurpose::AttachCard,
         PromptKind::AttachEnergy { cards: list, player_type: PlayerType::BottomPlayer, slots: attach_slots(a), filter: Filter::none(), o },
         f.cont(me, 1),
     );
@@ -1492,7 +1548,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
     match op {
         // Cards from the deck are chosen after the damage (the deck is hidden until it resolves).
         Op::Pick(p) if p.from.1 != Zone::Deck => {
-            if ask_pick(g, me, f, p, i32::MAX, pick_purpose(p), 1, false) {
+            if ask_pick(g, me, f, p, i32::MAX, pick_purpose(g, me, f, op, p), 1, false) {
                 return Ok(Flow::Suspend);
             }
             f.record(g, me, CHOICE_NONE);
@@ -1634,7 +1690,7 @@ fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec)
             opts.blocked.push(i as u8);
         }
     }
-    choose_cards(g, p, u.purpose, list, filter, opts, f.cont(me, 1));
+    choose_cards(g, p, PromptPurpose::CopyEffect, list, filter, opts, f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -1791,7 +1847,7 @@ fn provided_energy(g: &mut Game, slot: SlotRef) -> R<SVec<crate::effects::Energy
 
 /// Open the ChooseEnergy prompt for `count` Energy of `ty` among the Energy the Pokémon provides.
 /// Returns false (no prompt) when there is nothing to pay with.
-fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, count: u8, ty: CardType, up_to: bool) -> R<bool> {
+fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, slot: SlotRef, count: u8, ty: CardType, up_to: bool) -> R<bool> {
     let energy = provided_energy(g, slot)?;
     if energy.is_empty() {
         return Ok(false);
@@ -1808,7 +1864,7 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
         cost.push(ty);
     }
     let energy = g.stash_energy(energy);
-    g.prompt(f.p as usize, PromptPurpose::DiscardEnergy, PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, 1));
+    g.prompt(f.p as usize, d.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, 1));
     Ok(true)
 }
 
@@ -1996,7 +2052,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
             let o = g.stash_opts(o);
             g.prompt(
                 chooser,
-                PromptPurpose::DiscardEnergy,
+                d.purpose(),
                 PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
                 f.cont(me, sub),
             );
@@ -2013,7 +2069,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
                     opts.blocked.push(i as u8);
                 }
             }
-            choose_cards(g, chooser, PromptPurpose::DiscardCard, slot.list(), Filter::none(), opts, f.cont(me, sub));
+            choose_cards(g, chooser, d.purpose(), slot.list(), Filter::none(), opts, f.cont(me, sub));
             Ok(true)
         }
         EnergySelection::FromBench { max, pred: pr } => {
@@ -2032,7 +2088,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
             let o = g.stash_opts(o);
             g.prompt(
                 chooser,
-                PromptPurpose::DiscardEnergy,
+                d.purpose(),
                 PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: if matches!(pr, Pred::BasicEnergy) { Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() } } else { Filter::super_type(SuperType::Energy) }, o },
                 f.cont(me, sub),
             );
@@ -2309,10 +2365,10 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
         EnergySelection::Among(a) => return among_exec(g, me, f, slot, a),
         EnergySelection::OppTools { max } => return Ok(if opp_tools_prompt(g, me, f, *max) { Flow::Suspend } else { Flow::Next }),
         EnergySelection::Choose { count, ty } => {
-            return Ok(if discard_choose_prompt(g, me, f, slot, *count, *ty, false)? { Flow::Suspend } else { Flow::Next });
+            return Ok(if discard_choose_prompt(g, me, f, d, slot, *count, *ty, false)? { Flow::Suspend } else { Flow::Next });
         }
         EnergySelection::ChooseToHand { count, ty, up_to } => {
-            return Ok(if discard_choose_prompt(g, me, f, slot, *count, *ty, *up_to)? { Flow::Suspend } else { Flow::Next });
+            return Ok(if discard_choose_prompt(g, me, f, d, slot, *count, *ty, *up_to)? { Flow::Suspend } else { Flow::Next });
         }
         EnergySelection::Prompt { .. } | EnergySelection::Chosen { .. } | EnergySelection::FromBench { .. } => {
             return Ok(if energy_prompt(g, me, f, d, 1)? { Flow::Suspend } else { Flow::Next });
@@ -2334,7 +2390,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
                             opts.blocked.push(i as u8);
                         }
                     }
-                    choose_cards(g, f.p as usize, PromptPurpose::DiscardCard, slot.list(), Filter::none(), opts, f.cont(me, 1));
+                    choose_cards(g, f.p as usize, d.purpose(), slot.list(), Filter::none(), opts, f.cont(me, 1));
                     return Ok(Flow::Suspend);
                 }
             }
@@ -2391,11 +2447,11 @@ fn de_choice(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> 
     let asked = match &d.selection {
         EnergySelection::OppTools { max } => opp_tools_prompt(g, me, f, *max),
         EnergySelection::Choose { count, ty } => match de_slot(g, me, f, d) {
-            Some(slot) => discard_choose_prompt(g, me, f, slot, *count, *ty, false)?,
+            Some(slot) => discard_choose_prompt(g, me, f, d, slot, *count, *ty, false)?,
             None => return Ok(Flow::Next),
         },
         EnergySelection::ChooseToHand { count, ty, up_to } => match de_slot(g, me, f, d) {
-            Some(slot) => discard_choose_prompt(g, me, f, slot, *count, *ty, *up_to)?,
+            Some(slot) => discard_choose_prompt(g, me, f, d, slot, *count, *ty, *up_to)?,
             None => return Ok(Flow::Next),
         },
         EnergySelection::Prompt { ty: None, .. } | EnergySelection::Chosen { .. } | EnergySelection::FromBench { .. } => energy_prompt(g, me, f, d, 1)?,
@@ -2446,6 +2502,27 @@ pub enum EnergyKind {
 pub enum PromptScope {
     Active,
     Bench,
+}
+
+impl DiscardEnergySpec {
+    /// What the op's choices are for (the prompts' purpose): where the chosen cards go. A discard asks for Energy
+    /// (ChooseEnergy / DiscardEnergy prompts) or for cards of the Pokémon (ChooseCards prompts: the cards, the Tools).
+    pub(crate) fn purpose(&self) -> PromptPurpose {
+        match self.to {
+            EnergyDest::Discard => match self.selection {
+                EnergySelection::Chosen { .. }
+                | EnergySelection::CostOne { .. }
+                | EnergySelection::Cards { .. }
+                | EnergySelection::Register(_)
+                | EnergySelection::Tools { .. }
+                | EnergySelection::OppTools { .. } => PromptPurpose::DiscardCard,
+                _ => PromptPurpose::DiscardEnergy,
+            },
+            EnergyDest::Hand => PromptPurpose::PutIntoHand,
+            EnergyDest::Deck => PromptPurpose::PutIntoDeck,
+            EnergyDest::Slot(_) | EnergyDest::Stay => PromptPurpose::MoveEnergy,
+        }
+    }
 }
 
 /// Where the chosen Energy goes.
@@ -2524,7 +2601,7 @@ fn ec_begin(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
             if cands.is_empty() {
                 return none(g, f);
             }
-            super::board::ask(g, me, f, p, cands.as_slice(), 1);
+            super::board::ask(g, me, f, p, e.purpose(), cands.as_slice(), 1);
             return Ok(Flow::Suspend);
         }
     };
@@ -2560,7 +2637,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                     opts.blocked.push(i as u8);
                 }
             }
-            choose_cards(g, chooser, PromptPurpose::DiscardCard, list, Filter::super_type(SuperType::Energy), opts, f.cont(me, sub));
+            choose_cards(g, chooser, e.purpose(), list, Filter::super_type(SuperType::Energy), opts, f.cont(me, sub));
             Ok(Flow::Suspend)
         }
         EnergySelection::Cost { n, ty } => {
@@ -2571,7 +2648,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                 cost.push(*ty);
             }
             let energy = g.stash_energy(energy);
-            g.prompt(chooser, PromptPurpose::DiscardEnergy, PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, sub));
+            g.prompt(chooser, e.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, sub));
             Ok(Flow::Suspend)
         }
         EnergySelection::All { provided } => {
@@ -2615,7 +2692,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             }
             g.prompt(
                 chooser,
-                PromptPurpose::AttachEnergyToBench,
+                PromptPurpose::MoveEnergy,
                 PromptKind::AttachEnergy { cards: list, player_type: ptype, slots, filter: energy_filter(*kind), o },
                 f.cont(me, sub),
             );
@@ -2696,7 +2773,7 @@ fn ec_prompt(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, rec
     let o = g.stash_opts(o);
     g.prompt(
         chooser,
-        PromptPurpose::DiscardEnergy,
+        e.purpose(),
         PromptKind::DiscardEnergy { player_type: ptype, slots, filter: Filter::super_type(SuperType::Energy), o },
         f.cont(me, 0xFF),
     );
@@ -2901,7 +2978,7 @@ fn ec_tools(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
     let o = MoveOpts { allow_cancel: false, min: to_u8(min_n), max: Some(to_u8(max_n)), ..Default::default() };
     let o = g.stash_opts(o);
-    g.prompt(chooser, PromptPurpose::DiscardCard, PromptKind::DiscardEnergy { player_type: PlayerType::Any, slots, filter, o }, f.cont(me, 0xFF));
+    g.prompt(chooser, e.purpose(), PromptKind::DiscardEnergy { player_type: PlayerType::Any, slots, filter, o }, f.cont(me, 0xFF));
     Ok(Flow::Suspend)
 }
 
@@ -2940,7 +3017,7 @@ fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R
     }
     g.prompt(
         f.p as usize,
-        PromptPurpose::TakePrize,
+        PromptPurpose::TurnPrizeFaceUp,
         PromptKind::ChoosePrize { count: 1, blocked, use_opponent_prizes: true, allow_cancel: false, is_secret: false, destination: None, face_down_only: true },
         f.cont(me, 1),
     );
@@ -3020,7 +3097,6 @@ pub struct BotherBotSpec {
 pub struct UseTrainerSpec {
     pub from: ZoneRef,
     pub kind: PlayKind,
-    pub purpose: PromptPurpose,
 }
 
 #[cfg(test)]
@@ -3077,5 +3153,106 @@ mod attach_target_tests {
         let blocked = blocked_to(&mut g, me, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::FIRE), TargetScan::Bench)).unwrap();
         assert_eq!(blocked.len(), 1);
         assert_eq!(blocked[0].slot, SlotType::Bench);
+    }
+}
+
+#[cfg(test)]
+mod pick_purpose_tests {
+    //! A `Pick` has no purpose of its own: the first op after it that takes its register is what it is for
+    //! (`pick_outcome`). Every pick of every spec card must have one (`pick_purpose` expects it), and the outcome must be
+    //! the one the card's text names.
+    use super::*;
+
+    fn programs(spec: &'static CardSpec) -> Vec<&'static [Step]> {
+        let mut v: Vec<&'static [Step]> = Vec::new();
+        v.extend(spec.attacks.iter().map(|a| a.steps));
+        v.extend(spec.powers.iter().map(|p| p.steps));
+        v.extend(spec.play.iter().map(|p| p.steps));
+        v.extend(spec.use_stadium.iter().map(|p| p.steps));
+        v.extend(spec.triggers.iter().map(|t| t.steps));
+        v
+    }
+
+    /// Every `Pick` and `PickSlot` op of the program, in program order.
+    fn picks(steps: &'static [Step], out: &mut Vec<&'static Op>) {
+        for s in steps {
+            if matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) {
+                out.push(&s.op);
+            }
+            for sel in 0..=8 {
+                picks(crate::spec::ops::child(&s.op, sel), out);
+            }
+        }
+    }
+
+    #[test]
+    fn pick_outcome_exists_for_every_pick() {
+        let mut n = 0;
+        for spec in crate::cards::registry::SPECS.iter() {
+            for root in programs(spec) {
+                let mut ops = Vec::new();
+                picks(root, &mut ops);
+                for op in ops {
+                    if let Op::Pick(p) = op {
+                        n += 1;
+                        assert!(pick_outcome(root, op, p.into).is_some(), "{}: a Pick into register {} that no later op takes", spec.class, p.into);
+                    }
+                }
+            }
+        }
+        assert!(n > 50, "the walk found the picks ({n})");
+    }
+
+    /// The slot picks declare their role; none is a bare "choose" (the vocabulary has no such purpose, this fixes the set).
+    #[test]
+    fn slot_picks_declare_a_role() {
+        use PromptPurpose as P;
+        let roles = [P::HealTarget, P::DamageTarget, P::SwitchPokemon, P::PutIntoHand, P::PutIntoDeck, P::DiscardCard, P::AttachTo, P::MoveEnergy, P::EffectTarget, P::Devolve, P::SwapPokemon];
+        let mut n = 0;
+        for spec in crate::cards::registry::SPECS.iter() {
+            for root in programs(spec) {
+                let mut ops = Vec::new();
+                picks(root, &mut ops);
+                for op in ops {
+                    if let Op::PickSlot(p) = op {
+                        n += 1;
+                        assert!(roles.contains(&p.purpose), "{}: {:?}", spec.class, p.purpose);
+                    }
+                }
+            }
+        }
+        assert_eq!(n, 23, "the pool has 23 PickSlot steps");
+    }
+
+    fn outcomes(class: &str) -> Vec<PromptPurpose> {
+        let spec = crate::cards::registry::SPECS.iter().copied().find(|s| s.class == class).unwrap_or_else(|| panic!("{class}"));
+        let mut v = Vec::new();
+        for root in programs(spec) {
+            let mut ops = Vec::new();
+            picks(root, &mut ops);
+            for op in ops {
+                if let Op::Pick(p) = op {
+                    v.push(pick_outcome(root, op, p.into).unwrap());
+                }
+            }
+        }
+        v
+    }
+
+    #[test]
+    fn picks_are_what_their_cards_do_with_them() {
+        use PromptPurpose as P;
+        // The cost: discard 2 cards, then search.
+        assert_eq!(outcomes("UltraBall"), [P::DiscardCard]);
+        // Put 2 cards from the hand on the bottom of the deck.
+        assert_eq!(outcomes("Kofu"), [P::PutOnDeckBottom]);
+        // Search, shuffle, then the cards go on top of the deck (a Look stages them while the deck is shuffled).
+        assert_eq!(outcomes("CiphermaniacsCodebreaking"), [P::PutIntoDeck]);
+        // An evolution card from the deck.
+        assert_eq!(outcomes("Salvatore"), [P::EvolutionCard]);
+        // A Pokémon card from the discard pile switched with a Pokémon in play.
+        assert_eq!(outcomes("TransformationTome"), [P::SwapPokemon]);
+        // Energy from the hand discarded, Energy from the discard pile into the hand.
+        assert_eq!(outcomes("EnergyRetrieval@BS"), [P::DiscardCard, P::PutIntoHand]);
     }
 }

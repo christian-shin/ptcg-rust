@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::Fail(FailSpec { unless: Cond::Cmp(Num::Turn, CmpOp::Eq, Num::Lit(2)), error: "CANNOT_USE_ATTACK" })),
             // The attacker picks at step D; nothing happens when the opponent has no Benched Pokémon.
-            Step::after_damage(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), purpose: PromptPurpose::ShufflePokemonIntoDeck })),
+            Step::after_damage(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp) }, purpose: PromptPurpose::PutIntoDeck })),
             Step::after_damage(Op::If(IfSpec {
                 cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any),
                 yes: &[

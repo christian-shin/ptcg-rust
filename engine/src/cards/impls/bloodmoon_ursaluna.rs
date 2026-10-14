@@ -18,14 +18,12 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), FIGHTING_ENERGY),
-            purpose: PromptPurpose::Activate,
             yes: &[
                 Step::new(Op::Pick(PickSpec {
                     from: ZoneRef(Who::Me, Zone::Hand),
                     predicate: FIGHTING_ENERGY,
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
                     into: 0,
-                    purpose: Some(PromptPurpose::AttachCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), onto: Some(SlotExpr::This), ..AttachSpec::DEFAULT })),

@@ -11,11 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)])), Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::METAL))]),
             yes: &[
-                Step::new(Op::PickSlot(PickSlotSpec {
-                    chooser: Who::Me,
-                    among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::METAL)),
-                    purpose: PromptPurpose::AttachTo,
-                })),
+                Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::METAL)) }, purpose: PromptPurpose::AttachTo })),
                 Step::new(Op::Pick(PickSpec {
                     from: ZoneRef(Who::Me, Zone::Discard),
                     predicate: Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)]),
@@ -24,7 +20,6 @@ pub static SPEC: CardSpec = CardSpec {
                     bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Min(&Num::Lit(2), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)]))) },
                     into: 0,
                     soft: true,
-                    purpose: Some(PromptPurpose::AttachCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), onto: Some(SlotExpr::Picked), ..AttachSpec::DEFAULT })),

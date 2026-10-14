@@ -12,11 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             // Both choices can be cancelled (nothing happens).
-            Step::new(Op::PickSlot(PickSlotSpec {
-                chooser: Who::Me,
-                among: SlotSel::Cancelable(&SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::HasEnergy]))),
-                purpose: PromptPurpose::HealTarget,
-            })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Cancelable(&SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::HasEnergy]))) }, purpose: PromptPurpose::HealTarget })),
             Step::cost(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: true, energies_only: false }, into: Some(0), ..DiscardEnergySpec::DEFAULT })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),

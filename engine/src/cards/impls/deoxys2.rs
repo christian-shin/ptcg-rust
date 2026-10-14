@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), purpose: PromptPurpose::DamageTarget }), hp: Num::Lit(120), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::Cmp(Num::Sub(&Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::ProvidedUnits), &Num::PrintedCost), CmpOp::Ge, Num::Lit(2)) })),
+                Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), }), hp: Num::Lit(120), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::Cmp(Num::Sub(&Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::ProvidedUnits), &Num::PrintedCost), CmpOp::Ge, Num::Lit(2)) })),
             ],
         },
     ],

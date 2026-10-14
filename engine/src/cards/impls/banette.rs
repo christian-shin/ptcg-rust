@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::True,
-            purpose: PromptPurpose::DrawCount,
             yes: &[Step::new(Op::If(IfSpec {
                 cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
                 yes: &[

@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             ),
         ],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::Energy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::Energy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[

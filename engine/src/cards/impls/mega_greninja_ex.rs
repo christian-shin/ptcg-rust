@@ -12,7 +12,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::before_damage(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::True,
-            purpose: PromptPurpose::MayUseAttackEffect,
             // The 80 more damage is done whether or not a [W] Energy could be taken (id2352).
             yes: &[
                 Step::new(more_damage_if(80, Cond::True)),
@@ -32,13 +31,13 @@ pub static SPEC: CardSpec = CardSpec {
             Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::Any),
         ],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Water Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, soft: true, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Water Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, soft: true, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[
                     Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                     Step::new(Op::PlaceCounters(PlaceCountersSpec {
-                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), purpose: PromptPurpose::DamageTarget }),
+                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), }),
                         counters: Num::Lit(6)
                     })),
                     Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),

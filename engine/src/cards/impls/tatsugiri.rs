@@ -21,7 +21,6 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::Supporter,
                 bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                 into: 1,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..PutIntoHandSpec::DEFAULT })),

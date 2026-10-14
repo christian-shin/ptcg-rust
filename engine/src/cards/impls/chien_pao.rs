@@ -21,7 +21,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]),
-            purpose: PromptPurpose::Activate,
             yes: &[
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
@@ -46,7 +45,6 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::Energy,
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

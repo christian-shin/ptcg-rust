@@ -27,7 +27,6 @@ pub static SPEC: CardSpec = CardSpec {
                 },
                 into: 0,
                 soft: true,
-                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::Discard(DiscardSpec { from: OPP_HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Flip a coin. If heads, put 2 damage counters on 1 of your opponent's Pokémon. If tails, put 2 damage counters on your Active Pokémon.
         steps: &[Step::new(Op::Coin(CoinSpec {
             heads: &[Step::new(Op::PlaceCounters(PlaceCountersSpec {
-                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), purpose: PromptPurpose::DamageTarget }),
+                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), }),
                 counters: Num::Lit(2)
             }))],
             tails: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(MY_ACTIVE), counters: Num::Lit(2) }))],

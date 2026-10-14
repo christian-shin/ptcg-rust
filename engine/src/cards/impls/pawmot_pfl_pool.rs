@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::May(MaySpec { asker: Who::Me, when: Cond::True, purpose: PromptPurpose::Activate, yes: &[Step::new(self_damage(60)), Step::new(inflict(&[SpecialCondition::Paralyzed]))], no: &[] })),
+                Step::after_damage(Op::May(MaySpec { asker: Who::Me, when: Cond::True, yes: &[Step::new(self_damage(60)), Step::new(inflict(&[SpecialCondition::Paralyzed]))], no: &[] })),
             ],
         },
     ],

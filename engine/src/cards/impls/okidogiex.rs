@@ -12,13 +12,12 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::If(IfSpec {
                 cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
                 yes: &[
-                    Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::One(SlotExpr::This), purpose: PromptPurpose::ChooseTarget })),
+                    Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::One(SlotExpr::This) }, purpose: PromptPurpose::AttachTo })),
                     Step::new(Op::Pick(PickSpec {
                         from: ZoneRef(Who::Me, Zone::Deck),
                         predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]),
                         bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
                         into: 0,
-                        purpose: Some(PromptPurpose::AttachCard),
                         ..PickSpec::DEFAULT
                     })),
                     Step::new(Op::If(IfSpec {

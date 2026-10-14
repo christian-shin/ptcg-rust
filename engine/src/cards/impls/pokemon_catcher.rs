@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any)],
         steps: &[Step::new(Op::Coin(CoinSpec {
-            heads: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false }))],
+            heads: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, required: false }))],
             ..CoinSpec::DEFAULT
         }))],
     }),

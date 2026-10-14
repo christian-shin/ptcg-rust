@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::Trainer,
                 bounds: Bounds { min: Num::If(&Cond::Nonempty(DISCARD, Pred::Trainer), &Num::Lit(1), &Num::Lit(0)), max: Num::Lit(1) },
                 into: 0,
-                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: DISCARD, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

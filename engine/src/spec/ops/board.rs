@@ -23,10 +23,18 @@ use crate::types::*;
 /// Card files name Special Conditions and Pokémon types through the prelude.
 pub use crate::types::{ct, SpecialCondition};
 
-/// A prompt asking `chooser` to pick one Pokémon among `among`.
+/// A prompt asking `chooser` to pick one Pokémon among `among`. The op that acts on the Pokémon asks for its role (the
+/// prompt's purpose follows from the op: a heal, a damage, a switch, a move of Energy).
 pub struct PickSlotSpec {
     pub chooser: Who,
     pub among: SlotSel,
+}
+
+/// `Op::PickSlot`: the Pokémon is picked first and acted on by the steps after it (`SlotExpr::Picked`), possibly by
+/// several of them (Scramble Switch moves Energy to it and switches it in), so no single op knows what the pick is for:
+/// the step declares the role (`purpose`, an outcome of the PromptPurpose vocabulary).
+pub struct PickSlotOp {
+    pub pick: PickSlotSpec,
     pub purpose: PromptPurpose,
 }
 
@@ -55,7 +63,6 @@ pub enum SwitchAmong {
 pub struct SwitchSpec {
     pub change: crate::spec::event::ActiveChange,
     pub among: SwitchAmong,
-    pub purpose: PromptPurpose,
     /// A Trainer or Ability can't be used without a Benched Pokémon to switch
     /// with (otherwise the switch is simply skipped).
     pub required: bool,
@@ -310,13 +317,13 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     }
 }
 
-/// Ask the chooser to pick one of `cands` (resumed at `sub`).
-pub(crate) fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRef], sub: u8) {
-    ask_range(g, me, f, pick, cands, 1, 1, sub)
+/// Ask the chooser to pick one of `cands` (resumed at `sub`), for the role `purpose`.
+pub(crate) fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, purpose: PromptPurpose, cands: &[SlotRef], sub: u8) {
+    ask_range(g, me, f, pick, purpose, cands, 1, 1, sub)
 }
 
 /// Ask the chooser to pick between `min` and `max` of `cands` (resumed at `sub`).
-pub(crate) fn ask_range(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRef], min: u8, max: u8, sub: u8) {
+pub(crate) fn ask_range(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, purpose: PromptPurpose, cands: &[SlotRef], min: u8, max: u8, sub: u8) {
     let owner = sel_owner(&pick.among, f);
     let chooser = f.who(pick.chooser);
     let player_type = if owner == chooser { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
@@ -335,7 +342,7 @@ pub(crate) fn ask_range(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec
     }
     g.prompt(
         chooser,
-        pick.purpose,
+        purpose,
         PromptKind::ChoosePokemon { player_type, slots, min, max, allow_cancel: matches!(pick.among, SlotSel::Cancelable(_)), blocked },
         f.cont(me, sub),
     );
@@ -355,6 +362,16 @@ fn target_of(op: &Op) -> Option<&SlotTarget> {
         Op::DamageSlot(d) => Some(&d.target),
         Op::PlaceCounters(c) => Some(&c.target),
         _ => None,
+    }
+}
+
+/// What the Pokémon an op picks is for (the prompt's purpose): healed, damaged, or given damage counters.
+fn target_purpose(op: &Op) -> PromptPurpose {
+    match op {
+        Op::Heal(_) => PromptPurpose::HealTarget,
+        Op::DamageSlot(_) => PromptPurpose::DamageTarget,
+        Op::PlaceCounters(_) => PromptPurpose::PutDamageCounters,
+        _ => unreachable!("target_of names the ops that act on one Pokémon"),
     }
 }
 
@@ -440,7 +457,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     if cands.is_empty() {
                         return Ok(Flow::Next);
                     }
-                    ask(g, me, f, pick, cands.as_slice(), 1);
+                    ask(g, me, f, pick, target_purpose(op), cands.as_slice(), 1);
                     Ok(Flow::Suspend)
                 }
             }
@@ -515,7 +532,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(Flow::Next)
         }
-        Op::PickSlot(pick) => {
+        Op::PickSlot(PickSlotOp { pick, purpose }) => {
             if let Some(c) = f.recorded_choice(g, me) {
                 f.slot = if c.answer == CHOICE_NONE || c.len == 0 { NONE } else { c.items[0] };
                 return Ok(Flow::Next);
@@ -530,7 +547,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 f.slot = NONE;
                 return Ok(Flow::Next);
             }
-            ask(g, me, f, pick, cands.as_slice(), 1);
+            ask(g, me, f, pick, *purpose, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
         Op::SpreadDamage(s) => {
@@ -676,7 +693,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
             }
-            ask(g, me, f, pick, cands.as_slice(), 1);
+            ask(g, me, f, pick, target_purpose(op), cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
         Op::Switch(s) => {
@@ -685,11 +702,11 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
             }
-            ask(g, me, f, &switch_pick(s), cands.as_slice(), 1);
+            ask(g, me, f, &switch_pick(s), PromptPurpose::SwitchPokemon, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
         Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllFromOne { .. }) => move_all_exec(g, me, f, m),
-        Op::PickSlot(pick) => {
+        Op::PickSlot(PickSlotOp { pick, purpose }) => {
             // A fixed Pokémon is just selected when the effect is carried out (nothing to ask or
             // record; the step D steps after it read it).
             if matches!(pick.among, SlotSel::One(_)) {
@@ -702,7 +719,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
             }
-            ask(g, me, f, pick, cands.as_slice(), 1);
+            ask(g, me, f, pick, *purpose, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
         Op::SpreadDamage(s) => {
@@ -819,7 +836,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         // Used through an attack (Look-Alike Show) a Trainer's switch does nothing when it can't.
         Op::Switch(s) => !s.required || f.via_attack || !slots_of(g, me, f, &switch_among(s)).is_empty(),
         // A pick needs a Pokémon to choose.
-        Op::PickSlot(p) => !slots_of(g, me, f, &p.among).is_empty(),
+        Op::PickSlot(p) => !slots_of(g, me, f, &p.pick.among).is_empty(),
         _ => true,
     }
 }
@@ -945,7 +962,7 @@ fn switch_among(s: &SwitchSpec) -> SlotSel {
 }
 
 fn switch_pick(s: &SwitchSpec) -> PickSlotSpec {
-    PickSlotSpec { chooser: s.chooser(), among: switch_among(s), purpose: s.purpose }
+    PickSlotSpec { chooser: s.chooser(), among: switch_among(s) }
 }
 
 /// The ChangeActive a switch op makes, with the Benched Pokémon `to` (`None`: not chosen yet).
@@ -987,7 +1004,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
     if cands.is_empty() || switch_out_refused(g, f, s)? {
         return Ok(Flow::Next);
     }
-    ask(g, me, f, &switch_pick(s), cands.as_slice(), 1);
+    ask(g, me, f, &switch_pick(s), PromptPurpose::SwitchPokemon, cands.as_slice(), 1);
     Ok(Flow::Suspend)
 }
 
@@ -1021,7 +1038,7 @@ fn spread_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SpreadCountersSpec) 
     slots.push(SlotType::Active as u8);
     g.prompt(
         p,
-        PromptPurpose::DamageTarget,
+        PromptPurpose::PutDamageCounters,
         PromptKind::PutDamage {
             player_type: PlayerType::BottomPlayer,
             slots,
@@ -1136,7 +1153,7 @@ fn move_all_exec(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveCountersSpec) 
         }
         return Ok(Flow::Next);
     }
-    ask(g, me, f, from, cands.as_slice(), 1);
+    ask(g, me, f, from, PromptPurpose::MoveDamage, cands.as_slice(), 1);
     Ok(Flow::Suspend)
 }
 
@@ -1152,7 +1169,7 @@ fn move_all_resume(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveCountersSpec
         SlotTarget::Pick(to) => {
             if f.sub < 0x80 {
                 let cands = candidates(g, me, f, to)?;
-                ask(g, me, f, to, cands.as_slice(), 0x80 | encode(picked));
+                ask(g, me, f, to, PromptPurpose::MoveDamage, cands.as_slice(), 0x80 | encode(picked));
                 return Ok(Flow::Suspend);
             }
             (decode(f.sub & 0x7F), picked)
@@ -1194,7 +1211,7 @@ pub const fn self_damage(hp: i32) -> Op {
 
 /// "Switch this Pokémon with 1 of your Benched Pokémon."
 pub const fn switch_self() -> Op {
-    Op::Switch(SwitchSpec { change: crate::spec::event::ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::NewActive, required: false })
+    Op::Switch(SwitchSpec { change: crate::spec::event::ActiveChange::Switch, among: SwitchAmong::Bench, required: false })
 }
 
 /// Heal damage from this Pokémon.
@@ -1534,7 +1551,6 @@ pub struct ChooseN {
     pub chooser: Who,
     pub min: Num,
     pub max: Num,
-    pub purpose: PromptPurpose,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -1577,7 +1593,7 @@ pub struct ChoiceDamageSpec {
 
 /// The prompt of an `EachSlot` choice: the selection's side and slot kinds decide what is listed.
 fn each_pick(e: &EachSlotSpec, c: &ChooseN) -> PickSlotSpec {
-    PickSlotSpec { chooser: c.chooser, among: clone_sel(&e.among), purpose: c.purpose }
+    PickSlotSpec { chooser: c.chooser, among: clone_sel(&e.among) }
 }
 
 /// A selection that stands in for `sel` in a prompt (the same shape, never evaluated).
@@ -1610,7 +1626,12 @@ fn each_ask(g: &mut Game, me: CardId, f: &mut Frame, e: &EachSlotSpec, choice: b
     }
     let max = num_m(g, me, f, &c.max)?.clamp(0, 255);
     let min = num_m(g, me, f, &c.min)?.clamp(0, max.min(cands.len() as i32));
-    ask_range(g, me, f, &each_pick(e, c), cands.as_slice(), min as u8, max as u8, 1);
+    let purpose = match e.what {
+        EachWhat::Damage(_) => PromptPurpose::DamageTarget,
+        EachWhat::Counters => PromptPurpose::PutDamageCounters,
+        EachWhat::ShuffleIntoDeck => PromptPurpose::PutIntoDeck,
+    };
+    ask_range(g, me, f, &each_pick(e, c), purpose, cands.as_slice(), min as u8, max as u8, 1);
     Ok(Flow::Suspend)
 }
 
@@ -1679,8 +1700,8 @@ fn evolve_reg_exec(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, card: 
     if cands.is_empty() {
         return Ok(Flow::Next);
     }
-    let pick = PickSlotSpec { chooser, among: SlotSel::Pokemon(Who::Me), purpose: PromptPurpose::EvolvePokemon };
-    ask(g, me, f, &pick, &cands, 1);
+    let pick = PickSlotSpec { chooser, among: SlotSel::Pokemon(Who::Me) };
+    ask(g, me, f, &pick, PromptPurpose::EvolvePokemon, &cands, 1);
     Ok(Flow::Suspend)
 }
 
@@ -1714,7 +1735,7 @@ fn devolve_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DevolveSpec) -> R<F
         }
     }
     let chooser = f.who(d.chooser.unwrap_or(Who::Me));
-    choose_cards(g, chooser, PromptPurpose::PickUpPokemon, crate::state::ListRef::Slot(t.p, t.s), Filter::super_type(SuperType::Pokemon), opts, f.cont(me, 0x80 | encode(t)));
+    choose_cards(g, chooser, PromptPurpose::Devolve, crate::state::ListRef::Slot(t.p, t.s), Filter::super_type(SuperType::Pokemon), opts, f.cont(me, 0x80 | encode(t)));
     Ok(Flow::Suspend)
 }
 

@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Printed(&Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None })],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(8)), into: 0, ..LookSpec::DEFAULT })),
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Lit(3) }, into: 1, purpose: Some(PromptPurpose::PutIntoHand), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Lit(3) }, into: 1, ..PickSpec::DEFAULT })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Chosen(1), ..PutIntoHandSpec::DEFAULT })),
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
                 // Choose 2 of your opponent's Benched Pokémon; they shuffle those Pokémon and all attached cards into their deck.
                 Step::after_damage(Op::EachSlot(EachSlotSpec {
                     among: SlotSel::Bench(Who::Opp),
-                    choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::BenchCount(Who::Opp)), max: Num::Lit(2), purpose: PromptPurpose::DamageTarget }),
+                    choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::BenchCount(Who::Opp)), max: Num::Lit(2), }),
                     what: EachWhat::ShuffleIntoDeck,
                     ..EachSlotSpec::DEFAULT
                 })),

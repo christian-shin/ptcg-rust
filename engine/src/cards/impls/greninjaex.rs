@@ -12,14 +12,14 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Greninjaex",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, purpose: PromptPurpose::MaySearchDeck, yes: &[Step::new(Op::Search(SearchSpec {
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, yes: &[Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: false },
                 cancel: false,
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))], no: &[] })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), purpose: PromptPurpose::DamageTarget }), what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(120), ..EachSlotSpec::DEFAULT })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), }), what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(120), ..EachSlotSpec::DEFAULT })),
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],

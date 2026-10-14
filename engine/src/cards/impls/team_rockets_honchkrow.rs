@@ -16,7 +16,6 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::All(&[Pred::Supporter, Pred::NameContains("Team Rocket")]),
                 bounds: Bounds { min: Num::Lit(0), max: Num::CardCount(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::Supporter, Pred::NameContains("Team Rocket")])) },
                 into: 0,
-                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), op: DamageOp::Set, per: 60 })),

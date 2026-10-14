@@ -410,6 +410,11 @@ fn program(spec: &'static CardSpec, prog: Prog) -> &'static [Step] {
     }
 }
 
+/// The steps of the program the frame runs (of the card `me`, or of the card whose attack `me` copies).
+pub(crate) fn program_steps(g: &Game, me: CardId, f: &Frame) -> &'static [Step] {
+    program(spec_of(g, me), f.prog)
+}
+
 /// The list the frame's current level walks.
 fn list_at(spec: &'static CardSpec, f: &Frame) -> &'static [Step] {
     let mut list = program(spec, f.prog);

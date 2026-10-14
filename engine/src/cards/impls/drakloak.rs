@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), into: 1, ..LookSpec::DEFAULT })),
-            Step::new(Op::Pick(PickSpec { from: TOP, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::PutIntoHand), ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: TOP, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: TOP, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: TOP, cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
         ],

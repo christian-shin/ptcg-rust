@@ -15,9 +15,9 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: true })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, required: true })),
             // If you do, switch your Active Pokémon with 1 of your Benched Pokémon.
-            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, required: false }))], no: &[] })),
         ],
     }),
     ..CardSpec::NONE

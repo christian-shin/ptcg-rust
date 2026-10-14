@@ -25,7 +25,6 @@ pub static SPEC: CardSpec = CardSpec {
                     predicate: Pred::All(&[Pred::Pokemon, Pred::EvolvesFromActive]),
                     bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                     into: 0,
-                    purpose: Some(PromptPurpose::EvolutionCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot: MY_ACTIVE, card: 0 } })),

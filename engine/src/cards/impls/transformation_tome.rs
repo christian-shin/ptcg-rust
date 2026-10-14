@@ -19,13 +19,12 @@ pub static SPEC: CardSpec = CardSpec {
             Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Basic),
         ],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Basic), purpose: PromptPurpose::SwitchPokemon })),
+            Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Basic) }, purpose: PromptPurpose::SwapPokemon })),
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Discard),
                 predicate: Pred::All(&[Pred::Pokemon, Pred::Basic]),
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                purpose: Some(PromptPurpose::PutOntoBench),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: false, bottom: true })),
