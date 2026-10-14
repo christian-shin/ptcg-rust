@@ -18,7 +18,6 @@ pub static SPEC: CardSpec = CardSpec {
         Trigger { origin: RuleSource::Ability, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::AbilityBlocked), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)]), yes: &[Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Tool, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::AttachToolToThis,
-                msg: "",
                 cancel: false,
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))] },
     ],

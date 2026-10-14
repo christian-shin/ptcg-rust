@@ -38,7 +38,7 @@ pub static SPEC: CardSpec = CardSpec {
                     Step::new(Op::PickSlot(PickSlotSpec {
                         chooser: Who::Me,
                         among: SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Basic),
-                        msg: "CHOOSE_POKEMON_TO_DAMAGE",
+                        purpose: PromptPurpose::DamageTarget,
                     })),
                     Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::Picked, when: Cond::True })),
                 ],

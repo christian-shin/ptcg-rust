@@ -26,14 +26,14 @@ pub static SPEC: CardSpec = CardSpec {
                     Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any),
                     Cond::Cmp(Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::ProvidedUnits), CmpOp::Ge, Num::Lit(3)),
                 ]),
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(3), ty: ct::COLORLESS }, to: EnergyDest::Deck, ..DiscardEnergySpec::DEFAULT })),
                     // "If you do": the 3 Energy are there (the `when` above), so they go into the deck (the removal waits for the
                     // damage and reports Done when queued, so nothing reads Done after it).
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                     Step::new(Op::DamageSlot(DamageSlotSpec {
-                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), purpose: PromptPurpose::DamageTarget }),
                         hp: Num::Lit(120),
                         target_damage_mul: 0,
                         calc: DamageCalc::Put,

@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::If(IfSpec {
             cond: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any),
             yes: &[
-                Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::One(MY_ACTIVE), msg: "" })),
+                Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::One(MY_ACTIVE), purpose: PromptPurpose::ChooseTarget })),
                 Step::new(Op::Attach(AttachSpec {
                     from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)),
                     predicate: Pred::Energy,

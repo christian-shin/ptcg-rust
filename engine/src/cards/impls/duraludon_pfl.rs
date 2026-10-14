@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::Energy,
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                msg: "CHOOSE_CARD_TO_DISCARD",
+                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Register(0), ..DiscardEnergySpec::DEFAULT })),

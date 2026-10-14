@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Heal(HealSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::ANCIENT))), msg: "CHOOSE_POKEMON_TO_HEAL" }), hp: Num::Lit(100), clear_conditions: false })),
+                Step::after_damage(Op::Heal(HealSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::ANCIENT))), purpose: PromptPurpose::HealTarget }), hp: Num::Lit(100), clear_conditions: false })),
             ],
         },
     ],

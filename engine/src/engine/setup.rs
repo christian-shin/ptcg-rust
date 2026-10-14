@@ -144,7 +144,7 @@ fn needs_starter_confirm(g: &Game, p: usize) -> bool {
 
 fn starter_confirm(g: &mut Game, p: usize, mut f: SetupFrame, stage: Stage) {
     f.stage = stage;
-    g.prompt(p, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::Setup(f));
+    g.prompt(p, PromptPurpose::Activate, PromptKind::Confirm, Cont::Setup(f));
 }
 
 /// Both hands are dealt: ask player 0 (when needed), then player 1.
@@ -207,13 +207,13 @@ fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool)
 pub fn start(g: &mut Game) -> R {
     // The coin flip for who goes first (APR G).
     let frame = SetupFrame { stage: Stage::Coin, who_begins: false, pm: 0, om: 0, php: false, ohp: false, branch: 0, shown: 0 };
-    g.prompt(0, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::Setup(frame));
+    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, Cont::Setup(frame));
     Ok(())
 }
 
 fn deal(g: &mut Game, mut f: SetupFrame) -> R {
     f.stage = Stage::Dealt;
-    g.prompt_group(&[(0, "", PromptKind::ShuffleDeck), (1, "", PromptKind::ShuffleDeck)], Cont::Setup(f));
+    g.prompt_group(&[(0, PromptPurpose::Shuffle, PromptKind::ShuffleDeck), (1, PromptPurpose::Shuffle, PromptKind::ShuffleDeck)], Cont::Setup(f));
     Ok(())
 }
 
@@ -228,7 +228,7 @@ fn choose_starting(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     f.stage = next;
     g.prompt(
         p,
-        "CHOOSE_STARTING_POKEMONS",
+        PromptPurpose::SetupActive,
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
         Cont::Setup(f),
     );
@@ -264,43 +264,43 @@ fn setup_draw(g: &mut Game, p: usize, n: usize) -> R {
 fn mulligan_shuffle(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     crate::engine::cards_zone::mulligan(g, p);
     f.stage = next;
-    g.prompt(p, "", PromptKind::ShuffleDeck, Cont::Setup(f));
+    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::Setup(f));
 }
 
 /// Number of show-mulligan prompts for the frame's branch, in order.
-fn mulligan_prompt_owners(f: &SetupFrame) -> Vec<(usize, &'static str)> {
+fn mulligan_prompt_owners(f: &SetupFrame) -> Vec<(usize, PromptPurpose)> {
     let (pm, om) = (f.pm > 0, f.om > 0);
     let mut v = Vec::new();
     match f.branch {
         0 => {
             if om {
-                v.push((0, "SETUP_OPPONENT_NO_BASIC"));
-                v.push((1, "SETUP_PLAYER_NO_BASIC"));
+                v.push((0, PromptPurpose::MulliganOpponents));
+                v.push((1, PromptPurpose::MulliganYours));
             }
             if pm {
-                v.push((0, "SETUP_PLAYER_NO_BASIC"));
-                v.push((1, "SETUP_OPPONENT_NO_BASIC"));
+                v.push((0, PromptPurpose::MulliganYours));
+                v.push((1, PromptPurpose::MulliganOpponents));
             }
         }
         1 => {
             if pm {
-                v.push((1, "SETUP_OPPONENT_NO_BASIC"));
-                v.push((0, "SETUP_PLAYER_NO_BASIC"));
+                v.push((1, PromptPurpose::MulliganOpponents));
+                v.push((0, PromptPurpose::MulliganYours));
             }
             if om {
-                v.push((1, "SETUP_PLAYER_NO_BASIC"));
-                v.push((0, "SETUP_OPPONENT_NO_BASIC"));
+                v.push((1, PromptPurpose::MulliganYours));
+                v.push((0, PromptPurpose::MulliganOpponents));
             }
         }
         _ => {
             if pm || om {
                 if pm {
-                    v.push((0, "SETUP_PLAYER_NO_BASIC"));
-                    v.push((1, "SETUP_OPPONENT_NO_BASIC"));
+                    v.push((0, PromptPurpose::MulliganYours));
+                    v.push((1, PromptPurpose::MulliganOpponents));
                 }
                 if om {
-                    v.push((1, "SETUP_PLAYER_NO_BASIC"));
-                    v.push((0, "SETUP_OPPONENT_NO_BASIC"));
+                    v.push((1, PromptPurpose::MulliganYours));
+                    v.push((0, PromptPurpose::MulliganOpponents));
                 }
             }
         }
@@ -311,10 +311,10 @@ fn mulligan_prompt_owners(f: &SetupFrame) -> Vec<(usize, &'static str)> {
 fn show_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
     let owners = mulligan_prompt_owners(&f);
     if (f.shown as usize) < owners.len() {
-        let (p, msg) = owners[f.shown as usize];
+        let (p, purpose) = owners[f.shown as usize];
         f.shown += 1;
         f.stage = Stage::ShowMulligans;
-        g.prompt(p, msg, PromptKind::ShowMulligan, Cont::Setup(f));
+        g.prompt(p, purpose, PromptKind::ShowMulligan, Cont::Setup(f));
         return Ok(());
     }
     after_mulligans(g, f)
@@ -333,7 +333,7 @@ fn after_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
     f.stage = Stage::ExtraDraw;
     g.prompt(
         drawer,
-        "WANT_TO_DRAW_CARDS",
+        PromptPurpose::DrawCount,
         PromptKind::Select { values: SelectValues::DrawCards(extra), allow_cancel: false, default_value: 0 },
         Cont::Setup(f),
     );
@@ -362,7 +362,7 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
     f.stage = Stage::ExtraBench;
     g.prompt(
         p,
-        "CHOOSE_STARTING_POKEMONS",
+        PromptPurpose::SetupActive,
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
         Cont::Setup(f),
     );
@@ -377,7 +377,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             crate::engine::condition::coin_flipped(g, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
             f.who_begins = first.as_bool();
             f.stage = Stage::GoFirst;
-            g.prompt(if f.who_begins { 0 } else { 1 }, "GO_FIRST", PromptKind::Confirm, Cont::Setup(f));
+            g.prompt(if f.who_begins { 0 } else { 1 }, PromptPurpose::ChooseFirstPlayer, PromptKind::Confirm, Cont::Setup(f));
             Ok(())
         }
         Stage::GoFirst => {

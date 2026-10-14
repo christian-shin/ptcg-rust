@@ -12,14 +12,14 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[
         AttackSpec {
             index: 0,
-            steps: &[Step::after_damage(Op::Switch(SwitchSpec { change: ActiveChange::SwitchOut, among: SwitchAmong::Bench, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false }))],
+            steps: &[Step::after_damage(Op::Switch(SwitchSpec { change: ActiveChange::SwitchOut, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false }))],
         },
         AttackSpec {
             index: 1,
             steps: &[Step::before_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_DISCARD_ENERGY",
+                purpose: PromptPurpose::MayDiscardEnergy,
                 // Offered even without 3 [M] Energy (id2352): as many as there are are discarded.
                 yes: &[
                     Step::new(more_damage_if(150, Cond::True)),

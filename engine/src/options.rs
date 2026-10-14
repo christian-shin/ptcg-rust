@@ -341,7 +341,7 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
             // The Confusion flip's heads branch runs the attack: resolve it as
             // heads so an attack that throws is not offered to a Confused attacker.
             crate::game::Pending::Chance(i)
-                if trial.prompts.as_slice()[i].message == "FLIP_CONFUSION"
+                if trial.prompts.as_slice()[i].purpose == crate::prompts::PromptPurpose::ConfusionFlip
                     && matches!(trial.prompts.as_slice()[i].kind, crate::prompts::PromptKind::CoinFlip) =>
             {
                 trial.resolve(i, crate::prompts::Res::Bool(true))?;

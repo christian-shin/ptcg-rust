@@ -299,7 +299,7 @@ fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     }
     g.prompt(
         p,
-        "CHOOSE_ATTACK_TO_COPY",
+        PromptPurpose::CopyAttack,
         PromptKind::ChooseAttack { cards: pc, allow_cancel: f.allow_cancel, blocked },
         Cont::CopyAttack(f),
     );

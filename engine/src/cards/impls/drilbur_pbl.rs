@@ -18,7 +18,6 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::Search(SearchSpec {
                     pick: PickSpec { predicate: Pred::Basic, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
                     destination: SearchDestination::Bench,
-                    msg: "",
                     cancel: true,
                 })),
                 Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

@@ -11,7 +11,6 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::All(&[Pred::Pokemon, Pred::Name("Duskull")]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Bench,
-                msg: "",
                 cancel: false,
             }))] }],
     ..CardSpec::NONE

@@ -317,7 +317,7 @@ pub fn step(g: &mut Game, w: &mut Window) -> R<Step> {
         }
         g.prompt(
             w.chooser(g),
-            "CHOOSE_EFFECT_ORDER",
+            crate::purpose::PromptPurpose::OrderEffects,
             PromptKind::Select { values: SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
             Cont::OrderEffects { w: *w },
         );

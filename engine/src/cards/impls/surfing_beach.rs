@@ -15,8 +15,8 @@ pub static SPEC: CardSpec = CardSpec {
             Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::TypeIs(ct::WATER)),
         ],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::TypeIs(ct::WATER)), msg: "CHOOSE_NEW_ACTIVE_POKEMON" })),
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, msg: "", required: false })),
+            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::TypeIs(ct::WATER)), purpose: PromptPurpose::NewActive })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, purpose: PromptPurpose::ChooseTarget, required: false })),
         ],
     }),
     ..CardSpec::NONE

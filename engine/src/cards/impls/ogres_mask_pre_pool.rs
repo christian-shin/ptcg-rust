@@ -15,10 +15,10 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::All(&[Pred::Pokemon, Pred::PokemonEx, Pred::NameContains("Ogerpon")]),
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
+                purpose: Some(PromptPurpose::PutOntoBench),
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Top(Pred::All(&[Pred::Pokemon, Pred::PokemonEx, Pred::NameContains("Ogerpon")]))), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
+            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Top(Pred::All(&[Pred::Pokemon, Pred::PokemonEx, Pred::NameContains("Ogerpon")]))), purpose: PromptPurpose::SwitchPokemon })),
             Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: true, bottom: false })),
         ],
     }),

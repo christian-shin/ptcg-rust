@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                     into: 0,
                     cancel: true,
-                    msg: "CHOOSE_CARD_TO_EVOLVE",
+                    purpose: Some(PromptPurpose::EvolutionCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot: MY_ACTIVE, card: 0 } })),

@@ -26,11 +26,11 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::Any(&[HAS_TOOL, HAS_SPECIAL, STADIUM_IN_PLAY])],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
             Step::cost(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Choose(ChooseSpec {
                 chooser: Who::Me,
-                msg: "DISCARD_STADIUM_OR_TOOL_OR_SPECIAL_ENERGY",
+                purpose: PromptPurpose::DiscardStadiumToolOrSpecialEnergy,
                 options: &[
                     ChoiceBranch {
                         label: "CHOICE_TOOL",
@@ -39,10 +39,10 @@ pub static SPEC: CardSpec = CardSpec {
                             Step::new(Op::PickSlot(PickSlotSpec {
                                 chooser: Who::Me,
                                 among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::AnyTool(Pred::Any)),
-                                msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
+                                purpose: PromptPurpose::DiscardAttachedFrom,
                             })),
                             // One Tool of the Pokémon, chosen when it has several.
-                            Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+                            Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
                             Step::new(Op::Discard(DiscardSpec { from: TOOLS, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                         ],
                     },
@@ -53,14 +53,14 @@ pub static SPEC: CardSpec = CardSpec {
                             Step::new(Op::PickSlot(PickSlotSpec {
                                 chooser: Who::Me,
                                 among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::HasSpecialEnergy),
-                                msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
+                                purpose: PromptPurpose::DiscardAttachedFrom,
                             })),
                             Step::new(Op::Pick(PickSpec {
                                 from: ATTACHED,
                                 predicate: Pred::SpecialEnergy,
                                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                                 into: 0,
-                                msg: "CHOOSE_CARD_TO_DISCARD",
+                                purpose: Some(PromptPurpose::DiscardCard),
                                 ..PickSpec::DEFAULT
                             })),
                             Step::new(Op::Discard(DiscardSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

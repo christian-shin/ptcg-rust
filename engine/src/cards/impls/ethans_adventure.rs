@@ -19,10 +19,10 @@ pub static SPEC: CardSpec = CardSpec {
                 pick: PickSpec {
                     predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::Tag(crate::types::tag::ETHANS)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy")])]),
                     bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) },
+                    purpose: Some(PromptPurpose::PutIntoDeck),
                     ..PickSpec::DEFAULT
                 },
                 destination: SearchDestination::Hand { reveal: true },
-                msg: "CHOOSE_CARD_TO_DECK",
                 cancel: false,
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),

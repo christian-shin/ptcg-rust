@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })), Step::new(Op::If(IfSpec {
             cond: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::All(&[Pred::Basic, Pred::HpAtMost(70)])),
             yes: &[
-                Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Opp, Zone::Hand), predicate: Pred::All(&[Pred::Basic, Pred::HpAtMost(70)]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ..PickSpec::DEFAULT })),
+                Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Opp, Zone::Hand), predicate: Pred::All(&[Pred::Basic, Pred::HpAtMost(70)]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::PutOntoBench), ..PickSpec::DEFAULT })),
                 Step::new(Op::PlayFromZone(PlayFromZoneSpec { cards: 0, who: Who::Opp })),
             ],
             no: &[],

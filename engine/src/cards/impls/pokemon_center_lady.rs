@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Heal(HealSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::OneOf(&[SlotPred::Damaged, SlotPred::HasCondition])), msg: "CHOOSE_POKEMON_TO_HEAL" }), hp: Num::Lit(60), clear_conditions: true })),
+            Step::new(Op::Heal(HealSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::OneOf(&[SlotPred::Damaged, SlotPred::HasCondition])), purpose: PromptPurpose::HealTarget }), hp: Num::Lit(60), clear_conditions: true })),
         ],
     }),
     ..CardSpec::NONE

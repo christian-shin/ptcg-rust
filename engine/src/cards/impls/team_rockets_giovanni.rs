@@ -18,10 +18,10 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET)))],
         steps: &[
             // Switch your Active Team Rocket's Pokémon with 1 of your Benched Team Rocket's Pokémon...
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET))), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, msg: "", required: false })),
+            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET))), purpose: PromptPurpose::SwitchPokemon })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, purpose: PromptPurpose::ChooseTarget, required: false })),
             // ...if you do, switch in 1 of your opponent's Benched Pokémon to the Active Spot.
-            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, purpose: PromptPurpose::SwitchPokemon, required: false }))], no: &[] })),
         ],
     }),
     ..CardSpec::NONE

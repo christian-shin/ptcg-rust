@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
                 // Not asked again once the record is made, and not offered while the Ability is blocked
                 // (B-PC-17: a blocked Ability can't be used, so nothing is asked or marked).
                 when: Cond::All(&[Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy))), Cond::Not(&Cond::AbilityBlocked)]),
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[Step::new(Op::If(IfSpec {
                     cond: Cond::Not(&Cond::AbilityBlocked),
                     yes: &[

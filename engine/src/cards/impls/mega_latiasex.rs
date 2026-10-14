@@ -16,8 +16,8 @@ pub static SPEC: CardSpec = CardSpec {
                 // Asked only with a Benched Pokémon to switch with: with none the yes can't change the game (APR B-01, id925); the
                 // attack stays usable (APR D-01).
                 when: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any),
-                msg: "WANT_TO_SWITCH_POKEMON",
-                yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false }))],
+                purpose: PromptPurpose::MaySwitch,
+                yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::NewActive, required: false }))],
                 no: &[],
             }))],
         },

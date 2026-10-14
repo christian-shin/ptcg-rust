@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::OptionChosen, value: true })),
                     Step::new(more_damage_if(80, Cond::True)),

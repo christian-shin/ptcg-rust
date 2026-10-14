@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Trainer, bounds: Bounds { min: Num::Lit(0), max: Num::Add(&Num::Add(&Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Tool), &Num::Lit(1)), &Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Item), &Num::Lit(1))), &Num::Add(&Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Stadium), &Num::Lit(1)), &Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Supporter), &Num::Lit(1)))) }, caps: &[Cap { kind: CapKind::Tool, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Tool), &Num::Lit(1)) }, Cap { kind: CapKind::Item, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Item), &Num::Lit(1)) }, Cap { kind: CapKind::Stadium, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Stadium), &Num::Lit(1)) }, Cap { kind: CapKind::Supporter, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Supporter), &Num::Lit(1)) }], ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: true },
-                msg: "",
                 cancel: false,
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

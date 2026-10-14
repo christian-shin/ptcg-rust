@@ -24,6 +24,7 @@ pub mod list;
 pub mod options;
 pub mod prefabs;
 pub mod prompts;
+pub mod purpose;
 pub mod obs;
 pub mod rng;
 pub mod expect;

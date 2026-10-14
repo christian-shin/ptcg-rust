@@ -11,10 +11,10 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Me), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
+            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Me), purpose: PromptPurpose::SwitchPokemon })),
             // You may move as many Energy as you like from the old Active Pokémon to the new one.
             Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cards { min: Num::Lit(0), max: Num::ZoneSize(ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE))), kind: EnergyKind::Any, cancel: false, energies_only: false }, to: EnergyDest::Slot(SlotExpr::Picked), ..DiscardEnergySpec::DEFAULT })),
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, msg: "", required: false })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, purpose: PromptPurpose::ChooseTarget, required: false })),
         ],
     }),
     ..CardSpec::NONE

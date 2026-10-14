@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::DamageSlot(DamageSlotSpec {
-            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+            target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), purpose: PromptPurpose::DamageTarget }),
             hp: Num::Lit(30),
             target_damage_mul: 0,
             calc: DamageCalc::Put,
@@ -29,7 +29,7 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::Attach(AttachSpec {
                         from: ZoneRef(Who::Me, Zone::Deck),

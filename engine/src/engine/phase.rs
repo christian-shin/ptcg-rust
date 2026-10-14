@@ -261,12 +261,12 @@ fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> 
             }
             SpecialCondition::Burned => {
                 crate::engine::damage::place(g, SlotRef::new(p, a), burn, by_condition)?;
-                g.prompt(p, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
+                g.prompt(p, PromptPurpose::BurnFlip, PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
             }
             SpecialCondition::Asleep => {
                 let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
                 if flips > 0 {
-                    let prompts: Vec<(usize, &'static str, PromptKind)> = (0..flips).map(|_| (p, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
+                    let prompts: Vec<(usize, PromptPurpose, PromptKind)> = (0..flips).map(|_| (p, PromptPurpose::SleepFlip, PromptKind::CoinFlip)).collect();
                     g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
                 } else {
                     checkup_recovers(g, p, SpecialCondition::Asleep)?;

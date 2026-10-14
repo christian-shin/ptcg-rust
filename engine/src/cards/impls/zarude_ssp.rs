@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::All { provided: true }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT })),
                     Step::new(Op::ChoiceDamage(ChoiceDamageSpec { reg: None, op: DamageOp::Add, per: 80 })),

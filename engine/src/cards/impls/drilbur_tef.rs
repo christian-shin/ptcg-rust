@@ -18,16 +18,16 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(DECK, Pred::Any),
-            msg: "WANT_TO_USE_ABILITY",
+            purpose: PromptPurpose::Activate,
             yes: &[
                 Step::new(Op::Search(SearchSpec {
                     pick: PickSpec {
                         predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]),
                         bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) },
+                        purpose: Some(PromptPurpose::PutIntoHand),
                         ..PickSpec::DEFAULT
                     },
                     destination: SearchDestination::Discard { reveal: false },
-                    msg: "CHOOSE_CARD_TO_HAND",
                     cancel: false,
                 })),
                 Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),

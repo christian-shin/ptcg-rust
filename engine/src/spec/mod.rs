@@ -372,4 +372,5 @@ pub mod prelude {
     pub use super::*;
     pub use super::event::{ActiveChange, CausePred, DeckPosition, EnterMode, EventKind, EventPred, EvolvePath, KoBy, Limit, MoveEnd, Party, Role, RulesZone, TrainerUse, TurnOf};
     pub use crate::cards::CardImpl;
+    pub use crate::purpose::PromptPurpose;
 }

@@ -14,7 +14,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::Supporter, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: false },
-                msg: "",
                 cancel: false,
             })),
         ],

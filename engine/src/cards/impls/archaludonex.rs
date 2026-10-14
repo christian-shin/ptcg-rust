@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), METAL_ENERGY),
-            msg: "WANT_TO_USE_ABILITY",
+            purpose: PromptPurpose::Activate,
             yes: &[Step::new(Op::Attach(AttachSpec {
                 target: SlotPred::TypeIs(ct::METAL),
                 from: ZoneRef(Who::Me, Zone::Discard),

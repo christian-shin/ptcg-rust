@@ -17,14 +17,14 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[
             // The Basic Energy available is counted before the discard.
             Step::new(Op::Snapshot(SnapshotSpec { zone: DISCARD, predicate: Pred::BasicEnergy, into: 1 })),
-            Step::new(Op::Pick(PickSpec { from: HAND, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: HAND, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
             Step::new(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec {
                 from: DISCARD,
                 predicate: Pred::BasicEnergy,
                 bounds: Bounds { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &Num::RegCount(1)) },
                 into: 0,
-                msg: "CHOOSE_CARD_TO_HAND",
+                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: DISCARD, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),

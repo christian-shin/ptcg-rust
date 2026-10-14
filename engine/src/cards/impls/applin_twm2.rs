@@ -17,7 +17,6 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::Search(SearchSpec {
                     pick: PickSpec { predicate: Pred::Pokemon, ..PickSpec::DEFAULT },
                     destination: SearchDestination::Hand { reveal: true },
-                    msg: "",
                     cancel: false,
                 })),
                 Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

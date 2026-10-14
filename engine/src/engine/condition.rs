@@ -66,7 +66,7 @@ pub fn flip_coin(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) 
 pub fn flip_raw(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
     let result = g.rng.coin();
     coin_flipped(g, p, CoinPurpose::Effect, result, cause)?;
-    g.prompt(p, "", crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
+    g.prompt(p, crate::purpose::PromptPurpose::Wait, crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
     Ok(result)
 }
 
@@ -134,7 +134,7 @@ pub struct ReflipAsk {
 
 /// Offer the re-flip to player `p` (Backtrack Badge's "you may"; the prompt's message is the Badge's own).
 pub fn ask_reflip(g: &mut Game, a: ReflipAsk) {
-    crate::prefabs::confirmation_prompt(g, a.p as usize, "WANT_TO_USE_ABILITY", crate::game::Cont::Reflip(a));
+    crate::prefabs::confirmation_prompt(g, a.p as usize, crate::purpose::PromptPurpose::Activate, crate::game::Cont::Reflip(a));
 }
 
 /// The CoinFlip event of player `p`.

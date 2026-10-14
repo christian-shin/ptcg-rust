@@ -13,7 +13,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(1), max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::Pokemon), &Num::Lit(5)) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Deck { reveal: false },
-                msg: "",
                 cancel: false,
             })),
             Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),

@@ -22,7 +22,6 @@ pub static SPEC: CardSpec = CardSpec {
                             ..PickSpec::DEFAULT
                         },
                         destination: SearchDestination::Bench,
-                        msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
                         cancel: false,
                     })),
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

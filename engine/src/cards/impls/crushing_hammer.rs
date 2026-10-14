@@ -19,14 +19,14 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::PickSlot(PickSlotSpec {
                     chooser: Who::Me,
                     among: SlotSel::Filtered(&TARGETS, SlotPred::HasEnergy),
-                    msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
+                    purpose: PromptPurpose::DiscardAttachedFrom,
                 })),
                 Step::new(Op::Pick(PickSpec {
                     from: ATTACHED,
                     predicate: Pred::Energy,
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                     into: 0,
-                    msg: "CHOOSE_CARD_TO_DISCARD",
+                    purpose: Some(PromptPurpose::DiscardCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Discard(DiscardSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

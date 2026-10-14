@@ -816,7 +816,7 @@ impl Game {
     }
 
     /// `store.prompt(state, prompt, then)`.
-    pub fn prompt(&mut self, player: usize, message: &'static str, kind: PromptKind, cont: Cont) {
+    pub fn prompt(&mut self, player: usize, purpose: PromptPurpose, kind: PromptKind, cont: Cont) {
         let kind = construct_prompt(self, kind);
         let cont = self.tag_cont(cont);
         let id = self.next_id();
@@ -824,20 +824,20 @@ impl Game {
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player: player as u8, message, kind, answered: false, partial: false });
+        self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, answered: false, partial: false });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
     }
 
     /// `store.prompt(state, [prompts...], then)`.
-    pub fn prompt_group(&mut self, prompts: &[(usize, &'static str, PromptKind)], cont: Cont) {
+    pub fn prompt_group(&mut self, prompts: &[(usize, PromptPurpose, PromptKind)], cont: Cont) {
         let cont = self.tag_cont(cont);
         let mut ids = SVec::new();
-        for &(player, message, kind) in prompts {
+        for &(player, purpose, kind) in prompts {
             let id = self.next_id();
             let kind = construct_prompt(self, kind);
-            self.prompts.push(PromptRec { id, player: player as u8, message, kind, answered: false, partial: false });
+            self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, answered: false, partial: false });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -869,7 +869,7 @@ impl Game {
 
     /// A silent wait prompt with a continuation.
     pub fn wait(&mut self, player: usize, cont: Cont) {
-        self.prompt(player, "", PromptKind::Wait, cont);
+        self.prompt(player, PromptPurpose::Wait, PromptKind::Wait, cont);
     }
 
     fn resolve_wait_items(&mut self) -> R {

@@ -20,9 +20,9 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,
                 among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::TypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
-                msg: "CHOOSE_POKEMON_TO_SWITCH",
+                purpose: PromptPurpose::SwitchPokemon,
             })),
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, msg: "", required: false })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, purpose: PromptPurpose::ChooseTarget, required: false })),
             // If you do, the new Active Pokémon is now Poisoned.
             Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), when: Cond::Done })),
             Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player))),

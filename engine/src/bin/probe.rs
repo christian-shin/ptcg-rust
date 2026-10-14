@@ -618,7 +618,7 @@ fn attack_prompts() {
                 }
                 match h.pending() {
                     Pending::Decision(pi) => {
-                        let msg = h.prompts.as_slice()[pi].message;
+                        let msg = h.prompts.as_slice()[pi].purpose.message();
                         if let Ok(Some(sel)) = h.select() {
                             // the smallest number of picks (first options) the prompt accepts
                             let n = sel.options.len();
@@ -704,7 +704,7 @@ fn trigger_probe() {
                     if h.act(o.action).and_then(|_| h.settle()).is_err() {
                         res = "error".into();
                     } else if let Pending::Decision(pi) = h.pending() {
-                        let msg = h.prompts.as_slice()[pi].message;
+                        let msg = h.prompts.as_slice()[pi].purpose.message();
                         res = format!("prompt {}", msg);
                     } else {
                         res = "no prompt".into();
@@ -812,7 +812,7 @@ fn main() {
                         h.rng.force_coins(&[true; 8]);
                         if h.act(o.action).and_then(|_| h.settle()).is_ok() {
                             if let Pending::Decision(pi) = h.pending() {
-                                let msg = h.prompts.as_slice()[pi].message;
+                                let msg = h.prompts.as_slice()[pi].purpose.message();
                                 if let Ok(Some(sel)) = h.select() {
                                     println!("PROMPT {} | {} | {} | min {} max {} of {}", td.full_name, kind, msg, sel.min_count, sel.max_count, sel.options.len());
                                 }

@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
             Step::after_damage(Op::PlaceCounters(PlaceCountersSpec {
-                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), purpose: PromptPurpose::DamageTarget }),
                 counters: Num::Lit(12)
             })),
         ],

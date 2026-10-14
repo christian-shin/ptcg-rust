@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,
                 among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Evolved, SlotPred::TypeIs(ct::PSYCHIC)])),
-                msg: "CHOOSE_POKEMON",
+                purpose: PromptPurpose::ChoosePokemon,
             })),
             Step::new(Op::Devolve(DevolveSpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Me, Zone::Hand), chooser: Some(Who::Me) })),
         ],

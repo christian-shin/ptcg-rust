@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::before_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::FaceDownPrize(Who::Me),
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::PickPrize(PickPrizeSpec { chooser: Who::Me, face_down_only: true })),
                     Step::new(Op::PrizeVisibility(PrizeVisibilitySpec { action: PrizeAction::FaceUp(Who::Me) })),

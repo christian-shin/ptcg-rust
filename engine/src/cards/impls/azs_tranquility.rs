@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: true })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::NewActive, required: true })),
             // The switch was done and the Pokémon it moved to the Bench (the switch leaves it in the slot
             // register) is a Pokémon ex: heal 80 from it.
             Step::new(Op::If(IfSpec {

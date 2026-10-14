@@ -15,12 +15,11 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_USE_ABILITY",
+                purpose: PromptPurpose::Activate,
                 yes: &[
                     Step::new(Op::Search(SearchSpec {
                         pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Trainer, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
                         destination: SearchDestination::Hand { reveal: true },
-                        msg: "",
                         cancel: false,
                     })),
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

@@ -153,7 +153,7 @@ impl SelectData {
     /// The prompt message this select answers (empty for turn / chance selects).
     pub fn prompt_message(&self, g: &Game) -> &'static str {
         match &self.source {
-            Source::Prompt(k, _, _) => g.prompts.as_slice()[*k].message,
+            Source::Prompt(k, _, _) => g.prompts.as_slice()[*k].purpose.message(),
             _ => "",
         }
     }
@@ -217,21 +217,55 @@ enum AnswerShape {
     Counters(i32),
 }
 
-fn context_for(message: &str) -> SelectContext {
-    match message {
-        "CHOOSE_STARTING_POKEMONS" => SelectContext::SetupActivePokemon,
-        "CHOOSE_NEW_ACTIVE_POKEMON" | "CHOOSE_POKEMON_TO_SWITCH" => SelectContext::Switch,
-        "CHOOSE_PRIZE_CARD" => SelectContext::ToHand,
-        "CHOOSE_PRIZE_CARD_TO_DISCARD" => SelectContext::Discard,
-        "CHOOSE_ENERGY_TO_PAY_RETREAT_COST" | "CHOOSE_ENERGIES_TO_DISCARD" => SelectContext::DiscardEnergy,
-        "WANT_TO_DRAW_CARDS" => SelectContext::DrawCount,
-        "GO_FIRST" => SelectContext::IsFirst,
-        "WANT_TO_USE_ABILITY" => SelectContext::Activate,
-        m if m.contains("DISCARD") => SelectContext::Discard,
-        m if m.contains("HAND") => SelectContext::ToHand,
-        m if m.contains("BENCH") => SelectContext::ToBench,
-        m if m.contains("DECK") => SelectContext::ToDeck,
-        _ => SelectContext::EffectTarget,
+/// The cabt select context of a prompt purpose.
+pub(crate) fn context_for(purpose: PromptPurpose) -> SelectContext {
+    use PromptPurpose as P;
+    match purpose {
+        P::SetupActive => SelectContext::SetupActivePokemon,
+        P::NewActive | P::SwitchPokemon => SelectContext::Switch,
+        P::TakePrize | P::PutIntoHand => SelectContext::ToHand,
+        P::DiscardPrize
+        | P::DiscardCard
+        | P::DiscardPokemon
+        | P::DiscardAttachedFrom
+        | P::DiscardStadiumToolOrSpecialEnergy
+        | P::MayDiscardCard
+        | P::MayDiscardEnergy => SelectContext::Discard,
+        P::DiscardEnergy | P::PayRetreatCost => SelectContext::DiscardEnergy,
+        P::DrawCount => SelectContext::DrawCount,
+        P::ChooseFirstPlayer => SelectContext::IsFirst,
+        P::Activate => SelectContext::Activate,
+        P::PutOntoBench | P::AttachEnergyToBench => SelectContext::ToBench,
+        P::PutIntoDeck | P::PutOnDeckBottom | P::MaySearchDeck => SelectContext::ToDeck,
+        P::FirstPlayerFlip | P::ConfusionFlip | P::BurnFlip | P::SleepFlip => SelectContext::CoinHead,
+        P::Shuffle => SelectContext::Shuffle,
+        P::Look => SelectContext::Look,
+        P::MulliganYours | P::MulliganOpponents => SelectContext::Mulligan,
+        P::Wait
+        | P::MayUseAttackEffect
+        | P::MayDrawUntilHandSize
+        | P::MaySwitch
+        | P::ChooseTarget
+        | P::ChoosePokemon
+        | P::ChooseCard
+        | P::ChooseCards
+        | P::ChooseOption
+        | P::OrderEffects
+        | P::OrderCards
+        | P::CopyAttack
+        | P::DisableAttack
+        | P::CopyEffect
+        | P::ShufflePokemonIntoDeck
+        | P::PickUpPokemon
+        | P::EvolutionCard
+        | P::EvolvePokemon
+        | P::AttachCard
+        | P::AttachTo
+        | P::AttachEnergy
+        | P::MoveEnergy
+        | P::MoveDamage
+        | P::DamageTarget
+        | P::HealTarget => SelectContext::EffectTarget,
     }
 }
 
@@ -387,7 +421,7 @@ impl Game {
         let pr = self.prompts.as_slice()[i];
         let player = pr.player;
         let persp = pr.player as usize;
-        let ctx = context_for(pr.message);
+        let ctx = context_for(pr.purpose);
         let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<Wire>, sh: AnswerShape| SelectData {
             player,
             select_type: t,

@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
                 from: ZoneRef(Who::Me, Zone::Hand),
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                 into: 0,
-                msg: "CHOOSE_CARD_TO_DISCARD",
+                purpose: Some(PromptPurpose::DiscardCard),
                 ..PickSpec::DEFAULT
             })),
             Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
@@ -32,7 +32,6 @@ pub static SPEC: CardSpec = CardSpec {
                     ..PickSpec::DEFAULT
                 },
                 destination: SearchDestination::Hand { reveal: true },
-                msg: "",
                 cancel: false,
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),

@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::PerTurn,
         needs: &[],
-        steps: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: true }))],
+        steps: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, purpose: PromptPurpose::NewActive, required: true }))],
     }],
     ..CardSpec::NONE
 };

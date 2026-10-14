@@ -25,7 +25,7 @@ pub static SPEC: CardSpec = CardSpec {
                 bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
                 into: 0,
                 distinct_types: true,
-                msg: "CHOOSE_CARD_TO_HAND",
+                purpose: Some(PromptPurpose::PutIntoHand),
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), by: Who::Me, to: Who::Opp, when_empty: true })),

@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any),
-            msg: "WANT_TO_USE_ABILITY",
+            purpose: PromptPurpose::Activate,
             yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), ..DiscardSpec::DEFAULT }))],
             no: &[],
         }))],

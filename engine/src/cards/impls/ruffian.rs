@@ -14,13 +14,13 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,
                 among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::OneOf(&[SlotPred::AnyTool(Pred::Any), SlotPred::HasCard(Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]))])),
-                msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
+                purpose: PromptPurpose::DiscardAttachedFrom,
             })),
             // One Tool (asked when there are several), then one Special Energy.
             Step::new(Op::If(IfSpec {
                 cond: Cond::Cmp(Num::ToolCount(SlotExpr::Picked), CmpOp::Gt, Num::Lit(1)),
                 yes: &[
-                    Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::Tool, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+                    Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::Tool, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
                     Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                 ],
                 no: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Tools(SlotExpr::Picked)), ..DiscardSpec::DEFAULT }))],
@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::If(IfSpec {
                 cond: Cond::Cmp(Num::CardCount(ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)])), CmpOp::Gt, Num::Lit(0)),
                 yes: &[
-                    Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 1, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+                    Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 1, purpose: Some(PromptPurpose::DiscardCard), ..PickSpec::DEFAULT })),
                     Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), cards: CardSel::Chosen(1), ..DiscardSpec::DEFAULT })),
                 ],
                 no: &[],

@@ -111,21 +111,21 @@ fn main() {
                     if let PromptKind::ChooseCards { cards: ListRef::Temp(_), .. } = pr.kind {
                         for q in 0..2 {
                             if cur_len[q] < old_len[q] {
-                                *notes.entry(format!("TOPLOOK {} (prompt {}) shuffled-already={}", last, pr.message, shuf[q])).or_default() += 1;
-                                if !shuf[q] { looked[q] = true; last_search_msg = format!("TOPLOOK {}", pr.message); }
+                                *notes.entry(format!("TOPLOOK {} (prompt {}) shuffled-already={}", last, pr.purpose.message(), shuf[q])).or_default() += 1;
+                                if !shuf[q] { looked[q] = true; last_search_msg = format!("TOPLOOK {}", pr.purpose.message()); }
                             }
                         }
                     }
                     if let PromptKind::ChooseCards { cards: ListRef::Deck(p), filter, opts } = pr.kind {
-                        if shuf[p as usize] { *notes.entry(format!("SHUFFLE-BEFORE-CHOOSE {} (prompt {})", last, pr.message)).or_default() += 1; } else { looked[p as usize] = true; }
-                        last_search_msg = pr.message.to_string();
+                        if shuf[p as usize] { *notes.entry(format!("SHUFFLE-BEFORE-CHOOSE {} (prompt {})", last, pr.purpose.message())).or_default() += 1; } else { looked[p as usize] = true; }
+                        last_search_msg = pr.purpose.message().to_string();
                         let e = stat.entry(last.clone()).or_default();
                         e.0 += 1;
                         let deck_n = g.st.players[p as usize].deck.len() as u8;
                         let nolim = opts.max_pokemons.is_none() && opts.max_basic_energies.is_none() && opts.max_energies.is_none() && opts.max_trainers.is_none() && opts.max_tools.is_none() && opts.max_stadiums.is_none() && opts.max_supporters.is_none() && opts.max_special_energies.is_none() && opts.max_items.is_none() && opts.max_basics.is_none() && opts.max_evolutions.is_none() && opts.max_stage1.is_none() && opts.max_stage2.is_none() && !opts.different_types && opts.blocked.0 == 0;
                         if filter_none(&filter) && nolim && opts.min < opts.max.min(deck_n) {
                             e.2 += 1;
-                            *notes.entry(format!("ANYCARD-min {} (prompt {} min {} max {})", last, pr.message, opts.min, opts.max)).or_default() += 1;
+                            *notes.entry(format!("ANYCARD-min {} (prompt {} min {} max {})", last, pr.purpose.message(), opts.min, opts.max)).or_default() += 1;
                         }
                     }
                     let n = sel.options.len();

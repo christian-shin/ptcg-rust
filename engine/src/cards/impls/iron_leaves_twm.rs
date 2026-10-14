@@ -13,7 +13,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::Pokemon), &Num::Lit(2)) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: false },
-                msg: "",
                 cancel: false,
             })),
         ] },

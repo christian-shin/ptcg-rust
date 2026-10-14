@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[],
         steps: &[
-            Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::PokemonBenchFirst(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), counters: Num::Lit(5) })),
+            Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::PokemonBenchFirst(Who::Opp), purpose: PromptPurpose::DamageTarget }), counters: Num::Lit(5) })),
             // "If you use this Ability, this Pokémon is Knocked Out.": a consequence of using it (`Step::consequence`).
             Step::consequence(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, when: Cond::True })),
         ],

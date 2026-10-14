@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
                     Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Lt, Num::Lit(6)),
                     Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
                 ]),
-                msg: "WANT_TO_DRAW_UNTIL_6",
+                purpose: PromptPurpose::MayDrawUntilHandSize,
                 yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(6)) }))],
                 no: &[],
             }))],

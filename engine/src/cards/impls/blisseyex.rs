@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::True,
-            msg: "WANT_TO_DRAW_UNTIL_6",
+            purpose: PromptPurpose::MayDrawUntilHandSize,
             yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(6)) }))],
             no: &[],
         }))],

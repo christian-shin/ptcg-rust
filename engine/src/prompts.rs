@@ -12,6 +12,8 @@ use crate::state::*;
 use crate::types::*;
 use serde_json::{json, Value};
 
+pub use crate::purpose::PromptPurpose;
+
 /// Set of small indices (e.g. blocked card positions), in ascending order.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Blocked(pub u64);
@@ -336,7 +338,8 @@ pub struct PromptRec {
     pub id: u32,
     /// The answering player's index.
     pub player: u8,
-    pub message: &'static str,
+    /// Why the prompt is asked (the recorded `message` is `purpose.message()`).
+    pub purpose: PromptPurpose,
     pub kind: PromptKind,
     /// Answered (its answer waits in `Game::answers` for the other prompts of its group).
     pub answered: bool,
@@ -597,8 +600,8 @@ impl Game {
         base.insert("type".into(), json!(pr.type_name()));
         base.insert("cls".into(), json!(pr.class_name()));
         base.insert("player".into(), json!(pr.player));
-        if !pr.message.is_empty() {
-            base.insert("message".into(), json!(pr.message));
+        if !pr.purpose.message().is_empty() {
+            base.insert("message".into(), json!(pr.purpose.message()));
         }
         let p = pr.player as usize;
         match pr.kind {
@@ -1458,7 +1461,7 @@ mod answer_tests {
             p => panic!("no decision pending: {:?}", p),
         };
         let pr = g.prompts.as_slice()[i];
-        assert_eq!(pr.message, "ATTACH_ENERGY_CARDS");
+        assert_eq!(pr.purpose, crate::purpose::PromptPurpose::AttachEnergy);
         let list = g.prompt_list(match pr.kind {
             crate::prompts::PromptKind::AttachEnergy { cards, .. } => cards,
             _ => unreachable!(),

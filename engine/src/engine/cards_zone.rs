@@ -382,12 +382,12 @@ pub fn reveal(g: &mut Game, to: usize, n: usize) {
     if n == 0 {
         return;
     }
-    g.prompt(to, "CARDS_SHOWED_BY_THE_OPPONENT", crate::prompts::PromptKind::ShowCards, crate::game::Cont::Noop);
+    g.prompt(to, crate::purpose::PromptPurpose::Look, crate::prompts::PromptKind::ShowCards, crate::game::Cont::Noop);
 }
 
 /// Shuffle: player `p`'s deck is shuffled (the ShuffleDeck chance prompt, then a silent wait). No card reacts to it.
 pub fn shuffle_deck(g: &mut Game, p: usize) {
-    g.prompt(p, "", crate::prompts::PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApply { p: p as u8 });
+    g.prompt(p, crate::purpose::PromptPurpose::Shuffle, crate::prompts::PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApply { p: p as u8 });
 }
 
 /// Mulligan (APR G): player `p`'s hand goes back into the deck (its shuffle follows as the ShuffleDeck prompt). No card

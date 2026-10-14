@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Printed: "(If you can't put 2 cards from your hand on the bottom of your deck, you can't use this card.)"
         needs: &[Cond::Printed(&Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Ge, Num::Lit(2)))],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(2), max: Num::Lit(2) }, into: 0, msg: "CHOOSE_CARDS_TO_PUT_ON_BOTTOM_OF_THE_DECK", ..PickSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(2), max: Num::Lit(2) }, into: 0, purpose: Some(PromptPurpose::PutOnDeckBottom), ..PickSpec::DEFAULT })),
             // "Put 2 cards from your hand on the bottom of your deck in any order": set aside in register 1 while the order
             // is chosen.
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec {

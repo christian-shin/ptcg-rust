@@ -116,7 +116,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     let map = g.stash_energy(map);
     g.prompt(
         p,
-        "CHOOSE_ENERGY_TO_PAY_RETREAT_COST",
+        PromptPurpose::PayRetreatCost,
         PromptKind::ChooseEnergy { energy: map, cost, allow_cancel: true },
         Cont::Retreat(RetreatCont { p: p as u8, bench_index, move_to }),
     );

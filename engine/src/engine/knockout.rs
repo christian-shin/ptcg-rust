@@ -321,7 +321,7 @@ fn first_prizes(g: &Game, p: usize, count: usize) -> SVec<u8, 6> {
 fn prize_prompt(g: &mut Game, p: usize, count: i32, cause: Cause) {
     g.prompt(
         p,
-        "CHOOSE_PRIZE_CARD",
+        PromptPurpose::TakePrize,
         PromptKind::ChoosePrize {
             count: count as u8,
             blocked: SVec::new(),
@@ -842,7 +842,7 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
         slots.push(SlotType::Bench as u8);
         g.prompt(
             p as usize,
-            "CHOOSE_NEW_ACTIVE_POKEMON",
+            PromptPurpose::NewActive,
             PromptKind::ChoosePokemon {
                 player_type: PlayerType::BottomPlayer,
                 slots,
@@ -1047,7 +1047,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         slots.push(SlotType::Bench as u8);
         g.prompt(
             p,
-            "CHOOSE_POKEMON_TO_DISCARD",
+            PromptPurpose::DiscardPokemon,
             PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
             Cont::BenchShrink { p: p as u8, empty: mask },
         );
@@ -1127,7 +1127,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
             inst.moved_to_active_this_turn = false;
             inst.damage_taken_last_turn = 0;
         }
-        g.prompt(p as usize, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
+        g.prompt(p as usize, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
     }
     // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
     // players are new (they held them before the usage records and the lasting table did).
@@ -1137,7 +1137,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];
     g.st.player_last_attack_turn = [0, 0];
-    g.prompt(0, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::SuddenDeathCoin);
+    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, Cont::SuddenDeathCoin);
     Ok(())
 }
 
@@ -1266,7 +1266,7 @@ pub(crate) fn lasting_ko_trigger(g: &mut Game, e: EffId) -> R {
         let o = g.stash_opts(o);
         g.prompt(
             p as usize,
-            "CHOOSE_ENERGIES_TO_DISCARD",
+            PromptPurpose::DiscardEnergy,
             PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
             Cont::DiscardAttackerEnergy { owner, attack, source_card, target: sl },
         );

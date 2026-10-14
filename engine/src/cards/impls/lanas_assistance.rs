@@ -13,7 +13,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::Not(&Pred::RuleBox)]), Pred::BasicEnergy]), bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Lit(3) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: false },
-                msg: "",
                 cancel: false,
             })),
         ],

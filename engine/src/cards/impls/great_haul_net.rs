@@ -14,7 +14,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PokemonType(crate::types::ct::WATER)]), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::WATER)])]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(6) }, caps: &[Cap { kind: CapKind::Pokemon, max: Num::Lit(3) }, Cap { kind: CapKind::BasicEnergy, max: Num::Lit(3) }], ..PickSpec::DEFAULT },
                 destination: SearchDestination::Deck { reveal: false },
-                msg: "",
                 cancel: false,
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

@@ -33,7 +33,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_DISCARD_CARD",
+                purpose: PromptPurpose::MayDiscardCard,
                 yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), ..DiscardSpec::DEFAULT }))],
                 no: &[Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT }))],
             })),

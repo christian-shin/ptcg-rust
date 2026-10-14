@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::before_damage(Op::May(MaySpec {
                 asker: Who::Me,
                 when: Cond::True,
-                msg: "WANT_TO_DISCARD_ENERGY",
+                purpose: PromptPurpose::MayDiscardEnergy,
                 yes: &[
                     Step::new(more_damage_if(130, Cond::True)),
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::This), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),

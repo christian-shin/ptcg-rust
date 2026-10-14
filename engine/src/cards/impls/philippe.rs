@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::PickSlot(PickSlotSpec {
                     chooser: Who::Me,
                     among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::METAL)),
-                    msg: "CHOOSE_POKEMON_TO_ATTACH_CARDS",
+                    purpose: PromptPurpose::AttachTo,
                 })),
                 Step::new(Op::Pick(PickSpec {
                     from: ZoneRef(Who::Me, Zone::Discard),
@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
                     bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Min(&Num::Lit(2), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)]))) },
                     into: 0,
                     soft: true,
-                    msg: "CHOOSE_CARD_TO_ATTACH",
+                    purpose: Some(PromptPurpose::AttachCard),
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), onto: Some(SlotExpr::Picked), ..AttachSpec::DEFAULT })),

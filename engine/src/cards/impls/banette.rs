@@ -19,14 +19,13 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::True,
-            msg: "WANT_TO_DRAW_CARDS",
+            purpose: PromptPurpose::DrawCount,
             yes: &[Step::new(Op::If(IfSpec {
                 cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
                 yes: &[
                     Step::new(Op::Search(SearchSpec {
                         pick: PickSpec { bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
                         destination: SearchDestination::Hand { reveal: false },
-                        msg: "",
                         cancel: false,
                     })),
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
