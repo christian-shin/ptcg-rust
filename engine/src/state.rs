@@ -193,7 +193,7 @@ pub enum LastingWhat {
     /// (the source's attack `attack`, by player `attacker`).
     Retaliate { amount: i16, attack: AttackRef, attacker: u8, pending: bool },
     /// A lasting trigger: "if this Pokémon is Knocked Out by damage from an attack, discard an Energy from the Attacking
-    /// Pokémon" (Little Grudge; the source's attack `attack`, by player `attacker`).
+    /// Pokémon" (the source's attack `attack`, by player `attacker`; e.g. Little Grudge).
     DiscardAttackerEnergy { attack: AttackRef, attacker: u8, armed: bool, pending: bool },
     /// "Attacks used by the Defending Pokémon cost [C] more" (`now` in force, `pending` put this turn).
     AttackCostIncrease { now: i16, pending: i16, attacker: Option<u8> },

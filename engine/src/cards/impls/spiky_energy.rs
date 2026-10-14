@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
     // (even if Knocked Out), put 2 damage counters on the Attacking Pokémon.
     triggers: &[Trigger {
         origin: RuleSource::Energy,
-        event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: true }),
+        event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, attacker_required: true }),
         steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2) }))],
     }],
     ..CardSpec::NONE

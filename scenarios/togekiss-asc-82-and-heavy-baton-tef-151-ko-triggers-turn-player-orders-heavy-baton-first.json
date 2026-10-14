@@ -1,0 +1,85 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Ho-Oh ex ASC 26",
+   "4 Iron Thorns ex PRE 32",
+   "4 Heavy Baton TEF 151",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "21 Lightning Energy MEE 4",
+   "21 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Ho-Oh ex ASC 26",
+   "4 Iron Thorns ex PRE 32",
+   "4 Heavy Baton TEF 151",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "21 Lightning Energy MEE 4",
+   "21 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ethan's Ho-Oh ex ASC 26",
+  "active_energy": [
+   "4 Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Togepi ASC 80",
+     "Togetic ASC 81",
+     "Togekiss ASC 82"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "active_tool": "Heavy Baton TEF 151",
+  "active_energy": [
+   "3 Lightning Energy MEE 4"
+  ],
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Ethan's Ho-Oh ex ASC 26"
+   },
+   {
+    "card": "Ethan's Ho-Oh ex ASC 26"
+   }
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shining Feathers"
+  },
+  1
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Select",
+    "AttachEnergy",
+    "Coin"
+   ],
+   "cite": "APR E-04: \"If several Pok\u00e9mon get Knocked Out at the same time, activating several effects in step 2 of the Knock Out resolution process, the player whose turn is currently being played gets to decide in which order to apply those effects\" (Wonder Kiss of the attacking player's Togekiss and the Heavy Baton on the Knocked Out Pok\u00e9mon; events batch 9 C7a)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 3,
+   "cite": "card text (Iron Thorns ex: 2 Prize cards; Wonder Kiss: heads takes 1 more)"
+  }
+ ]
+}

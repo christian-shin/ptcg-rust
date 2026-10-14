@@ -122,10 +122,11 @@ pub fn printed_stats(g: &Game, s: SlotRef) -> (SVec<WeaknessV, 4>, SVec<Resistan
     (weakness, resistance)
 }
 
-/// Little Grudge: the chosen Energy of the Attacking Pokémon (`target`, the Prize taker's) leave play for its owner's
-/// discard pile, an effect of the Knocked Out Pokémon's own earlier attack (the LeavePlay of attached cards, which the
-/// attack-effect preventions on that Pokémon stop: Mist Energy).
-pub fn little_grudge_discard(g: &mut Game, owner: usize, _prize_taker: usize, attack: AttackRef, source_card: CardId, target: SlotRef, cards: &[CardId]) -> R {
+/// A lasting "when this Pokémon is Knocked Out" trigger that discards Energy from the Attacking Pokémon: the chosen Energy of
+/// the Attacking Pokémon (`target`, the Prize taker's) leave play for its owner's discard pile, an effect of the Knocked Out
+/// Pokémon's own earlier attack (the LeavePlay of attached cards, which the attack-effect preventions on that Pokémon stop:
+/// Mist Energy).
+pub fn discard_attacker_energy(g: &mut Game, owner: usize, attack: AttackRef, source_card: CardId, target: SlotRef, cards: &[CardId]) -> R {
     if cards.is_empty() {
         return Ok(());
     }
@@ -134,8 +135,8 @@ pub fn little_grudge_discard(g: &mut Game, owner: usize, _prize_taker: usize, at
     Ok(())
 }
 
-/// DiscardEnergyPrompt callback of Little Grudge.
-pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: AttackRef, source_card: CardId, target: SlotRef, res: crate::prompts::Res) -> R {
+/// The answer of the prompt that asks which Energy of the Attacking Pokémon to discard ([`discard_attacker_energy`]).
+pub fn discard_attacker_energy_cont(g: &mut Game, owner: u8, attack: AttackRef, source_card: CardId, target: SlotRef, res: crate::prompts::Res) -> R {
     let cards: Vec<CardId> = match res {
         crate::prompts::Res::CardsFrom(t) => t.iter().map(|x| x.1).collect(),
         _ => Vec::new(),
@@ -143,5 +144,5 @@ pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: Atta
     if cards.is_empty() {
         return Ok(());
     }
-    little_grudge_discard(g, owner as usize, prize_taker as usize, attack, source_card, target, &cards)
+    discard_attacker_energy(g, owner as usize, attack, source_card, target, &cards)
 }
