@@ -27,9 +27,9 @@ g0500016209  # step 154 obs; Slowking's Seek Inspiration chose the discarded cop
 g0500016563  # step 23 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 22 (the recording dropped it: nothing happened)
 g0500019983  # step 205 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 204 (the recording dropped it: nothing happened)
 # Events batch 9 C7a (against baseline 7a7d1be): APR E-03 "If several effects activating when a Pokémon is damaged are activated at the same time, the player of the Pokémon taking the damage gets to choose in which order to apply those effects" (user decision 8.2, C11c's rule for when to ask): Handheld Fan and Spiky Energy on the damaged Pokémon are two distinct effects that apply, so the damaged Pokémon's player orders them with an order prompt (a Select over the two cards); the recording asked nothing (it asked only for a Handheld Fan with a Mist Energy delayed trap).
+# Events batch 9 C7c (RULES.md 'The order of simultaneous effects', user 2026-10-14): only effects that can change the game count for the order prompt, so a Handheld Fan with no Energy to move on the Attacking Pokemon (or no Benched Pokemon of the attacking player to move it to) isn't an effect to order: 2 of the 56 C7a games (g0500000047, g0500014495) match the recording again; the other 54 still ask, the Fan having an Energy and a Bench Pokemon to move it to (no E-04, E-21 or F game changed).
 g0500000034  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500000041  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
-g0500000047  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500000050  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500000060  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500000067  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
@@ -71,7 +71,6 @@ g0500014462  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy 
 g0500014473  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500014481  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500014490  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
-g0500014495  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500014497  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500016474  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
 g0500016774  # step -1 extra-prompt; the order of Handheld Fan and Spiky Energy on the damaged Pokemon (APR E-03; the recording asked nothing)
