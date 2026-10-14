@@ -33,8 +33,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
                 crate::game::apply_order(&mut g.st.players[p as usize].deck, o.as_slice());
                 g.st.bump_layout();
             }
-            let id = g.player_id(p as usize);
-            g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after, cause }));
+            g.wait(p as usize, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after, cause }));
             Ok(())
         }
         PrefabCont::DrawAfterWait { p, draw, after, cause } => {
@@ -257,8 +256,7 @@ pub fn shuffle_deck(g: &mut Game, p: usize) {
 }
 
 fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4]) {
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after, cause }));
+    g.prompt(p, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after, cause }));
 }
 
 /// "Shuffle your hand into your deck. Then, draw N cards" (Judge, Lacey, Lillie's Determination, ...): the hand (without
@@ -277,8 +275,7 @@ pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId,
     };
     if !cards.is_empty() {
         crate::engine::cards_zone::put_into_deck(g, ListRef::Hand(p as u8), cards.as_slice(), crate::spec::event::DeckPosition::ShuffledIn, cause)?;
-        let id = g.player_id(p);
-        g.wait(id, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw, after, cause: cause.pack() }));
+        g.wait(p, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw, after, cause: cause.pack() }));
         return Ok(());
     }
     shuffle_then_draw(g, p, draw, after, cause.pack());
@@ -287,8 +284,7 @@ pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId,
 
 /// `CONFIRMATION_PROMPT(store, state, player, callback, message)`.
 pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: Cont) {
-    let id = g.player_id(p);
-    g.prompt(id, message, PromptKind::Confirm, cont);
+    g.prompt(p, message, PromptKind::Confirm, cont);
 }
 
 /// `new ChooseCardsPrompt(player, message, list, filter, options)`, including
@@ -309,8 +305,7 @@ pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef
             opts.blocked = b;
         }
     }
-    let id = g.player_id(p);
-    g.prompt(id, message, PromptKind::ChooseCards { cards: list, filter, opts }, cont);
+    g.prompt(p, message, PromptKind::ChooseCards { cards: list, filter, opts }, cont);
 }
 
 // ---------------------------------------------------------------------------

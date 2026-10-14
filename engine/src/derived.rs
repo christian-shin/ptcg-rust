@@ -238,7 +238,6 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         ci.staged_in.hash(&mut h);
     }
     for pl in st.players.iter() {
-        h.write_u8(pl.id);
         for z in [&pl.deck, &pl.hand, &pl.discard, &pl.lostzone] {
             l(&mut h, z.as_slice());
         }

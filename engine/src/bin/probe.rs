@@ -598,7 +598,6 @@ fn attack_prompts() {
         if !reach_turn(&mut base) {
             continue;
         }
-        let me = base.st.active_player as usize;
         let stack: Vec<&str> = stack_for(id).iter().map(|d| def(*d).full_name).collect();
         let en: Vec<Value> = types.iter().flat_map(|t| vec![json!(fname(t)), json!(fname(t))]).collect();
         let sc = json!({

@@ -46,10 +46,9 @@ pub fn init_next_turn(g: &mut Game) -> R {
     // The BeginTurn event (batch 8: no card reacts to it in the pool).
     g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
 
-    let id = g.player_id(p);
     // The turn's draw (APR H, G step 4): a Draw event by the rule.
     crate::engine::cards_zone::draw(g, p, 1, crate::cause::Cause::rule(crate::cause::RuleWhich::TurnDraw, p as u8))?;
-    g.wait(id, Cont::PhasePlayerTurn);
+    g.wait(p, Cont::PhasePlayerTurn);
     Ok(())
 }
 
@@ -67,8 +66,7 @@ pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
     if entered {
         g.st.phase = GamePhase::BetweenTurns;
         g.st.bump();
-        let id = g.player_id(g.st.active_player as usize);
-        g.wait(id, Cont::BetweenTurnsWait { oc });
+        g.wait(g.st.active_player as usize, Cont::BetweenTurnsWait { oc });
         return Ok(());
     }
     run_between_turns_effects(g, oc)
@@ -247,7 +245,6 @@ fn checkup_damage_from(g: &mut Game, id: EffId, order: &SVec<CardId, 120>) -> R 
 /// Pokémon Checkup's Special Conditions for player `p`'s Active Pokémon, with the Poison and Burn amounts of its Checkup
 /// event.
 fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> R {
-    let pid = g.player_id(p);
     // Iterate over a snapshot, like `for...of` over the original array.
     let a0 = g.st.players[p].active;
     let conds = g.st.slot(p, a0).special_conditions;
@@ -264,12 +261,12 @@ fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> 
             }
             SpecialCondition::Burned => {
                 crate::engine::damage::place(g, SlotRef::new(p, a), burn, by_condition)?;
-                g.prompt(pid, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
+                g.prompt(p, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
             }
             SpecialCondition::Asleep => {
                 let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
                 if flips > 0 {
-                    let prompts: Vec<(u8, &'static str, PromptKind)> = (0..flips).map(|_| (pid, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
+                    let prompts: Vec<(usize, &'static str, PromptKind)> = (0..flips).map(|_| (p, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
                     g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
                 } else {
                     checkup_recovers(g, p, SpecialCondition::Asleep)?;

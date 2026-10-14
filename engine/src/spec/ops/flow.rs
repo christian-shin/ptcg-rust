@@ -159,8 +159,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if labels.is_empty() {
                 return Ok(Flow::Next);
             }
-            let id = g.player_id(f.who(c.chooser));
-            g.prompt(id, c.msg, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 0x80 | mask));
+            g.prompt(f.who(c.chooser), c.msg, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 0x80 | mask));
             Ok(Flow::Suspend)
         }
         Op::EndTurn(t) => {
@@ -472,9 +471,8 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
     }
     let mut cards = crate::list::SVec::new();
     cards.push(pc);
-    let id = g.player_id(f.p as usize);
     g.prompt(
-        id,
+        f.p as usize,
         "CHOOSE_ATTACK_TO_DISABLE",
         crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked_message: "NOT_ENOUGH_ENERGY", blocked: crate::list::SVec::new() },
         f.cont(me, 1),

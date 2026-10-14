@@ -9,6 +9,12 @@ use crate::state::*;
 use crate::types::*;
 use serde_json::{json, Map, Value};
 
+/// A player's number in the recorded traces and the canonical JSON: the player index plus one (1 or 2). The engine
+/// itself names a player by index everywhere; only the trace boundary writes this number.
+fn wire_player(p: usize) -> u8 {
+    p as u8 + 1
+}
+
 impl Game {
     fn refs_of(&self, cards: &[CardId]) -> Value {
         Value::Array(cards.iter().map(|c| Value::String(self.card_ref(*c))).collect())
@@ -23,7 +29,7 @@ impl Game {
     /// The lasting effects on `on`, in the order they were put: what each is, its timing and the card that left it.
     fn lasting_json(&self, on: LastingOn) -> Vec<Value> {
         let attack = |a: AttackRef| json!(self.st.cdef(a.card).attacks[a.idx()].name);
-        let player = |p: u8| json!(self.st.players[p as usize].id);
+        let player = |p: u8| json!(wire_player(p as usize));
         self.st
             .lasting
             .iter()
@@ -127,13 +133,13 @@ impl Game {
                     UsageKey::Declared { def: d, index } => o.insert("declared".into(), json!(format!("{}#{}", def(d).full_name, index))),
                 };
                 match u.by {
-                    UsageBy::Player(p) => o.insert("player".into(), json!(self.st.players[p as usize].id)),
+                    UsageBy::Player(p) => o.insert("player".into(), json!(wire_player(p as usize))),
                     UsageBy::Card(c) => o.insert("card".into(), json!(self.card_ref(c))),
                 };
                 match u.until {
-                    Until::ThisTurn(p) => o.insert("thisTurnOf".into(), json!(self.st.players[p as usize].id)),
-                    Until::AfterTurn(p) => o.insert("afterTurnOf".into(), json!(self.st.players[p as usize].id)),
-                    Until::Checkup(p) => o.insert("checkupOf".into(), json!(self.st.players[p as usize].id)),
+                    Until::ThisTurn(p) => o.insert("thisTurnOf".into(), json!(wire_player(p as usize))),
+                    Until::AfterTurn(p) => o.insert("afterTurnOf".into(), json!(wire_player(p as usize))),
+                    Until::Checkup(p) => o.insert("checkupOf".into(), json!(wire_player(p as usize))),
                     Until::Removed => o.insert("untilRemoved".into(), json!(true)),
                 };
                 let v = Value::Object(o);
@@ -205,7 +211,7 @@ impl Game {
         }
         o.insert("active".into(), self.slot_json(p, pl.active));
         o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(p, *b)).collect()));
-        let d = Player::new(pl.id);
+        let d = Player::new();
         macro_rules! nd {
             ($field:ident, $key:expr) => {
                 if pl.$field != d.$field {
@@ -335,7 +341,7 @@ impl Game {
         for p in 0..2 {
             if let Some((a, src)) = st.player_last_attack[p] {
                 pla.insert(
-                    st.players[p].id.to_string(),
+                    wire_player(p).to_string(),
                     json!({ "attack": st.cdef(a.card).attacks[a.idx()].name, "sourceCard": self.card_ref(src) }),
                 );
             }

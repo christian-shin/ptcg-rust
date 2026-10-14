@@ -119,10 +119,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         pay(g, p, active, &cards, move_to)?;
         return retreat_pokemon(g, p, bench_index);
     }
-    let pid = g.player_id(p);
     let map = g.stash_energy(map);
     g.prompt(
-        pid,
+        p,
         "CHOOSE_ENERGY_TO_PAY_RETREAT_COST",
         PromptKind::ChooseEnergy { energy: map, cost, allow_cancel: true },
         Cont::Retreat(RetreatCont { p: p as u8, bench_index, move_to }),

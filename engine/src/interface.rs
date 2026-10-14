@@ -281,7 +281,7 @@ impl Game {
 
     fn chance_select(&self, i: usize) -> SelectData {
         let pr = self.prompts.as_slice()[i];
-        let player = self.st.player_index_by_id(pr.player_id) as u8;
+        let player = pr.player;
         match pr.kind {
             PromptKind::CoinFlip => SelectData {
                 player,
@@ -387,8 +387,8 @@ impl Game {
 
     fn prompt_select(&self, i: usize) -> SelectData {
         let pr = self.prompts.as_slice()[i];
-        let player = self.st.player_index_by_id(pr.player_id) as u8;
-        let persp = self.st.player_index_by_id(pr.perspective_id());
+        let player = pr.player;
+        let persp = pr.player as usize;
         let ctx = context_for(pr.message);
         let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<Wire>, sh: AnswerShape| SelectData {
             player,
