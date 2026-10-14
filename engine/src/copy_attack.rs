@@ -253,10 +253,7 @@ impl CopyFrame {
     }
 }
 
-/// `noAttackLeftToCopy(pokemonCards, blocked)`: every attack of every Pokémon is
-/// blocked (the prompt's validate rejects it), so a non-cancellable
-/// ChooseAttackPrompt would have no valid answer. `blocked` holds the first
-/// attack of each locked name, as the prompt's `find` resolves it.
+/// Is every attack of every Pokémon of the choice blocked (nothing can be chosen)?
 fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> bool {
     !cards.iter().enumerate().any(|(ci, c)| {
         let d = g.st.cdef(*c);
@@ -264,21 +261,40 @@ fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> b
     })
 }
 
-/// The choice of the attack to copy.
+/// The attacks of the choice the copycat could not use now: those whose own printed use restriction is unmet (the attack's
+/// declared preconditions, `spec::run::attack_gate`, the one rule normal attack legality reads: RULES.md "Choose 1 of
+/// [those] attacks and use it as this attack", ids 318, 1930). Energy is not a restriction (APR D-01).
+pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]) -> SVec<(u8, u8), 16> {
+    let mut blocked: SVec<(u8, u8), 16> = SVec::new();
+    for (ci, c) in cards.iter().enumerate() {
+        if !g.st.cdef(*c).is_pokemon() {
+            continue;
+        }
+        for i in 0..g.st.cdef(*c).attacks.len() {
+            let a = AttackRef { card: *c, index: i as u8 };
+            if matches!(crate::spec::run::attack_gate(g, copycat, a, p), Ok(crate::spec::run::Gate::Closed) | Err(_)) {
+                blocked.push((ci as u8, i as u8));
+            }
+        }
+    }
+    blocked
+}
+
+/// The choice of the attack to copy: the attacks the copycat could not use are blocked; with none left to choose the copying
+/// attack does nothing more. A lock on the copying Pokémon ("can't use [Attack Name]") doesn't stop copying that attack:
+/// copying uses the copying attack, not the copied one (ruling 381: Copycat copies Flare Strike turn after turn).
 fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     let p = f.p as usize;
     let pc = f.cards;
-    // A lock on the copying Pokémon ("can't use [Attack Name]") doesn't stop copying that attack: copying uses the
-    // copying attack, not the copied one (ruling 381: Copycat copies Flare Strike turn after turn).
-    let blocked: SVec<(u8, u8), 16> = SVec::new();
-    if !f.allow_cancel && no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
+    let blocked = blocked_attacks(g, p, f.copycat, pc.as_slice());
+    if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
         return Ok(());
     }
     let id = g.player_id(p);
     g.prompt(
         id,
         "CHOOSE_ATTACK_TO_COPY",
-        PromptKind::ChooseAttack { cards: pc, allow_cancel: f.allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
+        PromptKind::ChooseAttack { cards: pc, allow_cancel: f.allow_cancel, blocked_message: "CANNOT_USE_ATTACK", blocked },
         Cont::CopyAttack(f),
     );
     Ok(())
@@ -358,22 +374,13 @@ fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) ->
     finish_step(g, f, r, wait_if_prompts)
 }
 
-/// The stop of a copied attack that can't be done (a `Fail` of its program: "you can't use this attack during your first
-/// turn", an unmet condition of its use): the copied attack is still used, does nothing more and ends.
-pub const COPIED_ATTACK_ENDS: &str = "COPIED_ATTACK_ENDS";
-
-/// Either suspend (`wait` returned true) or continue with the next stage; the end of a copied attack that can't be done
-/// ([`COPIED_ATTACK_ENDS`]) is released and the copy ends; any other error from the copied attack's program is released and
-/// propagates, like one from any attack.
+/// Either suspend (`wait` returned true) or continue with the next stage; an error from the copied attack's program is
+/// released and propagates, like one from any attack.
 fn finish_step(g: &mut Game, mut f: CopyFrame, r: R, wait: impl FnOnce(&mut Game, &mut CopyFrame) -> R<bool>) -> R {
     let r = r.and_then(|_| wait(g, &mut f));
     match r {
         Ok(true) => Ok(()),
         Ok(false) => next_stage(g, f),
-        Err(e) if e.0 == COPIED_ATTACK_ENDS && f.then.is_none() => {
-            g.release_fx(f.atk);
-            Ok(())
-        }
         Err(e) => {
             g.release_fx(f.atk);
             Err(e)

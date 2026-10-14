@@ -1,0 +1,61 @@
+{
+  "turn": 4,
+  "decks": [
+    [
+      "4 Team Rocket's Mimikyu ASC 97",
+      "4 Terapagos ex ASC 179",
+      "52 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Team Rocket's Mimikyu ASC 97",
+      "4 Terapagos ex ASC 179",
+      "52 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Team Rocket's Mimikyu ASC 97",
+    "active_energy": [
+      "Psychic Energy MEE 5",
+      "Psychic Energy MEE 5"
+    ],
+    "bench": [
+      {
+        "card": "Team Rocket's Mimikyu ASC 97"
+      },
+      {
+        "card": "Team Rocket's Mimikyu ASC 97"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Terapagos ex ASC 179"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Gemstone Mimicry"
+    },
+    {
+      "index": 0,
+      "attack": "Crown Opal"
+    }
+  ],
+  "expect": [
+    {
+      "prompts": [
+        "ChooseAttack"
+      ],
+      "cite": "RULES.md 'Choose 1 of [those] attacks and use it as this attack' (user, 2026-10-13; id318, id1930): after the first turn both attacks are offered"
+    },
+    {
+      "at": "turn_end",
+      "who": "opp",
+      "slot": "active",
+      "card": "Terapagos ex ASC 179",
+      "damage": 180,
+      "cite": "RULES.md 'Choose 1 of [those] attacks and use it as this attack' (user, 2026-10-13; id318, id1930): on a later turn the copied Crown Opal is chosable and used (180)"
+    }
+  ]
+}
