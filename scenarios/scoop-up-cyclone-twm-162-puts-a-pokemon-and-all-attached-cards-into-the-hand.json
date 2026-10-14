@@ -69,13 +69,20 @@
     "Psychic Energy MEE 5",
     "Heavy Baton TEF 151"
    ],
-   "cite": "Scoop Up Cyclone TWM 162 text (put 1 of your Pokémon and all cards attached to it into your hand)"
+   "cite": "Scoop Up Cyclone TWM 162 text (put 1 of your Pok\u00e9mon and all cards attached to it into your hand)"
   },
   {
    "at": "turn_end",
    "who": "me",
    "bench_count": 0,
    "cite": "Scoop Up Cyclone TWM 162 text"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ShowCards"
+   ],
+   "cite": "id787 (RULES.md \"A card moved from a public zone to a hidden zone is revealed, as a property of the move\"): a Pokemon and its attached cards leave play for the hand, one reveal for the move"
   }
  ]
 }

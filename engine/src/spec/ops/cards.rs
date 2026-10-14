@@ -32,7 +32,8 @@ impl DiscardSpec {
     pub const DEFAULT: DiscardSpec = DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, into: None };
 }
 /// "Put ... into your hand": the cards go to their owner's hand (APR C-02; a PutIntoHand, or a LeavePlay for cards
-/// attached to a Pokémon), shown to `reveal` first ("reveal it and put it into your hand": the reveal comes first, id1131).
+/// attached to a Pokémon). `reveal` is the card text's own "reveal" of cards taken from a hidden zone (shown to that player
+/// first, the reveal comes first, id1131); a move out of a public zone is revealed by the move itself (id787), never by this flag.
 pub struct PutIntoHandSpec {
     pub from: ZoneRef,
     pub cards: CardSel,
@@ -204,7 +205,8 @@ pub enum SearchDestination {
     /// Onto the chooser's Bench (as played from the zone), at most the open
     /// Bench spaces.
     Bench,
-    /// Into the chooser's hand; `reveal` shows the cards to the opponent first.
+    /// Into the chooser's hand; `reveal` is the card text's own "reveal" of cards found in a hidden zone (shown to the opponent
+    /// first). A move out of a public zone is revealed by the move itself (id787), never by this flag.
     Hand { reveal: bool },
     /// Into the chooser's discard pile.
     Discard { reveal: bool },

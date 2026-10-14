@@ -2,8 +2,8 @@
 //! your hand.
 //!
 //! The chosen cards (at least 1 when played from the hand; any number, even 0, when the Supporter's effect is used by an
-//! attack, id2376 and APR D-05) go from the discard pile into the hand (PutIntoHand, shown to the
-//! opponent as cards that leave the discard pile for the hand are).
+//! attack, id2376 and APR D-05) go from the discard pile into the hand (PutIntoHand, revealed by the move,
+//! id787).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), reveal: Some(Who::Opp), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

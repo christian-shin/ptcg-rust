@@ -55,6 +55,15 @@
     "Energy Recycler BST 124"
    ],
    "cite": "card text (an Item is discarded after it is played)"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards",
+    "ShuffleDeck"
+   ],
+   "cite": "id787 (RULES.md \"A card moved from a public zone to a hidden zone is revealed, as a property of the move\"): Energy Recycler prints no reveal"
   }
  ]
 }

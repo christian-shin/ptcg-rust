@@ -1,32 +1,42 @@
 {
-  "turn": 2,
-  "decks": [
-    [
-      "4 Levincia DRI 244",
-      "4 Hop's Snorlax JTG 117",
-      "52 Lightning Energy MEE 4"
-    ],
-    [
-      "4 Levincia DRI 244",
-      "4 Hop's Snorlax JTG 117",
-      "52 Lightning Energy MEE 4"
-    ]
+ "turn": 2,
+ "decks": [
+  [
+   "4 Levincia DRI 244",
+   "4 Hop's Snorlax JTG 117",
+   "52 Lightning Energy MEE 4"
   ],
-  "me": {
-    "reset": true,
-    "active": "Hop's Snorlax JTG 117",
-    "stadium": "Levincia DRI 244",
-    "discard": [
-      "3 Lightning Energy MEE 4"
-    ]
-  },
-  "opp": {
-    "reset": true,
-    "active": "Hop's Snorlax JTG 117"
-  },
-  "answers": [
-    {
-      "a": "stadium"
-    }
+  [
+   "4 Levincia DRI 244",
+   "4 Hop's Snorlax JTG 117",
+   "52 Lightning Energy MEE 4"
   ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "stadium": "Levincia DRI 244",
+  "discard": [
+   "3 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "stadium"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards"
+   ],
+   "cite": "id787 (RULES.md \"A card moved from a public zone to a hidden zone is revealed, as a property of the move\"): Levincia prints no reveal"
+  }
+ ]
 }

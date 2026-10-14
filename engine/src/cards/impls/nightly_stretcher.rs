@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), reveal: Some(Who::Opp), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

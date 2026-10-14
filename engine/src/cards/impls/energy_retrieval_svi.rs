@@ -1,7 +1,7 @@
 //! Energy Retrieval (CRI 108): Item. Put up to 2 Basic Energy cards from your discard pile into your hand.
 //!
 //! An Item's "up to 2" is 1 or 2 (id2301). The chosen cards are put into the hand by one PutIntoHand event from the
-//! discard pile (cause: this Item); nothing is revealed (the text doesn't say so). It can't be played without a Basic Energy card in the
+//! discard pile (cause: this Item); the move reveals them (id787), though the text doesn't say so. It can't be played without a Basic Energy card in the
 //! discard pile (a Trainer that can't have any effect can't be played, id925).
 use crate::spec::prelude::*;
 

@@ -317,6 +317,7 @@ pub fn put_into_hand(g: &mut Game, from: ListRef, cards: &[CardId], cause: Cause
         moved += ok.len();
         let p = g.st.owner(ok.as_slice()[0]) as u8;
         let source = source_zone(g, from, ok.as_slice()[0]);
+        reveal_leaving_public(g, p, source, ok.len());
         g.run_fx_unit(Effect::PutIntoHand { p, cards: ok, from, source, cause })?;
     }
     Ok(crate::spec::run::Outcome::count(cards.len(), moved, refused))
@@ -339,6 +340,7 @@ pub fn put_into_deck(g: &mut Game, from: ListRef, cards: &[CardId], position: De
         moved += ok.len();
         let p = g.st.owner(ok.as_slice()[0]) as u8;
         let source = source_zone(g, from, ok.as_slice()[0]);
+        reveal_leaving_public(g, p, source, ok.len());
         g.run_fx_unit(Effect::PutIntoDeck { p, cards: ok, from, source, position, cause })?;
     }
     Ok(crate::spec::run::Outcome::count(cards.len(), moved, refused))
@@ -362,6 +364,16 @@ pub fn draw(g: &mut Game, p: usize, n: usize, cause: Cause) -> R<crate::spec::ru
         g.run_fx_unit(Effect::Draw { p: p as u8, cards: ok, cause })?;
     }
     Ok(crate::spec::run::Outcome::count(n, ok.len(), refused))
+}
+
+/// A card moved from a zone anyone can see (the discard pile, the Lost Zone, play, the Stadium) to a zone not anyone can see
+/// (the hand, the deck) is revealed to all players (id787, RULES.md): called by every routine that moves cards into a hand
+/// or a deck, whatever the card text says, once per move event. The owner of the cards knows them already, so the
+/// information prompt goes to the other player. One zone-class test for a move that doesn't cross.
+pub fn reveal_leaving_public(g: &mut Game, owner: u8, source: RulesZone, n: usize) {
+    if matches!(source, RulesZone::Discard | RulesZone::LostZone | RulesZone::InPlay | RulesZone::Stadium) {
+        reveal(g, 1 - owner as usize, n);
+    }
 }
 
 /// Reveal: `n` cards are shown to player `to` (the ShowCards information prompt; nothing when there are none). No card

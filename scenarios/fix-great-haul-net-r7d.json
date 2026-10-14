@@ -30,5 +30,21 @@
  "opp": {
   "reset": true,
   "active": "Feebas SSP 41"
- }
+ },
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards"
+   ],
+   "cite": "id787 (RULES.md \"A card moved from a public zone to a hidden zone is revealed, as a property of the move\"): Great Haul Net prints no reveal"
+  }
+ ],
+ "answers": [
+  {
+   "a": "play",
+   "card": "Great Haul Net CRI 78"
+  }
+ ]
 }

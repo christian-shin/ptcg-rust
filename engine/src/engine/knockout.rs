@@ -143,6 +143,9 @@ pub fn leave_play(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, so
         return Ok(false);
     }
     let pokemon = g.st.slot_pokemon(target.p as usize, target.s).unwrap_or(NO_CARD);
+    if matches!(dest, ListRef::Hand(_) | ListRef::Deck(_)) {
+        crate::engine::cards_zone::reveal_leaving_public(g, target.p, RulesZone::InPlay, 1);
+    }
     g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), pokemon, dest, cause, how: LeaveHow::Effect, source_card, cards: SVec::new() })?;
     Ok(true)
 }
@@ -218,6 +221,9 @@ pub fn leave_play_cards(g: &mut Game, target: SlotRef, cards: &[CardId], zone: R
             continue;
         }
         moved += ok.len();
+        if matches!(zone, RulesZone::Hand | RulesZone::Deck) {
+            crate::engine::cards_zone::reveal_leaving_public(g, owner, RulesZone::InPlay, ok.len());
+        }
         g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), dest: owner_list(owner, zone), cause, how: LeaveHow::Attached, source_card: NO_CARD, pokemon: NO_CARD, cards: ok })?;
     }
     Ok(Outcome::count(asked, moved, refused))
@@ -263,6 +269,9 @@ pub fn leave_play_stadium(g: &mut Game, card: CardId, zone: RulesZone, cause: Ca
     }
     let mut cs: SVec<CardId, 64> = SVec::new();
     cs.push(card);
+    if matches!(zone, RulesZone::Hand | RulesZone::Deck) {
+        crate::engine::cards_zone::reveal_leaving_public(g, owner, RulesZone::Stadium, 1);
+    }
     g.run_fx_unit(Effect::LeavePlay { p: owner, target: None, dest, cause, how: LeaveHow::Stadium, source_card: NO_CARD, pokemon: NO_CARD, cards: cs })?;
     Ok(true)
 }

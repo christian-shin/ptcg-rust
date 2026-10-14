@@ -1,8 +1,8 @@
 //! Dedenne (SSP 87): Electromagnetic Sonar - put a Trainer card from your discard pile into your hand. Gnaw - 30.
 //!
 //! The Trainer card is chosen (one is required when the discard pile holds a Trainer card: no "up to") and put into the hand
-//! by a PutIntoHand event from the discard pile (cause: this attack); the text doesn't say "reveal" and the discard pile is
-//! public. Poké Vital A and
+//! by a PutIntoHand event from the discard pile (cause: this attack); the text doesn't say "reveal"; the move reveals the card
+//! (id787). Poké Vital A and
 //! Neutralization Zone refuse that event for their own card (a lock over PutIntoHand).
 use crate::spec::prelude::*;
 
