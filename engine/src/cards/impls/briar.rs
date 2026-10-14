@@ -3,9 +3,9 @@
 //!
 //! Briar puts an effect on the player (APR C-19): the declared `Modifier::PrizeAdjust` adds the Prize at the
 //! KnockOut event (`ko_by` = AttackDamage, the Knocked Out Pokémon is the opponent's Active Pokémon, the Attacking Pokémon is a
-//! Tera Pokémon). "During this turn": the Knock Out by an attack's damage is found by the state check after the attack's turn
-//! ends, so the effect lasts until the player's Pokémon Checkup (`DeclareUntil::Checkup`) and never reaches a later turn or the
-//! opponent's turns.
+//! Tera Pokémon). "During this turn" (`DeclareUntil::EndOfTurn`): the attack's Knock Outs are found by the state check at the end of
+//! the attack (`attack_over`), before the turn ends, so the effect is read in time and never reaches a later turn or the opponent's
+//! turns.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Printed(&Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(2)))],
-        steps: &[Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Player(Who::Me), until: DeclareUntil::Checkup }))],
+        steps: &[Step::new(Op::Declare(DeclareSpec { effect: 0, on: DeclareOn::Player(Who::Me), until: DeclareUntil::EndOfTurn }))],
     }),
     // This turn, if the opponent's Active Pokémon is Knocked Out by damage from an attack of your
     // Tera Pokémon, take 1 more Prize card.

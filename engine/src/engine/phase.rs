@@ -338,11 +338,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             crate::engine::lasting::expire_this_turn(&mut g.st, p as usize);
             Ok(())
         }
-        Effect::BetweenTurns { p, .. } => {
-            // A player's effect that lasts until their Checkup ends with it (Briar).
-            crate::engine::lasting::expire_checkup(&mut g.st, p as usize);
-            Ok(())
-        }
         Effect::AfterAttack { opp, .. } => {
             // A Pokémon that survived this attack on 10 HP keeps 10 HP when an effect of the
             // attack lowered its maximum HP (ruling 1589).

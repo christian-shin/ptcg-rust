@@ -481,11 +481,6 @@ pub fn expire_this_turn(st: &mut State, p: usize) {
     st.lasting.retain(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::ThisTurn(q), .. } if q as usize == p));
 }
 
-/// The declared effects that end with player `p`'s Pokémon Checkup.
-pub fn expire_checkup(st: &mut State, p: usize) {
-    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::Checkup(q), .. } if q as usize == p));
-}
-
 /// Every lasting effect on spot `s` of player `p` (the spot is emptied).
 pub fn clear_spot(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
@@ -672,22 +667,16 @@ mod declared_tests {
         add_declared(st, on, source, index, until);
     }
 
-    /// "During this turn" ends with the turn of the player it is on, not with the other player's; a Checkup effect ends at the
-    /// player's own Checkup; the same card and declaration on the same holder is one effect.
+    /// "During this turn" ends with the turn of the player it is on, not with the other player's; the same card and declaration on the same holder is one effect.
     #[test]
     fn expiry() {
         let mut st = State::new();
         put(&mut st, LastingOn::Player(0), 1, 0, Until::ThisTurn(0));
         put(&mut st, LastingOn::Player(0), 1, 0, Until::ThisTurn(0));
         put(&mut st, LastingOn::Player(1), 2, 0, Until::ThisTurn(1));
-        put(&mut st, LastingOn::Player(0), 3, 0, Until::Checkup(0));
-        assert_eq!(st.lasting.len(), 3, "one effect per card, declaration and holder");
+        assert_eq!(st.lasting.len(), 2, "one effect per card, declaration and holder");
         expire_this_turn(&mut st, 0);
-        assert_eq!(st.lasting.len(), 2, "player 0's turn ended");
-        expire_checkup(&mut st, 1);
-        assert_eq!(st.lasting.len(), 2, "player 1's Checkup doesn't end player 0's effect");
-        expire_checkup(&mut st, 0);
-        assert_eq!(st.lasting.len(), 1);
+        assert_eq!(st.lasting.len(), 1, "player 0's turn ended");
         expire_this_turn(&mut st, 1);
         assert!(st.lasting.is_empty());
     }

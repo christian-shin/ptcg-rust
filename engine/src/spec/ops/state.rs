@@ -199,9 +199,6 @@ pub enum DeclareOn {
 pub enum DeclareUntil {
     /// "During this turn": it ends when the turn ends, before the end-of-turn effects (APR E-21).
     EndOfTurn,
-    /// Until the player's next Pokémon Checkup (Briar: "this turn, if ... Knocked Out ..." is read by the state check after the
-    /// attack's turn ends).
-    Checkup,
     /// "During your opponent's next turn": it ends when the user's opponent's turn ends.
     OpponentsNextTurn,
 }
@@ -372,7 +369,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> 
             // The user's turn: the program's player.
             let until = match d.until {
                 DeclareUntil::EndOfTurn => crate::state::Until::ThisTurn(f.p),
-                DeclareUntil::Checkup => crate::state::Until::Checkup(f.p),
                 DeclareUntil::OpponentsNextTurn => crate::state::Until::ThisTurn(1 - f.p),
             };
             crate::engine::lasting::add_declared(&mut g.st, on, me, d.effect, until);
