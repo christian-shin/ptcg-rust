@@ -1088,7 +1088,7 @@ fn search_purpose(s: &SearchSpec) -> PromptPurpose {
         SearchDestination::Bench => PromptPurpose::PutOntoBench,
         SearchDestination::Hand { .. } => PromptPurpose::PutIntoHand,
         SearchDestination::Discard { .. } => PromptPurpose::DiscardCard,
-        SearchDestination::Deck { .. } => PromptPurpose::PutOnDeckBottom,
+        SearchDestination::Deck { .. } => PromptPurpose::PutIntoDeck, // every user prints "shuffle ... into your deck" (Sacred Ash, Energy Recycler, Great Haul Net): put on the bottom, then shuffled
         SearchDestination::AttachToPicked | SearchDestination::AttachToolToThis => PromptPurpose::AttachCard,
     }
 }
