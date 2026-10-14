@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Metagross TEF 115",
+   "4 Spiky Energy JTG 159",
+   "1 Raging Bolt ex PRE 166",
+   "47 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Metagross TEF 115",
+   "4 Spiky Energy JTG 159",
+   "1 Raging Bolt ex PRE 166",
+   "47 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Clefable ASC 75",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Metagross TEF 115",
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Meteor Mash"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Clefable ASC 75",
+   "damage": 20,
+   "cite": "APR E-03 (the effects activated by a Pokemon being damaged apply after the attack's damage and effects) and RULES.md 'A copied attack is the copycat's only while it is used' (ids 318, 1930, 2402): the Damage of the copied Meteor Mash is Clefable's attack, so Spiky Energy on the damaged Metagross puts its 2 damage counters on the Attacking Pokemon, Clefable"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Metagross TEF 115",
+   "damage": 60,
+   "cite": "The copied Meteor Mash did its 60 damage to the Defending Pokemon"
+  }
+ ]
+}

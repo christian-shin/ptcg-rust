@@ -34,7 +34,7 @@
 
 use crate::cause::Cause;
 use crate::effects::{AtkBase, CounterMove, EffId, Effect, SlotRef};
-use crate::list::SVec;
+use crate::list::{CardList, SVec};
 use crate::game::{Game, R};
 use crate::spec::event::*;
 
@@ -61,6 +61,8 @@ pub fn damage_view(g: &Game, b: &AtkBase, amount: i32) -> EventView {
         slot: Some(t),
         amount,
         ignores_defender: crate::prefabs::ignores_defender_effects(g, b),
+        // Done to a Pokémon in the Active Spot (written by the reducer: read after the damage, id1992).
+        damaged_active: g.last_attack.as_ref().map_or(false, |la| la.damaged_active.contains(&t)),
         ..EventView::new(EventKind::Damage, b.cause, t.p, crate::spec::event::whose_turn(g))
     }
 }
@@ -404,13 +406,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                         la.damaged_active.push(t);
                     }
                 }
-                // A delayed trap on the damaged Pokémon ("if this Pokémon is damaged by an attack during your opponent's
-                // next turn, put N damage counters on the Attacking Pokémon"): recorded for step 6 of the attack.
-                if let Some(r) = crate::engine::lasting::armed_retaliate(&g.st, tp, ts) {
-                    if matches!(r.what, crate::state::LastingWhat::Retaliate { amount, .. } if amount > 0) {
-                        g.attack_trigger(b, amount, r.source, Some(r))?;
-                    }
-                }
             }
         }
         Effect::MoveCounters { buf, .. } => {
@@ -422,6 +417,64 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
         }
         _ => {}
+    }
+    Ok(())
+}
+
+/// A delayed trap on the damaged Pokémon ("if this Pokémon is damaged by an attack during your opponent's next turn, put N
+/// damage counters on the Attacking Pokémon"; `engine::lasting`), recorded in the attack's E-03 window when the damage is done.
+#[derive(Clone, Copy, Debug)]
+pub struct Retaliation {
+    /// The damaged Pokémon.
+    pub target: SlotRef,
+    /// The Attacking Pokémon's slot and the Pokémon card that was in it.
+    pub source: SlotRef,
+    pub source_pokemon: Option<crate::list::CardId>,
+    /// The lasting trigger (`LastingWhat::Retaliate`).
+    pub lasting: crate::state::LastingEffect,
+}
+
+/// The Damage event `id` is done: the damaged Pokémon's lasting trigger records itself with the attack's other
+/// "is damaged" effects (the cards' triggers recorded first, `run::fire_on`; APR E-03), or applies at once when no window is
+/// open.
+pub fn record_retaliation(g: &mut Game, id: EffId) -> R {
+    let Effect::Damage { b, .. } = *g.e(id) else { return Ok(()) };
+    let t = b.target;
+    if t.p == b.player || g.st.phase != crate::types::GamePhase::Attack {
+        return Ok(());
+    }
+    let Some(r) = crate::engine::lasting::armed_retaliate(&g.st, t.p as usize, t.s) else { return Ok(()) };
+    if !matches!(r.what, crate::state::LastingWhat::Retaliate { amount, .. } if amount > 0) {
+        return Ok(());
+    }
+    let rec = Retaliation { target: t, source: b.source, source_pokemon: g.st.slot_pokemon(b.source.p as usize, b.source.s), lasting: r };
+    if g.triggers_open(b.attack_effect) {
+        crate::engine::order::record(g, crate::engine::order::Tag::Damaged(b.attack_effect), crate::engine::order::Item::Retaliation(rec));
+        return Ok(());
+    }
+    retaliate(g, &rec)
+}
+
+/// The Attacking Pokémon is still in play (ruling 530) and the trap's source is still on the damaged Pokémon (an effect of
+/// the damaged Pokémon, gone when it left play).
+fn retaliation_holds(g: &Game, t: &Retaliation) -> bool {
+    let in_play = t.source_pokemon.is_some() && g.st.slot_pokemon(t.source.p as usize, t.source.s) == t.source_pokemon;
+    in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(t.lasting.source)
+}
+
+/// Does the trap apply now: it puts counters (APR E-03: the effects that apply are ordered)?
+pub fn retaliation_applies(g: &Game, t: &Retaliation) -> bool {
+    let crate::state::LastingWhat::Retaliate { amount, .. } = t.lasting.what else { return false };
+    amount > 0 && retaliation_holds(g, t)
+}
+
+/// Resolve the trap: the counters go on the Attacking Pokémon wherever it is (rulings 482, 1839), an effect of the damaged
+/// Pokémon's own earlier attack (id2408, id1958: a PlaceCounters by that attack, so Mist Energy stops it).
+pub fn retaliate(g: &mut Game, t: &Retaliation) -> R {
+    let crate::state::LastingWhat::Retaliate { amount, attack, .. } = t.lasting.what else { return Ok(()) };
+    if retaliation_applies(g, t) {
+        let cause = Cause::attack(t.target.p, Some(t.lasting.source), attack);
+        place(g, t.source, amount as i32, cause)?;
     }
     Ok(())
 }

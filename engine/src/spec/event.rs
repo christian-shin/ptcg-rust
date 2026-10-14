@@ -69,6 +69,9 @@ pub enum EventKind {
     UseAbility,
     UseStadium,
     Retreat,
+    /// The attacking player's attack is over: its damage, its effects and the choices they asked are done (APR E-03,
+    /// "after attacking"; trigger-only, like EndTurn). Caused by the attack.
+    AttackDone,
 }
 
 impl EventKind {
@@ -109,6 +112,7 @@ impl EventKind {
             EventKind::BeginTurn => Some(k::BEGIN_TURN),
             EventKind::EndTurn => Some(k::END_TURN),
             EventKind::Checkup => Some(k::BETWEEN_TURNS),
+            EventKind::AttackDone => Some(k::AFTER_ATTACK_TRIGGERS),
             _ => None,
         }
     }
@@ -362,8 +366,9 @@ pub enum EventPred {
     KoBy(KoBy),
     /// Where the cards go (LeavePlay, Devolve, TakePrizes).
     Dest(RulesZone),
-    /// KnockOut: the attack's damage was done to the Pokémon while it was in the Active Spot ("if this Pokémon is in the
-    /// Active Spot and is Knocked Out by damage from an attack": the Active Spot is read when the damage is done, id1992).
+    /// Damage, KnockOut: the attack's damage was done to the Pokémon while it was in the Active Spot ("if this Pokémon is in
+    /// the Active Spot and is damaged by / Knocked Out by damage from an attack": the Active Spot is read when the damage is
+    /// done, id1992).
     DamagedActive,
     /// PlayTrainer: played from the hand by the rule, or used by another card's effect ("can't play ... from their hand"
     /// is `Use(Played) & Source(Hand)`, one conjunct per clause).
@@ -443,7 +448,7 @@ pub struct EventView {
     /// Damage: the attack isn't affected by effects on the damaged Pokémon (Shred, done to the opponent's Pokémon):
     /// its preventions are skipped (APR C-16; RULES.md "Shred").
     pub ignores_defender: bool,
-    /// KnockOut: the attack in progress damaged the Pokémon while it was in the Active Spot.
+    /// Damage, KnockOut: the attack in progress damaged the Pokémon while it was in the Active Spot.
     pub damaged_active: bool,
     /// PlayTrainer: played from the hand or used by another card's effect.
     pub trainer_use: Option<TrainerUse>,
@@ -569,10 +574,16 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::USE_POWER,
     crate::effects::k::USE_STADIUM,
 ]);
-/// The events the triggers after an event read (`run::after_event`): every event of [`EVENT_KINDS`] and the turn-structure
-/// events the phase routines make (BeginTurn, EndTurn, Checkup: batch 8), which only a trigger naming them reads (they
-/// aren't in `EVENT_KINDS`, the base of a predicate naming no kind: no kind-free declaration ranges over them).
-pub const TRIGGER_EVENT_KINDS: KindMask = EVENT_KINDS.or(crate::effects::mask(&[crate::effects::k::BEGIN_TURN, crate::effects::k::END_TURN, crate::effects::k::BETWEEN_TURNS]));
+/// The events the triggers after an event read (`run::after_event`): every event of [`EVENT_KINDS`], the turn-structure
+/// events the phase routines make (BeginTurn, EndTurn, Checkup: batch 8) and the end of an attack (AttackDone, made by the
+/// attack routine), which only a trigger naming them reads (they aren't in `EVENT_KINDS`, the base of a predicate naming no
+/// kind: no kind-free declaration ranges over them).
+pub const TRIGGER_EVENT_KINDS: KindMask = EVENT_KINDS.or(crate::effects::mask(&[
+    crate::effects::k::BEGIN_TURN,
+    crate::effects::k::END_TURN,
+    crate::effects::k::BETWEEN_TURNS,
+    crate::effects::k::AFTER_ATTACK_TRIGGERS,
+]));
 
 /// The events with an effect done to a Pokémon or its cards, which a `Prevent` naming no `Kind` ranges over ("prevent all
 /// effects of attacks done to X"): an explicit list (events batch 7). Not Damage: damage is not an effect (APR C-17

@@ -13,7 +13,7 @@ use super::*;
 use crate::cards::CardFrame;
 use crate::cause::{Cause, CauseKind};
 use crate::engine::order;
-use crate::effects::{EffId, Effect};
+use crate::effects::{AtkBase, EffId, Effect};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prefabs::*;
@@ -448,7 +448,7 @@ pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, v
 }
 
 /// A trigger's cause: its origin, caused by the card's owner; a `CardRule` trigger by its event (the end of
-/// the turn's bookkeeping is `Rule { EndTurn }`; a trigger that continues an attack is that attack).
+/// the turn's bookkeeping is `Rule { EndTurn }`).
 fn trigger_cause(g: &Game, me: CardId, t: &trigger::Trigger, eff: crate::effects::EffId) -> Cause {
     let owner = g.st.owner(me) as u8;
     if t.origin != passive::RuleSource::CardRule {
@@ -457,18 +457,6 @@ fn trigger_cause(g: &Game, me: CardId, t: &trigger::Trigger, eff: crate::effects
     match &t.event {
         // The end of the turn's bookkeeping of a card's own text (`Rule { EndTurn }`).
         trigger::Event::On(_) if (eff as usize) < g.fx.len() && matches!(*g.e(eff), Effect::EndTurn { .. }) => Cause::new(CauseKind::Rule { which: crate::cause::RuleWhich::EndTurn }, Some(me), owner),
-        trigger::Event::OnAfterAttackTriggers(_) | trigger::Event::OnDamagedByAttack(_) => {
-            let attack = if (eff as usize) < g.fx.len() {
-                match *g.e(eff) {
-                    Effect::AfterAttackTriggers { p, attack, .. } => Some(Cause { kind: CauseKind::Attack, card: g.last_attack.as_ref().and_then(|l| l.pokemon), player: p, attack: Some(attack) }),
-                    Effect::AttackTrigger { p, attack, source, .. } => Some(Cause::of_attack_at(g, p, attack, source)),
-                    _ => None,
-                }
-            } else {
-                None
-            };
-            attack.unwrap_or_else(|| Cause::of_origin(t.origin, me, owner))
-        }
         _ => Cause::of_origin(t.origin, me, owner),
     }
 }
@@ -525,13 +513,6 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 check_use_stadium(g, me, us, &f)?;
                 run(g, me, f)?;
             }
-        }
-    }
-    for (i, t) in spec.triggers.iter().enumerate() {
-        if let Some((p, slot)) = trigger::fires(g, me, e, t) {
-            let mut f = Frame::start(g, me, Prog::Trigger(i as u8), Phase::Use, e, p, false);
-            f.slot = slot;
-            run(g, me, f)?;
         }
     }
     Ok(())
@@ -608,15 +589,39 @@ pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed
 
 /// Fire one turn-structure trigger (the order prompt's choice), if it still fires.
 pub(crate) fn fire_timed(g: &mut Game, t: Timed) -> R {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[t.c as usize].def) else { return Ok(()) };
-    let Some(tr) = spec.triggers.get(t.i as usize) else { return Ok(()) };
-    let Some(v) = trigger::event_view(g, t.e) else { return Ok(()) };
-    if let Some((p, slot)) = trigger::fires_on(g, t.c, &v, tr)? {
-        let mut f = Frame::start(g, t.c, Prog::Trigger(t.i), Phase::Use, t.e, p, false);
+    fire_trigger(g, t.c, t.i, t.e)
+}
+
+/// Fire trigger `i` of card `c` over the event `e`, if it still fires (as the board is now).
+fn fire_trigger(g: &mut Game, c: CardId, i: u8, e: EffId) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { return Ok(()) };
+    let Some(tr) = spec.triggers.get(i as usize) else { return Ok(()) };
+    let Some(v) = trigger::event_view(g, e) else { return Ok(()) };
+    if let Some((p, slot)) = trigger::fires_on(g, c, &v, tr)? {
+        let mut f = Frame::start(g, c, Prog::Trigger(i), Phase::Use, e, p, false);
         f.slot = slot;
-        run(g, t.c, f)?;
+        run(g, c, f)?;
     }
     Ok(())
+}
+
+/// The attack's E-03 window while the Damage `e` is done in it: the effects that activate when a Pokémon is damaged by an
+/// attack apply after the attack's damage and effects (APR E-03), whatever card declares them. Damage outside a window
+/// (no step 7 open) is applied at once like any event.
+fn damaged_window(g: &Game, e: EffId) -> Option<(EffId, AtkBase, i32)> {
+    match *g.e(e) {
+        Effect::Damage { b, amount, .. } if g.triggers_open(b.attack_effect) => Some((b.attack_effect, b, amount)),
+        _ => None,
+    }
+}
+
+/// Apply a trigger recorded in the E-03 window: the Damage event made again as it was (`DamagedTrigger`), and the trigger
+/// re-checked against the board now (still attached, not blocked: `fires_on`).
+pub(crate) fn fire_damaged(g: &mut Game, d: &order::DamagedTrigger) -> R {
+    let e = g.new_fx(Effect::Damage { b: d.b, amount: d.amount, survive: false });
+    let r = fire_trigger(g, d.c, d.i, e);
+    g.release_fx(e);
+    r
 }
 
 /// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
@@ -663,6 +668,10 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
             };
             let Some(v) = v else { continue };
             if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
+                if let Some((atk, b, amount)) = damaged_window(g, e) {
+                    order::record(g, order::Tag::Damaged(atk), order::Item::Damaged(order::DamagedTrigger { c, i: i as u8, b, amount }));
+                    continue;
+                }
                 let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
                 f.slot = slot;
                 run(g, c, f)?;
@@ -711,27 +720,18 @@ pub(crate) fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
     RulesWalk::new(true).walk(g, me, f, steps, false) == Some(true)
 }
 
-/// Does a step 7 record apply now (APR E-03: "the effects activating when a Pokémon is damaged"): a lasting trigger of the
-/// damaged Pokémon, while the Attacking Pokémon is in play and the trigger's source still on the damaged Pokémon; a card's
-/// trigger, when one of its triggers fires for it now and its program can change the game (`applies`).
-pub(crate) fn damaged_applies(g: &mut Game, t: &crate::game::AtkTrig) -> bool {
-    let Some(eff) = g.attack_trigger_effect(t) else { return false };
-    let Effect::AttackTrigger { source_in_play, .. } = eff else { return false };
-    if let Some(r) = t.retaliate {
-        let amount = match r.what {
-            crate::state::LastingWhat::Retaliate { amount, .. } => amount,
-            _ => 0,
-        };
-        return amount > 0 && source_in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(r.source);
-    }
-    let Some(spec) = crate::cards::spec_for(g.st.cards[t.card as usize].def) else { return false };
-    let e = g.new_fx(eff);
+/// Does a trigger recorded in the E-03 window apply now (APR E-03: "the effects activating when a Pokémon is damaged"): it
+/// fires on the Damage as the board is now and its program can change the game (`applies`).
+pub(crate) fn damaged_applies(g: &mut Game, d: &order::DamagedTrigger) -> bool {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[d.c as usize].def) else { return false };
+    let Some(tr) = spec.triggers.get(d.i as usize) else { return false };
+    let e = g.new_fx(Effect::Damage { b: d.b, amount: d.amount, survive: false });
     let mut yes = false;
-    for (i, tr) in spec.triggers.iter().enumerate() {
-        if let Some((p, slot)) = trigger::fires(g, t.card, e, tr) {
-            let mut f = Frame::start(g, t.card, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+    if let Some(v) = trigger::event_view(g, e) {
+        if let Ok(Some((p, slot))) = trigger::fires_on(g, d.c, &v, tr) {
+            let mut f = Frame::start(g, d.c, Prog::Trigger(d.i), Phase::Use, e, p, false);
             f.slot = slot;
-            yes = yes || applies(g, t.card, &f, tr.steps);
+            yes = applies(g, d.c, &f, tr.steps);
         }
     }
     g.release_fx(e);
