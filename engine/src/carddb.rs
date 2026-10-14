@@ -76,9 +76,6 @@ pub struct CardDef {
     /// of data/cards.json): a deck holds cards of at most one name of the group (ruling 1073: Lysandre and Boss's Orders;
     /// 746 / 747: Professor Sycamore, Professor Juniper, Professor's Research).
     pub same_name_group: u8,
-    /// Position in the deck / discard listing order (super type, Trainer or
-    /// Energy subtype, name in UTF-16 order); equal for equal keys.
-    pub sort_rank: u16,
 }
 
 impl CardDef {
@@ -275,7 +272,6 @@ mod phrase_tests {
             energy_type: 0,
             provides: &[],
             same_name_group: 0,
-            sort_rank: 0,
         }
     }
 
