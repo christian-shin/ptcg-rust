@@ -109,18 +109,6 @@ impl Game {
         }
     }
 
-    /// Prepends a copy of the source's cards to the destination; the source keeps its cards.
-    pub fn move_to_top_of_destination(&mut self, src: ListRef, dst: ListRef) {
-        let mut v: SVec<CardId, 120> = SVec::new();
-        for &c in self.lst(src) {
-            v.push(c);
-        }
-        for &c in self.lst(dst) {
-            v.push(c);
-        }
-        self.lst_mut(dst).set_from(v.as_slice());
-    }
-
     /// A card moved into a staging list (`Game::temps`) remembers the rules zone it came from
     /// (`CardInst::staged_from`): an event that takes it from there reports that zone as its source.
     #[inline]

@@ -313,12 +313,6 @@ impl Player {
         p
     }
 
-    pub fn active_slot(&self) -> &Slot {
-        &self.slots[self.active as usize]
-    }
-    pub fn active_slot_mut(&mut self) -> &mut Slot {
-        &mut self.slots[self.active as usize]
-    }
     pub fn bench_slot(&self, i: usize) -> &Slot {
         &self.slots[self.bench.as_slice()[i] as usize]
     }
@@ -431,6 +425,10 @@ pub struct State {
     pub lasting: SVec<LastingEffect, 32>,
     /// The usage records (events batch 9 C6; `engine::usage`), in the order they were made.
     pub usage: SVec<Usage, 32>,
+    /// The cards that may hold an Ability usage record (`UsageBy::Card`, `UsageKey::Ability`), one bit per card id: set when
+    /// the record is made, cleared when the card's records are reset (`usage::reset_card`); a bit may stay set after the
+    /// record expired with its turn, never the other way (a cache of "scan the records for this card", `engine::usage`).
+    pub usage_held: [u64; 2],
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
@@ -530,6 +528,7 @@ impl State {
             lock_synced: None,
             lasting: SVec::new(),
             usage: SVec::new(),
+            usage_held: [0; 2],
         }
     }
 
@@ -831,8 +830,5 @@ impl ListRef {
             | ListRef::SlotEnergies(p, _) => Some(p as usize),
             ListRef::Temp(_) => None,
         }
-    }
-    pub fn is_slot(self) -> bool {
-        matches!(self, ListRef::Slot(..))
     }
 }

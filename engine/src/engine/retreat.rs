@@ -82,12 +82,6 @@ pub fn retreat_read(g: &mut Game, p: usize) -> R<(Cost, EnergyMap)> {
     Ok((cost, map))
 }
 
-/// Can the Active Pokémon pay its Retreat Cost now? (Runs the checked reads.)
-pub fn retreat_payable(g: &mut Game, p: usize) -> R<bool> {
-    let (cost, map) = retreat_read(g, p)?;
-    Ok(cost.is_empty() || energy::check_enough_energy(map.as_slice(), cost.as_slice()))
-}
-
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     let (p, bench_index, ignore, move_to) = match *g.e(id) {
         Effect::Retreat { p, bench_index, ignore_status_conditions, move_retreat_cost_to } => {

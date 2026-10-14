@@ -285,7 +285,3 @@ pub mod tag {
 pub fn tag_bit(t: u32) -> Tags {
     1u128 << t
 }
-
-pub fn tag_index(name: &str) -> Option<u32> {
-    TAG_NAMES.iter().position(|n| *n == name).map(|i| i as u32)
-}

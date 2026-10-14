@@ -1142,7 +1142,7 @@ fn declared_place(on: crate::state::LastingOn) -> (Located, Option<SlotRef>) {
 
 /// The declared `DamageDealt` effects at the Deal stage, after the cards' own declarations (step 2).
 pub(crate) fn declared_damage_dealt(g: &mut Game, acc: &mut DamageAcc) -> R {
-    if g.st.lasting.is_empty() {
+    if !crate::engine::lasting::has_declared(&g.st) {
         return Ok(());
     }
     for (me, ps, on) in declared_effects(g).iter().copied() {

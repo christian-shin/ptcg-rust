@@ -139,7 +139,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
 fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
     use crate::spec::passive::Modifier;
     let order = g.decl_all(crate::decl::fam::DAMAGE_DEALT, 0);
-    if !order.is_empty() || !g.st.lasting.is_empty() {
+    if !order.is_empty() || crate::engine::lasting::has_declared(&g.st) {
         crate::derived::Facts::undelegated(g, |g| -> R {
             for c in order.iter().copied() {
                 for ps in crate::decl::passives(g, c) {

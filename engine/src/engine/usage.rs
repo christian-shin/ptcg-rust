@@ -33,10 +33,19 @@ pub fn has(st: &State, key: UsageKey, by: UsageBy) -> bool {
     st.usage.iter().any(|u| u.key == key && u.by == by)
 }
 
+/// The record is made: a card's Ability record sets the card's bit of `State::usage_held`.
+#[inline]
+fn push(st: &mut State, key: UsageKey, by: UsageBy, until: Until) {
+    if let (UsageBy::Card(c), UsageKey::Ability(_)) = (by, key) {
+        st.usage_held[(c >> 6) as usize] |= 1u64 << (c & 63);
+    }
+    st.usage.push(Usage { key, by, until });
+}
+
 /// Make the record (one of a key and holder at most).
 pub fn record(st: &mut State, key: UsageKey, by: UsageBy, until: Until) {
     if !has(st, key, by) {
-        st.usage.push(Usage { key, by, until });
+        push(st, key, by, until);
     }
 }
 
@@ -45,7 +54,7 @@ pub fn use_once(st: &mut State, key: UsageKey, by: UsageBy, until: Until) -> boo
     if has(st, key, by) {
         return false;
     }
-    st.usage.push(Usage { key, by, until });
+    push(st, key, by, until);
     true
 }
 
@@ -59,16 +68,26 @@ pub fn expire_this_turn(st: &mut State, p: usize) {
 /// A Pokémon card that enters or leaves play, or is covered by an evolution, is a new Pokémon for the Abilities it used (id317):
 /// its own Ability records end. The player's records stay.
 pub fn reset_card(st: &mut State, card: CardId) {
-    if !st.usage.is_empty() {
-        st.usage.retain(|u| !(u.by == UsageBy::Card(card) && matches!(u.key, UsageKey::Ability(_))));
+    // One bit test for a card that never used an Ability (every slot move asks).
+    let (w, bit) = ((card >> 6) as usize, 1u64 << (card & 63));
+    if st.usage_held[w] & bit == 0 {
+        return;
     }
+    st.usage_held[w] &= !bit;
+    st.usage.retain(|u| !(u.by == UsageBy::Card(card) && matches!(u.key, UsageKey::Ability(_))));
 }
 
 /// [`reset_card`] for every card of the spot `t` (an evolved stack is a new Pokémon: id317).
 pub fn reset_slot(st: &mut State, t: crate::effects::SlotRef) {
-    if !st.usage.is_empty() {
-        let cards = &st.players[t.p as usize].slots[t.s as usize].cards;
-        st.usage.retain(|u| !(matches!(u.key, UsageKey::Ability(_)) && matches!(u.by, UsageBy::Card(c) if cards.iter().any(|x| x == c))));
+    if st.usage_held == [0; 2] {
+        return;
+    }
+    let mut cards: crate::list::SVec<CardId, 64> = crate::list::SVec::new();
+    for c in st.players[t.p as usize].slots[t.s as usize].cards.iter() {
+        cards.push(c);
+    }
+    for c in cards.iter().copied() {
+        reset_card(st, c);
     }
 }
 

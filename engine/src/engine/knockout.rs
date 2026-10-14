@@ -1123,6 +1123,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
     // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
     // players are new (they held them before the usage records and the lasting table did).
     g.st.usage.clear();
+    g.st.usage_held = [0; 2];
     g.st.lasting.retain(|l| !matches!(l.what, crate::state::LastingWhat::Declared { .. } | crate::state::LastingWhat::Recorded));
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];

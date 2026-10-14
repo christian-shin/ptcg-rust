@@ -762,9 +762,6 @@ impl Game {
     pub fn set_fx_flag(&mut self, id: EffId, bit: u8) {
         self.fx.as_mut_slice()[id as usize].flags |= bit;
     }
-    pub fn set_prevent(&mut self, id: EffId, v: bool) {
-        self.fx.as_mut_slice()[id as usize].prevent_default = v;
-    }
 
     /// A coin flip of player `p` for a card's effect (`cause`), whose result goes to `cb` (`engine::condition::flip_coin`:
     /// a CoinFlip event, a re-flip offered when a declaration covers it).

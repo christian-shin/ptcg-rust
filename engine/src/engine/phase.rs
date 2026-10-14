@@ -388,5 +388,3 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     g.st.bump();
     crate::engine::knockout::state_check(g, OnComplete::AfterEndTurn { p: p as u8 })
 }
-
-pub fn _unused(_: SVec<u8, 1>) {}

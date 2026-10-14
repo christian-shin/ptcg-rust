@@ -5,7 +5,6 @@ use crate::carddb::def;
 use crate::game::Game;
 use crate::list::*;
 use crate::state::*;
-use crate::types::*;
 use serde_json::{json, Map, Value};
 
 /// A player's number in the recorded traces and the canonical JSON: the player index plus one (1 or 2). The engine
@@ -428,9 +427,5 @@ pub fn fnv1a64(bytes: &[u8]) -> String {
         h = h.wrapping_mul(0x0000_0100_0000_01b3);
     }
     format!("{:016x}", h)
-}
-
-pub fn _phase_name(p: GamePhase) -> u8 {
-    p as u8
 }
 

@@ -311,15 +311,6 @@ pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef
 /// `index == PROBE_GENERIC` means a plain Ability with no flags.
 pub const PROBE_GENERIC: u8 = 255;
 
-/// The power type of a (possibly probe) Power.
-pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
-    if power.index == PROBE_GENERIC {
-        PowerType::Ability as u8
-    } else {
-        g.st.cdef(power.card).powers[power.index as usize].power_type
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Attack helpers
 
@@ -373,9 +364,4 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb, cause: c
 /// attacker, Weakness/Resistance and survive-on-10-HP effects (rulings 936, 1770) still apply.
 pub fn ignores_defender_effects(g: &Game, b: &AtkBase) -> bool {
     matches!(*g.e(b.attack_effect), Effect::Attack { ignore_defender_effects: true, .. }) && b.target.p == b.opponent
-}
-
-/// `(card << 4) | index` of an attack, for a card frame slot.
-pub fn pack_attack(a: AttackRef) -> i32 {
-    ((a.card as i32) << 4) | (a.index as i32 & 15)
 }

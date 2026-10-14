@@ -299,14 +299,6 @@ impl Effect {
         }
     }
 
-    pub fn atk_base_mut(&mut self) -> Option<&mut AtkBase> {
-        use Effect::*;
-        match self {
-            Damage { b, .. } => Some(b),
-            _ => None,
-        }
-    }
-
     /// Subscription class used to skip cards that never react to an effect.
     pub fn kind(&self) -> u32 {
         use Effect::*;

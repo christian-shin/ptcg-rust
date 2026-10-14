@@ -475,6 +475,12 @@ pub fn add_declared(st: &mut State, on: LastingOn, source: CardId, index: u8, un
     }
 }
 
+/// Is there an effect cards declared and put for a time (`Op::Declare`)? One scan of the (short) lasting table, where the readers of
+/// the declared effects would build their list.
+pub fn has_declared(st: &State) -> bool {
+    st.lasting.iter().any(|l| matches!(l.what, LastingWhat::Declared { .. }))
+}
+
 /// The declared effects that end with player `p`'s turn, before the end-of-turn effects they might be read by (APR E-21: the
 /// end of a "this turn" effect is not an effect).
 pub fn expire_this_turn(st: &mut State, p: usize) {

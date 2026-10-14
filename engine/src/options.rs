@@ -66,10 +66,6 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
     }
 }
 
-pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
-    candidate_actions(g).into_iter().map(|a| TurnOption { desc: describe_action(g, a), action: a }).collect()
-}
-
 /// Structural candidates for the active player's turn, in the order a trace records them.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
     let mut out = Vec::with_capacity(32);
@@ -226,12 +222,6 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
     let mut acts = Vec::new();
     legal_actions_into(g, &mut acts);
     acts.into_iter().map(|action| TurnOption { desc: describe_action(g, action), action }).collect()
-}
-
-/// Legality of one turn action: from the declared checks, else a trial on a
-/// copy of the game.
-pub fn is_legal(g: &Game, a: Action) -> bool {
-    legal_in(&mut Ctx::new(g), a)
 }
 
 /// Index into `legal_stats::KINDS`.

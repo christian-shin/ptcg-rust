@@ -501,9 +501,6 @@ impl CausePred {
     pub const fn ability() -> CausePred {
         CausePred::Kind(CauseKind::Ability)
     }
-    pub const fn opponents() -> CausePred {
-        CausePred::By(Who::Opp)
-    }
 
     /// Does the cause match, for the card `me` that declares the predicate? A spot predicate on the causing Pokémon
     /// (`Pokemon`) makes a checked read where it needs one (never fails open).

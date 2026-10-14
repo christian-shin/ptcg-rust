@@ -102,7 +102,7 @@ fn names_of(g: &Game, l: &[u8], skip: Option<u8>) -> String {
 }
 
 /// Everything a rule could call "the game state", except the order of the decks and the played card.
-fn sig(g: &Game, skip: Option<u8>, markers: bool) -> String {
+fn sig(g: &Game, skip: Option<u8>, records: bool) -> String {
     let mut o = String::new();
     for p in 0..2 {
         let pl = &g.st.players[p];
@@ -114,22 +114,22 @@ fn sig(g: &Game, skip: Option<u8>, markers: bool) -> String {
         slots.extend(pl.bench.iter().copied());
         for (k, s) in slots.iter().enumerate() {
             let sl = &pl.slots[*s as usize];
-            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards.as_slice(), names_of(g, sl.energies.as_slice(), None), names_of(g, sl.tools.as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if markers { g.st.lasting.iter().filter(|l| l.on == ptcg::state::LastingOn::pokemon(p, *s)).count() } else { 0 });
+            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards.as_slice(), names_of(g, sl.energies.as_slice(), None), names_of(g, sl.tools.as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if records { g.st.lasting.iter().filter(|l| l.on == ptcg::state::LastingOn::pokemon(p, *s)).count() } else { 0 });
         }
-        o += &format!("pm{} ", if markers { g.st.usage.len() } else { 0 });
+        o += &format!("pm{} ", if records { g.st.usage.len() } else { 0 });
     }
     o
 }
 
 /// Depth-first over the choices of an option (every single pick, a minimal and a maximal multi-pick, both
 /// coin outcomes): true as soon as some outcome changes the state signature.
-fn explore(g: &mut Game, before: &str, skip: Option<u8>, markers: bool, budget: &mut usize, stuck: &mut bool, depth: usize) -> bool {
+fn explore(g: &mut Game, before: &str, skip: Option<u8>, records: bool, budget: &mut usize, stuck: &mut bool, depth: usize) -> bool {
     if *budget == 0 || depth > 6 {
         return true;
     }
     let pi = match g.pending() {
         Pending::Decision(pi) => pi,
-        _ => return sig(g, skip, markers) != before,
+        _ => return sig(g, skip, records) != before,
     };
     let sel = match g.select() {
         Ok(Some(s)) => s,
@@ -195,7 +195,7 @@ fn explore(g: &mut Game, before: &str, skip: Option<u8>, markers: bool, budget: 
         if h.resolve(pi, res).and_then(|_| h.settle()).is_err() {
             continue;
         }
-        if explore(&mut h, before, skip, markers, budget, stuck, depth + 1) {
+        if explore(&mut h, before, skip, records, budget, stuck, depth + 1) {
             return true;
         }
     }
@@ -204,8 +204,8 @@ fn explore(g: &mut Game, before: &str, skip: Option<u8>, markers: bool, budget: 
 
 /// Does the option change the game state under some choices and coin outcome?
 fn changes_state(g0: &Game, a: Action, skip: Option<u8>) -> (bool, bool) {
-    let markers = skip.is_some();
-    let before = sig(g0, skip, markers);
+    let records = skip.is_some();
+    let before = sig(g0, skip, records);
     let mut stuck = false;
     for heads in [false, true] {
         let mut g = Box::new(g0.clone());
@@ -215,7 +215,7 @@ fn changes_state(g0: &Game, a: Action, skip: Option<u8>) -> (bool, bool) {
             continue;
         }
         let mut budget = 60usize;
-        if explore(&mut g, &before, skip, markers, &mut budget, &mut stuck, 0) {
+        if explore(&mut g, &before, skip, records, &mut budget, &mut stuck, 0) {
             return (true, stuck);
         }
     }

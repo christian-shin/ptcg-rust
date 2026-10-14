@@ -184,13 +184,6 @@ pub fn play_energy(g: &mut Game, p: usize, card: CardId, target: SlotRef) -> R {
     run_attach(g, card, target, true, cause)
 }
 
-/// The checks of playing the Tool `card` from the hand onto `target` (the Trainer play's own rules are checked
-/// by the play).
-pub fn check_tool_play(g: &mut Game, p: usize, card: CardId, target: SlotRef) -> R {
-    let v = attach_view(g, card, target, RulesZone::Hand, false, Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-    check_attach(g, &v)
-}
-
 /// Attach by an effect: `card` goes onto the Pokémon in `target` from wherever it is (one event per card). The
 /// checks come first: a refused attachment doesn't happen (`Ok(false)`; an effect does as much as it can), nor
 /// does it for a card that is nowhere. A card already attached to a Pokémon, an Energy or a Tool, is moved

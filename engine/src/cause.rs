@@ -151,16 +151,6 @@ impl Cause {
         matches!(self.kind, CauseKind::Ability)
     }
 
-    /// The effect of an attack of an attack effect (`Effect::Attack` / `AfterAttack`): the attacking
-    /// player, the Pokémon in the attacking slot.
-    pub fn of_attack_effect(g: &crate::game::Game, atk: crate::effects::EffId) -> Option<Cause> {
-        if atk as usize >= g.fx.len() {
-            return None;
-        }
-        let (p, _, attack, source) = crate::prefabs::attack_data(g, atk)?;
-        Some(Cause::of_attack_at(g, p, attack, source))
-    }
-
     /// An effect of `attack` used by `p` from the slot `source`: the cause's card is the Pokémon there
     /// (the attack's own card when the slot is empty).
     pub fn of_attack_at(g: &crate::game::Game, p: u8, attack: AttackRef, source: crate::effects::SlotRef) -> Cause {
@@ -277,20 +267,6 @@ fn compare_now(g: &crate::game::Game, site: &str, c: &Cause, old: Old) {
 fn label(g: &crate::game::Game, c: &Cause) -> String {
     let card = c.card.map(|x| g.st.cdef(x).full_name).unwrap_or("-");
     format!("{:?} ({})", c.kind, card)
-}
-
-/// An event the old code carries out without an effect anyone can see (a direct write): counted by its cause.
-#[inline]
-pub fn unseen(g: &crate::game::Game, site: &str, c: &Cause) {
-    if on(g) {
-        unseen_now(g, site, c);
-    }
-}
-
-#[cold]
-fn unseen_now(g: &crate::game::Game, site: &str, c: &Cause) {
-    checked();
-    mismatch(format!("{site}: no event, cause {}", label(g, c)));
 }
 
 /// The old inferences that read an effect's kind and fields, against the effect's cause (called for every
