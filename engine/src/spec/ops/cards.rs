@@ -1000,7 +1000,7 @@ fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst
 /// The cards attached to the Pokémon in `slot` (an Attach's count of what it attached).
 fn attached_count(g: &Game, slot: SlotRef) -> usize {
     let sl = g.st.slot(slot.p as usize, slot.s);
-    sl.cards.len() + sl.energies.len() + sl.tools.len()
+    sl.cards().len() + sl.energies().len() + sl.tools().len()
 }
 
 /// Cards put onto a Pokémon: each Energy or Tool card is attached (`engine::attach::attach`: an Attach event from its
@@ -1213,7 +1213,7 @@ fn blocked_to(g: &mut Game, me: CardId, p: usize, a: &AttachSpec) -> R<SVec<Card
         TargetScan::Bench => {
             let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
             for (index, s) in bench.into_iter().enumerate() {
-                if g.st.slot(p, s).cards.is_empty() {
+                if g.st.slot(p, s).cards().is_empty() {
                     continue;
                 }
                 if !slot_pred_m(g, me, SlotRef::new(p, s), &a.target)? {
@@ -1331,7 +1331,7 @@ fn attach_targets_exist(g: &Game, me: CardId, f: &Frame, a: &AttachSpec) -> bool
 fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec, sub: u8) -> bool {
     let owner = f.who(m.owner);
     let pokemon = for_each_pokemon(g, owner, PlayerType::BottomPlayer);
-    let has_energy = pokemon.iter().any(|(s, _, _)| g.st.slot(owner, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
+    let has_energy = pokemon.iter().any(|(s, _, _)| g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()));
     if !has_energy || pokemon.len() <= 1 {
         return false;
     }
@@ -1742,7 +1742,7 @@ fn energy_move_possible(g: &Game, me: CardId, f: &Frame, d: &DiscardEnergySpec) 
     if !slots_of(g, me, f, &SlotSel::Bench(who)).iter().any(|b| *b != src) {
         return false;
     }
-    g.st.slot(src.p as usize, src.s).cards.iter().any(|c| {
+    g.st.slot(src.p as usize, src.s).cards().iter().any(|c| {
         let def = g.st.cdef(c);
         def.is_energy() && match kind {
             EnergyKind::Any | EnergyKind::Provides(_) => true,
@@ -1811,7 +1811,7 @@ fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
     }
     for q in 0..2 {
         for s in g.st.players[q].in_play().iter() {
-            known += g.st.players[q].slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+            known += g.st.players[q].slots[*s as usize].cards().iter().filter(|c| named(*c)).count();
         }
     }
     (known as u32) < limit
@@ -1893,7 +1893,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
     let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
     let filter = match m.mode {
         MoveEnergyMode::BenchToActive { max, required, ability } => {
-            let has = pokemon.iter().any(|(s, _, t)| t.slot == SlotType::Bench && g.st.slot(owner, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
+            let has = pokemon.iter().any(|(s, _, t)| t.slot == SlotType::Bench && g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()));
             if !has || pokemon.len() <= 1 {
                 return false;
             }
@@ -1905,7 +1905,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
                     o.blocked_from.push(*t);
                 } else if t.slot == SlotType::Active {
                     let mut b = Blocked::default();
-                    for i in 0..g.st.slot(owner, *s).cards.len() {
+                    for i in 0..g.st.slot(owner, *s).cards().len() {
                         b.push(i as u8);
                     }
                     o.blocked_map.push((*t, b));
@@ -1939,9 +1939,9 @@ fn among_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, a: &AmongS
     let mut total = 0usize;
     for s in &slots_in_scope {
         match a.which {
-            AmongWhich::Any => total += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count(),
+            AmongWhich::Any => total += g.st.slot(p, *s).cards().iter().filter(|c| g.st.cdef(*c).is_energy()).count(),
             AmongWhich::Basic => {
-                total += g.st.slot(p, *s).cards.iter().filter(|c| {
+                total += g.st.slot(p, *s).cards().iter().filter(|c| {
                     let d = g.st.cdef(*c);
                     d.is_energy() && d.energy_type == EnergyType::Basic as u8
                 }).count()
@@ -2019,7 +2019,7 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
 // DiscardEnergy: choosing and discarding
 
 fn energy_cards(g: &Game, slot: SlotRef) -> Vec<CardId> {
-    g.st.slot(slot.p as usize, slot.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect()
+    g.st.slot(slot.p as usize, slot.s).cards().iter().filter(|c| g.st.cdef(*c).is_energy()).collect()
 }
 
 /// Open the prompt of a choosing selection (resumed at `sub`); false when there is nothing to choose.
@@ -2059,7 +2059,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
             Ok(true)
         }
         EnergySelection::Chosen { pred: pr } => {
-            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().collect();
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards().iter().collect();
             if !cards.iter().any(|c| pred(g, *c, pr)) {
                 return Ok(false);
             }
@@ -2077,7 +2077,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
             let mut available = 0i32;
             let pl = &g.st.players[p];
             for b in pl.bench.iter() {
-                available += pl.slots[*b as usize].cards.iter().filter(|c| pred(g, *c, pr)).count() as i32;
+                available += pl.slots[*b as usize].cards().iter().filter(|c| pred(g, *c, pr)).count() as i32;
             }
             if available == 0 {
                 return Ok(false);
@@ -2145,7 +2145,7 @@ fn opp_tools_prompt(g: &mut Game, me: CardId, f: &Frame, max: u8) -> bool {
     let o = 1 - p;
     let mut tools = 0usize;
     for (s, _, _) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
-        tools += g.st.slot(o, s).tools.len();
+        tools += g.st.slot(o, s).tools().len();
     }
     if tools == 0 {
         return false;
@@ -2246,7 +2246,7 @@ fn move_energy_own_possible(g: &Game, me: CardId, f: &Frame, m: &MoveEnergyOwnSp
     if dest.is_none() && pokemon.len() <= 1 {
         return false;
     }
-    pokemon.iter().any(|(s, _, _)| dest.map_or(true, |d| d.s != *s) && g.st.slot(p, *s).cards.iter().any(|c| pred(g, c, &m.energy)))
+    pokemon.iter().any(|(s, _, _)| dest.map_or(true, |d| d.s != *s) && g.st.slot(p, *s).cards().iter().any(|c| pred(g, c, &m.energy)))
 }
 
 fn move_energy_own_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergyOwnSpec) -> bool {
@@ -2346,7 +2346,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
             }
         }
         EnergySelection::Special => {
-            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().filter(|c| {
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards().iter().filter(|c| {
                 let d = g.st.cdef(*c);
                 d.is_energy() && d.energy_type == EnergyType::Special as u8
             }).collect();
@@ -2356,7 +2356,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
         }
         EnergySelection::AllIntoDeck => {
             let (p, s) = (slot.p as usize, slot.s);
-            let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
+            let energies: Vec<CardId> = g.st.slot(p, s).energies().iter().collect();
             if !energies.is_empty() {
                 f.outcome = crate::engine::knockout::leave_play_cards(g, SlotRef::new(p, s), &energies, crate::spec::event::RulesZone::Deck, f.cause, Some((f.eff, false)))?;
             }
@@ -2374,7 +2374,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
             return Ok(if energy_prompt(g, me, f, d, 1)? { Flow::Suspend } else { Flow::Next });
         }
         EnergySelection::CostOne { pred: pr } => {
-            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().collect();
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards().iter().collect();
             let matching: Vec<CardId> = cards.iter().copied().filter(|c| pred(g, *c, pr)).collect();
             f.last = 0;
             match matching.len() {
@@ -2544,7 +2544,7 @@ pub enum EnergyDest {
 type Ec = (SlotRef, Option<SlotRef>, CardId);
 
 fn ec_energy_cards(g: &mut Game, src: SlotRef, kind: EnergyKind) -> R<Vec<CardId>> {
-    let all: Vec<CardId> = g.st.slot(src.p as usize, src.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
+    let all: Vec<CardId> = g.st.slot(src.p as usize, src.s).cards().iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
     Ok(match kind {
         EnergyKind::Any => all,
         EnergyKind::Basic => all.into_iter().filter(|c| g.st.cdef(*c).energy_type == EnergyType::Basic as u8).collect(),
@@ -2675,7 +2675,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             // Energy cards), no cancel).
             let up_to = cards.len().min(255) as u8;
             let (list, total) = match kind {
-                EnergyKind::Any => (ListRef::Slot(p as u8, s), g.st.slot(p, s).cards.len().min(255) as u8),
+                EnergyKind::Any => (ListRef::Slot(p as u8, s), g.st.slot(p, s).cards().len().min(255) as u8),
                 _ => (g.alloc_temp(&cards), up_to),
             };
             let mut o = AttachOpts::new(total);
@@ -2721,13 +2721,13 @@ fn ec_prompt(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, rec
         let mut v = Vec::new();
         match scope {
             PromptScope::Active => {
-                if !g.st.slot(owner, pl.active).cards.is_empty() {
+                if !g.st.slot(owner, pl.active).cards().is_empty() {
                     v.push((SlotRef::new(owner, pl.active), CardTarget::new(ptype, SlotType::Active, 0)));
                 }
             }
             PromptScope::Bench => {
                 for (i, b) in pl.bench.iter().enumerate() {
-                    if !g.st.slot(owner, *b).cards.is_empty() {
+                    if !g.st.slot(owner, *b).cards().is_empty() {
                         v.push((SlotRef::new(owner, *b), CardTarget::new(ptype, SlotType::Bench, i as u8)));
                     }
                 }
@@ -2742,7 +2742,7 @@ fn ec_prompt(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, rec
         available += eligible.len();
         let mut b = Blocked::default();
         let mut any = false;
-        for (i, c) in g.st.slot(owner, slot.s).cards.iter().enumerate() {
+        for (i, c) in g.st.slot(owner, slot.s).cards().iter().enumerate() {
             if g.st.cdef(c).is_energy() && !eligible.contains(&c) {
                 b.push(i as u8);
                 any = true;
@@ -2961,7 +2961,7 @@ fn ec_tools(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
     let mut total = 0usize;
     for q in 0..2usize {
         for (s, _, _) in for_each_pokemon(g, q, PlayerType::BottomPlayer).iter() {
-            total += g.st.slot(q, *s).tools.len();
+            total += g.st.slot(q, *s).tools().len();
         }
     }
     if total == 0 {
@@ -3118,12 +3118,12 @@ mod attach_target_tests {
         };
         let (duskull, murkrow) = (find(&g, "Duskull PRE 35"), find(&g, "Team Rocket's Murkrow DRI 127"));
         let active = g.st.players[0].active;
-        g.st.slot_mut(0, active).cards.clear();
-        g.st.slot_mut(0, active).cards.push(duskull);
+        g.st.slot_edit(0, active).cards().clear();
+        g.st.slot_edit(0, active).cards().push(duskull);
         g.st.players[0].bench.clear();
         let b = (0..g.st.players[0].slots.len() as u8).find(|s| *s != active).unwrap();
-        g.st.slot_mut(0, b).cards.clear();
-        g.st.slot_mut(0, b).cards.push(murkrow);
+        g.st.slot_edit(0, b).cards().clear();
+        g.st.slot_edit(0, b).cards().push(murkrow);
         g.st.players[0].bench.push(b);
         (g, duskull)
     }

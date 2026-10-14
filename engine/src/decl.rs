@@ -354,7 +354,7 @@ fn prop_key(st: &State, c: CardId) -> Option<u32> {
     let tool_key = |p: usize, s: crate::state::SlotId| -> Option<u32> {
         let pl = &st.players[p];
         let zone = if pl.active == s { 3 } else { 5 + 2 * pl.bench.position(&s)? as u32 };
-        key(p as u8, zone, pl.slots[s as usize].tools.as_slice())
+        key(p as u8, zone, pl.slots[s as usize].tools().as_slice())
     };
     // The Tool hint first; a card in a zone list is in no Tool list, so the Tool lists are asked only when the card is
     // in no zone list (a stale hint).
@@ -378,7 +378,7 @@ fn prop_key(st: &State, c: CardId) -> Option<u32> {
         ListRef::Supporter(p) => key(p, 1, pl(p).supporter.as_slice()),
         ListRef::Slot(p, s) => {
             let zone = if pl(p).active == s { 2 } else { 4 + 2 * pl(p).bench.position(&s)? as u32 };
-            key(p, zone, pl(p).slots[s as usize].cards.as_slice())
+            key(p, zone, pl(p).slots[s as usize].cards().as_slice())
         }
         ListRef::Prize(p, i) => key(p, 20 + i as u32, pl(p).prizes[i as usize].as_slice()),
         ListRef::Hand(p) => key(p, 26, pl(p).hand.as_slice()),

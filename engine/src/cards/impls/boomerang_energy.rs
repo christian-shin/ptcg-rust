@@ -77,7 +77,7 @@ mod tests {
         crate::scenario::apply(&mut g, &sc).unwrap();
         let me = g.st.active_player as usize;
         let slot = g.st.players[me].active;
-        let card = g.st.slot(me, slot).cards.iter().find(|&c| g.st.cdef(c).name == "Boomerang Energy").unwrap();
+        let card = g.st.slot(me, slot).cards().iter().find(|&c| g.st.cdef(c).name == "Boomerang Energy").unwrap();
         let source = SlotRef::new(me, slot);
         let attack = AttackRef { card: g.st.slot_pokemon(me, slot).unwrap(), index: 0 };
         let cause = crate::cause::Cause::of_attack_at(&g, me as u8, attack, source);
@@ -95,16 +95,16 @@ mod tests {
             let c = crate::engine::change_active::ChangeActiveView::of(g, me, Some(bench), crate::spec::event::ActiveChange::Retreat, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, me as u8));
             assert!(crate::engine::change_active::change_active(g, c).unwrap());
         });
-        let on_bench = g.st.players[me].bench.as_slice().iter().any(|&s| g.st.slot(me, s).cards.contains(card));
+        let on_bench = g.st.players[me].bench.as_slice().iter().any(|&s| g.st.slot(me, s).cards().contains(card));
         assert!(on_bench, "back on the Pokémon that is now Benched");
-        assert!(!g.st.slot(me, g.st.players[me].active).cards.contains(card));
+        assert!(!g.st.slot(me, g.st.players[me].active).cards().contains(card));
     }
 
     #[test]
     fn nothing_when_that_pokemon_is_gone() {
         let (g, me, card) = run(|g, me| {
             let a = g.st.players[me].active;
-            g.st.players[me].slots[a as usize].cards = Default::default();
+            { use crate::list::CardList; g.st.slot_edit(me, a).cards().clear(); }
             });
         assert!(g.st.players[me].discard.contains(card), "stays in the discard pile");
     }

@@ -252,7 +252,7 @@ pub(crate) fn decode(b: u8) -> SlotRef {
 }
 
 pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
-    !g.st.slot(s.p as usize, s.s).cards.is_empty()
+    !g.st.slot(s.p as usize, s.s).cards().is_empty()
 }
 
 /// The AttackEffect a frame's events are effects of, with the attack's player, opponent, attack and attacking
@@ -1317,7 +1317,7 @@ fn spread_damage_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SpreadDamageSpe
     let side = f.who(s.side);
     let pl = &g.st.players[side];
     let has_target = match s.slots {
-        SpreadSlots::Bench => pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()),
+        SpreadSlots::Bench => pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty()),
         SpreadSlots::Pokemon => !pl.in_play().is_empty(),
     };
     if !has_target {
@@ -1729,7 +1729,7 @@ fn devolve_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DevolveSpec) -> R<F
     // The Basic can't be put into the hand: it is blocked by index.
     let basic = stack.get(0).copied();
     let mut opts = ChooseCardsOpts::new(1, 1, false);
-    for (i, c) in g.st.slot(tp, ts).cards.iter().enumerate() {
+    for (i, c) in g.st.slot(tp, ts).cards().iter().enumerate() {
         if Some(c) == basic {
             opts.blocked.push(i as u8);
         }
@@ -1759,7 +1759,7 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
     let Some(t) = slot_of(g, me, f, s.slot) else { return Ok(Flow::Next) };
     let Some(chosen) = reg_list(g, f, s.cards).first().copied() else { return Ok(Flow::Next) };
     let (tp, ts) = (t.p as usize, t.s);
-    let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards.get(0) } else { None };
+    let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards().get(0) } else { None };
     if g.st.locate(chosen).is_none() {
         return Ok(Flow::Next);
     }

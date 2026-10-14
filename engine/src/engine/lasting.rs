@@ -459,7 +459,7 @@ pub fn recorded_slot(st: &State, source: CardId) -> Option<(usize, SlotId)> {
     for p in 0..2 {
         let pl = &st.players[p];
         for s in pl.in_play().iter().copied() {
-            if !pl.slots[s as usize].cards.is_empty() && is_recorded(st, p, s, source) {
+            if !pl.slots[s as usize].cards().is_empty() && is_recorded(st, p, s, source) {
                 return Some((p, s));
             }
         }

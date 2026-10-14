@@ -147,7 +147,7 @@ impl Game {
     fn slot_json(&self, p: usize, si: SlotId) -> Value {
         let s = &self.st.players[p].slots[si as usize];
         let mut o = Map::new();
-        o.insert("cards".into(), self.refs_of(s.cards.as_slice()));
+        o.insert("cards".into(), self.refs_of(s.cards().as_slice()));
         let d = Slot::default();
         macro_rules! nd {
             ($field:ident, $key:expr) => {
@@ -173,11 +173,11 @@ impl Game {
                 o.insert("attacksThisTurn".into(), json!(a));
             }
         }
-        if !s.energies.is_empty() {
-            o.insert("energies".into(), self.refs_of(s.energies.as_slice()));
+        if !s.energies().is_empty() {
+            o.insert("energies".into(), self.refs_of(s.energies().as_slice()));
         }
-        if !s.tools.is_empty() {
-            o.insert("tools".into(), self.refs_of(s.tools.as_slice()));
+        if !s.tools().is_empty() {
+            o.insert("tools".into(), self.refs_of(s.tools().as_slice()));
         }
         if !s.special_conditions.is_empty() {
             let mut v: Vec<u8> = s.special_conditions.as_slice().to_vec();
@@ -294,17 +294,17 @@ impl Game {
                     pl.lostzone.as_slice(),
                     pl.stadium.as_slice(),
                     pl.supporter.as_slice(),
-                    pl.slots[pl.active as usize].cards.as_slice(),
+                    pl.slots[pl.active as usize].cards().as_slice(),
                 ];
                 for b in pl.bench.iter() {
-                    v.push(pl.slots[*b as usize].cards.as_slice());
+                    v.push(pl.slots[*b as usize].cards().as_slice());
                 }
                 for i in 0..pl.prize_count as usize {
                     v.push(pl.prizes[i].as_slice());
                 }
-                v.push(pl.slots[pl.active as usize].tools.as_slice());
+                v.push(pl.slots[pl.active as usize].tools().as_slice());
                 for b in pl.bench.iter() {
-                    v.push(pl.slots[*b as usize].tools.as_slice());
+                    v.push(pl.slots[*b as usize].tools().as_slice());
                 }
                 v
             };

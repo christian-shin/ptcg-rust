@@ -1103,18 +1103,18 @@ impl Game {
                 add(c, &mut cards);
             }
             let a = &pl.slots[pl.active as usize];
-            for c in a.cards.iter() {
+            for c in a.cards().iter() {
                 add(c, &mut cards);
             }
-            for c in a.tools.iter() {
+            for c in a.tools().iter() {
                 add(c, &mut cards);
             }
             for &b in pl.bench.iter() {
                 let s = &pl.slots[b as usize];
-                for c in s.cards.iter() {
+                for c in s.cards().iter() {
                     add(c, &mut cards);
                 }
-                for c in s.tools.iter() {
+                for c in s.tools().iter() {
                     add(c, &mut cards);
                 }
             }

@@ -114,7 +114,7 @@ pub fn attach_target_ok(g: &Game, v: &EventView) -> R {
     if t.p != v.owner {
         crate::bail!("INVALID_TARGET");
     }
-    if is_tool(g, card) && g.st.slot(t.p as usize, t.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
+    if is_tool(g, card) && g.st.slot(t.p as usize, t.s).tools().len() >= g.st.cdef(pc).max_tools as usize {
         crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
     }
     Ok(())
@@ -225,7 +225,7 @@ pub fn move_attached(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cau
     if is_tool(g, card) {
         return move_tool(g, card, from, to, cause);
     }
-    if g.st.cdef(card).is_energy() || g.st.slot(from.p as usize, from.s).energies.contains(card) {
+    if g.st.cdef(card).is_energy() || g.st.slot(from.p as usize, from.s).energies().contains(card) {
         return move_energy(g, card, from, to, cause);
     }
     debug_assert!(false, "a moved attached card is neither an Energy nor a Tool");
@@ -241,7 +241,7 @@ pub fn move_attached(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cau
 pub fn move_energy(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> R<bool> {
     let src = g.st.slot(from.p as usize, from.s);
     if from == to
-        || !(src.cards.contains(card) || src.energies.contains(card))
+        || !(src.cards().contains(card) || src.energies().contains(card))
         || g.st.slot_pokemon(to.p as usize, to.s).is_none()
         || g.st.owner(card) != to.p as usize
     {
@@ -267,11 +267,11 @@ pub fn move_energy(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause
 /// when the Tool isn't there, `to` has no Pokémon or no room for another Tool (`max_tools`), or a lock forbids
 /// it. No pool card moves a Tool today.
 pub fn move_tool(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> R<bool> {
-    if from == to || !g.st.slot(from.p as usize, from.s).tools.contains(card) {
+    if from == to || !g.st.slot(from.p as usize, from.s).tools().contains(card) {
         return Ok(false);
     }
     let Some(pc) = g.st.slot_pokemon(to.p as usize, to.s) else { return Ok(false) };
-    if g.st.slot(to.p as usize, to.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
+    if g.st.slot(to.p as usize, to.s).tools().len() >= g.st.cdef(pc).max_tools as usize {
         return Ok(false);
     }
     let v = move_view(g, EventKind::MoveTool, card, from, to, cause);
@@ -335,14 +335,14 @@ fn put_attached(g: &mut Game, card: CardId, target: SlotRef) {
     if tool {
         g.st.at[card as usize] = crate::state::Loc::tool(target.p as usize, target.s);
     }
-    let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
+    let mut slot = g.st.slot_edit(target.p as usize, target.s);
     if tool {
-        slot.cards.remove(card);
-        if !slot.tools.contains(card) {
-            slot.tools.push(card);
+        slot.cards().remove(card);
+        if !slot.tools().contains(card) {
+            slot.tools().push(card);
         }
-    } else if !slot.energies.contains(card) {
-        slot.energies.push(card);
+    } else if !slot.energies().contains(card) {
+        slot.energies().push(card);
     }
 }
 
@@ -406,12 +406,12 @@ mod tests {
         let a = active(&g, me);
         assert!(!attach(&mut g, charm, a, ability(me)).unwrap(), "the Active Pokémon has a Tool");
         assert!(g.st.players[me].deck.contains(charm));
-        assert_eq!(g.st.slot(me, a.s).tools.len(), 1);
+        assert_eq!(g.st.slot(me, a.s).tools().len(), 1);
         let b = bench(&g, me, 0);
         assert!(attach(&mut g, charm, b, ability(me)).unwrap());
-        assert!(g.st.slot(me, b.s).tools.contains(charm) && !g.st.slot(me, b.s).cards.contains(charm));
+        assert!(g.st.slot(me, b.s).tools().contains(charm) && !g.st.slot(me, b.s).cards().contains(charm));
         // Moving a Tool onto a Pokémon that has one doesn't happen either.
-        let other = g.st.slot(me, a.s).tools.as_slice()[0];
+        let other = g.st.slot(me, a.s).tools().as_slice()[0];
         assert!(!move_tool(&mut g, other, a, b, ability(me)).unwrap());
     }
 
@@ -422,9 +422,9 @@ mod tests {
         let mut g = game(json!({"me": {"reset": true, "active": DURA, "active_tool": CHARM, "bench": [{"card": DURA}]}, "opp": {"reset": true, "active": DURA}}));
         let me = g.st.active_player as usize;
         let (a, b) = (active(&g, me), bench(&g, me, 0));
-        let charm = g.st.slot(me, a.s).tools.as_slice()[0];
+        let charm = g.st.slot(me, a.s).tools().as_slice()[0];
         assert!(attach(&mut g, charm, b, ability(me)).unwrap(), "moved");
-        assert!(g.st.slot(me, b.s).tools.contains(charm) && !g.st.slot(me, a.s).tools.contains(charm));
+        assert!(g.st.slot(me, b.s).tools().contains(charm) && !g.st.slot(me, a.s).tools().contains(charm));
     }
 
     /// An Energy moves only among its owner's Pokémon (APR C-10: "a player's Energy should always be attached to
@@ -434,10 +434,10 @@ mod tests {
         let mut g = game(json!({"me": {"reset": true, "active": DURA, "active_energy": ["Metal Energy MEE 8"]}, "opp": {"reset": true, "active": DURA}}));
         let me = g.st.active_player as usize;
         let a = active(&g, me);
-        let e = g.st.slot(me, a.s).energies.as_slice()[0];
+        let e = g.st.slot(me, a.s).energies().as_slice()[0];
         let opp = active(&g, 1 - me);
         assert!(!move_energy(&mut g, e, a, opp, ability(me)).unwrap());
-        assert!(g.st.slot(me, a.s).energies.contains(e));
+        assert!(g.st.slot(me, a.s).energies().contains(e));
     }
 
     /// Moving an attached Energy isn't attaching it (id1653): Enriching Energy draws nothing, and a lock on
@@ -455,7 +455,7 @@ mod tests {
         assert!(move_energy(&mut g, e, a, b, ability(me)).unwrap());
         g.settle().ok();
         assert_eq!(g.st.players[me].hand.len(), hand, "no draw");
-        assert!(g.st.slot(me, b.s).energies.contains(e) && !g.st.slot(me, a.s).cards.contains(e));
+        assert!(g.st.slot(me, b.s).energies().contains(e) && !g.st.slot(me, a.s).cards().contains(e));
     }
 
     /// "When you attach this card from your hand" fires for an effect attaching it from the hand (APR C-09), once
@@ -487,10 +487,10 @@ mod tests {
         let a = active(&g, me);
         assert!(attach(&mut g, e, a, ability(me)).unwrap());
         g.settle().ok();
-        assert!(g.st.slot(me, a.s).energies.contains(e), "attached");
+        assert!(g.st.slot(me, a.s).energies().contains(e), "attached");
         crate::engine::phase::end_turn_event(&mut g, me).unwrap();
         assert!(g.st.players[me].discard.contains(e), "discarded at the end of the turn");
-        assert!(!g.st.slot(me, a.s).energies.contains(e));
+        assert!(!g.st.slot(me, a.s).energies().contains(e));
     }
 
     /// Team Rocket's Energy can only be attached to a Team Rocket's Pokémon, and is discarded at the move when it
@@ -506,6 +506,6 @@ mod tests {
         let e = copy_in(&g, me, ROCKET_ENERGY, a.list());
         assert!(move_energy(&mut g, e, a, b, ability(me)).unwrap());
         assert!(g.st.players[me].discard.contains(e), "discarded at the move");
-        assert!(!g.st.slot(me, b.s).cards.contains(e) && !g.st.slot(me, b.s).energies.contains(e));
+        assert!(!g.st.slot(me, b.s).cards().contains(e) && !g.st.slot(me, b.s).energies().contains(e));
     }
 }

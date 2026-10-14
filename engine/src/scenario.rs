@@ -71,9 +71,9 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
         let c = mv(g, p, n, ListRef::Slot(pu, s))?;
         g.st.bump_layout();
         g.st.at[c as usize] = crate::state::Loc::tool(p, s);
-        let slot = &mut g.st.players[p].slots[s as usize];
-        slot.cards.remove(c);
-        slot.tools.push(c);
+        let mut slot = g.st.slot_edit(p, s);
+        slot.cards().remove(c);
+        slot.tools().push(c);
     }
     if let Some(d) = damage.as_i64() {
         g.st.players[p].slots[s as usize].damage = d as i32;
@@ -104,7 +104,7 @@ fn reset_player(g: &mut Game, p: usize) {
     slots.push(g.st.players[p].active);
     for s in slots {
         let slot = &g.st.players[p].slots[s as usize];
-        let cards: Vec<CardId> = slot.cards.iter().chain(slot.tools.iter()).collect();
+        let cards: Vec<CardId> = slot.cards().iter().chain(slot.tools().iter()).collect();
         for c in cards {
             g.move_card_to(ListRef::Slot(pu, s), c, deck);
         }

@@ -55,7 +55,7 @@ pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions
         Some(b) => *b,
         None => crate::bail!("INVALID_TARGET"),
     };
-    if g.st.slot(p, bench).cards.is_empty() {
+    if g.st.slot(p, bench).cards().is_empty() {
         crate::bail!("INVALID_TARGET");
     }
     let active = g.st.players[p].active;

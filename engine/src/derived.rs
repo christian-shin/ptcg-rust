@@ -250,9 +250,9 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         for s in 0..MAX_SLOTS {
             h.write_u8(pl.slot_used[s] as u8);
             let sl = &pl.slots[s];
-            l(&mut h, sl.cards.as_slice());
-            l(&mut h, sl.energies.as_slice());
-            l(&mut h, sl.tools.as_slice());
+            l(&mut h, sl.cards().as_slice());
+            l(&mut h, sl.energies().as_slice());
+            l(&mut h, sl.tools().as_slice());
             for x in [sl.damage, sl.poison_damage, sl.burn_damage, sl.confusion_damage, sl.entered_turn, sl.sleep_flips] {
                 h.write_i32(x);
             }

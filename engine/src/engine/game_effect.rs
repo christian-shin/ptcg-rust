@@ -29,16 +29,7 @@ pub fn apply_weakness_and_resistance(damage: i32, types: &[CardType], weakness: 
 /// Spot `s` of player `p` keeps its cards and whether it is public; everything else on it,
 /// its lasting effects included, ends.
 pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
-    let slot = &mut st.players[p].slots[s as usize];
-    let is_public = slot.is_public;
-    let cards = slot.cards;
-    let energies = slot.energies;
-    *slot = Slot::default();
-    slot.cards = cards;
-    slot.energies = energies;
-    slot.is_public = is_public;
-    // attacksThisTurn = undefined
-    slot.attacks_this_turn = None;
+    st.slot_edit(p, s).reset_keeping_cards();
     crate::engine::lasting::clear_spot(st, p, s);
 }
 

@@ -21,9 +21,16 @@ pub type SlotId = u8;
 /// One board slot: the Pokémon, its attachments, damage and conditions.
 #[derive(Clone, Copy, Debug)]
 pub struct Slot {
-    pub cards: ZoneList<60>,
-    pub energies: ZoneList<60>,
-    pub tools: ZoneList<4>,
+    /// The Pokemon stack and the cards attached to it, in order. Private to this module: every write goes through
+    /// [`SlotEdit`] (or [`ListMut`]), whose drop recomputes `top`, so `top` can't go stale.
+    cards: ZoneList<60>,
+    /// The Energy cards attached (also in `cards`, bar a Pokemon acting as Energy).
+    energies: ZoneList<60>,
+    tools: ZoneList<4>,
+    /// The top Pokemon of the spot (`NO_CARD` for none): the last card of `cards` that is a Pokemon card not attached
+    /// as a Tool or Energy, a Fossil counting as one. Kept by [`SlotEdit`]'s drop; `PTCG_VERIFY_CACHE=1` checks every
+    /// read against [`Slot::top_scan`].
+    top: CardId,
     pub damage: i32,
     /// Order matters (between-turns processing iterates it).
     pub special_conditions: SVec<u8, 5>,
@@ -47,12 +54,162 @@ pub struct Slot {
     pub is_public: bool,
 }
 
+impl Slot {
+    /// The cards of the spot: the Pokemon stack and what is attached to it.
+    #[inline]
+    pub fn cards(&self) -> &ZoneList<60> {
+        &self.cards
+    }
+    #[inline]
+    pub fn energies(&self) -> &ZoneList<60> {
+        &self.energies
+    }
+    #[inline]
+    pub fn tools(&self) -> &ZoneList<4> {
+        &self.tools
+    }
+    /// The top Pokemon of the spot (the kept field).
+    #[inline]
+    pub fn top(&self) -> Option<CardId> {
+        if self.top == NO_CARD {
+            None
+        } else {
+            Some(self.top)
+        }
+    }
+
+    /// The top Pokemon by the scan: the last card of the list that is a Pokemon card not attached as a Tool or Energy
+    /// (a Fossil counts as one). The definition `top` is kept equal to.
+    pub fn top_scan(&self, insts: &[CardInst; MAX_CARDS]) -> Option<CardId> {
+        for &c in self.cards.as_slice().iter().rev() {
+            let f = crate::carddb::pokemon_flags(insts[c as usize].def);
+            if f & PF_FOSSIL != 0 || (f & PF_POKEMON != 0 && !self.tools.contains(c) && !self.energies.contains(c)) {
+                return Some(c);
+            }
+        }
+        None
+    }
+}
+
+/// The one write path to a spot's card lists: it lends the lists out mutably and, on drop, recomputes the spot's top
+/// Pokemon from them. A list is private to this module, so no other write to it can exist.
+pub struct SlotEdit<'a> {
+    slot: &'a mut Slot,
+    insts: &'a [CardInst; MAX_CARDS],
+}
+
+impl SlotEdit<'_> {
+    #[inline]
+    pub fn cards(&mut self) -> &mut ZoneList<60> {
+        &mut self.slot.cards
+    }
+    #[inline]
+    pub fn energies(&mut self) -> &mut ZoneList<60> {
+        &mut self.slot.energies
+    }
+    #[inline]
+    pub fn tools(&mut self) -> &mut ZoneList<4> {
+        &mut self.slot.tools
+    }
+    /// The spot after "no Pokemon is on it any more" (`reset_empty_slot`): its cards and Energy stay, its Tools and every
+    /// other field return to a fresh spot's, bar whether it is public.
+    pub fn reset_keeping_cards(&mut self) {
+        let keep = Slot { cards: self.slot.cards, energies: self.slot.energies, is_public: self.slot.is_public, ..Slot::default() };
+        *self.slot = keep;
+    }
+}
+
+impl Drop for SlotEdit<'_> {
+    #[inline]
+    fn drop(&mut self) {
+        self.slot.top = self.slot.top_scan(self.insts).unwrap_or(NO_CARD);
+    }
+}
+
+/// A mutable card list of any kind: a plain list, or one of a spot's two lists behind its [`SlotEdit`].
+pub enum ListMut<'a> {
+    Plain(&'a mut dyn CardList),
+    SlotCards(SlotEdit<'a>),
+    SlotEnergies(SlotEdit<'a>),
+}
+
+impl CardList for ListMut<'_> {
+    #[inline]
+    fn as_slice(&self) -> &[CardId] {
+        match self {
+            ListMut::Plain(l) => l.as_slice(),
+            ListMut::SlotCards(e) => e.slot.cards.as_slice(),
+            ListMut::SlotEnergies(e) => e.slot.energies.as_slice(),
+        }
+    }
+    #[inline]
+    fn as_mut_slice(&mut self) -> &mut [CardId] {
+        match self {
+            ListMut::Plain(l) => l.as_mut_slice(),
+            ListMut::SlotCards(e) => e.slot.cards.as_mut_slice(),
+            ListMut::SlotEnergies(e) => e.slot.energies.as_mut_slice(),
+        }
+    }
+    #[inline]
+    fn push(&mut self, c: CardId) {
+        match self {
+            ListMut::Plain(l) => l.push(c),
+            ListMut::SlotCards(e) => e.slot.cards.push(c),
+            ListMut::SlotEnergies(e) => e.slot.energies.push(c),
+        }
+    }
+    fn insert(&mut self, i: usize, c: CardId) {
+        match self {
+            ListMut::Plain(l) => l.insert(i, c),
+            ListMut::SlotCards(e) => e.slot.cards.insert(i, c),
+            ListMut::SlotEnergies(e) => e.slot.energies.insert(i, c),
+        }
+    }
+    fn remove_at(&mut self, i: usize) -> CardId {
+        match self {
+            ListMut::Plain(l) => l.remove_at(i),
+            ListMut::SlotCards(e) => e.slot.cards.remove_at(i),
+            ListMut::SlotEnergies(e) => e.slot.energies.remove_at(i),
+        }
+    }
+    #[inline]
+    fn clear(&mut self) {
+        match self {
+            ListMut::Plain(l) => l.clear(),
+            ListMut::SlotCards(e) => e.slot.cards.clear(),
+            ListMut::SlotEnergies(e) => e.slot.energies.clear(),
+        }
+    }
+    fn set_from(&mut self, cards: &[CardId]) {
+        match self {
+            ListMut::Plain(l) => l.set_from(cards),
+            ListMut::SlotCards(e) => e.slot.cards.set_from(cards),
+            ListMut::SlotEnergies(e) => e.slot.energies.set_from(cards),
+        }
+    }
+    fn capacity(&self) -> usize {
+        match self {
+            ListMut::Plain(l) => l.capacity(),
+            ListMut::SlotCards(e) => e.slot.cards.capacity(),
+            ListMut::SlotEnergies(e) => e.slot.energies.capacity(),
+        }
+    }
+    fn as_permutable_slice(&mut self) -> &mut [CardId] {
+        match self {
+            ListMut::Plain(l) => l.as_permutable_slice(),
+            ListMut::SlotCards(e) => e.slot.cards.as_permutable_slice(),
+            ListMut::SlotEnergies(e) => e.slot.energies.as_permutable_slice(),
+        }
+    }
+}
+
 impl Default for Slot {
     fn default() -> Self {
         Slot {
             cards: List::new(),
             energies: List::new(),
             tools: List::new(),
+            top: NO_CARD,
             damage: 0,
             special_conditions: SVec::new(),
             poison_damage: 10,
@@ -594,17 +751,15 @@ impl State {
         out
     }
 
-    /// The top Pokémon of the slot (the last Pokémon card of its list: scanned from the end).
+    /// The top Pokémon of the slot: the kept field (`Slot::top`), asserted against the scan under `PTCG_VERIFY_CACHE=1`.
     #[inline]
     pub fn slot_pokemon(&self, p: usize, s: SlotId) -> Option<CardId> {
         let slot = self.slot(p, s);
-        for &c in slot.cards.as_slice().iter().rev() {
-            let f = crate::carddb::pokemon_flags(self.cards[c as usize].def);
-            if f & PF_FOSSIL != 0 || (f & PF_POKEMON != 0 && !slot.tools.contains(c) && !slot.energies.contains(c)) {
-                return Some(c);
-            }
+        let r = slot.top();
+        if crate::game::verify_cache() {
+            assert_eq!(r, slot.top_scan(&self.cards), "Slot::top answered differently from the scan for spot {s} of player {p}");
         }
-        None
+        r
     }
 
     /// Does any spot of either player hold a Special Condition (a plain read: a gate before the walks that look for
@@ -776,8 +931,22 @@ impl State {
         }
     }
 
-    pub fn list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
+    pub fn list_mut(&mut self, r: ListRef) -> ListMut<'_> {
         self.bump_layout();
+        match r {
+            ListRef::Slot(p, s) => ListMut::SlotCards(self.slot_edit(p as usize, s)),
+            ListRef::SlotEnergies(p, s) => ListMut::SlotEnergies(self.slot_edit(p as usize, s)),
+            _ => ListMut::Plain(self.plain_list_mut(r)),
+        }
+    }
+
+    /// The one write path to a spot's card lists (see [`SlotEdit`]).
+    #[inline]
+    pub fn slot_edit(&mut self, p: usize, s: SlotId) -> SlotEdit<'_> {
+        SlotEdit { slot: &mut self.players[p].slots[s as usize], insts: &self.cards }
+    }
+
+    fn plain_list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
         match r {
             ListRef::Deck(p) => &mut self.players[p as usize].deck,
             ListRef::Hand(p) => &mut self.players[p as usize].hand,
@@ -786,8 +955,7 @@ impl State {
             ListRef::Stadium(p) => &mut self.players[p as usize].stadium,
             ListRef::Supporter(p) => &mut self.players[p as usize].supporter,
             ListRef::Prize(p, i) => &mut self.players[p as usize].prizes[i as usize],
-            ListRef::Slot(p, s) => &mut self.players[p as usize].slots[s as usize].cards,
-            ListRef::SlotEnergies(p, s) => &mut self.players[p as usize].slots[s as usize].energies,
+            ListRef::Slot(..) | ListRef::SlotEnergies(..) => unreachable!("a spot's lists are written through SlotEdit"),
             ListRef::Temp(_) => panic!("temp lists live in the store"),
         }
     }
@@ -830,5 +998,122 @@ impl ListRef {
             | ListRef::SlotEnergies(p, _) => Some(p as usize),
             ListRef::Temp(_) => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    //! `Slot::top` against the scan, through every kind of write to a spot's lists.
+    use super::*;
+    use crate::game::Game;
+    use serde_json::json;
+
+    const DURA: &str = "Duraludon PRE 69";
+    const MEWTWO: &str = "Team Rocket's Mewtwo ex DRI 81";
+    const ENERGY: &str = "Metal Energy MEE 8";
+    const CHARM: &str = "Sacred Charm PFL 93";
+
+    fn game() -> Game {
+        let mut names: Vec<&str> = Vec::new();
+        for (n, k) in [(DURA, 4), (MEWTWO, 3), (CHARM, 4)] {
+            names.extend(std::iter::repeat(n).take(k));
+        }
+        while names.len() < 60 {
+            names.push(ENERGY);
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = json!({"me": {"reset": true, "active": DURA, "active_energy": [ENERGY], "active_tool": CHARM, "bench": [{"card": MEWTWO}, {"card": DURA}]}, "opp": {"reset": true, "active": DURA}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    /// Every spot of both players: the kept top equals the scan.
+    fn assert_tops(g: &Game) {
+        for p in 0..2 {
+            for s in 0..MAX_SLOTS {
+                let sl = &g.st.players[p].slots[s];
+                assert_eq!(sl.top(), sl.top_scan(&g.st.cards), "spot {s} of player {p}");
+            }
+        }
+    }
+
+    /// A copy of `name` of player `p` in its deck, hand or Prizes, and where it is.
+    fn find(g: &Game, p: usize, name: &str) -> (CardId, ListRef) {
+        let def = crate::carddb::def_by_full_name(name).unwrap();
+        [ListRef::Deck(p as u8), ListRef::Hand(p as u8)]
+            .into_iter()
+            .chain((0..6).map(|i| ListRef::Prize(p as u8, i)))
+            .find_map(|l| g.lst(l).iter().copied().find(|c| g.st.cards[*c as usize].def == def).map(|c| (c, l)))
+            .unwrap()
+    }
+
+    #[test]
+    fn top_is_right_after_scenario_loading() {
+        let g = game();
+        assert_tops(&g);
+        let a = g.st.players[0].active;
+        let top = g.st.slot_pokemon(0, a).unwrap();
+        assert_eq!(g.st.cards[top as usize].def, crate::carddb::def_by_full_name(DURA).unwrap());
+        assert!(g.st.slot(0, a).tools().len() == 1 && g.st.slot(0, a).energies().len() == 1);
+    }
+
+    #[test]
+    fn top_follows_attach_swap_devolve_and_knock_out() {
+        let mut g = game();
+        let a = g.st.players[0].active;
+        let first = g.st.slot_pokemon(0, a).unwrap();
+        // Evolve: a Pokemon card put on top of the stack.
+        let (mew, mew_from) = find(&g, 0, MEWTWO);
+        g.move_card_to(mew_from, mew, ListRef::Slot(0, a));
+        assert_eq!(g.st.slot_pokemon(0, a), Some(mew));
+        assert_tops(&g);
+        // Attach an Energy: the top stays.
+        let (en, en_from) = find(&g, 0, ENERGY);
+        g.move_card_to(en_from, en, ListRef::Slot(0, a));
+        assert_eq!(g.st.slot_pokemon(0, a), Some(mew));
+        assert_tops(&g);
+        // Devolve: the top goes to the hand and the card under it is the top.
+        g.move_card_to(ListRef::Slot(0, a), mew, ListRef::Hand(0));
+        assert_eq!(g.st.slot_pokemon(0, a), Some(first));
+        assert_tops(&g);
+        // Swap: the Pokemon leaves and another takes its place.
+        let (dura, dura_from) = find(&g, 0, DURA);
+        g.move_card_to(ListRef::Slot(0, a), first, ListRef::Hand(0));
+        g.move_card_to(dura_from, dura, ListRef::Slot(0, a));
+        assert_eq!(g.st.slot_pokemon(0, a), Some(dura));
+        assert_tops(&g);
+        // The Tool and Energy are never the top.
+        let t = g.st.slot(0, a).tools().as_slice()[0];
+        assert_ne!(g.st.slot_pokemon(0, a), Some(t));
+        // Knock Out of a Bench spot: every card of the spot leaves, the spot has no Pokemon.
+        let b = g.st.players[0].bench.as_slice()[0];
+        crate::engine::cards_zone::relocate_spot(&mut g, crate::effects::SlotRef::new(0, b), ListRef::Discard(0));
+        assert_eq!(g.st.slot_pokemon(0, b), None);
+        assert_tops(&g);
+        // Bench shrink: a spot taken off the Bench keeps a consistent top.
+        g.st.players[0].bench.clear();
+        assert_tops(&g);
+    }
+
+    #[test]
+    fn the_guard_recomputes_on_drop() {
+        let mut g = game();
+        let a = g.st.players[0].active;
+        let (dura, _) = find(&g, 0, DURA);
+        g.st.slot_edit(0, a).cards().clear();
+        assert_eq!(g.st.slot_pokemon(0, a), None);
+        g.st.slot_edit(0, a).cards().push(dura);
+        assert_eq!(g.st.slot_pokemon(0, a), Some(dura));
+        // A Pokemon card among the Tools is no top.
+        let mut e = g.st.slot_edit(0, a);
+        e.tools().push(dura);
+        drop(e);
+        assert_eq!(g.st.slot_pokemon(0, a), None);
+        g.st.slot_edit(0, a).reset_keeping_cards();
+        assert_eq!(g.st.slot_pokemon(0, a), Some(dura));
+        assert_tops(&g);
     }
 }

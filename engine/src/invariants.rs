@@ -40,21 +40,21 @@ pub fn check(g: &Game) -> Result<(), String> {
         }
         for s in pl.all_slots().iter() {
             let slot = &pl.slots[*s as usize];
-            count(slot.cards.as_slice(), "slot")?;
+            count(slot.cards().as_slice(), "slot")?;
             // `energies` is a view of the Energy cards in `cards`.
-            if let Some(e) = slot.energies.as_slice().iter().find(|e| !slot.cards.contains(**e)) {
+            if let Some(e) = slot.energies().as_slice().iter().find(|e| !slot.cards().contains(**e)) {
                 return Err(format!("player {} slot {}: attached Energy {} is not in the slot's cards", p, s, e));
             }
-            count(slot.tools.as_slice(), "slot tools")?;
+            count(slot.tools().as_slice(), "slot tools")?;
             if slot.damage < 0 {
                 return Err(format!("player {} slot {} has damage {}", p, s, slot.damage));
             }
         }
-        let occupied = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count();
+        let occupied = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards().is_empty()).count();
         if occupied > pl.bench.len() {
             return Err(format!("player {} has {} Benched Pokémon on {} spots", p, occupied, pl.bench.len()));
         }
-        if matches!(st.phase, GamePhase::PlayerTurn) && pl.slots[pl.active as usize].cards.is_empty() {
+        if matches!(st.phase, GamePhase::PlayerTurn) && pl.slots[pl.active as usize].cards().is_empty() {
             return Err(format!("player {} has no Active Pokémon during a turn", p));
         }
     }

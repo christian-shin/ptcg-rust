@@ -505,12 +505,12 @@ pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<C
     for &side in sides {
         let q = if side == PlayerType::BottomPlayer { p } else { 1 - p };
         let pl = &st.players[q];
-        if slots.contains(&(SlotType::Active as u8)) && !pl.slots[pl.active as usize].cards.is_empty() {
+        if slots.contains(&(SlotType::Active as u8)) && !pl.slots[pl.active as usize].cards().is_empty() {
             out.push(CardTarget::new(side, SlotType::Active, 0));
         }
         if slots.contains(&(SlotType::Bench as u8)) {
             for (i, &b) in pl.bench.iter().enumerate() {
-                if !pl.slots[b as usize].cards.is_empty() {
+                if !pl.slots[b as usize].cards().is_empty() {
                     out.push(CardTarget::new(side, SlotType::Bench, i as u8));
                 }
             }
@@ -524,11 +524,11 @@ pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<C
 pub fn own_targets(st: &State, p: usize) -> SVec<CardTarget, { crate::state::MAX_SLOTS }> {
     let mut out = SVec::new();
     let pl = &st.players[p];
-    if !pl.slots[pl.active as usize].cards.is_empty() {
+    if !pl.slots[pl.active as usize].cards().is_empty() {
         out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0));
     }
     for (i, &b) in pl.bench.iter().enumerate() {
-        if !pl.slots[b as usize].cards.is_empty() {
+        if !pl.slots[b as usize].cards().is_empty() {
             out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8));
         }
     }
@@ -798,7 +798,7 @@ impl Game {
         if (out.len() < min as usize && !pr.partial) || out.len() > max as usize {
             return Err(invalid);
         }
-        if out.iter().any(|s| self.st.slot(s.p as usize, s.s).cards.is_empty()) {
+        if out.iter().any(|s| self.st.slot(s.p as usize, s.s).cards().is_empty()) {
             return Err(invalid);
         }
         let bl = blocked_slots(&self.st, p, blocked.as_slice());
@@ -990,7 +990,7 @@ impl Game {
             // A Tool filter chooses from the Pokémon's `tools` (not in `cards`); `index` is its position there.
             let tool_mode = is_tool_filter(filter);
             let slot = self.st.slot(s.p as usize, s.s);
-            let list: &[CardId] = if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() };
+            let list: &[CardId] = if tool_mode { slot.tools().as_slice() } else { slot.cards().as_slice() };
             let idx: Vec<u8> = list
                 .iter()
                 .copied()
@@ -1249,7 +1249,7 @@ impl Game {
             let s = get_target(&self.st, p, from)?;
             let tool_mode = is_tool_filter(&filter);
             let slot = self.st.slot(s.p as usize, s.s);
-            let c = *(if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() }).get(i).ok_or(invalid)?;
+            let c = *(if tool_mode { slot.tools().as_slice() } else { slot.cards().as_slice() }).get(i).ok_or(invalid)?;
             if !tool_mode && !self.st.cdef(c).is_energy() {
                 return Err(invalid);
             }
@@ -1277,7 +1277,7 @@ impl Game {
                 return Err(invalid);
             }
             let s = get_target(&self.st, p, from)?;
-            let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
+            let c = *self.st.slot(s.p as usize, s.s).cards().as_slice().get(i).ok_or(invalid)?;
             // Each card is moved at most once.
             if out.iter().any(|(_, _, x)| *x == c) {
                 return Err(invalid);

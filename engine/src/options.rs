@@ -80,7 +80,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
     let p = g.st.active_player as usize;
     let own = own_targets(&g.st, p);
     let pl = &g.st.players[p];
-    let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards.is_empty());
+    let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards().is_empty());
     for (hi, c) in pl.hand.iter().enumerate() {
         let d = g.st.cdef(c);
         let hand_index = hi as u8;
@@ -120,7 +120,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
             add(a.name, &mut names);
         }
     }
-    if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
+    if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools().len() > 0 {
         if let Ok(((attacks, copied), _)) = ctx.attack_list() {
             for a in attacks.iter() {
                 let n = g.st.cdef(a.card).attacks[a.idx()].name;
@@ -169,7 +169,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
         out.push(Action::UseStadium);
     }
     for (i, b) in pl.bench.iter().enumerate() {
-        if !pl.slots[*b as usize].cards.is_empty() {
+        if !pl.slots[*b as usize].cards().is_empty() {
             out.push(Action::Retreat { bench_index: i as u8 });
         }
     }

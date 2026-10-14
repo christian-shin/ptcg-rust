@@ -35,12 +35,12 @@ fn slot_features(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId, o
         out[2] = slot.damage as f32 / 100.0;
         out[3] = g.st.slot_pokemons(p, s).len() as f32;
         // Energy by type (grass..metal), then other.
-        for e in slot.energies.iter() {
+        for e in slot.energies().iter() {
             let t = g.st.cdef(e).provides.first().copied().unwrap_or(ct::COLORLESS) as usize;
             let k = if (1..=8).contains(&t) { 3 + t } else { 12 };
             out[k] += 1.0;
         }
-        out[13] = slot.tools.len() as f32;
+        out[13] = slot.tools().len() as f32;
         let mut conds = 0u32;
         for c in slot.special_conditions.iter() {
             conds |= 1 << c;

@@ -384,7 +384,7 @@ mod tests {
         let b = bench(&g, me, 0);
         assert!(!promote(&mut g, me, b).unwrap(), "the Active Spot isn't empty");
         let a = g.st.players[me].active;
-        g.st.players[me].slots[a as usize].cards = Default::default();
+        { use crate::list::CardList; g.st.slot_edit(me, a).cards().clear(); }
         assert!(promote(&mut g, me, b).unwrap());
         assert_eq!(g.st.players[me].active, b);
         assert!(g.st.slot_pokemon(me, a).is_none());

@@ -68,7 +68,7 @@ fn copycat_in_play(g: &Game, c: CardId) -> bool {
 }
 
 fn target_includes(g: &Game, t: SlotRef, c: CardId) -> bool {
-    g.st.slot(t.p as usize, t.s).cards.contains(c)
+    g.st.slot(t.p as usize, t.s).cards().contains(c)
 }
 
 /// Whether the source's code runs for this effect: the copycat is the one the effect is about.

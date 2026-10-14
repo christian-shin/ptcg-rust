@@ -246,8 +246,8 @@ fn answers(g: &mut Game, me: CardId, p: usize, subject: Subject) -> Option<(bool
 fn situation(g: &Game, p: usize, me: CardId) -> String {
     let pl = &g.st.players[p];
     let o = &g.st.players[1 - p];
-    let bench = |q: &crate::state::Player| q.bench.iter().filter(|b| !q.slots[**b as usize].cards.is_empty()).count();
-    let energy = |q: &crate::state::Player| q.slots[q.active as usize].energies.len();
+    let bench = |q: &crate::state::Player| q.bench.iter().filter(|b| !q.slots[**b as usize].cards().is_empty()).count();
+    let energy = |q: &crate::state::Player| q.slots[q.active as usize].energies().len();
     format!(
         "turn {} hand {} deck {} discard {} bench {} active energy {} | opp hand {} deck {} discard {} bench {} active energy {}{}",
         g.st.turn,
@@ -367,7 +367,7 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
         Subject::Power(_) => {
             let mut slots = vec![pl.active];
             slots.extend(pl.bench.iter().copied());
-            slots.iter().flat_map(|s| pl.slots[*s as usize].cards.iter().collect::<Vec<_>>()).find(|c| g.st.cards[*c as usize].def == card)?
+            slots.iter().flat_map(|s| pl.slots[*s as usize].cards().iter().collect::<Vec<_>>()).find(|c| g.st.cards[*c as usize].def == card)?
         }
         Subject::UseStadium => (0..2).flat_map(|q| g.lst(crate::state::ListRef::Stadium(q)).iter().copied().collect::<Vec<CardId>>()).find(|c| g.st.cards[*c as usize].def == card)?,
     };

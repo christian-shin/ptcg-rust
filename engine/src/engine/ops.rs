@@ -13,9 +13,9 @@ impl Game {
         }
     }
 
-    pub fn lst_mut(&mut self, r: ListRef) -> &mut dyn CardList {
+    pub fn lst_mut(&mut self, r: ListRef) -> ListMut<'_> {
         match r {
-            ListRef::Temp(i) => &mut self.temps[i as usize],
+            ListRef::Temp(i) => ListMut::Plain(&mut self.temps[i as usize]),
             _ => self.st.list_mut(r),
         }
     }
@@ -38,9 +38,9 @@ impl Game {
         self.st.put_at(c, dst);
         if let Some((p, s)) = Self::slot_of(dst) {
             if energy_check && self.is_energy(c) {
-                let e = &mut self.st.players[p].slots[s as usize].energies;
-                if !e.contains(c) {
-                    e.push(c);
+                let mut edit = self.st.slot_edit(p, s);
+                if !edit.energies().contains(c) {
+                    edit.energies().push(c);
                 }
             }
         }
@@ -61,11 +61,11 @@ impl Game {
             let slot = &self.st.players[p].slots[s as usize];
             let full = n >= len;
             let mut orphans: SVec<CardId, 48> = SVec::new();
-            for c in slot.energies.iter() {
-                if full && !slot.cards.contains(c) {
+            for c in slot.energies().iter() {
+                if full && !slot.cards().contains(c) {
                     orphans.push(c);
                     en_moved.push(c);
-                } else if slot.cards.as_slice()[..n].contains(&c) {
+                } else if slot.cards().as_slice()[..n].contains(&c) {
                     en_moved.push(c);
                 }
             }
@@ -74,7 +74,7 @@ impl Game {
                 self.st.put_at(c, dst);
             }
             for &c in en_moved.iter() {
-                self.st.players[p].slots[s as usize].energies.remove(c);
+                self.st.slot_edit(p, s).energies().remove(c);
             }
         }
         let mut moved: SVec<CardId, 120> = SVec::new();
@@ -85,7 +85,7 @@ impl Game {
             self.note_staged(src, c, dst);
         }
         {
-            let l = self.lst_mut(src);
+            let mut l = self.lst_mut(src);
             let rest: SVec<CardId, 120> = {
                 let mut v = SVec::new();
                 for &c in &l.as_slice()[n..] {
@@ -101,9 +101,9 @@ impl Game {
         }
         if let Some((dp, ds)) = Self::slot_of(dst) {
             for &c in en_moved.iter() {
-                let e = &mut self.st.players[dp].slots[ds as usize].energies;
-                if !e.contains(c) {
-                    e.push(c);
+                let mut edit = self.st.slot_edit(dp, ds);
+                if !edit.energies().contains(c) {
+                    edit.energies().push(c);
                 }
             }
         }
@@ -138,22 +138,24 @@ impl Game {
         }
         if let Some((p, s)) = Self::slot_of(src) {
             // PokemonCardList.moveCardsTo
-            if let Some(i) = self.st.players[p].slots[s as usize].cards.index_of(c) {
-                self.st.players[p].slots[s as usize].cards.remove_at(i);
-                self.st.players[p].slots[s as usize].energies.remove(c);
+            if let Some(i) = self.st.slot(p, s).cards().index_of(c) {
+                let mut edit = self.st.slot_edit(p, s);
+                edit.cards().remove_at(i);
+                edit.energies().remove(c);
+                drop(edit);
                 self.push_to(dst, c, true);
-            } else if let Some(i) = self.st.players[p].slots[s as usize].energies.index_of(c) {
-                self.st.players[p].slots[s as usize].energies.remove_at(i);
+            } else if let Some(i) = self.st.slot(p, s).energies().index_of(c) {
+                self.st.slot_edit(p, s).energies().remove_at(i);
                 self.lst_mut(dst).push(c);
                 self.st.put_at(c, dst);
                 if let Some((dp, ds)) = Self::slot_of(dst) {
-                    let e = &mut self.st.players[dp].slots[ds as usize].energies;
-                    if !e.contains(c) {
-                        e.push(c);
+                    let mut edit = self.st.slot_edit(dp, ds);
+                    if !edit.energies().contains(c) {
+                        edit.energies().push(c);
                     }
                 }
-            } else if let Some(i) = self.st.players[p].slots[s as usize].tools.index_of(c) {
-                self.st.players[p].slots[s as usize].tools.remove_at(i);
+            } else if let Some(i) = self.st.slot(p, s).tools().index_of(c) {
+                self.st.slot_edit(p, s).tools().remove_at(i);
                 self.push_to(dst, c, true);
             }
         } else {

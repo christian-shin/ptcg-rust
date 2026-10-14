@@ -83,7 +83,7 @@ pub fn reset_slot(st: &mut State, t: crate::effects::SlotRef) {
         return;
     }
     let mut cards: crate::list::SVec<CardId, 64> = crate::list::SVec::new();
-    for c in st.players[t.p as usize].slots[t.s as usize].cards.iter() {
+    for c in st.players[t.p as usize].slots[t.s as usize].cards().iter() {
         cards.push(c);
     }
     for c in cards.iter().copied() {

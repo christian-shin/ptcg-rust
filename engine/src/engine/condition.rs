@@ -439,7 +439,7 @@ mod tests {
         let snorlax = g.st.slot_pokemon(me, g.st.players[me].active).unwrap();
         let slowpoke = g.st.slot_pokemon(me, g.st.players[me].bench.as_slice()[0]).unwrap();
         let atk = |c: crate::list::CardId| Cause::attack(me as u8, Some(c), crate::state::AttackRef { card: c, index: 0 });
-        let badge = g.st.slot(me, g.st.players[me].active).tools.iter().next().unwrap();
+        let badge = g.st.slot(me, g.st.players[me].active).tools().iter().next().unwrap();
         let once = crate::engine::usage::declared_key(&g.st, badge, 0);
         assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(once), "an attack of the [C] Pokémon holding it");
         assert_eq!(reflip_offered(&mut g, me, atk(slowpoke)).unwrap(), None, "the attacking Pokémon isn't [C]");

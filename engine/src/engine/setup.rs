@@ -344,9 +344,9 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
     let pl = &g.st.players[p];
     let mut in_play: Vec<CardId> = Vec::new();
     for &b in pl.bench.iter() {
-        in_play.extend(pl.slots[b as usize].cards.iter());
+        in_play.extend(pl.slots[b as usize].cards().iter());
     }
-    in_play.extend(pl.slots[pl.active as usize].cards.iter());
+    in_play.extend(pl.slots[pl.active as usize].cards().iter());
     let hand: Vec<CardId> = pl.hand.iter().collect();
     let new_basics: Vec<usize> =
         hand.iter().enumerate().filter(|(_, c)| is_starting_candidate(g, **c) && can_bench_at_setup(g, **c) && !in_play.contains(c)).map(|(i, _)| i).collect();
@@ -463,7 +463,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             let drawer = if f.branch == 0 { 0 } else { 1 };
             for &c in first.cards() {
                 let pl = &g.st.players[drawer];
-                let empty = pl.bench.iter().copied().find(|b| pl.slots[*b as usize].cards.is_empty());
+                let empty = pl.bench.iter().copied().find(|b| pl.slots[*b as usize].cards().is_empty());
                 if let Some(b) = empty {
                     crate::engine::enter::put_at_setup(g, c, crate::effects::SlotRef::new(drawer, b))?;
                 }

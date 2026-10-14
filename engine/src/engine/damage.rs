@@ -458,7 +458,7 @@ pub fn record_retaliation(g: &mut Game, id: EffId) -> R {
 /// the damaged Pokémon, gone when it left play).
 fn retaliation_holds(g: &Game, t: &Retaliation) -> bool {
     let in_play = t.source_pokemon.is_some() && g.st.slot_pokemon(t.source.p as usize, t.source.s) == t.source_pokemon;
-    in_play && g.st.slot(t.target.p as usize, t.target.s).cards.contains(t.lasting.source)
+    in_play && g.st.slot(t.target.p as usize, t.target.s).cards().contains(t.lasting.source)
 }
 
 /// Does the trap apply now: it puts counters (APR E-03: the effects that apply are ordered)?

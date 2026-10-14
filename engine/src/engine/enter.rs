@@ -193,7 +193,7 @@ fn spec_restricts(g: &Game, c: CardId) -> &'static [crate::spec::Restrict] {
 pub(crate) fn while_ok(g: &Game, me: CardId, at: passive::Located, while_: &[LockWhile], event_card: Option<CardId>) -> bool {
     while_.iter().all(|w| match w {
         LockWhile::Active => g.st.active_pokemon(at.owner) == Some(me),
-        LockWhile::HasTool => at.held.map_or(false, |h| !g.st.slot(h.p as usize, h.s).tools.is_empty()),
+        LockWhile::HasTool => at.held.map_or(false, |h| !g.st.slot(h.p as usize, h.s).tools().is_empty()),
         LockWhile::CardIsSource => event_card == Some(me),
         LockWhile::Unless(c) => {
             let f = crate::spec::run::Frame::passive(g, me, at.owner, passive::RuleSource::CardRule);
@@ -246,7 +246,7 @@ pub fn permitted<F: crate::derived::Facts>(g: &mut F, v: &EventView, limit: Limi
     for q in 0..2 {
         for s in g.g().st.players[q].in_play().iter() {
             let slot = g.g().st.slot(q, *s);
-            for c in slot.cards.iter().chain(slot.tools.iter()) {
+            for c in slot.cards().iter().chain(slot.tools().iter()) {
                 cands.push(c);
             }
         }
@@ -377,7 +377,7 @@ pub fn check_evolve<F: crate::derived::Facts>(g: &mut F, v: &EventView, reach: R
 /// Every check of an EnterPlay event: an empty spot, the locks, the restrictions.
 pub fn check_enter<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R {
     let Some(t) = v.slot else { crate::bail!("INVALID_TARGET") };
-    if !g.g().st.slot(t.p as usize, t.s).cards.is_empty() {
+    if !g.g().st.slot(t.p as usize, t.s).cards().is_empty() {
         crate::bail!("INVALID_TARGET");
     }
     if let Some(code) = crate::derived::event_locked(g, v)? {
@@ -397,7 +397,7 @@ pub fn check_enter<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R {
 pub fn hand_play_view(g: &Game, p: usize, card: CardId, target: SlotRef) -> R<EventView> {
     let cause = Cause::rule(crate::cause::RuleWhich::Action, p as u8);
     let d = g.st.cdef(card);
-    if d.stage == Stage::Basic as u8 && g.st.slot(target.p as usize, target.s).cards.is_empty() {
+    if d.stage == Stage::Basic as u8 && g.st.slot(target.p as usize, target.s).cards().is_empty() {
         return Ok(enter_view(g, card, target, RulesZone::Hand, EnterMode::Rule, cause));
     }
     match evolve_view(g, Some(card), target, RulesZone::Hand, EvolvePath::Rule, cause) {
@@ -584,7 +584,7 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
 fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: ListRef, into: ListRef, place: SwapPlace, me: CardId) -> R {
     let (p, s) = (target.p as usize, target.s);
     let list = target.list();
-    let old_index = g.st.slot(p, s).cards.index_of(old);
+    let old_index = g.st.slot(p, s).cards().index_of(old);
     let _ = me;
     // The old card's Ability uses, before its move resets them (`Game::move_card_to`).
     let used = crate::engine::usage::abilities_of(&g.st, old);
@@ -594,19 +594,19 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
     match place {
         SwapPlace::Top => {}
         SwapPlace::OldIndex => {
-            let slot = &mut g.st.players[p].slots[s as usize];
-            if let (Some(ni), Some(oi)) = (slot.cards.index_of(new), old_index) {
+            let mut slot = g.st.slot_edit(p, s);
+            if let (Some(ni), Some(oi)) = (slot.cards().index_of(new), old_index) {
                 if ni != oi {
-                    slot.cards.remove_at(ni);
-                    let at = oi.min(slot.cards.len());
-                    slot.cards.insert(at, new);
+                    slot.cards().remove_at(ni);
+                    let at = oi.min(slot.cards().len());
+                    slot.cards().insert(at, new);
                 }
             }
         }
         SwapPlace::Bottom => {
             let mut order: Vec<CardId> = vec![new];
-            order.extend(g.st.slot(p, s).cards.iter().filter(|c| *c != new));
-            g.st.players[p].slots[s as usize].cards = List::from_slice(&order);
+            order.extend(g.st.slot(p, s).cards().iter().filter(|c| *c != new));
+            *g.st.slot_edit(p, s).cards() = List::from_slice(&order);
         }
     }
     swap_card_facts(g, p, old, new);
@@ -626,7 +626,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     match *g.e(id) {
         Effect::EnterPlay { card, target, from, .. } => {
-            if !g.st.slot(target.p as usize, target.s).cards.is_empty() {
+            if !g.st.slot(target.p as usize, target.s).cards().is_empty() {
                 crate::bail!("INVALID_TARGET");
             }
             g.move_card_to(from, card, target.list());
@@ -735,7 +735,7 @@ mod tests {
         g.lst_mut(copy).set_from(&[card]);
         assert_eq!(source_of(&g, card), Some((staging, RulesZone::Deck)));
         let s = g.st.players[me].bench.as_slice()[0];
-        assert!(g.st.slot(me, s).cards.is_empty());
+        assert!(g.st.slot(me, s).cards().is_empty());
         assert!(enter_play(&mut g, card, SlotRef::new(me, s), EnterMode::Effect, Cause::rule(crate::cause::RuleWhich::Action, me as u8)).unwrap());
         assert!(!g.lst(staging).contains(&card), "the card left its staging list");
         assert_eq!(g.st.slot_pokemon(me, s), Some(card));

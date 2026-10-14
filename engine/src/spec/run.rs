@@ -1292,7 +1292,7 @@ mod consequence_tests {
         crate::scenario::apply(&mut g, &sc).unwrap();
         let p = g.st.active_player as usize;
         let def = crate::carddb::def_by_full_name(card).unwrap();
-        let me = g.st.players[p].slots.iter().flat_map(|s| s.cards.iter()).find(|c| g.st.cards[*c as usize].def == def).expect("the Pokémon in play");
+        let me = g.st.players[p].slots.iter().flat_map(|s| s.cards().iter()).find(|c| g.st.cards[*c as usize].def == def).expect("the Pokémon in play");
         let pw = &crate::cards::spec_for(def).unwrap().powers[0];
         let f = Frame::start(&g, me, Prog::Power(0), Phase::Use, 0, p, false);
         usable_by_rules(&g, me, &f, pw.steps)

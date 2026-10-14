@@ -16,7 +16,7 @@ fn find_pokemon_target(g: &Game, p: usize, t: CardTarget) -> Option<SlotRef> {
 /// Returns the slot.
 pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<SlotRef> {
     let t = match find_pokemon_target(g, p, target) {
-        Some(t) if !g.st.slot(t.p as usize, t.s).cards.is_empty() => t,
+        Some(t) if !g.st.slot(t.p as usize, t.s).cards().is_empty() => t,
         _ => crate::bail!("INVALID_TARGET"),
     };
     let pl = &g.st.players[p];
@@ -131,7 +131,7 @@ pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, 
 pub fn printed_attack_list(g: &Game, p: usize) -> CheckedAttacks {
     let mut attacks = SVec::new();
     let a = g.st.players[p].active;
-    if let Some(t) = g.st.slot(p, a).tools.get(0) {
+    if let Some(t) = g.st.slot(p, a).tools().get(0) {
         let d = g.st.cdef(t);
         if d.is_trainer() {
             for i in 0..d.attacks.len() {

@@ -876,7 +876,7 @@ fn slot_where(st: &crate::state::State, f: impl Fn(&crate::state::Slot, usize, u
         let pl = &st.players[p];
         for &s in std::iter::once(&pl.active).chain(pl.bench.iter()) {
             let slot = &pl.slots[s as usize];
-            if !slot.cards.is_empty() && f(slot, p, s) {
+            if !slot.cards().is_empty() && f(slot, p, s) {
                 return Some(SlotRef::new(p, s));
             }
         }
@@ -912,7 +912,7 @@ fn locate_at(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option
             let Some(ListRef::Slot(p, s)) = st.locate(me) else { return None };
             let (p, sl) = (p as usize, &st.players[p as usize].slots[s as usize]);
             let ok = match origin {
-                RuleSource::Energy => !sl.tools.contains(me),
+                RuleSource::Energy => !sl.tools().contains(me),
                 _ => st.slot_pokemon(p, s) == Some(me),
             };
             ok.then(|| Located { owner: p, held: Some(SlotRef::new(p, s)) })
@@ -935,9 +935,9 @@ fn locate_at(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option
 /// [`locate`] the slow way (`PTCG_VERIFY_CACHE=1` checks every answer against it).
 fn locate_slow(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
-        RuleSource::Tool => slot_where(st, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Energy => slot_where(st, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Ability => slot_where(st, |sl, p, s| sl.cards.contains(me) && st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Tool => slot_where(st, |sl, _, _| sl.tools().contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Energy => slot_where(st, |sl, _, _| sl.cards().contains(me) && !sl.tools().contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Ability => slot_where(st, |sl, p, s| sl.cards().contains(me) && st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Stadium => {
             if st.stadium_card() == Some(me) {
                 let owner = st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| st.owner(me));
@@ -1310,7 +1310,7 @@ pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d:
 
 /// `ProvidesEnergy` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
 pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: CardId, pe: &ProvidesEnergySpec, p: u8, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
-    if !g.g().st.slot(source.p as usize, source.s).cards.contains(me) {
+    if !g.g().st.slot(source.p as usize, source.s).cards().contains(me) {
         return Ok(());
     }
     let _ = p;
@@ -1335,7 +1335,7 @@ pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me
     }
     let cards: SVec<CardId, 60> = {
         let mut v = SVec::new();
-        for c in g.g().st.slot(source.p as usize, source.s).cards.iter() {
+        for c in g.g().st.slot(source.p as usize, source.s).cards().iter() {
             v.push(c);
         }
         v
@@ -1382,7 +1382,7 @@ pub fn attach_guard_discards(g: &mut Game, card: CardId, target: SlotRef) -> R<b
     for ps in passives {
         if let Modifier::AttachGuard(a) = &ps.modifier {
             let p = target.p as usize;
-            if !g.st.slot(p, target.s).cards.contains(card) || g.st.slot_pokemon(p, target.s).is_none() {
+            if !g.st.slot(p, target.s).cards().contains(card) || g.st.slot_pokemon(p, target.s).is_none() {
                 continue;
             }
             if !slot_pred_m(g, card, target, &a.allow)? {
@@ -1399,7 +1399,7 @@ pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) ->
     for p in 0..2usize {
         for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
             let t = SlotRef::new(p, s);
-            if !g.st.slot(p, s).cards.contains(me) {
+            if !g.st.slot(p, s).cards().contains(me) {
                 continue;
             }
             if g.st.slot_pokemon(p, s).is_some() && !slot_pred_m(g, me, t, &a.allow)? {
@@ -1863,7 +1863,7 @@ pub(crate) fn grant_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId
     let active = g.g().st.players[p].active;
     if let Some(top) = g.g().st.slot_pokemon(p, active) {
         if g.g().st.cdef(top).stage != Stage::Basic as u8 {
-            for c in g.g().st.slot(p, active).cards.iter() {
+            for c in g.g().st.slot(p, active).cards().iter() {
                 let d = g.g().st.cdef(c);
                 if d.is_pokemon() && c != top {
                     for i in 0..d.attacks.len() {
@@ -2426,7 +2426,7 @@ pub(crate) fn survive_applies(g: &mut Game, me: CardId, origin: RuleSource, spec
     };
     match spec.kind {
         SurviveKind::ToolIfFullHp => {
-            if !g.st.slot(owner, t.s).tools.contains(me) || acc.b.player as usize == owner || !is_attack_phase(g) {
+            if !g.st.slot(owner, t.s).tools().contains(me) || acc.b.player as usize == owner || !is_attack_phase(g) {
                 return Ok(false);
             }
             let Some(_) = locate(g, me, origin) else { return Ok(false) };
@@ -2436,7 +2436,7 @@ pub(crate) fn survive_applies(g: &mut Game, me: CardId, origin: RuleSource, spec
             lethal(g)
         }
         SurviveKind::OnCoin | SurviveKind::IfFullHp => {
-            if !g.st.slot(owner, t.s).cards.contains(me) || g.st.slot_pokemon(owner, t.s) != Some(me) {
+            if !g.st.slot(owner, t.s).cards().contains(me) || g.st.slot_pokemon(owner, t.s) != Some(me) {
                 return Ok(false);
             }
             if blocked(g, me, origin) {
@@ -2456,7 +2456,7 @@ pub(crate) fn survive_on_ten_into(g: &mut Game, me: CardId, origin: RuleSource, 
         return survive_on_ten_tool(g, me, origin, acc);
     }
     let owner = t.p as usize;
-    if !g.st.slot(owner, t.s).cards.contains(me) {
+    if !g.st.slot(owner, t.s).cards().contains(me) {
         return Ok(());
     }
     if blocked(g, me, origin) {
@@ -2566,7 +2566,7 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
 /// Does `me` (an Ability on the attacking player's Active Pokémon) let `p`'s attacks be used on the first turn?
 fn first_turn_grants<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, a: &AttackFlagsSpec, p: usize) -> bool {
     let active = g.g().st.players[p].active;
-    if a.first_turn != Some(FirstTurnAttack::ThisPokemon) || !g.g().st.slot(p, active).cards.contains(me) || g.g().st.turn != 1 {
+    if a.first_turn != Some(FirstTurnAttack::ThisPokemon) || !g.g().st.slot(p, active).cards().contains(me) || g.g().st.turn != 1 {
         return false;
     }
     !blocked(g, me, origin)
@@ -2596,7 +2596,7 @@ pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize, a
     }
     let active = g.g().st.players[p].active;
     let mut cards: SVec<CardId, 8> = SVec::new();
-    for c in g.g().st.slot(p, active).cards.iter() {
+    for c in g.g().st.slot(p, active).cards().iter() {
         cards.push(c);
     }
     for me in cards.iter().copied() {
@@ -3004,7 +3004,7 @@ pub(crate) fn bench_size_into(g: &mut Game, me: CardId, origin: RuleSource, d: &
 /// and its remaining HP becomes 10 instead; then discard this card."
 fn survive_on_ten_tool(g: &mut Game, me: CardId, origin: RuleSource, acc: &mut DamageAcc) -> R {
     let (t, damage, attacker) = (acc.b.target, acc.damage, acc.b.player as usize);
-    if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
+    if !g.st.slot(t.p as usize, t.s).tools().contains(me) {
         return Ok(());
     }
     let owner = t.p as usize;
@@ -3022,7 +3022,7 @@ fn survive_on_ten_tool(g: &mut Game, me: CardId, origin: RuleSource, acc: &mut D
     }
     acc.survive = true;
     for (s, _, _) in for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.slot(owner, s).tools.contains(me) {
+        if g.st.slot(owner, s).tools().contains(me) {
             // "Then, discard this card": a LeavePlay of the attached Tool by its own text.
             let cause = crate::cause::Cause::of_origin(origin, me, owner as u8);
             crate::engine::knockout::leave_play_cards(g, SlotRef::new(owner, s), &[me], super::event::RulesZone::Discard, cause, None)?;

@@ -114,7 +114,7 @@ fn sig(g: &Game, skip: Option<u8>, records: bool) -> String {
         slots.extend(pl.bench.iter().copied());
         for (k, s) in slots.iter().enumerate() {
             let sl = &pl.slots[*s as usize];
-            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards.as_slice(), names_of(g, sl.energies.as_slice(), None), names_of(g, sl.tools.as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if records { g.st.lasting.iter().filter(|l| l.on == ptcg::state::LastingOn::pokemon(p, *s)).count() } else { 0 });
+            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards().as_slice(), names_of(g, sl.energies().as_slice(), None), names_of(g, sl.tools().as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if records { g.st.lasting.iter().filter(|l| l.on == ptcg::state::LastingOn::pokemon(p, *s)).count() } else { 0 });
         }
         o += &format!("pm{} ", if records { g.st.usage.len() } else { 0 });
     }
@@ -476,7 +476,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                             e.1 += 1;
                             if e.2.is_empty() {
                                 let pl = &g.st.players[p];
-                                e.2 = format!("seed {} turn {} hand {} deck {} opp_hand {} opp_bench {} before={}", seed, g.st.turn, pl.hand.len(), pl.deck.len(), g.st.players[1 - p].hand.len(), g.st.players[1 - p].bench.iter().filter(|b| !g.st.players[1 - p].slots[**b as usize].cards.is_empty()).count(), &before[..before.len().min(200)]);
+                                e.2 = format!("seed {} turn {} hand {} deck {} opp_hand {} opp_bench {} before={}", seed, g.st.turn, pl.hand.len(), pl.deck.len(), g.st.players[1 - p].hand.len(), g.st.players[1 - p].bench.iter().filter(|b| !g.st.players[1 - p].slots[**b as usize].cards().is_empty()).count(), &before[..before.len().min(200)]);
                             }
                         }
                     }

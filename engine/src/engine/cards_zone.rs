@@ -98,7 +98,7 @@ fn clean_spot(g: &mut Game, p: u8, s: crate::state::SlotId) {
     }
     let rest: SVec<CardId, 60> = {
         let mut v = SVec::new();
-        for c in g.st.slot(pu, su).cards.iter() {
+        for c in g.st.slot(pu, su).cards().iter() {
             v.push(c);
         }
         v
@@ -115,10 +115,10 @@ fn clean_spot(g: &mut Game, p: u8, s: crate::state::SlotId) {
         }
     }
     g.st.bump_layout();
-    g.st.players[pu].slots[su as usize].energies.clear();
+    g.st.slot_edit(pu, su).energies().clear();
     let tools: SVec<CardId, 4> = {
         let mut v = SVec::new();
-        for c in g.st.slot(pu, su).tools.iter() {
+        for c in g.st.slot(pu, su).tools().iter() {
             v.push(c);
         }
         v
@@ -138,7 +138,7 @@ pub fn relocate_spot(g: &mut Game, spot: crate::effects::SlotRef, dst: ListRef) 
     let src = spot.list();
     let tools: SVec<CardId, 4> = {
         let mut v = SVec::new();
-        for c in g.st.players[spot.p as usize].slots[spot.s as usize].tools.iter() {
+        for c in g.st.players[spot.p as usize].slots[spot.s as usize].tools().iter() {
             v.push(c);
         }
         v
@@ -499,7 +499,7 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let a = SlotRef::new(me, g.st.players[me].active);
-        let energy = g.st.slot(me, a.s).energies.as_slice()[0];
+        let energy = g.st.slot(me, a.s).energies().as_slice()[0];
         let theirs = Cause::new(CauseKind::Trainer, None, o as u8);
         // The opponent's effect puts my attached Energy into "the hand": mine.
         let out = crate::engine::knockout::leave_play_cards(&mut g, a, &[energy], RulesZone::Hand, theirs, None).unwrap();
@@ -519,10 +519,10 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let a = SlotRef::new(o, g.st.players[o].active);
-        let e = g.st.slot(o, a.s).energies.as_slice().to_vec();
+        let e = g.st.slot(o, a.s).energies().as_slice().to_vec();
         let mine = Cause::new(CauseKind::Attack, None, me as u8);
         assert_eq!(crate::engine::knockout::leave_play_cards(&mut g, a, &[e[0]], RulesZone::Hand, mine, None).unwrap(), Outcome::Prevented);
-        assert!(g.st.slot(o, a.s).energies.contains(e[0]));
+        assert!(g.st.slot(o, a.s).energies().contains(e[0]));
         assert_eq!(crate::engine::knockout::leave_play_cards(&mut g, a, &[e[0]], RulesZone::Discard, mine, None).unwrap(), Outcome::Done);
         let b = SlotRef::new(o, g.st.players[o].bench.as_slice()[0]);
         assert!(!crate::engine::knockout::leave_play(&mut g, b, ListRef::Hand(o as u8), mine, NO_CARD).unwrap(), "the whole Pokémon can't be put into the hand");

@@ -226,7 +226,7 @@ pub fn blocked_non_type_energy(g: &mut Game, p: usize, s: SlotId, ty: CardType) 
     let providing = energy_cards_that_provide_type(g, p, s, ty)?;
     let mut b = Blocked::default();
     let mut any = false;
-    for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
+    for (i, c) in g.st.slot(p, s).cards().iter().enumerate() {
         if g.st.cdef(c).is_energy() && !providing.contains(&c) {
             b.push(i as u8);
             any = true;
@@ -330,7 +330,7 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
     let pl = &g.st.players[p];
     let mut v = SVec::new();
     for &b in pl.bench.iter() {
-        if pl.slots[b as usize].cards.is_empty() {
+        if pl.slots[b as usize].cards().is_empty() {
             v.push(b);
         }
     }

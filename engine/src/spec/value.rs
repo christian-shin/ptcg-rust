@@ -324,7 +324,7 @@ pub fn zone_list(g: &Game, me: CardId, f: &Frame, z: ZoneRef, for_move: bool) ->
 /// The cards of a zone (empty when it names no list).
 pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
     if let Zone::Tools(e) = z.1 {
-        return slot_of(g, me, f, e).map(|s| g.st.slot(s.p as usize, s.s).tools.iter().collect()).unwrap_or_default();
+        return slot_of(g, me, f, e).map(|s| g.st.slot(s.p as usize, s.s).tools().iter().collect()).unwrap_or_default();
     }
     match zone_list(g, me, f, z, false) {
         // A legality check's played Item and its companion are out of the hand (`Frame::excl`).
@@ -361,7 +361,7 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
                 }
                 for s in slots.iter().copied() {
                     let sl = &pl.slots[s as usize];
-                    if sl.cards.contains(me) || sl.tools.contains(me) {
+                    if sl.cards().contains(me) || sl.tools().contains(me) {
                         return Some(SlotRef::new(p, s));
                     }
                 }
@@ -378,7 +378,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::CardCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| pred(g, **c, p)).count() as i32,
         Num::BenchCount(w) => {
             let pl = &g.st.players[f.who(*w)];
-            pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() as i32
+            pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards().is_empty()).count() as i32
         }
         Num::OpenBench(w) => empty_bench_slots(g, f.who(*w)).len() as i32,
         Num::PrizesLeft(w) => g.st.players[f.who(*w)].prize_left() as i32,
@@ -400,7 +400,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
             let p = f.who(*w);
             let mut n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).name == *name).count();
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
-                n += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).name == *name).count();
+                n += g.st.slot(p, *s).cards().iter().filter(|c| g.st.cdef(*c).name == *name).count();
             }
             n as i32
         }
@@ -413,12 +413,12 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::Heads => f.heads as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
-        Num::ToolCount(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).tools.len() as i32).unwrap_or(0),
+        Num::ToolCount(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).tools().len() as i32).unwrap_or(0),
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::Last => f.last,
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
-        Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools.len() as i32).sum::<i32>()).sum(),
+        Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools().len() as i32).sum::<i32>()).sum(),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -454,7 +454,7 @@ pub fn in_play(g: &Game, p: usize, scope: PlayScope) -> Vec<(SlotId, CardId, Vec
     slots.extend(pl.bench.iter().copied());
     slots
         .into_iter()
-        .filter_map(|s| g.st.slot_pokemon(p, s).map(|top| (s, top, pl.slots[s as usize].cards.iter().collect::<Vec<_>>())))
+        .filter_map(|s| g.st.slot_pokemon(p, s).map(|top| (s, top, pl.slots[s as usize].cards().iter().collect::<Vec<_>>())))
         .collect()
 }
 
@@ -564,7 +564,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                 };
                 let mut n = pl.hand.iter().filter(|c| named(*c)).count() + pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
                 for s in pl.in_play().iter() {
-                    n += pl.slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+                    n += pl.slots[*s as usize].cards().iter().filter(|c| named(*c)).count();
                 }
                 n
             };
@@ -799,7 +799,7 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
     match sel {
         SlotSel::One(e) => {
             if let Some(s) = slot_of(g, me, f, *e) {
-                if !g.st.slot(s.p as usize, s.s).cards.is_empty() {
+                if !g.st.slot(s.p as usize, s.s).cards().is_empty() {
                     out.push(s);
                 }
             }
@@ -808,7 +808,7 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
             let p = f.who(*w);
             let pl = &g.st.players[p];
             for b in pl.bench.iter() {
-                if !pl.slots[*b as usize].cards.is_empty() {
+                if !pl.slots[*b as usize].cards().is_empty() {
                     out.push(SlotRef::new(p, *b));
                 }
             }
@@ -863,7 +863,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
             stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map_or(false, |i| g.st.cdef(stack.as_slice()[i]).name == *name)
         }
         SlotPred::PlayedThisTurn => slot.entered_turn == g.st.turn as i32,
-        SlotPred::Holder => slot.cards.contains(me) || slot.tools.contains(me),
+        SlotPred::Holder => slot.cards().contains(me) || slot.tools().contains(me),
         SlotPred::Tag(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_tag(*t)).unwrap_or(false),
         SlotPred::RuleBox => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_rule_box()).unwrap_or(false),
         SlotPred::Basic => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false),
@@ -871,14 +871,14 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Evolution => g.st.slot_pokemon(p, id).map(|c| !g.st.cdef(c).evolves_from.is_empty()).unwrap_or(true),
         SlotPred::IsThisPokemon => g.st.slot_pokemon(p, id) == Some(me),
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
-        SlotPred::HasEnergy => !slot.energies.is_empty(),
-        SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
+        SlotPred::HasEnergy => !slot.energies().is_empty(),
+        SlotPred::HasCard(q) => slot.cards().iter().any(|c| pred(g, c, q)),
         SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
-        SlotPred::AnyTool(q) => slot.tools.iter().any(|c| pred(g, c, q)),
-        SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
+        SlotPred::AnyTool(q) => slot.tools().iter().any(|c| pred(g, c, q)),
+        SlotPred::HasSpecialEnergy => slot.energies().iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::Recorded => crate::engine::lasting::is_recorded(&g.st, p, id, me),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
-        SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
+        SlotPred::HasEnergyNamed(n) => slot.cards().iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_energy() && d.name == *n
         }),
@@ -997,7 +997,7 @@ pub fn num_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, n: &Num
                         .g()
                         .st
                         .slot(s.p as usize, s.s)
-                        .cards
+                        .cards()
                         .iter()
                         .filter(|c| {
                             let d = g.g().st.cdef(*c);
@@ -1196,14 +1196,14 @@ mod phrase_tests {
         let (ex, plain) = (card(&g, "Meowth ex POR 62", 0), card(&g, "Duskull PRE 35", 0));
         let active = g.st.players[0].active;
         let s = SlotRef::new(0, active);
-        g.st.slot_mut(0, active).cards.clear();
-        g.st.slot_mut(0, active).cards.push(ex);
-        g.st.slot_mut(0, active).cards.push(plain);
+        g.st.slot_edit(0, active).cards().clear();
+        g.st.slot_edit(0, active).cards().push(ex);
+        g.st.slot_edit(0, active).cards().push(plain);
         assert_eq!(slot_pred(&g, plain, s, &SlotPred::RuleBox), Some(false));
         assert_eq!(slot_pred(&g, plain, s, &SlotPred::Top(Pred::PokemonEx)), Some(false));
-        g.st.slot_mut(0, active).cards.clear();
-        g.st.slot_mut(0, active).cards.push(plain);
-        g.st.slot_mut(0, active).cards.push(ex);
+        g.st.slot_edit(0, active).cards().clear();
+        g.st.slot_edit(0, active).cards().push(plain);
+        g.st.slot_edit(0, active).cards().push(ex);
         assert_eq!(slot_pred(&g, ex, s, &SlotPred::RuleBox), Some(true));
         assert_eq!(slot_pred(&g, ex, s, &SlotPred::Top(Pred::PokemonEx)), Some(true));
         assert_eq!(slot_pred(&g, ex, s, &SlotPred::Top(Pred::PokemonV)), Some(false));

@@ -152,7 +152,7 @@ pub fn leave_play(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, so
 
 /// LeavePlay by the rule (a Knock Out, the Bench shrinking): never refused.
 pub fn leave_play_by_rule(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, how: LeaveHow) -> R {
-    if g.st.slot(target.p as usize, target.s).cards.is_empty() {
+    if g.st.slot(target.p as usize, target.s).cards().is_empty() {
         return Ok(());
     }
     let pokemon = g.st.slot_pokemon(target.p as usize, target.s).unwrap_or(NO_CARD);
@@ -172,7 +172,7 @@ pub fn owner_list(owner: u8, zone: RulesZone) -> ListRef {
 /// Is `card` attached to the Pokémon in `target` (its Energy, its Tools, or another card in its spot)?
 fn attached_to(g: &Game, target: SlotRef, card: CardId) -> bool {
     let sl = g.st.slot(target.p as usize, target.s);
-    (sl.cards.contains(card) || sl.energies.contains(card) || sl.tools.contains(card)) && g.st.slot_pokemon(target.p as usize, target.s) != Some(card)
+    (sl.cards().contains(card) || sl.energies().contains(card) || sl.tools().contains(card)) && g.st.slot_pokemon(target.p as usize, target.s) != Some(card)
 }
 
 /// LeavePlay of cards attached to the Pokémon in `target` (an Energy or a Tool discarded, put into the hand or into the
@@ -397,7 +397,7 @@ pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
         let sizes = bench_sizes(g);
         let over = (0..2).any(|p| {
             let pl = &g.st.players[p];
-            pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() > sizes[p] as usize
+            pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards().is_empty()).count() > sizes[p] as usize
         });
         if over {
             handle_bench_size_change(g, sizes);
@@ -444,7 +444,7 @@ fn state_check_quiet(g: &mut Game, oc: OnComplete) -> R {
         && !win_condition_met(g)
         && (0..2).all(|p| {
             let pl = &g.st.players[p];
-            !pl.slots[pl.active as usize].cards.is_empty() || !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty())
+            !pl.slots[pl.active as usize].cards().is_empty() || !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty())
         });
     if quiet && crate::game::verify_cache() {
         // The full path and the fast one on copies, without the continuation: the same game.
@@ -550,7 +550,7 @@ fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_R
 fn win_condition_met(g: &Game) -> bool {
     (0..2).any(|i| {
         let pl = &g.st.players[i];
-        let no_pokemon = pl.slots[pl.active as usize].cards.is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty());
+        let no_pokemon = pl.slots[pl.active as usize].cards().is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty());
         no_pokemon || pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty())
     })
 }
@@ -824,8 +824,8 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
     f.active_prompts = SVec::new();
     for p in next_turn_player_order(g) {
         let pl = &g.st.players[p];
-        let has_active = !pl.slots[pl.active as usize].cards.is_empty();
-        let has_bench = pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty());
+        let has_active = !pl.slots[pl.active as usize].cards().is_empty();
+        let has_bench = pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty());
         if !has_active && has_bench {
             f.active_prompts.push(p as u8);
         }
@@ -894,7 +894,7 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
     let bench_index = g.st.players[p].bench_index_of(sel[0].s);
     let active = g.st.players[p].active;
     let bi = match bench_index {
-        Some(i) if sel[0].p as usize == p && g.st.slot(p, active).cards.is_empty() => i,
+        Some(i) if sel[0].p as usize == p && g.st.slot(p, active).cards().is_empty() => i,
         _ => crate::bail!("ILLEGAL_ACTION"),
     };
     let new_active = g.st.players[p].bench.as_slice()[bi];
@@ -906,10 +906,10 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
 
 fn opponent_has_no_pokemon_in_play(g: &Game, taker: usize) -> bool {
     let o = &g.st.players[1 - taker];
-    if !o.slots[o.active as usize].cards.is_empty() {
+    if !o.slots[o.active as usize].cards().is_empty() {
         return false;
     }
-    !o.bench.iter().any(|b| !o.slots[*b as usize].cards.is_empty())
+    !o.bench.iter().any(|b| !o.slots[*b as usize].cards().is_empty())
 }
 
 /// The player whose turn would be next takes Prizes first and promotes first
@@ -967,7 +967,7 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
     for i in 0..2 {
         let pl = &g.st.players[i];
         // No Pokémon in play (an Active spot waiting for a promotion from the Bench is not a loss).
-        if pl.slots[pl.active as usize].cards.is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
+        if pl.slots[pl.active as usize].cards().is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty()) {
             points[1 - i] += 1;
         }
         if pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty()) {
@@ -1021,7 +1021,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         let mut empty: SVec<SlotId, 8> = SVec::new();
         for i in (0..len).rev() {
             let s = pl.bench.as_slice()[i];
-            if len - empty.len() > size && pl.slots[s as usize].cards.is_empty() {
+            if len - empty.len() > size && pl.slots[s as usize].cards().is_empty() {
                 empty.push(s);
             }
         }
@@ -1098,7 +1098,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
                 ListRef::Slot(a, b) => (a as usize, b),
                 _ => continue,
             };
-            let tools: Vec<CardId> = g.st.slot(sp, ss).tools.iter().collect();
+            let tools: Vec<CardId> = g.st.slot(sp, ss).tools().iter().collect();
             for t in tools {
                 g.move_card_to(*l, t, ListRef::Deck(p));
             }
@@ -1230,7 +1230,7 @@ pub(crate) fn lasting_ko_source(g: &Game, e: EffId) -> Option<CardId> {
 fn attacker_energy(g: &Game, e: EffId) -> Option<(SlotRef, Vec<CardId>)> {
     let Effect::KnockOut { p, .. } = *g.e(e) else { return None };
     let sl = g.attacker_of_knock_out(p as usize).and_then(|a| a.1)?;
-    let energy = g.st.slot(1 - p as usize, sl.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
+    let energy = g.st.slot(1 - p as usize, sl.s).cards().iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
     Some((sl, energy))
 }
 
@@ -1300,7 +1300,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
     let (tp, ts) = (target.p as usize, target.s);
     let removed: SVec<CardId, 60> = {
         let mut v = SVec::new();
-        for c in g.st.slot(tp, ts).cards.iter() {
+        for c in g.st.slot(tp, ts).cards().iter() {
             if g.st.cdef(c).is_pokemon() {
                 v.push(c);
             }
@@ -1309,7 +1309,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
     };
     match how {
         LeaveHow::KnockOut => {
-            let tools: Vec<CardId> = g.st.slot(tp, ts).tools.iter().collect();
+            let tools: Vec<CardId> = g.st.slot(tp, ts).tools().iter().collect();
             for t in tools {
                 g.move_card_to(target.list(), t, dest);
             }
@@ -1326,11 +1326,11 @@ fn leave(g: &mut Game, id: EffId) -> R {
         LeaveHow::BenchShrink => {
             let pokemons = g.st.slot_pokemons(tp, ts);
             let slot = *g.st.slot(tp, ts);
-            let others: Vec<CardId> = slot.cards.iter().filter(|c| !g.st.cdef(*c).is_pokemon() && !pokemons.contains(c) && !slot.tools.contains(*c)).collect();
+            let others: Vec<CardId> = slot.cards().iter().filter(|c| !g.st.cdef(*c).is_pokemon() && !pokemons.contains(c) && !slot.tools().contains(*c)).collect();
             if !others.is_empty() {
                 crate::engine::cards_zone::move_physical(g, target.list(), &others, dest);
             }
-            let tools: Vec<CardId> = g.st.slot(tp, ts).tools.iter().collect();
+            let tools: Vec<CardId> = g.st.slot(tp, ts).tools().iter().collect();
             for t in tools {
                 g.move_card_to(target.list(), t, dest);
             }
@@ -1347,7 +1347,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
         inst.moved_to_active_this_turn = false;
         inst.damage_taken_last_turn = 0;
     }
-    if g.st.slot(tp, ts).cards.is_empty() {
+    if g.st.slot(tp, ts).cards().is_empty() {
         g.st.players[tp].slots[ts as usize].ko_pending = None;
     }
     Ok(())

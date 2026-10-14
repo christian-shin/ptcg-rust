@@ -325,7 +325,7 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
         }
     }
     if let Some(e) = a.get("energy") {
-        let have: Vec<CardId> = slot.energies.iter().collect();
+        let have: Vec<CardId> = slot.energies().iter().collect();
         let ok = match e.as_u64() {
             Some(n) => have.len() as u64 == n,
             None => multiset(g, &have, &name_list(e), true),
@@ -335,7 +335,7 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
         }
     }
     if let Some(t) = a.get("tool") {
-        let tools: Vec<CardId> = slot.tools.iter().collect();
+        let tools: Vec<CardId> = slot.tools().iter().collect();
         let ok = match t.as_str() {
             Some(n) => tools.iter().any(|&c| names_eq(c, g, n)),
             None => tools.is_empty(),

@@ -1067,7 +1067,7 @@ mod tests {
         let me = g.st.active_player as usize;
         let a = g.st.players[me].active;
         let slowpoke = g.st.slot_pokemon(me, a).unwrap();
-        let energy = g.st.slot(me, a).cards.iter().find(|&c| g.st.cdef(c).is_energy()).unwrap();
+        let energy = g.st.slot(me, a).cards().iter().find(|&c| g.st.cdef(c).is_energy()).unwrap();
         let o = 1 - me;
         let duskull = g.st.slot_pokemon(o, g.st.players[o].active).unwrap();
         let attack = |card| Cause::attack(me as u8, Some(card), AttackRef { card, index: 0 });

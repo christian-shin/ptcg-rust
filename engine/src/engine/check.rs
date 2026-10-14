@@ -124,7 +124,7 @@ pub fn finish_cost<F: crate::derived::Facts>(g: &mut F, mut acc: CostAcc) -> R<C
 pub fn complete_energy_map(g: &Game, source: SlotRef, energy_map: &mut EnergyMap) {
     let slot = g.st.slot(source.p as usize, source.s);
     let mut add: SVec<EnergyEntry, 64> = SVec::new();
-    for c in slot.cards.iter() {
+    for c in slot.cards().iter() {
         let d = g.st.cdef(c);
         if d.is_energy() && !energy_map.iter().any(|e| e.card == c) && !add.iter().any(|e| e.card == c) {
             let mut provides = SVec::new();
@@ -134,7 +134,7 @@ pub fn complete_energy_map(g: &Game, source: SlotRef, energy_map: &mut EnergyMap
             add.push(EnergyEntry { card: c, provides });
         }
     }
-    for c in slot.energies.iter() {
+    for c in slot.energies().iter() {
         let d = g.st.cdef(c);
         if !d.provides.is_empty() && !energy_map.iter().any(|e| e.card == c) && !add.iter().any(|e| e.card == c) {
             let mut provides = SVec::new();
