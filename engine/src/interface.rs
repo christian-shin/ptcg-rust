@@ -366,7 +366,6 @@ impl Game {
                         r.kind = OptionType::Skill as u8;
                         r.area = Some(AreaType::Stadium as u8);
                     }
-                    Action::UseTrainerAbility { .. } => r.kind = OptionType::Skill as u8,
                     Action::Pass => r.kind = OptionType::End as u8,
                 }
                 r.player_index = Some(p);

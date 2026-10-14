@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
                 locker: Locker::StadiumInPlay,
                 card: Pred::Any,
                 slot: SlotPred::TypeIs(ct::COLORLESS),
-                missing: Pred::PrintedType(ct::COLORLESS),
+                missing: Pred::PokemonType(ct::COLORLESS),
                 powers: LockedPowers { generic_probe: true, only_knocks_out_self: false },
                 probe: LockerProbe::StadiumOnSlot,
             }),

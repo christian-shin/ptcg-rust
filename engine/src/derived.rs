@@ -43,14 +43,12 @@ pub struct Derived {
     cost_key: [(u8, AttackRef); COST_MEMO],
     cost: [Cost; COST_MEMO],
     cost_next: u8,
-    /// The powers a Pokémon card has now, with the player who asked.
+    /// The powers a Pokémon card has now.
     powers_v: [u32; MAX_CARDS],
-    powers_p: [u8; MAX_CARDS],
     powers: [SVec<PowerRef, 8>; MAX_CARDS],
     /// "Has no Ability" per card: bit i for power i, bit 7 for the generic probe; `abil_known` the bits computed at
-    /// `abil_v` for the player `abil_p`, `abil_off` the answers.
+    /// `abil_v`, `abil_off` the answers.
     abil_v: [u32; MAX_CARDS],
-    abil_p: [u8; MAX_CARDS],
     abil_known: [u8; MAX_CARDS],
     abil_off: [u8; MAX_CARDS],
     /// `PTCG_VERIFY_CACHE=1`: the digest of the state at the first store of version `dig_v`.
@@ -77,10 +75,8 @@ impl Derived {
             cost: [SVec::new(); COST_MEMO],
             cost_next: 0,
             powers_v: [0; MAX_CARDS],
-            powers_p: [0; MAX_CARDS],
             powers: [SVec::new(); MAX_CARDS],
             abil_v: [0; MAX_CARDS],
-            abil_p: [0; MAX_CARDS],
             abil_known: [0; MAX_CARDS],
             abil_off: [0; MAX_CARDS],
             dig_v: 0,
@@ -414,59 +410,57 @@ pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     Ok(r)
 }
 
-/// The powers the Pokémon card `card` has now (asked by `p`): its printed ones, less those an Ability lock removes.
+/// The powers the Pokémon card `card` has now: its printed ones, less those an Ability lock removes.
 #[inline]
-pub fn powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
+pub fn powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
     let v = g.st.version;
     let c = card as usize;
-    if g.derived.powers_v[c] == v && g.derived.powers_p[c] == p as u8 {
+    if g.derived.powers_v[c] == v {
         let m = g.derived.powers[c];
-        return Ok(hit(g, "powers", m, |g| game_powers(g, p, card).unwrap_or_default()));
+        return Ok(hit(g, "powers", m, |g| game_powers(g, card).unwrap_or_default()));
     }
-    let r = game_powers(g, p, card)?;
+    let r = game_powers(g, card)?;
     if g.st.version == v {
         stored(g);
         g.derived.powers_v[c] = v;
-        g.derived.powers_p[c] = p as u8;
         g.derived.powers[c] = r;
     }
     Ok(r)
 }
 
-/// Does `card` (player `p`'s) have no Ability (power `power_index`, or the generic probe) now? (The lock pass with
+/// Does `card` have no Ability (power `power_index`, or the generic probe) now? (The lock pass with
 /// take-hold stamps; RULES.md "Ability locks".) Not memoized while a copied attack's source code runs (its copycat has
 /// no Ability of its own); a stamp changed by `lock_sync` is a write (a version bump).
 #[inline]
-pub fn has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
+pub fn has_no_ability(g: &mut Game, card: CardId, power_index: Option<u8>) -> bool {
     if g.deleg.is_some() || card as usize >= MAX_CARDS {
-        return game_has_no_ability(g, p, card, power_index);
+        return game_has_no_ability(g, card, power_index);
     }
     let bit = match power_index {
         Some(i) if i < 7 => 1u8 << i,
-        Some(_) => return game_has_no_ability(g, p, card, power_index),
+        Some(_) => return game_has_no_ability(g, card, power_index),
         None => 1u8 << 7,
     };
     let v = g.st.version;
     let c = card as usize;
-    if g.derived.abil_v[c] == v && g.derived.abil_p[c] == p as u8 {
+    if g.derived.abil_v[c] == v {
         if g.derived.abil_known[c] & bit != 0 {
             let m = g.derived.abil_off[c] & bit != 0;
-            return hit(g, "has_no_ability", m, |g| game_has_no_ability(g, p, card, power_index));
+            return hit(g, "has_no_ability", m, |g| game_has_no_ability(g, card, power_index));
         }
     } else {
-        // A new version (or player): start this card's entry afresh.
+        // A new version: start this card's entry afresh.
         g.derived.abil_known[c] = 0;
         g.derived.abil_off[c] = 0;
     }
-    let r = game_has_no_ability(g, p, card, power_index);
+    let r = game_has_no_ability(g, card, power_index);
     if g.st.version == v {
         stored(g);
-        if g.derived.abil_v[c] != v || g.derived.abil_p[c] != p as u8 {
+        if g.derived.abil_v[c] != v {
             g.derived.abil_known[c] = 0;
             g.derived.abil_off[c] = 0;
         }
         g.derived.abil_v[c] = v;
-        g.derived.abil_p[c] = p as u8;
         g.derived.abil_known[c] |= bit;
         if r {
             g.derived.abil_off[c] |= bit;
@@ -524,8 +518,8 @@ pub trait Facts {
     fn retreat_cost(&mut self, p: usize) -> R<Cost>;
     fn attacks(&mut self, p: usize) -> R<crate::engine::turn::CheckedAttacks>;
     fn attack_cost(&mut self, p: usize, attack: AttackRef) -> R<Cost>;
-    fn powers(&mut self, p: usize, card: CardId) -> R<SVec<PowerRef, 8>>;
-    fn has_no_ability(&mut self, p: usize, card: CardId, power_index: Option<u8>) -> bool;
+    fn powers(&mut self, card: CardId) -> R<SVec<PowerRef, 8>>;
+    fn has_no_ability(&mut self, card: CardId, power_index: Option<u8>) -> bool;
     fn tool_off(&mut self, p: usize, card: CardId) -> bool;
     /// The cards of declaration family `f` in place, in the propagation order of rank class `class` (`decl::in_place`,
     /// through the provider's order cache).
@@ -573,12 +567,12 @@ impl Facts for Game {
         attack_cost(self, p, attack)
     }
     #[inline]
-    fn powers(&mut self, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-        powers(self, p, card)
+    fn powers(&mut self, card: CardId) -> R<SVec<PowerRef, 8>> {
+        powers(self, card)
     }
     #[inline]
-    fn has_no_ability(&mut self, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-        has_no_ability(self, p, card, power_index)
+    fn has_no_ability(&mut self, card: CardId, power_index: Option<u8>) -> bool {
+        has_no_ability(self, card, power_index)
     }
     #[inline]
     fn tool_off(&mut self, p: usize, card: CardId) -> bool {
@@ -644,18 +638,18 @@ fn game_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     Ok(r)
 }
 
-fn game_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    let r = compute_powers(g, p, card)?;
+fn game_powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
+    let r = compute_powers(g, card)?;
     if let Some(t) = card_slot(g, card) {
-        verify_reach(g, t, "powers", &r, |h| compute_powers(h, p, card));
+        verify_reach(g, t, "powers", &r, |h| compute_powers(h, card));
     }
     Ok(r)
 }
 
-fn game_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    let r = compute_has_no_ability(g, p, card, power_index);
+fn game_has_no_ability(g: &mut Game, card: CardId, power_index: Option<u8>) -> bool {
+    let r = compute_has_no_ability(g, card, power_index);
     if let Some(t) = card_slot(g, card) {
-        verify_reach(g, t, "has_no_ability", &r, |h| Ok(compute_has_no_ability(h, p, card, power_index)));
+        verify_reach(g, t, "has_no_ability", &r, |h| Ok(compute_has_no_ability(h, card, power_index)));
     }
     r
 }
@@ -887,14 +881,14 @@ pub fn compute_attack_cost<F: Facts>(g: &mut F, p: usize, attack: AttackRef) -> 
 }
 
 /// The powers the card has: the Ability locks' removals, by direct code (`passive::powers_now`).
-pub fn compute_powers<F: Facts>(g: &mut F, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    crate::spec::passive::powers_now(g, p, card)
+pub fn compute_powers<F: Facts>(g: &mut F, card: CardId) -> R<SVec<PowerRef, 8>> {
+    crate::spec::passive::powers_now(g, card)
 }
 
 /// "Has no Ability": the lock pass for the generic probe or the power (`passive::power_blocked`).
-pub fn compute_has_no_ability<F: Facts>(g: &mut F, p: usize, card: CardId, power_index: Option<u8>) -> bool {
+pub fn compute_has_no_ability<F: Facts>(g: &mut F, card: CardId, power_index: Option<u8>) -> bool {
     let power = PowerRef { card, index: power_index.unwrap_or(crate::prefabs::PROBE_GENERIC) };
-    crate::spec::passive::power_blocked(g, p, power, card, true)
+    crate::spec::passive::power_blocked(g, power, card, true)
 }
 
 /// Is the text of the Tool `card` (player `p`'s) off: "Pokémon Tools have no effect" for some turns (an attack's lasting

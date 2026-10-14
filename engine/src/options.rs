@@ -34,7 +34,6 @@ pub fn action_kind(a: &Action) -> &'static str {
         Action::PlayCard { .. } => "play",
         Action::Attack { .. } => "attack",
         Action::UseAbility { .. } => "ability",
-        Action::UseTrainerAbility { .. } => "trainerAbility",
         Action::UseStadium => "stadium",
         Action::Retreat { .. } => "retreat",
         Action::Pass => "pass",
@@ -61,7 +60,6 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
         Action::Attack { name, from: None } => json!({ "a": "attack", "name": name }),
         Action::Attack { name, from: Some(f) } => json!({ "a": "attack", "name": name, "from": f }),
         Action::UseAbility { name, target } => json!({ "a": "ability", "name": name, "source": target_json(target) }),
-        Action::UseTrainerAbility { name, target } => json!({ "a": "trainerAbility", "name": name, "source": target_json(target) }),
         Action::UseStadium => json!({ "a": "stadium" }),
         Action::Retreat { bench_index } => json!({ "a": "retreat", "bench": bench_index }),
         Action::Pass => json!({ "a": "pass" }),
@@ -257,7 +255,7 @@ fn stat_kind(g: &Game, a: Action) -> usize {
             }
         }
         Action::Attack { .. } => 7,
-        Action::UseAbility { .. } | Action::UseTrainerAbility { .. } => 8,
+        Action::UseAbility { .. } => 8,
         Action::UseStadium => 9,
         Action::Retreat { .. } => 10,
         Action::Pass => 11,

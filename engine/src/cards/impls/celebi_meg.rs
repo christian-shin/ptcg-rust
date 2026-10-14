@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[
                 Step::new(Op::Search(SearchSpec {
                     pick: PickSpec {
-                        predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PrintedType(ct::GRASS)]), Pred::Stadium]),
+                        predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::GRASS)]), Pred::Stadium]),
                         bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) },
                         ..PickSpec::DEFAULT
                     },

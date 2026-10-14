@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
-const LIGHTNING_POKEMON: Pred = Pred::All(&[Pred::Pokemon, Pred::PrintedType(ct::LIGHTNING)]);
+const LIGHTNING_POKEMON: Pred = Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::LIGHTNING)]);
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Canari",
