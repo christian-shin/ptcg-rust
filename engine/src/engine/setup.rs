@@ -57,7 +57,7 @@ pub fn deck_is_valid(_st: &State, deck: &[DefId]) -> bool {
     }
     // Cards that count as the same name (data: `same_name_group`) can't share a deck under different names.
     for d in deck.iter().map(|d| def(*d)) {
-        if !d.same_name_group.is_empty() && deck.iter().any(|o| def(*o).name != d.name && d.same_name_group.contains(&def(*o).name)) {
+        if d.same_name_group != 0 && deck.iter().any(|o| def(*o).name != d.name && def(*o).same_name_group == d.same_name_group) {
             return false;
         }
     }
@@ -595,13 +595,13 @@ mod same_name_tests {
         assert!(compared >= 16 * 11, "{}", compared);
     }
 
-    /// Every group is complete on the cards that exist: all defs of a listed name carry the same group.
+    /// Every group is complete on the cards that exist: all defs of one name (every printing) carry the same group.
     #[test]
     fn groups_are_symmetric() {
         let all = crate::gen::cards::CARDS;
-        for d in all.iter().filter(|d| !d.same_name_group.is_empty()) {
-            assert!(d.same_name_group.contains(&d.name), "{}", d.full_name);
-            for o in all.iter().filter(|o| d.same_name_group.contains(&o.name)) {
+        assert!(all.iter().any(|d| d.same_name_group != 0));
+        for d in all.iter() {
+            for o in all.iter().filter(|o| o.name == d.name) {
                 assert_eq!(o.same_name_group, d.same_name_group, "{} vs {}", d.full_name, o.full_name);
             }
         }
