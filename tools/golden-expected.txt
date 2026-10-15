@@ -1,5 +1,5 @@
 # Games of the golden corpus (tools/golden-corpus.txt) that the engine is expected to diverge on,
 # each a rules fix against the recording. Update in the same commit as a rules fix.
-# baseline 47392f7 recorded 2026-10-14 after events batch 9a and 9b C5b (no physical deck / discard sort, id787 reveals as
-# a property of the move, the order of simultaneous effects at E-03 / E-04); the previous baseline 7a7d1be (19 + 54
+# baseline 43d34af recorded 2026-10-15 after events batch 10 E1-E4, E6, E1fix (retreat in APR A-03's order: the cost, then
+# the Benched Pokémon; the hand-lock scope of Team Rocket's Arbok / Bronzong); the previous baseline 47392f7 (0
 # attributed) is banked in git history.
