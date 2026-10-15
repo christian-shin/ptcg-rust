@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Mankey SSP 98",
+   "4 Team Rocket's Watchtower ASC 210",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Mankey SSP 98",
+   "4 Team Rocket's Watchtower ASC 210",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "bench": [
+   {
+    "card": "Antique Root Fossil SCR 130"
+   }
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Antique Root Fossil",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Antique Root Fossil",
+   "is": true,
+   "cite": "Antique Root Fossil SCR 130 card text: 'At any time during your turn, you may discard this card from play' is a rule printed on the card (power type: Trainer rule), not an Ability; Team Rocket's Watchtower stops Colorless Pokemon's Abilities only"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Antique Root Fossil SCR 130"
+   ],
+   "cite": "the same card text: the discard is not an Ability's effect, so the Ability lock doesn't stop it"
+  }
+ ]
+}
