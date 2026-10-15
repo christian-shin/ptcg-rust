@@ -2,7 +2,8 @@
 name = "ptcg"
 version = "0.1.0"
 edition = "2021"
-description = "Pokémon TCG rules engine with Twinleaf parity, explicit option lists and copyable state"
+description = "Pokémon TCG rules engine with explicit option lists and copyable state"
+license = "Apache-2.0"
 
 [lib]
 name = "ptcg"
