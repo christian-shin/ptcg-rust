@@ -22,6 +22,7 @@ pub mod legal;
 pub mod legal_stats;
 pub mod list;
 pub mod options;
+pub mod place;
 pub mod prefabs;
 pub mod prompts;
 pub mod purpose;
