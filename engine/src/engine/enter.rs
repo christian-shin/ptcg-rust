@@ -597,16 +597,20 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
             let mut slot = g.st.slot_edit(p, s);
             if let (Some(ni), Some(oi)) = (slot.cards().index_of(new), old_index) {
                 if ni != oi {
-                    slot.cards().remove_at(ni);
-                    let at = oi.min(slot.cards().len());
-                    slot.cards().insert(at, new);
+                    // The card moves to the old one's index (remove, then insert): a reorder, not an arrival.
+                    let at = oi.min(slot.cards().len() - 1);
+                    if at < ni {
+                        slot.cards().as_mut_slice()[at..=ni].rotate_right(1);
+                    } else {
+                        slot.cards().as_mut_slice()[ni..=at].rotate_left(1);
+                    }
                 }
             }
         }
         SwapPlace::Bottom => {
             let mut order: Vec<CardId> = vec![new];
             order.extend(g.st.slot(p, s).cards().iter().filter(|c| *c != new));
-            *g.st.slot_edit(p, s).cards() = List::from_slice(&order);
+            g.st.slot_edit(p, s).cards().set_from(&order);
         }
     }
     swap_card_facts(g, p, old, new);

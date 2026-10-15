@@ -125,22 +125,89 @@ impl Slot {
 
 /// The one write path to a spot's card lists: it lends the lists out mutably and, on drop, recomputes the spot's top
 /// Pokemon and whether it holds a card (`Player::occupied`) from them. A list is private to this module, so no other write to it can exist.
+///
+/// A card entering the spot is stamped (`CardInst::arrived`) when it is added to the spot's `cards` (the list every card
+/// enters by: Energy and Tools are on it before they are put among `energies` / `tools`) while it is on none of the
+/// spot's lists, by [`CardsMut`]. A reorder, or a card that moves between the spot's lists while staying on one of them,
+/// is not stamped.
 pub struct SlotEdit<'a> {
     slot: &'a mut Slot,
     /// The player's `occupied` mask and this spot's bit in it.
     occupied: &'a mut u16,
     bit: u16,
     insts: &'a mut [CardInst; MAX_CARDS],
-    /// The game's arrival counter (`State::arrival`).
+    /// The game's arrival counter (`State::arrival`), and its value when the guard was taken.
     arrival: &'a mut u16,
-    /// The spot's lists as they were when the guard was taken: a card on a list now and on none then has arrived.
-    before: (ZoneList<60>, ZoneList<60>, ZoneList<4>),
+    start: u16,
+    /// `PTCG_VERIFY_CACHE=1`: the spot's lists when the guard was taken, the reference the stamps are checked against.
+    before: Option<Box<(ZoneList<60>, ZoneList<60>, ZoneList<4>)>>,
+}
+
+/// The spot's `cards` behind its write guard: the one list a card enters a spot by, so the one list whose additions
+/// stamp arrivals. A card added while it is on none of the spot's lists gets the next arrival number.
+pub struct CardsMut<'e> {
+    cards: &'e mut ZoneList<60>,
+    energies: &'e ZoneList<60>,
+    tools: &'e ZoneList<4>,
+    insts: &'e mut [CardInst; MAX_CARDS],
+    arrival: &'e mut u16,
+}
+
+impl CardsMut<'_> {
+    /// Stamp `c` if it is about to enter the spot (saturates at `u16::MAX`: later arrivals tie and keep list order; a
+    /// game doesn't come near it).
+    #[inline]
+    fn arrive(&mut self, c: CardId) {
+        if !(self.cards.contains(c) || self.energies.contains(c) || self.tools.contains(c)) {
+            *self.arrival = self.arrival.saturating_add(1);
+            self.insts[c as usize].arrived = *self.arrival;
+        }
+    }
+}
+
+impl CardList for CardsMut<'_> {
+    #[inline]
+    fn as_slice(&self) -> &[CardId] {
+        self.cards.as_slice()
+    }
+    #[inline]
+    fn as_mut_slice(&mut self) -> &mut [CardId] {
+        self.cards.as_mut_slice()
+    }
+    #[inline]
+    fn push(&mut self, c: CardId) {
+        self.arrive(c);
+        self.cards.push(c);
+    }
+    fn insert(&mut self, i: usize, c: CardId) {
+        self.arrive(c);
+        self.cards.insert(i, c);
+    }
+    fn remove_at(&mut self, i: usize) -> CardId {
+        self.cards.remove_at(i)
+    }
+    #[inline]
+    fn clear(&mut self) {
+        self.cards.clear();
+    }
+    fn set_from(&mut self, cards: &[CardId]) {
+        for &c in cards {
+            self.arrive(c);
+        }
+        self.cards.set_from(cards);
+    }
+    fn capacity(&self) -> usize {
+        self.cards.capacity()
+    }
+    fn as_permutable_slice(&mut self) -> &mut [CardId] {
+        self.cards.as_permutable_slice()
+    }
 }
 
 impl SlotEdit<'_> {
     #[inline]
-    pub fn cards(&mut self) -> &mut ZoneList<60> {
-        &mut self.slot.cards
+    pub fn cards(&mut self) -> CardsMut<'_> {
+        CardsMut { cards: &mut self.slot.cards, energies: &self.slot.energies, tools: &self.slot.tools, insts: &mut *self.insts, arrival: &mut *self.arrival }
     }
     #[inline]
     pub fn energies(&mut self) -> &mut ZoneList<60> {
@@ -159,22 +226,18 @@ impl SlotEdit<'_> {
 }
 
 impl SlotEdit<'_> {
-    /// Cards that are on the spot's lists now and were on none of them when the guard was taken get the next arrival
-    /// stamp, in the order of `cards`, then `energies`, then `tools` (a card on two lists is stamped once). Saturates at
-    /// `u16::MAX` (later arrivals tie and keep list order); a game doesn't come near it.
-    fn stamp_arrivals(&mut self) {
-        let (c, e, t) = (self.slot.cards.as_slice(), self.slot.energies.as_slice(), self.slot.tools.as_slice());
-        let (bc, be, bt) = (self.before.0.as_slice(), self.before.1.as_slice(), self.before.2.as_slice());
-        if c == bc && e == be && t == bt {
+    /// `PTCG_VERIFY_CACHE=1`: the stamps against the reference rule (a card on the lists now and on none when the guard
+    /// was taken has arrived, in this guard; every other card keeps its earlier stamp).
+    fn check_arrivals(&self, before: &(ZoneList<60>, ZoneList<60>, ZoneList<4>)) {
+        if *self.arrival == u16::MAX {
             return;
         }
-        let was = |x: CardId| bc.contains(&x) || be.contains(&x) || bt.contains(&x);
-        for (i, &x) in c.iter().chain(e).chain(t).enumerate() {
-            let dup = (i >= c.len() && c.contains(&x)) || (i >= c.len() + e.len() && e.contains(&x));
-            if !dup && !was(x) {
-                *self.arrival = self.arrival.saturating_add(1);
-                self.insts[x as usize].arrived = *self.arrival;
-            }
+        let (bc, be, bt) = (before.0.as_slice(), before.1.as_slice(), before.2.as_slice());
+        let s = &*self.slot;
+        for &x in s.cards.as_slice().iter().chain(s.energies.as_slice()).chain(s.tools.as_slice()) {
+            let was = bc.contains(&x) || be.contains(&x) || bt.contains(&x);
+            let stamp = self.insts[x as usize].arrived;
+            assert_eq!(was, stamp <= self.start, "arrival stamp of card {} (was on the spot {}, stamp {}, guard started at {})", x, was, stamp, self.start);
         }
     }
 }
@@ -182,7 +245,9 @@ impl SlotEdit<'_> {
 impl Drop for SlotEdit<'_> {
     #[inline]
     fn drop(&mut self) {
-        self.stamp_arrivals();
+        if let Some(before) = self.before.take() {
+            self.check_arrivals(&before);
+        }
         self.slot.top = self.slot.top_scan(self.insts).unwrap_or(NO_CARD);
         if self.slot.cards.is_empty() {
             *self.occupied &= !self.bit;
@@ -220,14 +285,14 @@ impl CardList for ListMut<'_> {
     fn push(&mut self, c: CardId) {
         match self {
             ListMut::Plain(l) => l.push(c),
-            ListMut::SlotCards(e) => e.slot.cards.push(c),
+            ListMut::SlotCards(e) => e.cards().push(c),
             ListMut::SlotEnergies(e) => e.slot.energies.push(c),
         }
     }
     fn insert(&mut self, i: usize, c: CardId) {
         match self {
             ListMut::Plain(l) => l.insert(i, c),
-            ListMut::SlotCards(e) => e.slot.cards.insert(i, c),
+            ListMut::SlotCards(e) => e.cards().insert(i, c),
             ListMut::SlotEnergies(e) => e.slot.energies.insert(i, c),
         }
     }
@@ -249,7 +314,7 @@ impl CardList for ListMut<'_> {
     fn set_from(&mut self, cards: &[CardId]) {
         match self {
             ListMut::Plain(l) => l.set_from(cards),
-            ListMut::SlotCards(e) => e.slot.cards.set_from(cards),
+            ListMut::SlotCards(e) => e.cards().set_from(cards),
             ListMut::SlotEnergies(e) => e.slot.energies.set_from(cards),
         }
     }
@@ -1031,8 +1096,8 @@ impl State {
     pub fn slot_edit(&mut self, p: usize, s: SlotId) -> SlotEdit<'_> {
         let pl = &mut self.players[p];
         let slot = &mut pl.slots[s as usize];
-        let before = (slot.cards, slot.energies, slot.tools);
-        SlotEdit { slot, occupied: &mut pl.occupied, bit: 1 << s, insts: &mut self.cards, arrival: &mut self.arrival, before }
+        let before = if crate::game::verify_cache() { Some(Box::new((slot.cards, slot.energies, slot.tools))) } else { None };
+        SlotEdit { slot, occupied: &mut pl.occupied, bit: 1 << s, insts: &mut self.cards, start: self.arrival, arrival: &mut self.arrival, before }
     }
 
     fn plain_list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
@@ -1288,7 +1353,7 @@ mod tests {
         let before: Vec<u16> = all.iter().map(|c| at(&g, *c)).collect();
         let mut order: Vec<CardId> = g.st.slot(0, a).cards().iter().collect();
         order.reverse();
-        *g.st.slot_edit(0, a).cards() = List::from_slice(&order);
+        g.st.slot_edit(0, a).cards().set_from(&order);
         assert_eq!(before, all.iter().map(|c| at(&g, *c)).collect::<Vec<u16>>());
         // A swap of the spots (a retreat) moves the whole spot: no stamp changes.
         let n = g.st.arrival;
