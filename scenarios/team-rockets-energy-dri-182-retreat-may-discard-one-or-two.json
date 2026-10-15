@@ -6,7 +6,7 @@
  ],
  "me": {"reset": true, "active": "Team Rocket's Wobbuffet DRI 82", "active_energy": ["2 Team Rocket's Energy DRI 182"], "bench": [{"card": "Team Rocket's Wobbuffet DRI 82"}]},
  "opp": {"reset": true, "active": "Team Rocket's Wobbuffet DRI 82"},
- "answers": [{"a": "retreat", "bench": 0}, [0, 2]],
+ "answers": [{"a": "retreat"}, [0, 2], [{"player": 2, "slot": 2, "index": 0}]],
  "expect": [
   {"at": "turn_end", "who": "me", "zone": "discard", "count": 2, "cite": "id2127 (n1652: \"you can discard a number of Energy cards equal to the total Retreat Cost, or you can discard until you've fulfilled the Energy requirement ... you could discard either 1 or 2 Double Turbo Energy\"; user decision 2026-10-13): two Team Rocket's Energy (2 Energy each) on a Retreat Cost of 2: the retreat asks, and discarding both is allowed"}
  ]

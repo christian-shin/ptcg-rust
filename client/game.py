@@ -396,7 +396,8 @@ class GameSession:
         if k == 10:
             return "%s · %s" % (self._slot_name(po, o["area"], o["index"]), self._ability_name(po, o["area"], o["index"]))
         if k == 12:
-            return "Retreat → %s" % self._slot_name(who, 5, o["index"])
+            # The Benched Pokémon is chosen after the cost is paid (APR A-03), in a prompt of its own.
+            return "Retreat"
         if k == 13:
             c, atk = self._attack_of(o, who)
             if atk:

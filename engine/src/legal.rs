@@ -28,8 +28,9 @@
 //! * Ability: the power list read, the core use rule, the lock probe, the locks over UseAbility, once per turn, `needs`
 //!   and implied preconditions.
 //! * Use Stadium: the UseStadium's checks (`engine::turn_action::stadium_checks`), the Stadium's own `needs`.
-//! * Retreat: `can_retreat`, the ChangeActive's checks (`engine::change_active::check_with`: the Pokémon's lasting
-//!   "can't retreat", the locks over the event), the cost against the provided Energy.
+//! * Retreat: `can_retreat`, some Benched Pokémon the ChangeActive's checks allow (`retreat::allowed` over
+//!   `engine::change_active::check_with`: the Pokémon's lasting "can't retreat", the locks over the event), the cost
+//!   against the provided Energy.
 //! * Pass: always.
 
 use crate::carddb::DefId;
@@ -409,7 +410,7 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
         Action::Attack { attack, copied } => fast_attack(ctx, attack, copied),
         Action::UseAbility { power, target } => fast_ability(ctx, power, target),
         Action::UseStadium => fast_use_stadium(ctx),
-        Action::Retreat { bench_index } => fast_retreat(ctx, bench_index),
+        Action::Retreat => fast_retreat(ctx),
     }
 }
 
@@ -622,16 +623,15 @@ fn fast_use_stadium(ctx: &mut Ctx) -> Option<bool> {
     Some(crate::spec::run::use_stadium_check(ctx, stadium, p).is_ok())
 }
 
-fn fast_retreat(ctx: &mut Ctx, bench_index: u8) -> Option<bool> {
+fn fast_retreat(ctx: &mut Ctx) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
-    if retreat::can_retreat(g, p, bench_index, false).is_err() {
+    if retreat::can_retreat(g, p, false).is_err() {
         return Some(false);
     }
-    // The ChangeActive the retreat produces, with the checks its routine makes.
-    let Some(c) = retreat::retreat_change(g, p, bench_index) else { return Some(false) };
-    let v = crate::engine::change_active::view(g, &c);
-    if !matches!(crate::engine::change_active::check_with(ctx, &v), Ok(None)) {
+    // Some Benched Pokémon the retreat may send to the Active Spot: the ChangeActive it would produce, with the checks its
+    // routine makes (the function execution calls).
+    if retreat::allowed(ctx, p, true).is_err() {
         return Some(false);
     }
     let Ok(cost) = ctx.retreat_cost() else { return Some(false) };

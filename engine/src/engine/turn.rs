@@ -154,10 +154,9 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
         Action::Pass => {
             crate::engine::phase::end_turn_event(g, p)?;
         }
-        Action::Retreat { bench_index } => {
+        Action::Retreat => {
             g.run_fx(Effect::Retreat {
                 p: p as u8,
-                bench_index,
                 ignore_status_conditions: false,
                 move_retreat_cost_to: ListRef::Discard(p as u8),
             })?;

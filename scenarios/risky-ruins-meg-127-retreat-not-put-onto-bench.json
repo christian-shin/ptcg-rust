@@ -17,7 +17,7 @@
   "active": "Duskull PRE 35"
  },
  "answers": [
-  {"a": "retreat", "bench": 0}
+  {"a": "retreat"}, [{"player": 2, "slot": 2, "index": 0}]
  ],
  "expect": [
   {"at": "turn_end", "who": "me", "slot": "active", "card": "Duraludon PRE 69", "cite": "card text (retreat)"},

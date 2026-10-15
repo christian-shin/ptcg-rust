@@ -138,7 +138,7 @@ pub enum Effect {
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
 
     // ---- game ----
-    Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
+    Retreat { p: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
     RetreatStart { p: u8 },
     /// `delegate_from`: the copy-attack source card.
     /// `second_attack`: the second attack of the turn of a Pokémon that may attack again (Festival Lead); no third is offered.

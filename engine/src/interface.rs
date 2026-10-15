@@ -376,11 +376,8 @@ impl Game {
                         r.area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
                         r.index = Some(target.index);
                     }
-                    Action::Retreat { bench_index } => {
-                        r.kind = OptionType::Retreat as u8;
-                        r.area = Some(AreaType::Bench as u8);
-                        r.index = Some(bench_index);
-                    }
+                    // The Benched Pokémon is chosen after the cost is paid (a SwitchPokemon prompt, APR A-03).
+                    Action::Retreat => r.kind = OptionType::Retreat as u8,
                     Action::UseStadium => {
                         r.kind = OptionType::Skill as u8;
                         r.area = Some(AreaType::Stadium as u8);

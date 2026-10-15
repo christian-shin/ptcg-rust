@@ -36,7 +36,7 @@ pub fn action_kind(a: &Action) -> &'static str {
         Action::Attack { .. } => "attack",
         Action::UseAbility { .. } => "ability",
         Action::UseStadium => "stadium",
-        Action::Retreat { .. } => "retreat",
+        Action::Retreat => "retreat",
         Action::Pass => "pass",
     }
 }
@@ -63,14 +63,14 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
         Action::Attack { attack, copied: true } => json!({ "a": "attack", "name": attack_name(g, attack), "from": g.st.cdef(attack.card).full_name }),
         Action::UseAbility { power, target } => json!({ "a": "ability", "name": power_name(g, power), "source": target_json(target) }),
         Action::UseStadium => json!({ "a": "stadium" }),
-        Action::Retreat { bench_index } => json!({ "a": "retreat", "bench": bench_index }),
+        Action::Retreat => json!({ "a": "retreat" }),
         Action::Pass => json!({ "a": "pass" }),
     }
 }
 
 /// Structural candidates for the active player's turn, in the rules order (cabt's MAIN order, cabt-format 4.3): the
 /// hand cards by hand index (each one's targets: the Active Spot, then the Bench in order), the Abilities of the
-/// Pokémon in play and the Stadium by position, the attacks in list order, the Retreats, passing.
+/// Pokémon in play and the Stadium by position, the attacks in list order, the retreat, passing.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
     let mut out = Vec::with_capacity(32);
     candidates(&mut Ctx::new(g), &mut out);
@@ -151,10 +151,9 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
             out.push(Action::Attack { attack, copied });
         }
     }
-    for (i, b) in pl.bench.iter().enumerate() {
-        if !pl.slots[*b as usize].cards().is_empty() {
-            out.push(Action::Retreat { bench_index: i as u8 });
-        }
+    // The retreat (one action: the Benched Pokémon is chosen after the cost is paid, APR A-03).
+    if pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty()) {
+        out.push(Action::Retreat);
     }
     out.push(Action::Pass);
 }
@@ -216,7 +215,7 @@ fn stat_kind(g: &Game, a: Action) -> usize {
         Action::Attack { .. } => 7,
         Action::UseAbility { .. } => 8,
         Action::UseStadium => 9,
-        Action::Retreat { .. } => 10,
+        Action::Retreat => 10,
         Action::Pass => 11,
     }
 }
@@ -335,7 +334,7 @@ mod tests {
 
     /// The rank of a turn action in cabt's MAIN order (cabt-format 4.3): the hand cards by hand index and target (the
     /// Active Spot first), then the Abilities and the Stadium by position (the Active Spot, the Bench, the Stadium),
-    /// then the attacks, then the Retreats, then passing.
+    /// then the attacks, then the retreat, then passing.
     fn rank(a: Action) -> (u8, u8, u8) {
         let slot = |t: CardTarget| match t.slot {
             SlotType::Active => 0,
@@ -347,7 +346,7 @@ mod tests {
             Action::UseAbility { power, target } => (1, slot(target), power.index),
             Action::UseStadium => (1, 200, 0),
             Action::Attack { attack, .. } => (2, attack.idx() as u8, 0),
-            Action::Retreat { bench_index } => (3, bench_index, 0),
+            Action::Retreat => (3, 0, 0),
             Action::Pass => (4, 0, 0),
         }
     }
