@@ -326,8 +326,13 @@ fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Picked> {
         let n = sel.options.len();
         let mut picks: Vec<usize> = Vec::new();
         loop {
-            let (mask, stop) = g.pick_mask(&sel, &picks);
+            let (mask, mut stop) = g.pick_mask(&sel, &picks);
             let allowed: Vec<usize> = (0..n).filter(|j| mask[*j]).collect();
+            // Cancelling a choice (the empty answer of a cancellable card choice) is the way out of a prompt with nothing
+            // to pick, not a move the policy makes while a pick is possible (as before the empty answer was declared).
+            if stop && picks.is_empty() && !allowed.is_empty() && matches!(g.decode_picks(&sel, &[]), Ok(crate::prompts::Res::Null)) {
+                stop = false;
+            }
             let choices = allowed.len() + stop as usize;
             if choices == 0 {
                 if picks.is_empty() && !stop {
