@@ -11,8 +11,8 @@ env = ptcg.Env(a, b, seed=1)
 assert env.select() is not None
 assert env.observe(0).shape == (ptcg.OBS_SIZE,)
 steps = 0
-while not env.done():
+while not env.done:
     env.step_random(steps)
     steps += 1
     assert steps < 100000, "game did not end"
-print("ok", sys.version.split()[0], "steps", steps, "winner", env.winner())
+print("ok", sys.version.split()[0], "steps", steps, "winner", env.winner)
