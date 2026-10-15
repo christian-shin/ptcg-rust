@@ -18,7 +18,7 @@
     "active": "Finizen TWM 59"
   },
   "answers": [
-    {"a": "retreat", "bench": 0},
+    {"a": "retreat"}, [{"player": 2, "slot": 2, "index": 0}],
     true,
     [0]
   ]

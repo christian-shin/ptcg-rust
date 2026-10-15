@@ -231,7 +231,7 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
 /// trial dispatch as the interface). `is` (default true) is the expected answer.
 /// `legal` is `play` (a card in hand, `name`; `on`: "active" or a Bench index narrows it to that target),
 /// `ability` (`name` of the Ability and/or `card` = the Pokemon that has it), `stadium` (use the Stadium in play),
-/// `retreat` (`on`: the Bench index to retreat to) or `attack` (`name`).
+/// `retreat` (`on`: a Bench index the retreat may send to the Active Spot) or `attack` (`name`).
 fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     use crate::game::Action;
     if g.st.active_player as usize != p {
@@ -243,7 +243,12 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     let card = a["card"].as_str();
     let opts = crate::options::legal_turn_options(g);
     let have = opts.iter().any(|o| match (kind, o.action) {
-        ("retreat", Action::Retreat { bench_index }) => a["on"].as_u64().map_or(true, |b| b == bench_index as u64),
+        // The Benched Pokémon is chosen after the cost (APR A-03): `on` asks that the retreat may send it.
+        ("retreat", Action::Retreat) => a["on"].as_u64().map_or(true, |b| {
+            let mut f = g.fork();
+            let ok = crate::engine::retreat::allowed(&mut *f, p, false).unwrap_or_default();
+            g.st.players[p].bench.get(b as usize).is_some_and(|s| ok.contains(s))
+        }),
         ("stadium", Action::UseStadium) => true,
         ("attack", Action::Attack { attack, copied }) => {
             crate::options::attack_name(g, attack) == name

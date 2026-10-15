@@ -186,7 +186,9 @@ pub enum Action {
     /// The Ability `power` of the Pokémon at `target` (`power.card` is the card at that spot).
     UseAbility { power: PowerRef, target: CardTarget },
     UseStadium,
-    Retreat { bench_index: u8 },
+    /// Retreat the Active Pokémon (APR A-03): the cost is paid, then the Benched Pokémon to send to the Active Spot is
+    /// chosen (a prompt), so the action names none.
+    Retreat,
     Pass,
 }
 

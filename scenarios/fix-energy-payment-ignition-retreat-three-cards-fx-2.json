@@ -36,15 +36,7 @@
   "active": "Crabrawler SCR 87"
  },
  "answers": [
-  {
-   "a": "retreat",
-   "bench": 0
-  },
-  [
-   0,
-   1,
-   2
-  ],
+  {"a": "retreat"}, [0, 1, 2], [{"player": 2, "slot": 2, "index": 0}],
   {
    "a": "pass"
   }

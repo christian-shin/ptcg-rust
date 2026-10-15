@@ -75,7 +75,7 @@ fn kind(a: &Action) -> &'static str {
         Action::Attack { .. } => "attack",
         Action::UseAbility { .. } => "ability",
         Action::UseStadium => "stadium",
-        Action::Retreat { .. } => "retreat",
+        Action::Retreat => "retreat",
         Action::Pass => "pass",
     }
 }

@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Team Rocket's Wobbuffet DRI 82", "4 Duraludon PRE 69", "4 Team Rocket's Energy DRI 182", "48 Psychic Energy MEE 5"],
+  ["4 Team Rocket's Wobbuffet DRI 82", "4 Duraludon PRE 69", "4 Team Rocket's Energy DRI 182", "48 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Team Rocket's Wobbuffet DRI 82", "active_energy": ["2 Team Rocket's Energy DRI 182"], "bench": [{"card": "Team Rocket's Wobbuffet DRI 82"}, {"card": "Duraludon PRE 69"}]},
+ "opp": {"reset": true, "active": "Team Rocket's Wobbuffet DRI 82"},
+ "answers": [{"a": "retreat"}, [0, 2], [{"player": 2, "slot": 2, "index": 1}]],
+ "expect": [
+  {"at": "turn_end", "prompts": ["ChooseEnergy", "ChoosePokemon"], "cite": "APR A-03 Steps for Retreating (2. discard from your Active Pokémon an amount of Energy that matches its Retreat Cost; 3. move your Active Pokémon back to your Bench, and send another of your Benched Pokémon to the Active Spot): the Energy is chosen first, then the Benched Pokémon (user decision D5, batch 10)"},
+  {"at": "turn_end", "who": "me", "active": "Duraludon PRE 69", "cite": "APR A-03 step 3: the Benched Pokémon chosen after the cost is paid becomes the Active Pokémon"},
+  {"at": "turn_end", "who": "me", "zone": "discard", "count": 2, "cite": "APR A-03 step 2 with id2127 (the Retreat Cost paid by the Energy chosen in the first prompt)"}
+ ]
+}

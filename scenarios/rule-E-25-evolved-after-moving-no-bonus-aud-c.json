@@ -39,10 +39,7 @@
   "active": "Mega Lucario ex ASC 113"
  },
  "answers": [
-  {
-   "a": "retreat",
-   "bench": 0
-  },
+  {"a": "retreat"}, [{"player": 2, "slot": 2, "index": 0}],
   {
    "a": "play",
    "card": "Mega Lopunny ex PFL 84",
