@@ -8,7 +8,7 @@ use ptcg::interface::SelectData;
 use ptcg::obs::{observe, option_features, OBS_SIZE, OPTION_FEATURES};
 use ptcg::rng::Rng;
 use ptcg::types::*;
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyDict, PyList};
 
@@ -18,6 +18,19 @@ fn parse_deck(names: &[String]) -> PyResult<Vec<DefId>> {
         out.push(def_by_full_name(n).ok_or_else(|| PyValueError::new_err(format!("unknown card: {}", n)))?);
     }
     Ok(out)
+}
+
+/// Runs a boundary function so that no panic crosses into Python: a panic of the engine (a capacity cap hit by a
+/// runaway card, a bug) becomes a Python `RuntimeError` carrying its message, and the object that panicked must be
+/// considered broken (its game may be half updated). Every `#[pymethods]` function runs through it.
+fn guarded<T>(f: impl FnOnce() -> PyResult<T>) -> PyResult<T> {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)) {
+        Ok(r) => r,
+        Err(p) => {
+            let msg = p.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| p.downcast_ref::<String>().cloned()).unwrap_or_else(|| "unknown panic".to_string());
+            Err(PyRuntimeError::new_err(format!("ptcg engine panic: {msg}")))
+        }
+    }
 }
 
 fn err(e: ptcg::GameError) -> PyErr {
@@ -114,7 +127,7 @@ fn random_answer(g: &mut Game, sel: &SelectData, rng: &mut Rng) -> bool {
     false
 }
 
-#[pyclass]
+#[pyclass(skip_from_py_object)]
 #[derive(Clone)]
 struct Env {
     game: Box<Game>,
@@ -135,102 +148,134 @@ impl Env {
     #[new]
     #[pyo3(signature = (deck_a, deck_b, seed=0, manual_chance=false))]
     fn new(deck_a: Vec<String>, deck_b: Vec<String>, seed: u32, manual_chance: bool) -> PyResult<Self> {
-        let decks = [parse_deck(&deck_a)?, parse_deck(&deck_b)?];
-        let mut e = Env { game: Box::new(Game::new(seed)), decks, manual_chance, sel: None };
-        e.reset(seed)?;
-        Ok(e)
+        guarded(|| {
+            let decks = [parse_deck(&deck_a)?, parse_deck(&deck_b)?];
+            let mut e = Env { game: Box::new(Game::new(seed)), decks, manual_chance, sel: None };
+            e.reset(seed)?;
+            Ok(e)
+        })
     }
 
     /// Start a new game with `seed`.
     fn reset(&mut self, seed: u32) -> PyResult<()> {
-        *self.game = Game::new(seed);
-        self.game.start([&self.decks[0], &self.decks[1]]).map_err(err)?;
-        self.refresh()
+        guarded(|| {
+            *self.game = Game::new(seed);
+            self.game.start([&self.decks[0], &self.decks[1]]).map_err(err)?;
+            self.refresh()
+        })
     }
 
     /// Current decision as a cabt-style dict, or None when the game is over.
     fn select<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyDict>>> {
-        match &self.sel {
-            Some(s) => Ok(Some(select_dict(py, s)?)),
-            None => Ok(None),
-        }
+        guarded(|| {
+            match &self.sel {
+                Some(s) => Ok(Some(select_dict(py, s)?)),
+                None => Ok(None),
+            }
+        })
     }
 
     /// Answer the current decision with option indices.
     fn step(&mut self, indices: Vec<usize>) -> PyResult<()> {
-        let sel = self.sel.clone().ok_or_else(|| PyValueError::new_err("game over"))?;
-        self.game.answer(&sel, &indices).map_err(err)?;
-        self.refresh()
+        guarded(|| {
+            let sel = self.sel.clone().ok_or_else(|| PyValueError::new_err("game over"))?;
+            self.game.answer(&sel, &indices).map_err(err)?;
+            self.refresh()
+        })
     }
 
     /// Answer a manual shuffle with a permutation of deck indices.
     fn step_shuffle(&mut self, order: Vec<u8>) -> PyResult<()> {
-        let sel = self.sel.clone().ok_or_else(|| PyValueError::new_err("game over"))?;
-        self.game.answer_shuffle(&sel, &order).map_err(err)?;
-        self.refresh()
+        guarded(|| {
+            let sel = self.sel.clone().ok_or_else(|| PyValueError::new_err("game over"))?;
+            self.game.answer_shuffle(&sel, &order).map_err(err)?;
+            self.refresh()
+        })
     }
 
     /// Play a uniformly random valid answer (seeded).
     fn step_random(&mut self, seed: u32) -> PyResult<bool> {
-        let sel = match self.sel.clone() {
-            Some(s) => s,
-            None => return Ok(false),
-        };
-        let mut rng = Rng::new(seed);
-        let ok = random_answer(&mut self.game, &sel, &mut rng);
-        self.refresh()?;
-        Ok(ok)
+        guarded(|| {
+            let sel = match self.sel.clone() {
+                Some(s) => s,
+                None => return Ok(false),
+            };
+            let mut rng = Rng::new(seed);
+            let ok = random_answer(&mut self.game, &sel, &mut rng);
+            self.refresh()?;
+            Ok(ok)
+        })
     }
 
     /// Observation bytes (float32 x OBS_SIZE) for `player`.
-    fn observe_bytes<'py>(&self, py: Python<'py>, player: usize) -> Bound<'py, PyBytes> {
-        f32_bytes(py, &observe(&self.game, player))
+    fn observe_bytes<'py>(&self, py: Python<'py>, player: usize) -> PyResult<Bound<'py, PyBytes>> {
+        guarded(|| Ok({
+            f32_bytes(py, &observe(&self.game, player))
+        }))
     }
 
     /// Option features bytes (int32 x K x OPTION_FEATURES).
-    fn option_bytes<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
-        let mut v = Vec::new();
-        if let Some(sel) = &self.sel {
-            for o in &sel.options {
-                v.extend_from_slice(&option_features(sel, o));
+    fn option_bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
+        guarded(|| Ok({
+            let mut v = Vec::new();
+            if let Some(sel) = &self.sel {
+                for o in &sel.options {
+                    v.extend_from_slice(&option_features(sel, o));
+                }
             }
-        }
-        i32_bytes(py, &v)
+            i32_bytes(py, &v)
+        }))
     }
 
     #[getter]
-    fn done(&self) -> bool {
-        self.sel.is_none()
+    fn done(&self) -> PyResult<bool> {
+        guarded(|| Ok({
+            self.sel.is_none()
+        }))
     }
     #[getter]
-    fn winner(&self) -> i8 {
-        self.game.st.winner
+    fn winner(&self) -> PyResult<i8> {
+        guarded(|| Ok({
+            self.game.st.winner
+        }))
     }
     #[getter]
-    fn turn(&self) -> i32 {
-        self.game.st.turn
+    fn turn(&self) -> PyResult<i32> {
+        guarded(|| Ok({
+            self.game.st.turn
+        }))
     }
     #[getter]
-    fn to_move(&self) -> Option<u8> {
-        self.sel.as_ref().map(|s| s.player)
+    fn to_move(&self) -> PyResult<Option<u8>> {
+        guarded(|| Ok({
+            self.sel.as_ref().map(|s| s.player)
+        }))
     }
 
     /// Independent copy (a memcpy of the whole game, mid-prompt included).
-    fn clone(&self) -> Env {
-        Clone::clone(self)
+    fn clone(&self) -> PyResult<Env> {
+        guarded(|| Ok({
+            Clone::clone(self)
+        }))
     }
 
     /// Re-deal hidden cards uniformly for `viewer` and reseed chance.
     fn determinize(&mut self, viewer: usize, seed: u32) -> PyResult<()> {
-        ptcg::search::determinize(&mut self.game, viewer, seed).map_err(err)?;
-        self.refresh()
+        guarded(|| {
+            ptcg::search::determinize(&mut self.game, viewer, seed).map_err(err)?;
+            self.refresh()
+        })
     }
 
-    fn state_hash(&self) -> String {
-        self.game.state_hash()
+    fn state_hash(&self) -> PyResult<String> {
+        guarded(|| Ok({
+            self.game.state_hash()
+        }))
     }
-    fn canonical(&self) -> String {
-        self.game.canonical_text()
+    fn canonical(&self) -> PyResult<String> {
+        guarded(|| Ok({
+            self.game.canonical_text()
+        }))
     }
 }
 
@@ -404,113 +449,135 @@ impl VecEnv {
     #[new]
     #[pyo3(signature = (n, deck_a, deck_b, seed=0))]
     fn new(n: usize, deck_a: Vec<String>, deck_b: Vec<String>, seed: u32) -> PyResult<Self> {
-        let mut envs = Vec::with_capacity(n);
-        for i in 0..n {
-            envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
-        }
-        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, aborted: 0, invalid_ctx: Default::default() };
-        for i in 0..n {
-            v.advance(i)?;
-        }
-        Ok(v)
+        guarded(|| {
+            let mut envs = Vec::with_capacity(n);
+            for i in 0..n {
+                envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
+            }
+            let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, aborted: 0, invalid_ctx: Default::default() };
+            for i in 0..n {
+                v.advance(i)?;
+            }
+            Ok(v)
+        })
     }
 
     #[getter]
-    fn num_envs(&self) -> usize {
-        self.envs.len()
+    fn num_envs(&self) -> PyResult<usize> {
+        guarded(|| Ok({
+            self.envs.len()
+        }))
     }
 
     /// Multi-pick answers the engine rejected (replaced by a random valid one).
     #[getter]
-    fn invalid_answers(&self) -> u64 {
-        self.invalid
+    fn invalid_answers(&self) -> PyResult<u64> {
+        guarded(|| Ok({
+            self.invalid
+        }))
     }
 
     /// Games ended early because a prompt had no valid answer (stuck).
     #[getter]
-    fn stuck_games(&self) -> u64 {
-        self.stuck
+    fn stuck_games(&self) -> PyResult<u64> {
+        guarded(|| Ok({
+            self.stuck
+        }))
     }
 
     /// Games ended because the engine panicked (a capacity cap hit by a runaway card bug).
     #[getter]
-    fn aborted_games(&self) -> u64 {
-        self.aborted
+    fn aborted_games(&self) -> PyResult<u64> {
+        guarded(|| Ok({
+            self.aborted
+        }))
     }
 
     #[classattr]
-    fn obs_size() -> usize {
-        OBS_SIZE
+    fn obs_size() -> PyResult<usize> {
+        guarded(|| Ok({
+            OBS_SIZE
+        }))
     }
 
     #[classattr]
-    fn option_features() -> usize {
-        OPTION_FEATURES
+    fn option_features() -> PyResult<usize> {
+        guarded(|| Ok({
+            OPTION_FEATURES
+        }))
     }
 
     /// Rejected multi-pick answers by select context id.
-    fn invalid_by_context(&self) -> Vec<(u8, u64)> {
-        self.invalid_ctx.iter().map(|(k, v)| (*k, *v)).collect()
+    fn invalid_by_context(&self) -> PyResult<Vec<(u8, u64)>> {
+        guarded(|| Ok({
+            self.invalid_ctx.iter().map(|(k, v)| (*k, *v)).collect()
+        }))
     }
 
     /// (obs float32 [n, OBS_SIZE], options int32 [n, k_max, F], counts int32 [n]).
     /// Options are the learner's current view (see the class docs); a STOP
     /// option has type END (14).
-    fn observe<'py>(&self, py: Python<'py>, k_max: usize) -> (Bound<'py, PyBytes>, Bound<'py, PyBytes>, Bound<'py, PyBytes>) {
-        let mut obs = Vec::with_capacity(self.envs.len() * OBS_SIZE);
-        let mut opts = vec![0i32; self.envs.len() * k_max * OPTION_FEATURES];
-        let mut counts = Vec::with_capacity(self.envs.len());
-        for (i, e) in self.envs.iter().enumerate() {
-            obs.extend(observe(&e.game, 0));
-            let mut c = 0;
-            if let Some(sel) = &e.sel {
-                for (k, o) in self.view_of(i).into_iter().take(k_max).enumerate() {
-                    let f = match o {
-                        Some(j) => option_features(sel, &sel.options[j]),
-                        None => {
-                            let stop = ptcg::interface::Opt { kind: 14, ..Default::default() };
-                            option_features(sel, &stop)
-                        }
-                    };
-                    let base = (i * k_max + k) * OPTION_FEATURES;
-                    opts[base..base + OPTION_FEATURES].copy_from_slice(&f);
-                    c += 1;
+    fn observe<'py>(&self, py: Python<'py>, k_max: usize) -> PyResult<(Bound<'py, PyBytes>, Bound<'py, PyBytes>, Bound<'py, PyBytes>)> {
+        guarded(|| Ok({
+            let mut obs = Vec::with_capacity(self.envs.len() * OBS_SIZE);
+            let mut opts = vec![0i32; self.envs.len() * k_max * OPTION_FEATURES];
+            let mut counts = Vec::with_capacity(self.envs.len());
+            for (i, e) in self.envs.iter().enumerate() {
+                obs.extend(observe(&e.game, 0));
+                let mut c = 0;
+                if let Some(sel) = &e.sel {
+                    for (k, o) in self.view_of(i).into_iter().take(k_max).enumerate() {
+                        let f = match o {
+                            Some(j) => option_features(sel, &sel.options[j]),
+                            None => {
+                                let stop = ptcg::interface::Opt { kind: 14, ..Default::default() };
+                                option_features(sel, &stop)
+                            }
+                        };
+                        let base = (i * k_max + k) * OPTION_FEATURES;
+                        opts[base..base + OPTION_FEATURES].copy_from_slice(&f);
+                        c += 1;
+                    }
                 }
+                counts.push(c as i32);
             }
-            counts.push(c as i32);
-        }
-        (f32_bytes(py, &obs), i32_bytes(py, &opts), i32_bytes(py, &counts))
+            (f32_bytes(py, &obs), i32_bytes(py, &opts), i32_bytes(py, &counts))
+        }))
     }
 
     /// Apply one option index (into the current view) per env; returns
     /// (rewards float32 [n], dones uint8 [n]).
     fn step<'py>(&mut self, py: Python<'py>, actions: Vec<usize>) -> PyResult<(Bound<'py, PyBytes>, Bound<'py, PyBytes>)> {
-        let mut rewards = Vec::with_capacity(self.envs.len());
-        let mut dones = Vec::with_capacity(self.envs.len());
-        for (i, a) in actions.into_iter().enumerate() {
-            // An engine panic (a capacity cap hit by a runaway card bug) ends this
-            // env's game instead of training.
-            let (r, d) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.step_one(i, a))) {
-                Ok(res) => res?,
-                Err(_) => {
-                    self.aborted += 1;
-                    self.picks[i].clear();
-                    self.reset_env(i)?;
-                    (0.0, true)
-                }
-            };
-            rewards.push(r);
-            dones.push(d as u8);
-        }
-        Ok((f32_bytes(py, &rewards), PyBytes::new(py, &dones)))
+        guarded(|| {
+            let mut rewards = Vec::with_capacity(self.envs.len());
+            let mut dones = Vec::with_capacity(self.envs.len());
+            for (i, a) in actions.into_iter().enumerate() {
+                // An engine panic (a capacity cap hit by a runaway card bug) ends this
+                // env's game instead of training.
+                let (r, d) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.step_one(i, a))) {
+                    Ok(res) => res?,
+                    Err(_) => {
+                        self.aborted += 1;
+                        self.picks[i].clear();
+                        self.reset_env(i)?;
+                        (0.0, true)
+                    }
+                };
+                rewards.push(r);
+                dones.push(d as u8);
+            }
+            Ok((f32_bytes(py, &rewards), PyBytes::new(py, &dones)))
+        })
     }
 }
 
 #[pymodule]
 fn _ptcg(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<Env>()?;
-    m.add_class::<VecEnv>()?;
-    m.add("OBS_SIZE", OBS_SIZE)?;
-    m.add("OPTION_FEATURES", OPTION_FEATURES)?;
-    Ok(())
+    guarded(|| {
+        m.add_class::<Env>()?;
+        m.add_class::<VecEnv>()?;
+        m.add("OBS_SIZE", OBS_SIZE)?;
+        m.add("OPTION_FEATURES", OPTION_FEATURES)?;
+        Ok(())
+    })
 }
