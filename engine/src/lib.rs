@@ -34,5 +34,7 @@ pub mod selfplay;
 pub mod state;
 pub mod types;
 pub mod view;
+#[cfg(test)]
+mod api_tests;
 
 pub use game::{Action, Game, GameError, Pending};
