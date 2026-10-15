@@ -232,6 +232,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
             std::mem::discriminant(&z).hash(&mut h);
         }
         ci.staged_in.hash(&mut h);
+        ci.staged_by.hash(&mut h);
     }
     for pl in st.players.iter() {
         for z in [&pl.deck, &pl.hand, &pl.discard, &pl.lostzone] {

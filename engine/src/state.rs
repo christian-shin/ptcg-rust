@@ -374,6 +374,9 @@ pub struct CardInst {
     /// sits there. A card register can hold a copy of it too (a Pick's selection); `source_of` takes the card
     /// from this list, never from a copy.
     pub staged_in: Option<u8>,
+    /// The player looking at the card while it sits in a staging list: the cause's player of the Look that set it aside
+    /// (`engine::cards_zone::stage`; false: player 0, true: player 1, one byte so CardInst stays 16 B). The one source of who sees a set-aside card: `record::look_seen_by`.
+    pub staged_by: Option<bool>,
     /// The arrival stamp: the number (from `State::arrival`, 1 and up) a Pokémon spot's write guard ([`SlotEdit`]) gave the
     /// card when it last entered a spot's lists (put on the Bench, evolved onto, attached, moved to another Pokémon); 0
     /// until it first does. Meaningful while the card is in a spot; stale after it leaves (re-entering stamps it again).
@@ -383,7 +386,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, lock_stamp: 0, staged_from: None, staged_in: None, arrived: 0 }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, lock_stamp: 0, staged_from: None, staged_in: None, staged_by: None, arrived: 0 }
     }
 }
 

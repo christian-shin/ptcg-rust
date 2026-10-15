@@ -274,17 +274,13 @@ impl TableView {
     }
 }
 
-/// The cards set aside for a look or a search (the staging lists in use) that `viewer` may see: a card of the viewer's
-/// own, a card taken from a public zone, and every card when the viewer is the player the pending decision waits for
-/// (who looks or searches is the one choosing among them). A card the viewer may not see keeps its place as `None`.
+/// The cards set aside for a look or a search (the staging lists in use) that `viewer` may see: the player looking sees
+/// them, everyone sees a card taken from a public zone, and a card's owner sees it only if they are the one looking
+/// (`record::look_seen_by`, the game record's rule). A card the viewer may not see keeps its place as `None`.
 fn looking(g: &Game, viewer: usize) -> SVec<Option<CardView>, 120> {
     use crate::spec::event::RulesZone;
     let mut out: SVec<Option<CardView>, 120> = SVec::new();
     let mut seen: SVec<CardId, 120> = SVec::new();
-    let chooser = match g.pending() {
-        crate::game::Pending::Decision(i) => Some(g.prompts.as_slice()[i].player as usize),
-        _ => None,
-    };
     for i in 0..g.temp_hw as usize {
         if !g.temp_used[i] {
             continue;
@@ -295,8 +291,9 @@ fn looking(g: &Game, viewer: usize) -> SVec<Option<CardView>, 120> {
                 continue;
             }
             seen.push(c);
-            let public = matches!(inst.staged_from, Some(RulesZone::Discard | RulesZone::LostZone | RulesZone::InPlay | RulesZone::Stadium));
-            out.push(if inst.owner as usize == viewer || public || chooser == Some(viewer) { Some(card(g, c)) } else { None });
+            let by = inst.staged_by.map_or(inst.owner, |b| b as u8);
+            let may = crate::record::look_seen_by(inst.staged_from.unwrap_or(RulesZone::Deck), by)[viewer];
+            out.push(if may { Some(card(g, c)) } else { None });
         }
     }
     out
@@ -375,26 +372,28 @@ mod tests {
         assert_eq!(def_of(units[3].1), "Metal Energy");
     }
 
-    /// A staged card the viewer may not see keeps its place in `looking` as `None`; the cards it may see are `Some`.
+    /// A staged card the viewer may not see keeps its place in `looking` as `None`: looking at the top of the opponent's
+    /// deck shows it to the looker only, never to its owner.
     #[test]
     fn looking_keeps_hidden_entries() {
+        let seen = |v: &TableView| v.looking.iter().map(|c| c.map(|c| c.card)).collect::<Vec<_>>();
         let mut g = board(6, &[]);
         let theirs = g.st.players[1].deck.iter().next().unwrap();
         let mine = g.st.players[0].deck.iter().next().unwrap();
         let list = g.alloc_temp(&[]);
-        g.move_card_to(ListRef::Deck(1), theirs, list);
-        g.move_card_to(ListRef::Deck(0), mine, list);
-        let v0 = TableView::new(&g, 0);
-        let v1 = TableView::new(&g, 1);
-        let seen = |v: &TableView| v.looking.iter().map(|c| c.map(|c| c.card)).collect::<Vec<_>>();
-        // The seat the pending decision waits for sees every card; the other seat sees its own card only (a card
-        // from a deck is hidden from the opponent).
-        let chooser = match g.pending() {
-            crate::game::Pending::Decision(i) => g.prompts.as_slice()[i].player as usize,
-            _ => panic!("no decision pending"),
-        };
-        let (c, o) = if chooser == 0 { (&v0, &v1) } else { (&v1, &v0) };
-        assert_eq!(seen(c), vec![Some(theirs), Some(mine)]);
-        assert_eq!(seen(o), if chooser == 0 { vec![Some(theirs), None] } else { vec![None, Some(mine)] });
+        // Player 0 looks at the top of the opponent's deck and of their own.
+        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, 0);
+        crate::engine::cards_zone::stage(&mut g, ListRef::Deck(1), &[theirs], list, cause);
+        crate::engine::cards_zone::stage(&mut g, ListRef::Deck(0), &[mine], list, cause);
+        assert_eq!(seen(&TableView::new(&g, 0)), vec![Some(theirs), Some(mine)]);
+        assert_eq!(seen(&TableView::new(&g, 1)), vec![None, None]);
+        // The same look by player 1: the roles swap.
+        let mut g = board(6, &[]);
+        let theirs = g.st.players[1].deck.iter().next().unwrap();
+        let list = g.alloc_temp(&[]);
+        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, 1);
+        crate::engine::cards_zone::stage(&mut g, ListRef::Deck(1), &[theirs], list, cause);
+        assert_eq!(seen(&TableView::new(&g, 1)), vec![Some(theirs)]);
+        assert_eq!(seen(&TableView::new(&g, 0)), vec![None]);
     }
 }
