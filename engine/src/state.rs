@@ -8,6 +8,8 @@ use crate::carddb::{def, CardDef, DefId, PF_FOSSIL, PF_POKEMON};
 use crate::list::*;
 use crate::types::*;
 
+/// `State::first_player` before the first player is decided.
+pub const NO_PLAYER: u8 = u8::MAX;
 pub const MAX_CARDS: usize = 120;
 pub const MAX_SLOTS: usize = 9;
 /// Pokémon references from both players at once (damaged lists, multi-Pokémon answers).
@@ -622,6 +624,9 @@ pub struct State {
     pub phase: GamePhase,
     pub turn: i32,
     pub active_player: u8,
+    /// The player who takes the first turn of the game, `NO_PLAYER` until it is decided (setup, after the coin flip and
+    /// the choice; the Tiebreaker game sets it again).
+    pub first_player: u8,
     pub winner: Winner,
     /// Why the game ended (`engine::knockout::game_end`).
     pub end_reason: Option<crate::engine::knockout::EndReason>,
@@ -745,6 +750,7 @@ impl State {
             phase: GamePhase::WaitingForPlayers,
             turn: 0,
             active_player: 0,
+            first_player: NO_PLAYER,
             winner: WINNER_NONE,
             end_reason: None,
             players: [Player::new(), Player::new()],

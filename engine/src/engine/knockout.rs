@@ -1145,6 +1145,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
 /// Sets up the Tiebreaker game: `first` takes the first turn.
 pub fn setup_sudden_death_game(g: &mut Game, first: u8) -> R {
     g.st.active_player = first;
+    g.st.first_player = first;
     g.st.turn = 0;
     g.st.phase = GamePhase::Setup;
     g.st.is_sudden_death = true;
