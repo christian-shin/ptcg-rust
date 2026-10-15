@@ -33,6 +33,15 @@ pub struct EnergyView {
     pub first_type: CardType,
 }
 
+/// One unit of Energy a Pokémon provides.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum EnergyUnit {
+    /// One unit of this type (`ct::ANY` for an Energy that provides every type, Prism Energy).
+    One(CardType),
+    /// One unit of whichever of these types its holder chooses (Team Rocket's Energy).
+    AnyOf(SVec<CardType, 4>),
+}
+
 /// One Pokémon in play.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PokemonView {
@@ -48,8 +57,9 @@ pub struct PokemonView {
     pub entered_turn: i32,
     /// It came into play this turn.
     pub entered_this_turn: bool,
-    /// The Energy it provides, one entry per unit (the derived layer's Energy map flattened, in its order).
-    pub provided: SVec<CardType, 64>,
+    /// The Energy it provides, one entry per unit (`energy::unit_count`), in the derived layer's Energy map order: a card
+    /// that provides a choice of types (Team Rocket's Energy) is one unit, not one per type.
+    pub provided: SVec<EnergyUnit, 64>,
     /// The Energy cards attached, in arrival order.
     pub energy: SVec<EnergyView, 60>,
     /// The Tool cards attached, in arrival order.
@@ -114,7 +124,8 @@ pub struct TableView {
     pub stadium: Option<(CardView, u8)>,
     /// The cards the viewer is looking at: the cards set aside for a look or a search that the viewer may see (their own
     /// cards, cards from a public zone, and any the viewer is the one deciding about).
-    pub looking: SVec<CardView, 120>,
+    /// A card the viewer may not see is `None` (its place in the set-aside list is shown, its identity is not).
+    pub looking: SVec<Option<CardView>, 120>,
     pub players: [SeatView; 2],
 }
 
@@ -139,8 +150,12 @@ fn pokemon(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId) -> Opti
     let max_hp = crate::derived::compute_hp(facts, p, s).unwrap_or(d.hp);
     let mut provided = SVec::new();
     for e in crate::derived::compute_provided_energy(facts, p, crate::effects::SlotRef::new(p, s)).unwrap_or_default().iter() {
-        for t in e.provides.iter() {
-            provided.push(*t);
+        if crate::energy::is_choosable(e.provides.as_slice()) {
+            provided.push(EnergyUnit::AnyOf(e.provides));
+        } else {
+            for t in e.provides.iter() {
+                provided.push(EnergyUnit::One(*t));
+            }
         }
     }
     let mut attached: SVec<CardId, 60> = SVec::new();
@@ -252,10 +267,11 @@ impl TableView {
 
 /// The cards set aside for a look or a search (the staging lists in use) that `viewer` may see: a card of the viewer's
 /// own, a card taken from a public zone, and every card when the viewer is the player the pending decision waits for
-/// (who looks or searches is the one choosing among them).
-fn looking(g: &Game, viewer: usize) -> SVec<CardView, 120> {
+/// (who looks or searches is the one choosing among them). A card the viewer may not see keeps its place as `None`.
+fn looking(g: &Game, viewer: usize) -> SVec<Option<CardView>, 120> {
     use crate::spec::event::RulesZone;
-    let mut out: SVec<CardView, 120> = SVec::new();
+    let mut out: SVec<Option<CardView>, 120> = SVec::new();
+    let mut seen: SVec<CardId, 120> = SVec::new();
     let chooser = match g.pending() {
         crate::game::Pending::Decision(i) => Some(g.prompts.as_slice()[i].player as usize),
         _ => None,
@@ -266,13 +282,12 @@ fn looking(g: &Game, viewer: usize) -> SVec<CardView, 120> {
         }
         for c in g.temps[i].iter() {
             let inst = &g.st.cards[c as usize];
-            if inst.staged_in != Some(i as u8) || out.iter().any(|v| v.card == c) {
+            if inst.staged_in != Some(i as u8) || seen.iter().any(|&x| x == c) {
                 continue;
             }
+            seen.push(c);
             let public = matches!(inst.staged_from, Some(RulesZone::Discard | RulesZone::LostZone | RulesZone::InPlay | RulesZone::Stadium));
-            if inst.owner as usize == viewer || public || chooser == Some(viewer) {
-                out.push(card(g, c));
-            }
+            out.push(if inst.owner as usize == viewer || public || chooser == Some(viewer) { Some(card(g, c)) } else { None });
         }
     }
     out
@@ -309,5 +324,57 @@ mod tests {
         assert_eq!(v.players[0].prizes.iter().filter(|p| p.is_some()).count(), 0);
         assert_eq!(v.players[0].prize_count, 6);
         assert_eq!(v.first_player, g.st.first_player);
+    }
+
+    fn board(seed: u32, energy: &[&str]) -> Game {
+        let names: Vec<&str> = (0..60).map(|i| if i < 4 { "Duraludon PRE 69" } else if i < 6 { "Team Rocket's Energy DRI 182" } else if i < 8 { "Prism Energy ASC 216" } else { "Metal Energy MEE 8" }).collect();
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(seed);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().unwrap();
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Duraludon PRE 69", "active_energy": energy}, "opp": {"reset": true, "active": "Duraludon PRE 69"}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    /// `provided` has one entry per unit: a card that provides a choice of types is one `AnyOf` unit, an Energy that
+    /// provides every type one `One(ANY)`, and its count is the sum of `energy::unit_count` over the attached cards.
+    #[test]
+    fn provided_energy_is_counted_per_unit() {
+        let g = board(5, &["Metal Energy MEE 8", "Team Rocket's Energy DRI 182", "Prism Energy ASC 216"]);
+        let pk = TableView::new(&g, 0).players[0].active.unwrap();
+        let units: Vec<EnergyUnit> = pk.provided.iter().copied().collect();
+        // Metal Energy: one unit. Team Rocket's Energy: "2 in any combination of [P] and [D]", two units each a
+        // choice of Psychic or Darkness (not four flattened types). Prism Energy: one unit of any type.
+        let any_of = EnergyUnit::AnyOf({
+            let mut v = SVec::new();
+            v.push(ct::PSYCHIC);
+            v.push(ct::DARK);
+            v
+        });
+        assert_eq!(units, vec![any_of, any_of, EnergyUnit::One(ct::ANY), EnergyUnit::One(ct::METAL)]);
+    }
+
+    /// A staged card the viewer may not see keeps its place in `looking` as `None`; the cards it may see are `Some`.
+    #[test]
+    fn looking_keeps_hidden_entries() {
+        let mut g = board(6, &[]);
+        let theirs = g.st.players[1].deck.iter().next().unwrap();
+        let mine = g.st.players[0].deck.iter().next().unwrap();
+        let list = g.alloc_temp(&[]);
+        g.move_card_to(ListRef::Deck(1), theirs, list);
+        g.move_card_to(ListRef::Deck(0), mine, list);
+        let v0 = TableView::new(&g, 0);
+        let v1 = TableView::new(&g, 1);
+        let seen = |v: &TableView| v.looking.iter().map(|c| c.map(|c| c.card)).collect::<Vec<_>>();
+        // The seat the pending decision waits for sees every card; the other seat sees its own card only (a card
+        // from a deck is hidden from the opponent).
+        let chooser = match g.pending() {
+            crate::game::Pending::Decision(i) => g.prompts.as_slice()[i].player as usize,
+            _ => panic!("no decision pending"),
+        };
+        let (c, o) = if chooser == 0 { (&v0, &v1) } else { (&v1, &v0) };
+        assert_eq!(seen(c), vec![Some(theirs), Some(mine)]);
+        assert_eq!(seen(o), if chooser == 0 { vec![Some(theirs), None] } else { vec![None, Some(mine)] });
     }
 }
