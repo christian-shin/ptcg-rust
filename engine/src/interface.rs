@@ -502,16 +502,22 @@ impl Game {
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
                 let energy = *self.payload_energy(energy);
-                let options = energy
+                // The options are the attached cards in the order they arrived (cabt-format 4.3); `index` and the wire
+                // value stay the entry's position in the offered map.
+                let mut order: Vec<usize> = (0..energy.len()).collect();
+                order.sort_by_key(|&k| self.st.cards[energy.as_slice()[k].card as usize].arrived);
+                let options = order
                     .iter()
-                    .enumerate()
-                    .map(|(k, e)| Opt {
-                        kind: OptionType::Energy as u8,
-                        area: Some(AreaType::Energy as u8),
-                        index: Some(k as u8),
-                        card_id: Some(self.st.cards[e.card as usize].def),
-                        serial: Some(e.card),
-                        ..Default::default()
+                    .map(|&k| {
+                        let e = &energy.as_slice()[k];
+                        Opt {
+                            kind: OptionType::Energy as u8,
+                            area: Some(AreaType::Energy as u8),
+                            index: Some(k as u8),
+                            card_id: Some(self.st.cards[e.card as usize].def),
+                            serial: Some(e.card),
+                            ..Default::default()
+                        }
                     })
                     .collect::<Vec<_>>();
                 let n = options.len();
@@ -520,7 +526,7 @@ impl Game {
                 let max = n.min(cost.len().max(1));
                 // An Energy select that puts the cards into the hand is its own context.
                 let ctx = if ctx == SelectContext::ToHand { SelectContext::ToHandEnergy } else { ctx };
-                mk(SelectType::Energy, ctx, 0, max, options, (0..n).map(Wire::Idx).collect(), AnswerShape::Array)
+                mk(SelectType::Energy, ctx, 0, max, options, order.into_iter().map(Wire::Idx).collect(), AnswerShape::Array)
             }
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
                 // One option per (energy card, target) pair; pick each energy at most once.
@@ -584,6 +590,12 @@ impl Game {
                         }
                     }
                 }
+                // Attached cards of every Pokémon in the order they arrived (cabt-format 4.3), the stable sort keeping
+                // each card's destinations in target order.
+                let mut order: Vec<usize> = (0..options.len()).collect();
+                order.sort_by_key(|&k| self.st.cards[options[k].serial.unwrap() as usize].arrived);
+                let options: Vec<Opt> = order.iter().map(|&k| options[k].clone()).collect();
+                let vals: Vec<Wire> = order.iter().map(|&k| vals[k].clone()).collect();
                 let max = o.max.map(|m| m as usize).unwrap_or(options.len());
                 let ctx = if is_move { SelectContext::SwitchEnergyCard } else { SelectContext::DiscardEnergyCard };
                 mk(SelectType::AttachedCard, ctx, o.min as usize, max, options, vals, AnswerShape::Array)
