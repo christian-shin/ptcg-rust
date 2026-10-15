@@ -167,15 +167,14 @@ fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
     }
 }
 
-/// The card the prompt shows for an effect.
-fn label(g: &Game, item: &Item) -> &'static str {
-    let card = match *item {
-        Item::Card(t) => t.c,
-        Item::Damaged(t) => t.c,
-        Item::Retaliation(t) => t.lasting.source,
-        Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e).unwrap_or(0),
-    };
-    g.st.cdef(card).full_name
+/// The card whose effect `item` is (the card the prompt shows for it).
+fn source_card(g: &Game, item: &Item) -> Option<CardId> {
+    match *item {
+        Item::Card(t) => Some(t.c),
+        Item::Damaged(t) => Some(t.c),
+        Item::Retaliation(t) => Some(t.lasting.source),
+        Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e),
+    }
 }
 
 /// Apply one effect (it re-checks what may have changed: still attached, not blocked, the attacker still in play).
@@ -306,19 +305,20 @@ pub fn step(g: &mut Game, w: &mut Window) -> R<Step> {
         _ => ordered,
     };
     if items >= 2 && asks {
-        let mut names: SVec<&'static str, 8> = SVec::new();
+        let mut names: SVec<(&'static str, Option<CardId>), 8> = SVec::new();
         for &k in hs.iter() {
             assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
-            names.push(label(g, &g.pending.as_slice()[idx.as_slice()[k as usize]].item));
+            let c = source_card(g, &g.pending.as_slice()[idx.as_slice()[k as usize]].item);
+            names.push((g.st.cdef(c.unwrap_or(0)).full_name, c));
         }
         if w.sc_item(g) {
             assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
-            names.push("Special Conditions");
+            names.push(("Special Conditions", None));
         }
         g.prompt(
             w.chooser(g),
             crate::purpose::PromptPurpose::OrderEffects,
-            PromptKind::Select { values: SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
+            PromptKind::Select { values: SelectValues::Effects(names), allow_cancel: false, default_value: 0 },
             crate::prompts::Provenance::NONE,
             Cont::OrderEffects { w: *w },
         );
@@ -424,5 +424,25 @@ mod tests {
         assert!(asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 1), true)]));
         assert!(!asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 0), true)]));
         assert!(!asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 1), false)]), "an effect that doesn't apply isn't asked about");
+    }
+
+    /// The order question's options name the card whose effect each is (`Opt::source`); nothing else of them is set.
+    #[test]
+    fn the_order_options_name_their_source_card() {
+        let mut g = game();
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Maractus JTG 8"}, "opp": {"reset": true, "active": "Maractus JTG 8"}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let maractus: Vec<CardId> = (0..120u8).filter(|c| g.st.cdef(*c).full_name == "Maractus JTG 8").collect();
+        let t = |c: CardId, p: u8| Item::Card(Timed { c, i: 0, p, slot: 0, e: 0 });
+        let (a, b) = (maractus[0], maractus[1]);
+        collect(&mut g, Tag::EndTurn, &[(t(a, 0), true), (t(b, 1), true)]);
+        let mut w = Window::EndTurn { p: 0, e: 0 };
+        assert!(matches!(step(&mut g, &mut w), Ok(Step::Asked)));
+        // The question just asked is the last prompt of the queue (the setup's own questions come before it).
+        let sel = g.prompt_select(g.prompts.len() - 1);
+        assert_eq!(sel.context, crate::interface::SelectContext::SkillOrder);
+        let sources: Vec<Option<u8>> = sel.options.iter().map(|o| o.source).collect();
+        assert_eq!(sources, vec![Some(a), Some(b)]);
+        assert!(sel.options.iter().all(|o| o.card_id.is_none() && o.serial.is_none()));
     }
 }
