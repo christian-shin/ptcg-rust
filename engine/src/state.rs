@@ -128,7 +128,11 @@ pub struct SlotEdit<'a> {
     /// The player's `occupied` mask and this spot's bit in it.
     occupied: &'a mut u16,
     bit: u16,
-    insts: &'a [CardInst; MAX_CARDS],
+    insts: &'a mut [CardInst; MAX_CARDS],
+    /// The game's arrival counter (`State::arrival`).
+    arrival: &'a mut u16,
+    /// The spot's lists as they were when the guard was taken: a card on a list now and on none then has arrived.
+    before: (ZoneList<60>, ZoneList<60>, ZoneList<4>),
 }
 
 impl SlotEdit<'_> {
@@ -152,9 +156,31 @@ impl SlotEdit<'_> {
     }
 }
 
+impl SlotEdit<'_> {
+    /// Cards that are on the spot's lists now and were on none of them when the guard was taken get the next arrival
+    /// stamp, in the order of `cards`, then `energies`, then `tools` (a card on two lists is stamped once). Saturates at
+    /// `u16::MAX` (later arrivals tie and keep list order); a game doesn't come near it.
+    fn stamp_arrivals(&mut self) {
+        let (c, e, t) = (self.slot.cards.as_slice(), self.slot.energies.as_slice(), self.slot.tools.as_slice());
+        let (bc, be, bt) = (self.before.0.as_slice(), self.before.1.as_slice(), self.before.2.as_slice());
+        if c == bc && e == be && t == bt {
+            return;
+        }
+        let was = |x: CardId| bc.contains(&x) || be.contains(&x) || bt.contains(&x);
+        for (i, &x) in c.iter().chain(e).chain(t).enumerate() {
+            let dup = (i >= c.len() && c.contains(&x)) || (i >= c.len() + e.len() && e.contains(&x));
+            if !dup && !was(x) {
+                *self.arrival = self.arrival.saturating_add(1);
+                self.insts[x as usize].arrived = *self.arrival;
+            }
+        }
+    }
+}
+
 impl Drop for SlotEdit<'_> {
     #[inline]
     fn drop(&mut self) {
+        self.stamp_arrivals();
         self.slot.top = self.slot.top_scan(self.insts).unwrap_or(NO_CARD);
         if self.slot.cards.is_empty() {
             *self.occupied &= !self.bit;
@@ -281,11 +307,16 @@ pub struct CardInst {
     /// sits there. A card register can hold a copy of it too (a Pick's selection); `source_of` takes the card
     /// from this list, never from a copy.
     pub staged_in: Option<u8>,
+    /// The arrival stamp: the number (from `State::arrival`, 1 and up) a Pokémon spot's write guard ([`SlotEdit`]) gave the
+    /// card when it last entered a spot's lists (put on the Bench, evolved onto, attached, moved to another Pokémon); 0
+    /// until it first does. Meaningful while the card is in a spot; stale after it leaves (re-entering stamps it again).
+    /// The Energy and Tool prompts list attached cards in this order (`interface.rs`).
+    pub arrived: u16,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, lock_stamp: 0, staged_from: None, staged_in: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, lock_stamp: 0, staged_from: None, staged_in: None, arrived: 0 }
     }
 }
 
@@ -608,6 +639,8 @@ pub struct State {
     /// The players added to the game (an invalid deck finishes the game before its player is added).
     pub players_added: u8,
     pub ability_lock_order_counter: u16,
+    /// The last arrival stamp given (`CardInst::arrived`); 0 before any card entered a spot.
+    pub arrival: u16,
     /// Events batch 8: a counter bumped by every write to the game (the event routines, the physical moves, every
     /// interpreter op step and continuation, every action and answer): a derived fact computed at this version is still
     /// good (`derived.rs`; `PTCG_VERIFY_CACHE=1` checks a digest of the state against a missed bump).
@@ -725,6 +758,7 @@ impl State {
             bench_size_change_handled: false,
             players_added: 2,
             ability_lock_order_counter: 0,
+            arrival: 0,
             version: 1,
             layout_gen: 0,
             at: [Loc::NONE; MAX_CARDS],
@@ -990,7 +1024,9 @@ impl State {
     #[inline]
     pub fn slot_edit(&mut self, p: usize, s: SlotId) -> SlotEdit<'_> {
         let pl = &mut self.players[p];
-        SlotEdit { slot: &mut pl.slots[s as usize], occupied: &mut pl.occupied, bit: 1 << s, insts: &self.cards }
+        let slot = &mut pl.slots[s as usize];
+        let before = (slot.cards, slot.energies, slot.tools);
+        SlotEdit { slot, occupied: &mut pl.occupied, bit: 1 << s, insts: &mut self.cards, arrival: &mut self.arrival, before }
     }
 
     fn plain_list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
@@ -1061,6 +1097,12 @@ mod tests {
     const CHARM: &str = "Sacred Charm PFL 93";
 
     fn game() -> Game {
+        game_with(false)
+    }
+
+    /// The scenario board, loaded while the setup prompts are pending, or (`to_the_turn`) after the setup is played out
+    /// with the first valid answers, at the first turn decision.
+    fn game_with(to_the_turn: bool) -> Game {
         let mut names: Vec<&str> = Vec::new();
         for (n, k) in [(DURA, 4), (MEWTWO, 3), (CHARM, 4)] {
             names.extend(std::iter::repeat(n).take(k));
@@ -1072,6 +1114,18 @@ mod tests {
         let mut g = Game::new(7);
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
+        while to_the_turn {
+            let sel = g.select_with(false).unwrap().unwrap();
+            if sel.select_type == crate::interface::SelectType::Main {
+                break;
+            }
+            let mut picks = Vec::new();
+            while picks.len() < sel.min_count {
+                let (mask, _) = g.pick_mask(&sel, &picks);
+                picks.push(mask.iter().position(|m| *m).unwrap());
+            }
+            g.answer(&sel, &picks).unwrap();
+        }
         let sc = json!({"me": {"reset": true, "active": DURA, "active_energy": [ENERGY], "active_tool": CHARM, "bench": [{"card": MEWTWO}, {"card": DURA}]}, "opp": {"reset": true, "active": DURA}});
         crate::scenario::apply(&mut g, &sc).unwrap();
         g
@@ -1197,5 +1251,80 @@ mod tests {
         g.st.slot_edit(0, a).reset_keeping_cards();
         assert_eq!(g.st.slot_pokemon(0, a), Some(dura));
         assert_tops(&g);
+    }
+
+    /// The arrival stamps order every card that entered a spot, across spots: a card attached later, or moved to another
+    /// Pokemon, has a larger stamp; a reorder of the stack and a swap of the spots don't restamp.
+    #[test]
+    fn arrival_stamps_follow_entering_a_spot() {
+        let mut g = game();
+        let a = g.st.players[0].active;
+        let b = g.st.players[0].bench.as_slice()[0];
+        let scenario_energy = g.st.slot(0, a).energies().as_slice()[0];
+        let (e1, f1) = find(&g, 0, ENERGY);
+        g.move_card_to(f1, e1, ListRef::Slot(0, b));
+        let (e2, f2) = find(&g, 0, ENERGY);
+        g.move_card_to(f2, e2, ListRef::Slot(0, a));
+        let (e3, f3) = find(&g, 0, ENERGY);
+        g.move_card_to(f3, e3, ListRef::Slot(0, b));
+        let at = |g: &Game, c: CardId| g.st.cards[c as usize].arrived;
+        assert!(0 < at(&g, scenario_energy) && at(&g, scenario_energy) < at(&g, e1) && at(&g, e1) < at(&g, e2) && at(&g, e2) < at(&g, e3));
+        let tool = g.st.slot(0, a).tools().as_slice()[0];
+        assert!(0 < at(&g, tool) && at(&g, tool) < at(&g, e1), "the Tool arrived while the scenario was loaded");
+        // Moved to another Pokemon: it arrives there.
+        let last = g.st.arrival;
+        assert_eq!(last, at(&g, e3));
+        g.move_card_to(ListRef::Slot(0, b), e1, ListRef::Slot(0, a));
+        assert_eq!(at(&g, e1), last + 1);
+        assert!(g.st.slot(0, a).energies().contains(e1) && !g.st.slot(0, b).energies().contains(e1));
+        // A reorder of the stack doesn't restamp.
+        let all = [scenario_energy, e1, e2, e3, tool];
+        let before: Vec<u16> = all.iter().map(|c| at(&g, *c)).collect();
+        let mut order: Vec<CardId> = g.st.slot(0, a).cards().iter().collect();
+        order.reverse();
+        *g.st.slot_edit(0, a).cards() = List::from_slice(&order);
+        assert_eq!(before, all.iter().map(|c| at(&g, *c)).collect::<Vec<u16>>());
+        // A swap of the spots (a retreat) moves the whole spot: no stamp changes.
+        let n = g.st.arrival;
+        g.st.players[0].active = b;
+        g.st.players[0].bench.as_mut_slice()[0] = a;
+        assert_eq!(g.st.arrival, n);
+    }
+
+    /// The Energy prompts list the attached cards of every Pokemon in arrival order, whatever the Pokemon's position, and
+    /// each option still answers for its own card.
+    #[test]
+    fn the_energy_prompts_list_attached_cards_in_arrival_order() {
+        use crate::prompts::{MoveOpts, PromptKind};
+        let mut g = game_with(true);
+        let a = g.st.players[0].active;
+        let b = g.st.players[0].bench.as_slice()[0];
+        let put = |g: &mut Game, s: SlotId| {
+            let (e, f) = find(g, 0, ENERGY);
+            g.move_card_to(f, e, ListRef::Slot(0, s));
+            e
+        };
+        let e1 = put(&mut g, b);
+        let e2 = put(&mut g, a);
+        let e3 = put(&mut g, b);
+        let scenario_energy = g.st.slot(0, a).energies().as_slice()[0];
+        let mut slots = SVec::new();
+        slots.push(crate::types::SlotType::Active as u8);
+        slots.push(crate::types::SlotType::Bench as u8);
+        let o = g.stash_opts(MoveOpts::default());
+        g.prompt(
+            0,
+            crate::purpose::PromptPurpose::DiscardEnergy,
+            PromptKind::DiscardEnergy { player_type: crate::types::PlayerType::BottomPlayer, slots, filter: crate::prompts::Filter::none(), o },
+            crate::game::Cont::Noop,
+        );
+        let sel = g.select_with(false).unwrap().unwrap();
+        let serials: Vec<CardId> = sel.options.iter().map(|o| o.serial.unwrap()).collect();
+        assert_eq!(serials, vec![scenario_energy, e1, e2, e3], "the Active Spot holds the scenario Energy and e2, the Bench e1 and e3");
+        for (k, c) in serials.iter().enumerate() {
+            let res = g.decode_picks(&sel, &[k]).unwrap();
+            let crate::prompts::Res::CardsFrom(picked) = res else { panic!("a card answer, got {:?}", res) };
+            assert_eq!(picked.iter().map(|x| x.1).collect::<Vec<_>>(), vec![*c]);
+        }
     }
 }
