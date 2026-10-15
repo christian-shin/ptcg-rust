@@ -128,6 +128,11 @@ pub struct Opt {
     /// The card instance whose effect the option is, for the options of an order-of-effects question (not in the
     /// observation features).
     pub source: Option<u8>,
+    /// The player at the two ends of a damage counter move or remove option (absolute seats): the Pokémon the counter
+    /// leaves (`area` / `index`) and the one it goes to (`in_play_area` / `in_play_index`). Not in the observation
+    /// features (`player_index` stays unset for these options).
+    pub from_player: Option<u8>,
+    pub to_player: Option<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -625,6 +630,7 @@ impl Game {
             PromptKind::MoveDamage { player_type, slots, o, .. } | PromptKind::RemoveDamage { player_type, slots, o, .. } => {
                 let o = *self.payload_opts(o);
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
+                let seat = |t: &CardTarget| if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 };
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for f in &all {
                     for t in all.iter().filter(|t| !(t.player == f.player && t.slot == f.slot && t.index == f.index)) {
@@ -634,6 +640,8 @@ impl Game {
                             index: Some(f.index),
                             in_play_area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
                             in_play_index: Some(t.index),
+                            from_player: Some(seat(f)),
+                            to_player: Some(seat(t)),
                             ..Default::default()
                         });
                         vals.push(Wire::Pair(*f, *t));
@@ -1069,5 +1077,40 @@ impl Game {
             j,
             self.describe_prompt(&self.prompts.as_slice()[*i])
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The options of a damage counter move name the player of both ends, not only the spot (a move between the two sides
+    /// is told from one within a side); the observation features of the option are the same as without them.
+    #[test]
+    fn move_damage_options_name_both_players() {
+        let names: Vec<&str> = (0..60).map(|i| if i < 4 { "Duraludon PRE 69" } else { "Metal Energy MEE 8" }).collect();
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(3);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().unwrap();
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": "Duraludon PRE 69"}]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = 0usize;
+        let mut slots = SVec::new();
+        slots.push(SlotType::Active as u8);
+        slots.push(SlotType::Bench as u8);
+        let o = g.stash_opts(crate::prompts::MoveOpts::default());
+        let kind = PromptKind::MoveDamage { player_type: PlayerType::Any, slots, max_allowed: SVec::new(), o, single_source: false, single_destination: false, damage_multiple: 10 };
+        g.prompt(me, crate::purpose::PromptPurpose::MoveDamage, kind, Provenance::NONE, crate::game::Cont::Noop);
+        let sel = g.prompt_select(g.prompts.len() - 1);
+        // My Active, my Bench 0 and the opponent's Active: six ordered pairs.
+        assert_eq!(sel.options.len(), 6);
+        let pair = |o: &Opt| (o.area, o.index, o.from_player, o.in_play_area, o.in_play_index, o.to_player);
+        let a = AreaType::Active as u8;
+        let b = AreaType::Bench as u8;
+        assert!(sel.options.iter().any(|o| pair(o) == (Some(a), Some(0), Some(0), Some(b), Some(0), Some(0))), "within my side");
+        assert!(sel.options.iter().any(|o| pair(o) == (Some(a), Some(0), Some(0), Some(a), Some(0), Some(1))), "to the opponent's Active");
+        assert!(sel.options.iter().any(|o| pair(o) == (Some(a), Some(0), Some(1), Some(a), Some(0), Some(0))), "from the opponent's Active");
+        assert!(sel.options.iter().all(|o| o.from_player.is_some() && o.to_player.is_some() && o.player_index.is_none()));
     }
 }
