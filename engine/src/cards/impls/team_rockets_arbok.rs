@@ -4,7 +4,8 @@
 //! damage to each of your opponent's Pokémon.
 //!
 //! Evolving (directly or with Rare Candy) is playing a Pokémon from the hand
-//! (rulings id285, id1998, id1133), so the lock covers EnterPlay and Evolve from the hand.
+//! (rulings id285, id1998, id1133), so the lock covers EnterPlay and Evolve from the hand. "From their hand" is the locked
+//! player's own hand (`Owner(Opp)`): a card put from the Arbok owner's hand by the opponent's effect (Mandibuzz's Look for Prey) is not covered.
 //! Spinning Tail's 30 is one Damage event per Pokémon (no Weakness or Resistance for the Benched ones, APR B-08).
 use crate::spec::prelude::*;
 use crate::types::tag;
@@ -15,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
     // from their hand (except Team Rocket's Pokémon).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        lock: LockDecl::on(EventPred::All(&[EventPred::Any(&[EventPred::Kind(EventKind::EnterPlay), EventPred::Kind(EventKind::Evolve)]), EventPred::Source(RulesZone::Hand), EventPred::Card(Pred::All(&[Pred::PrintsAbility, Pred::Not(&Pred::Tag(tag::TEAM_ROCKET))]))]), "BLOCKED_BY_ABILITY"),
+        lock: LockDecl::on(EventPred::All(&[EventPred::Any(&[EventPred::Kind(EventKind::EnterPlay), EventPred::Kind(EventKind::Evolve)]), EventPred::Source(RulesZone::Hand), EventPred::Owner(Who::Opp), EventPred::Card(Pred::All(&[Pred::PrintsAbility, Pred::Not(&Pred::Tag(tag::TEAM_ROCKET))]))]), "BLOCKED_BY_ABILITY"),
         while_: &[LockWhile::Active],
         ability: true,
     }) }],
