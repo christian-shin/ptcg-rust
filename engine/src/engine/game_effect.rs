@@ -40,7 +40,12 @@ pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
 /// when the Pokémon evolves, devolves or levels up). Moving to the Bench keeps a Trainer's or an Ability's effect
 /// ([`clear_effects`]; id2228, id1651).
 pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
-    clear_effects(st, p, s);
+    let slot = &mut st.players[p].slots[s as usize];
+    slot.poison_damage = 10;
+    slot.burn_damage = 20;
+    slot.confusion_damage = 30;
+    slot.healed_this_turn = false;
+    crate::engine::lasting::clear_effects_evolving(st, p, s);
     crate::engine::lasting::clear_declared(st, p, s);
 }
 

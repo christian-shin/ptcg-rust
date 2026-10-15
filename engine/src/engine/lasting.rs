@@ -392,6 +392,17 @@ pub fn set_bonus_pending(st: &mut State, p: usize, s: SlotId, spec: &'static cra
 /// its locks, damage changes, "no Weakness", the Knock Out trigger, the TakesMore damage, Retaliate and the preventions; not the
 /// cost increases nor the next-turn bonus (the attacking side's).
 pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
+    clear_effects_keeping(st, p, s, true);
+}
+
+/// The Pokémon evolves or is devolved: every effect on it ends, a Trainer's too (an effect on the Pokémon, APR B-05 and the
+/// examples of "effects on a Pokémon"; C-13; official JP FAQ Acerola's Mischief on a devolved Pokémon); not the cost
+/// increases nor the next-turn bonus nor the player's.
+pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
+    clear_effects_keeping(st, p, s, false);
+}
+
+fn clear_effects_keeping(st: &mut State, p: usize, s: SlotId, keep_trainers: bool) {
     let on = LastingOn::pokemon(p, s);
     let by_trainer = |st: &State, c: CardId| st.cdef(c).is_trainer();
     let keep: Vec<bool> = st
@@ -400,8 +411,8 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
         .map(|l| {
             l.on != on
                 || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded)
-                // A Trainer's effect on the Pokémon (Iron Defender) isn't an effect of an attack: it stays (APR A-05, C-15).
-                || by_trainer(st, l.source)
+                // A Trainer's effect on the Pokémon (Iron Defender) isn't an effect of an attack: it stays on the Bench move (APR A-05, C-15); evolving ends it ([`clear_effects_evolving`]).
+                || (keep_trainers && by_trainer(st, l.source))
         })
         .collect();
     let mut i = 0;

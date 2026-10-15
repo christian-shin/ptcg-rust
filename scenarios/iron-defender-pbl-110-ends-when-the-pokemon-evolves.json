@@ -1,0 +1,18 @@
+{
+ "turn": 4,
+ "decks": [
+  ["4 Beldum TEF 113", "4 Metang TEF 114", "4 Iron Defender PBL 110", "48 Metal Energy MEE 8"],
+  ["4 Beldum TEF 113", "4 Metang TEF 114", "4 Iron Defender PBL 110", "48 Metal Energy MEE 8"]
+ ],
+ "me": {"reset": true, "active": "Beldum TEF 113", "hand": ["Iron Defender PBL 110", "Metang TEF 114"]},
+ "opp": {"reset": true, "active": "Beldum TEF 113", "active_energy": ["Metal Energy MEE 8", "Metal Energy MEE 8", "Metal Energy MEE 8"]},
+ "answers": [
+  {"a": "play", "card": "Iron Defender PBL 110"},
+  {"a": "play", "card": "Metang TEF 114", "target": {"player": 2, "slot": 1, "index": 0}},
+  {"a": "pass"},
+  {"a": "attack", "name": "Iron Tackle"}
+ ],
+ "expect": [
+  {"at": "next_turn_end", "who": "me", "slot": "active", "card": "Metang TEF 114", "damage": 50, "cite": "APR B-05 and \"Examples of effects on a Pokémon\" (Iron Defender is an effect on each Metal Pokémon taking the damage); APR C-13 (every effect on a Pokémon ends when it devolves); official JP FAQ (Greninja, Acerola's Mischief with Strange Timepiece): a lasting effect on a Pokémon ends when it evolves or devolves. The Metang that evolved from the Beldum has no Iron Defender: Iron Tackle's 50 is not reduced"}
+ ]
+}
