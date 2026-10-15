@@ -371,7 +371,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
         .unwrap()
         .iter()
         .filter_map(|c| def_by_full_name(c["key"].as_str().unwrap()))
-        .filter(|d| def(*d).is_pokemon() && def(*d).powers.iter().any(|p| p.power_type == PowerType::Ability as u8) && cards_impl(*d))
+        .filter(|d| def(*d).is_pokemon() && def(*d).powers.iter().any(|p| p.source() == ptcg::spec::passive::RuleSource::Ability) && cards_impl(*d))
         .collect();
     let mut stats: std::collections::BTreeMap<String, (u32, u32, String)> = Default::default();
     // ability name -> (uses, offered again for the same Pokemon, offered again for another Pokemon)
@@ -753,7 +753,7 @@ fn main() {
             if !o.iter().any(|n| def_by_full_name(n) == Some(id)) {
                 continue;
             }
-        } else if !(d.is_trainer() || (d.is_pokemon() && d.powers.iter().any(|p| p.power_type == PowerType::Ability as u8))) {
+        } else if !(d.is_trainer() || (d.is_pokemon() && d.powers.iter().any(|p| p.source() == ptcg::spec::passive::RuleSource::Ability))) {
             continue;
         }
         targets.push(id);

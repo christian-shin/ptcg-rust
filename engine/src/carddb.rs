@@ -37,6 +37,20 @@ pub struct PowerDef {
     pub text: &'static str,
 }
 
+impl PowerDef {
+    /// What the printed power is: an Ability (`RuleSource::Ability`), or a rule printed on the card that is not an Ability
+    /// (`RuleSource::CardRule`: a Fossil's "you may discard this card from play", which no Ability lock takes away and no
+    /// Ability reader sees). The pool prints no other kind of power (data/cards.json: power types Ability and the Trainer
+    /// rule only).
+    pub fn source(&self) -> crate::spec::passive::RuleSource {
+        if self.power_type == PowerType::Ability as u8 {
+            crate::spec::passive::RuleSource::Ability
+        } else {
+            crate::spec::passive::RuleSource::CardRule
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct CardDef {
     /// Full name "<Name> <SET> <NUM>" (official name, international set code
@@ -224,6 +238,25 @@ mod key_tests {
         assert_eq!(en_name(g), "Grand Tree");
         assert_eq!(en_key(g), "Grand Tree SCR 136");
         assert_eq!(def(g).full_name, "Grand Tree SCR 136");
+    }
+
+    /// A printed power is an Ability or a card rule: exactly the Fossils' "discard this card from play" is a card rule,
+    /// every other printed power of the card table an Ability.
+    #[test]
+    fn a_power_is_an_ability_or_a_card_rule() {
+        use crate::spec::passive::RuleSource;
+        let mut rules = Vec::new();
+        for d in cards() {
+            for (i, pw) in d.powers.iter().enumerate() {
+                match pw.source() {
+                    RuleSource::Ability => assert_eq!(pw.power_type, PowerType::Ability as u8, "{}", d.full_name),
+                    RuleSource::CardRule => rules.push((d.full_name, i)),
+                    other => panic!("{} power {}: {:?}", d.full_name, i, other),
+                }
+            }
+        }
+        rules.sort();
+        assert_eq!(rules, [("Antique Cover Fossil SCR 129", 0), ("Antique Root Fossil SCR 130", 0)]);
     }
 
     #[test]

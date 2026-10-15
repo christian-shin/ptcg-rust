@@ -122,7 +122,7 @@ mod tests {
             let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
             for pw in spec.powers.iter().filter(|pw| pw.once != Once::No) {
                 let printed = d.powers.get(pw.index as usize);
-                assert!(printed.is_some_and(|p| p.power_type == crate::types::PowerType::Ability as u8), "{}: power {} is no printed Ability", d.full_name, pw.index);
+                assert!(printed.is_some_and(|p| p.source() == crate::spec::passive::RuleSource::Ability), "{}: power {} is no printed Ability", d.full_name, pw.index);
                 checked += 1;
             }
         }

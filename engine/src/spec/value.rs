@@ -614,7 +614,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::HasAttacks => mon && !d.attacks.is_empty(),
         Pred::Stage(st) => mon && d.stage == *st,
         Pred::NameContains(n) => d.name.contains(*n),
-        Pred::HasAbilityNamed(n) => mon && d.powers.iter().any(|p| p.power_type == PowerType::Ability as u8 && p.name == *n),
+        Pred::HasAbilityNamed(n) => mon && d.powers.iter().any(|p| p.source() == crate::spec::passive::RuleSource::Ability && p.name == *n),
         Pred::HasAttackNamed(n) => d.attacks.iter().any(|a| a.name == *n),
         Pred::ProvidesType(t) => d.provides.contains(t),
         Pred::StageIs(st) => mon && d.stage == *st as u8,
@@ -638,7 +638,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
                 g.st.slot_pokemon(owner, active).is_some_and(|top| g.st.cdef(top).name == d.evolves_from)
             }
         }
-        Pred::PrintsAbility => d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
+        Pred::PrintsAbility => d.powers.iter().any(|pw| pw.source() == crate::spec::passive::RuleSource::Ability),
     }
 }
 
@@ -935,13 +935,13 @@ pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, 
         }
         SlotPred::HasAbility => {
             let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
-            g.powers(src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
+            g.powers(src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].source() == crate::spec::passive::RuleSource::Ability)
         }
         SlotPred::HasAbilityNamed(n) => {
             let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
             g.powers(src)?.iter().any(|r| {
                 let pw = &g.g().st.cdef(r.card).powers[r.index as usize];
-                pw.power_type == PowerType::Ability as u8 && pw.name == *n
+                pw.source() == crate::spec::passive::RuleSource::Ability && pw.name == *n
             })
         }
         _ => slot_pred(g.g(), me, s, sp).expect("pure slot predicate"),
