@@ -16,6 +16,7 @@ pub mod energy;
 pub mod engine;
 pub mod game;
 pub mod gen;
+pub mod host;
 pub mod interface;
 pub mod invariants;
 pub mod legal;

@@ -222,3 +222,40 @@ fn a_you_may_asks_about_its_card() {
     assert_eq!(asked(&g), crate::purpose::PromptPurpose::Activate);
     assert_eq!(sel.provenance, Provenance::by(kadabra).about(kadabra));
 }
+
+/// The host facade (`ptcg::host`): its decision and view types move between threads, and a game started through it plays
+/// a few hundred decisions on another thread with no other call.
+#[test]
+fn the_host_facade_runs_on_another_thread() {
+    use crate::host::*;
+    assert_send_clone::<Decision>();
+    assert_send_clone::<RecordEntry>();
+    assert_send_clone::<CardPlace>();
+    assert_send_clone::<StartOptions>();
+    let deck: Vec<DefId> = (0..60)
+        .map(|i| card_by_name(match i { 0..=3 => "Duraludon PRE 69", 4..=6 => "Team Rocket's Mewtwo ex DRI 81", 7..=10 => "Sacred Charm PFL 93", _ => "Metal Energy MEE 8" }).unwrap())
+        .collect();
+    let n = std::thread::spawn(move || {
+        let mut g = start_game([&deck, &deck], 4, &StartOptions::default()).unwrap();
+        let mut n = 0;
+        while n < 300 {
+            match next(&mut g).unwrap() {
+                Decision::Over { .. } => break,
+                Decision::Turn { actions, .. } => act(&mut g, *actions.last().unwrap()).unwrap(),
+                Decision::Prompt { select, .. } => {
+                    let mut picks = Vec::new();
+                    while picks.len() < select.min_count {
+                        let (mask, _) = pick_mask(&g, &select, &picks);
+                        picks.push(mask.iter().position(|m| *m).expect("a valid pick"));
+                    }
+                    answer(&mut g, &select, &picks).unwrap();
+                }
+            }
+            n += 1;
+        }
+        n
+    })
+    .join()
+    .unwrap();
+    assert!(n > 20);
+}
