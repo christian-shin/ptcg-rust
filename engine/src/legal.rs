@@ -51,6 +51,9 @@ const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
 const F_PLAY_SPEC: u8 = 32;
 const F_PLAYS_AS_POKEMON: u8 = 64;
+/// The card must be played with a companion from the hand (`CardSpec::together`): which card is the companion depends on
+/// which copy is played, so its answers are not shared between copies (`Ctx::memo`).
+const F_TOGETHER: u8 = 128;
 
 fn def_flags(def: DefId) -> u8 {
     static T: OnceLock<Vec<u8>> = OnceLock::new();
@@ -73,6 +76,9 @@ fn def_flags(def: DefId) -> u8 {
                 }
                 if crate::spec::run::plays_as_pokemon(spec) {
                     f |= F_PLAYS_AS_POKEMON;
+                }
+                if spec.together.is_some() {
+                    f |= F_TOGETHER;
                 }
                 f
             })
@@ -97,6 +103,9 @@ pub struct Ctx<'a> {
     attack_cost: SVec<((u8, AttackRef), crate::game::R<Cost>), 16>,
     powers: SVec<(CardId, crate::game::R<SVec<PowerRef, 8>>), 16>,
     abil: SVec<((CardId, u8), bool), 48>,
+    /// The answers of the hand-card plays by (card definition, target): copies of one card in the hand share one answer
+    /// (see [`legal_fast`]).
+    memo: SVec<((DefId, CardTarget), bool), 96>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
     /// The readers' card lists of the decision (`decl::OrderCache`).
@@ -116,6 +125,7 @@ impl<'a> Ctx<'a> {
             attack_cost: SVec::new(),
             powers: SVec::new(),
             abil: SVec::new(),
+            memo: SVec::new(),
             why: "",
             order: crate::decl::OrderCache::new(),
         }
@@ -365,6 +375,12 @@ impl crate::engine::change_active::ActiveChecks for Ctx<'_> {
 }
 
 /// Answer one action from the declared checks; `None` (with the reason in `ctx.why`) when it can't.
+///
+/// The play of a hand card is answered once per (card definition, target) in a decision: the checks of a play read the
+/// card's definition and zone (the hand), the target and the game, never which copy it is, so two copies of one card in
+/// the hand get one answer (the unit test `copies_in_the_hand_answer_alike` plays every pool card's twin;
+/// `PTCG_VERIFY_LEGAL=1` compares every memo answer with a fresh one). A card played with a companion
+/// (`F_TOGETHER`) is left out: its companion is the first other matching card, which depends on the copy.
 pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
@@ -372,21 +388,42 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
         Action::Pass => Some(true),
         Action::PlayCard { hand_index, target } => {
             let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return ctx.none("unknown hand card") };
-            let d = g.st.cdef(card);
-            if d.is_energy() {
-                fast_energy(ctx, card, target)
-            } else if d.is_pokemon() {
-                fast_pokemon(ctx, card, target)
-            } else if d.is_trainer() {
-                fast_trainer(ctx, card, target)
-            } else {
-                ctx.none("unknown card kind")
+            let def = d_def(g, card);
+            if def_flags(def) & F_TOGETHER != 0 {
+                return play_fresh(ctx, card, target);
             }
+            if let Some(&(_, answer)) = ctx.memo.iter().find(|(k, _)| *k == (def, target)) {
+                if crate::options::verify_legal() {
+                    assert_eq!(play_fresh(ctx, card, target), Some(answer), "the memoized play answer differs from the fresh one: {} onto {:?}", g.st.cdef(card).full_name, target);
+                }
+                return Some(answer);
+            }
+            let r = play_fresh(ctx, card, target);
+            if let Some(answer) = r {
+                if ctx.memo.len() < ctx.memo.capacity() {
+                    ctx.memo.push(((def, target), answer));
+                }
+            }
+            r
         }
         Action::Attack { name, from } => fast_attack(ctx, name, from),
         Action::UseAbility { name, target } => fast_ability(ctx, name, target),
         Action::UseStadium => fast_use_stadium(ctx),
         Action::Retreat { bench_index } => fast_retreat(ctx, bench_index),
+    }
+}
+
+/// The play of hand card `card` onto `target`, from the checks (no memo).
+fn play_fresh(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> {
+    let d = ctx.g.st.cdef(card);
+    if d.is_energy() {
+        fast_energy(ctx, card, target)
+    } else if d.is_pokemon() {
+        fast_pokemon(ctx, card, target)
+    } else if d.is_trainer() {
+        fast_trainer(ctx, card, target)
+    } else {
+        ctx.none("unknown card kind")
     }
 }
 
@@ -397,6 +434,11 @@ fn fast_energy(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> 
     let g = ctx.g;
     let p = ctx.p;
     let Ok(t) = turn::can_attach_energy(g, p, target) else { return Some(false) };
+    // No lock over Attach can exist and the card has no guard of its own: the spot is the only check left (two plain
+    // reads), so the event isn't built.
+    if def_flags(d_def(g, card)) & F_ATTACH_GUARD == 0 && !passive::may_lock_event(g, p, crate::spec::event::EventKind::Attach) {
+        return Some(crate::engine::attach::attach_spot_ok(g, card, t, g.st.owner(card) as u8).is_ok());
+    }
     // The Attach the play produces and the checks its routine makes (`engine::attach::check_attach_with`): the
     // spot, the locks, the Energy's own guard.
     let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, true, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
@@ -598,4 +640,83 @@ fn fast_retreat(ctx: &mut Ctx, bench_index: u8) -> Option<bool> {
     let active = g.st.players[p].active;
     let Ok(map) = ctx.provided(active) else { return Some(false) };
     Some(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    const BASIC: &str = "Duraludon PRE 69";
+    const OTHER: &str = "Team Rocket's Mewtwo ex DRI 81";
+    const ENERGY: &str = "Metal Energy MEE 8";
+
+    /// A game where player 0 holds two copies of `def` in the hand, with a Pokémon and a Benched one in play.
+    fn twins(def: DefId, energy_played: bool) -> Option<Game> {
+        let id = |n: &str| crate::carddb::def_by_full_name(n).unwrap();
+        let mut deck: Vec<DefId> = Vec::new();
+        deck.extend([def; 4]);
+        deck.extend([id(BASIC); 4]);
+        deck.extend([id(OTHER); 2]);
+        deck.resize(60, id(ENERGY));
+        for seed in 1..8 {
+            let mut g = Game::new(seed);
+            if g.start([&deck, &deck]).is_err() {
+                return None;
+            }
+            g.settle().ok();
+            if g.st.active_player != 0 {
+                continue;
+            }
+            let name = crate::carddb::def(def).full_name;
+            let sc = json!({
+                "me": {"reset": true, "active": BASIC, "active_energy": [ENERGY], "bench": [{"card": OTHER}], "hand": [name, name]},
+                "opp": {"reset": true, "active": BASIC}
+            });
+            crate::scenario::apply(&mut g, &sc).ok()?;
+            if energy_played {
+                g.st.players[0].energy_played_turn = g.st.turn;
+            }
+            return Some(g);
+        }
+        None
+    }
+
+    /// The memo of the hand-card plays by (definition, target) is valid because a play's checks read the card's definition and
+    /// zone, never which copy it is: two copies in the hand get the same answer onto every target, for every card of the pool
+    /// that isn't played with a companion (`F_TOGETHER`: its companion depends on the copy).
+    #[test]
+    fn copies_in_the_hand_answer_alike() {
+        let mut checked = 0;
+        for def in 0..crate::carddb::cards().len() as DefId {
+            if crate::carddb::def(def).full_name.is_empty() || def_flags(def) & F_TOGETHER != 0 {
+                continue;
+            }
+            for energy_played in [false, true] {
+                let Some(g) = twins(def, energy_played) else { continue };
+                let hand = g.st.players[0].hand;
+                if hand.len() != 2 || d_def(&g, hand.get(0).unwrap()) != def {
+                    continue;
+                }
+                for a in crate::options::candidate_actions(&g) {
+                    let Action::PlayCard { hand_index: 0, target } = a else { continue };
+                    let (c0, c1) = (hand.get(0).unwrap(), hand.get(1).unwrap());
+                    let first = play_fresh(&mut Ctx::new(&g), c0, target);
+                    let second = play_fresh(&mut Ctx::new(&g), c1, target);
+                    assert_eq!(first, second, "{} onto {:?}: the two copies in the hand answer differently", g.st.cdef(c0).full_name, target);
+                    checked += 1;
+                }
+            }
+        }
+        assert!(checked > 1000, "only {checked} twin plays were compared");
+    }
+
+    /// The cards played with a companion are exactly those with `CardSpec::together`.
+    #[test]
+    fn the_companion_flag_is_the_spec_field() {
+        for def in 0..crate::carddb::cards().len() as DefId {
+            let together = crate::cards::spec_for(def).map_or(false, |s| s.together.is_some());
+            assert_eq!(def_flags(def) & F_TOGETHER != 0, together, "{}", crate::carddb::def(def).full_name);
+        }
+    }
 }

@@ -110,8 +110,13 @@ fn move_prevented(g: &mut Game, kind: EventKind, card: CardId, from: SlotRef, to
 /// per Pokémon unless its card says otherwise: `max_tools`).
 pub fn attach_target_ok(g: &Game, v: &EventView) -> R {
     let (Some(card), Some(t)) = (v.card, v.slot) else { crate::bail!("INVALID_TARGET") };
+    attach_spot_ok(g, card, t, v.owner)
+}
+
+/// [`attach_target_ok`] for `card` onto the Pokémon in `t`, `owner` the player whose card it is.
+pub fn attach_spot_ok(g: &Game, card: CardId, t: SlotRef, owner: u8) -> R {
     let Some(pc) = g.st.slot_pokemon(t.p as usize, t.s) else { crate::bail!("INVALID_TARGET") };
-    if t.p != v.owner {
+    if t.p != owner {
         crate::bail!("INVALID_TARGET");
     }
     if is_tool(g, card) && g.st.slot(t.p as usize, t.s).tools().len() >= g.st.cdef(pc).max_tools as usize {
