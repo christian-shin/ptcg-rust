@@ -33,9 +33,18 @@ pub struct EnergyView {
     pub first_type: CardType,
 }
 
-/// One unit of Energy a Pokémon provides.
+/// One unit of Energy a Pokémon provides, and the card that provides it (an attached Energy card; the card of an effect
+/// that makes the Pokémon provide Energy).
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum EnergyUnit {
+pub struct EnergyUnit {
+    /// The card providing the unit (`CardView::card`: its id in this game).
+    pub card: CardId,
+    pub kind: EnergyUnitKind,
+}
+
+/// What one unit of Energy is.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum EnergyUnitKind {
     /// One unit of this type (`ct::ANY` for an Energy that provides every type, Prism Energy).
     One(CardType),
     /// One unit of whichever of these types its holder chooses (Team Rocket's Energy).
@@ -151,10 +160,10 @@ fn pokemon(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId) -> Opti
     let mut provided = SVec::new();
     for e in crate::derived::compute_provided_energy(facts, p, crate::effects::SlotRef::new(p, s)).unwrap_or_default().iter() {
         if crate::energy::is_choosable(e.provides.as_slice()) {
-            provided.push(EnergyUnit::AnyOf(e.provides));
+            provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::AnyOf(e.provides) });
         } else {
             for t in e.provides.iter() {
-                provided.push(EnergyUnit::One(*t));
+                provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::One(*t) });
             }
         }
     }
@@ -343,16 +352,27 @@ mod tests {
     fn provided_energy_is_counted_per_unit() {
         let g = board(5, &["Metal Energy MEE 8", "Team Rocket's Energy DRI 182", "Prism Energy ASC 216"]);
         let pk = TableView::new(&g, 0).players[0].active.unwrap();
-        let units: Vec<EnergyUnit> = pk.provided.iter().copied().collect();
+        let units: Vec<(EnergyUnitKind, CardId)> = pk.provided.iter().map(|u| (u.kind, u.card)).collect();
+        // Each unit names its card: the attached Energy card of that name.
+        for u in pk.provided.iter() {
+            assert!(pk.energy.iter().any(|e| e.card.card == u.card), "unit of a card not attached");
+        }
         // Metal Energy: one unit. Team Rocket's Energy: "2 in any combination of [P] and [D]", two units each a
         // choice of Psychic or Darkness (not four flattened types). Prism Energy: one unit of any type.
-        let any_of = EnergyUnit::AnyOf({
+        let any_of = EnergyUnitKind::AnyOf({
             let mut v = SVec::new();
             v.push(ct::PSYCHIC);
             v.push(ct::DARK);
             v
         });
-        assert_eq!(units, vec![any_of, any_of, EnergyUnit::One(ct::ANY), EnergyUnit::One(ct::METAL)]);
+        let kinds: Vec<EnergyUnitKind> = units.iter().map(|u| u.0).collect();
+        assert_eq!(kinds, vec![any_of, any_of, EnergyUnitKind::One(ct::ANY), EnergyUnitKind::One(ct::METAL)]);
+        // Both Team Rocket's units come from one card; the others each from their own card, in the card's name.
+        assert_eq!(units[0].1, units[1].1);
+        let def_of = |c: CardId| g.st.cdef(c).name;
+        assert_eq!(def_of(units[0].1), "Team Rocket's Energy");
+        assert_eq!(def_of(units[2].1), "Prism Energy");
+        assert_eq!(def_of(units[3].1), "Metal Energy");
     }
 
     /// A staged card the viewer may not see keeps its place in `looking` as `None`; the cards it may see are `Some`.
