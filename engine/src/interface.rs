@@ -136,8 +136,11 @@ pub struct SelectData {
     pub min_count: usize,
     pub max_count: usize,
     pub options: Vec<Opt>,
+    /// The card whose effect asks and the card the question is about (`Provenance::NONE` for a turn decision, a chance
+    /// or a rules question).
+    pub provenance: Provenance,
     /// Internal: how option indices map back to answers.
-    source: Source,
+    map: Source,
 }
 
 impl SelectData {
@@ -150,7 +153,7 @@ impl SelectData {
     /// Whether `wire_answer(chosen)` would succeed (every pick names an option; a single-valued prompt
     /// needs one pick), without building it.
     pub fn picks_ok(&self, chosen: &[usize]) -> bool {
-        match &self.source {
+        match &self.map {
             Source::Prompt(_, vals, AnswerShape::Single) => chosen.first().is_some_and(|k| *k < vals.len()),
             Source::Prompt(_, vals, _) => chosen.iter().all(|k| *k < vals.len()),
             _ => false,
@@ -161,7 +164,7 @@ impl SelectData {
     /// one damage counter: Put / Move / Remove damage prompts).
     /// The prompt message this select answers (empty for turn / chance selects).
     pub fn prompt_message(&self, g: &Game) -> &'static str {
-        match &self.source {
+        match &self.map {
             Source::Prompt(k, _, _) => g.prompts.as_slice()[*k].purpose.message(),
             _ => "",
         }
@@ -317,7 +320,8 @@ impl Game {
                 min_count: 1,
                 max_count: 1,
                 options: vec![Opt { kind: OptionType::Yes as u8, ..Default::default() }, Opt { kind: OptionType::No as u8, ..Default::default() }],
-                source: Source::Chance(i),
+                provenance: Provenance::NONE,
+                map: Source::Chance(i),
             },
             _ => SelectData {
                 player,
@@ -326,14 +330,15 @@ impl Game {
                 min_count: 0,
                 max_count: 0,
                 options: vec![],
-                source: Source::Chance(i),
+                provenance: Provenance::NONE,
+                map: Source::Chance(i),
             },
         }
     }
 
     /// Answer a manual shuffle: `order` is a permutation of the deck indices.
     pub fn answer_shuffle(&mut self, sel: &SelectData, order: &[u8]) -> R {
-        match sel.source {
+        match sel.map {
             Source::Chance(i) => self.resolve(i, Res::Order(crate::list::List::from_slice(order))),
             _ => Err(GameError("NOT_A_SHUFFLE")),
         }
@@ -398,7 +403,8 @@ impl Game {
             min_count: 1,
             max_count: 1,
             options,
-            source: Source::Turn(opts),
+            provenance: Provenance::NONE,
+            map: Source::Turn(opts),
         }
     }
 
@@ -414,7 +420,8 @@ impl Game {
             min_count: min,
             max_count: max,
             options,
-            source: Source::Prompt(i, vals, sh),
+            provenance: pr.provenance,
+            map: Source::Prompt(i, vals, sh),
         };
         match pr.kind {
             PromptKind::Confirm => {
@@ -696,7 +703,7 @@ impl Game {
     /// [`Game::answer`]; `rollback` false skips the backup copy that restores the game when the answer
     /// is rejected (a caller working on a copy it throws away).
     fn answer_with(&mut self, sel: &SelectData, chosen: &[usize], rollback: bool) -> R {
-        match &sel.source {
+        match &sel.map {
             Source::Chance(i) => {
                 let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
                 match self.prompts.as_slice()[*i].kind {
@@ -731,7 +738,7 @@ impl Game {
 
 /// The wire answer (the form a recorded trace holds) for option indices `chosen` of a prompt select.
 fn raw_answer(sel: &SelectData, chosen: &[usize]) -> Result<Value, GameError> {
-    let (vals, shape) = match &sel.source {
+    let (vals, shape) = match &sel.map {
         Source::Prompt(_, vals, shape) => (vals, shape),
         _ => return Err(GameError("NOT_A_PROMPT")),
     };
@@ -764,7 +771,7 @@ impl Game {
     /// Whether `chosen` would be accepted by the prompt's decode + validate
     /// (pure: the game is not modified).
     pub fn is_valid_answer(&self, sel: &SelectData, chosen: &[usize]) -> bool {
-        match &sel.source {
+        match &sel.map {
             Source::Prompt(i, _, _) => {
                 let pr = self.prompts.as_slice()[*i];
                 self.decode_chosen(&pr, sel, chosen).is_ok()
@@ -779,7 +786,7 @@ impl Game {
     /// get stricter as picks are added, this is validity with the minimum
     /// dropped; other kinds are assumed extendable.
     fn extendable(&self, sel: &SelectData, chosen: &[usize]) -> bool {
-        let i = match &sel.source {
+        let i = match &sel.map {
             Source::Prompt(i, _, _) => *i,
             _ => return true,
         };
@@ -817,7 +824,7 @@ impl Game {
     /// The decoded and validated answer for option indices `chosen` of a prompt select (what
     /// [`Game::answer`] resolves), without resolving it.
     pub fn decode_picks(&self, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
-        let Source::Prompt(i, _, _) = &sel.source else { return Err(GameError("NOT_A_PROMPT")) };
+        let Source::Prompt(i, _, _) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
         let pr = self.prompts.as_slice()[*i];
         self.decode_chosen(&pr, sel, chosen)
     }
@@ -834,7 +841,7 @@ impl Game {
     }
 
     fn decode_chosen_typed(&self, pr: &PromptRec, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
-        let Source::Prompt(_, vals, shape) = &sel.source else { return Err(GameError("NOT_A_PROMPT")) };
+        let Source::Prompt(_, vals, shape) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
         // The errors `raw_answer` gives.
         match shape {
             AnswerShape::Single => {
@@ -944,7 +951,7 @@ impl Game {
     pub fn pick_mask_into(&self, sel: &SelectData, picks: &[usize], mask: &mut Vec<bool>) -> bool {
         let n = sel.options.len();
         mask.clear();
-        if !matches!(sel.source, Source::Prompt(..)) {
+        if !matches!(sel.map, Source::Prompt(..)) {
             mask.resize(n, true);
             return false;
         }
@@ -959,7 +966,7 @@ impl Game {
             return sel.min_count == 0 && self.is_declared_answer(sel, &[]);
         }
         let repeats = sel.allows_repeats();
-        let exact = match &sel.source {
+        let exact = match &sel.map {
             Source::Prompt(i, _, _) => matches!(self.prompts.as_slice()[*i].kind, PromptKind::ChooseEnergy { .. }),
             _ => false,
         };
@@ -993,7 +1000,7 @@ impl Game {
         if crate::options::verify_legal() {
             let mut trial = self.fork();
             let accepted = ok && trial.answer_with(sel, chosen, false).is_ok();
-            assert_eq!(ok, accepted, "declared validity differs from the continuation for {:?} of {:?}", chosen, self.describe_prompt(&self.prompts.as_slice()[match &sel.source {
+            assert_eq!(ok, accepted, "declared validity differs from the continuation for {:?} of {:?}", chosen, self.describe_prompt(&self.prompts.as_slice()[match &sel.map {
                 Source::Prompt(i, _, _) => *i,
                 _ => 0,
             }]));
@@ -1041,7 +1048,7 @@ impl Game {
     /// flip or a reveal; only an option whose effect a prevention stops may do nothing (a protected Pokémon stays
     /// choosable: id290; JP FAQ Hariyama MEG 73).
     fn verify_does_something(&self, sel: &SelectData, j: usize) {
-        let Source::Prompt(i, vals, _) = &sel.source else { return };
+        let Source::Prompt(i, vals, _) = &sel.map else { return };
         if matches!(vals.get(j), Some(Wire::Bool(false))) || !self.is_valid_answer(sel, &[j]) {
             return;
         }

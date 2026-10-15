@@ -253,7 +253,7 @@ pub fn shuffle_deck(g: &mut Game, p: usize) {
 }
 
 fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4]) {
-    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after, cause }));
+    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Provenance::NONE, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after, cause }));
 }
 
 /// "Shuffle your hand into your deck. Then, draw N cards" (Judge, Lacey, Lillie's Determination, ...): the hand (without
@@ -280,14 +280,14 @@ pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId,
 }
 
 /// `CONFIRMATION_PROMPT(store, state, player, callback, message)`.
-pub fn confirmation_prompt(g: &mut Game, p: usize, purpose: PromptPurpose, cont: Cont) {
-    g.prompt(p, purpose, PromptKind::Confirm, cont);
+pub fn confirmation_prompt(g: &mut Game, p: usize, purpose: PromptPurpose, provenance: Provenance, cont: Cont) {
+    g.prompt(p, purpose, PromptKind::Confirm, provenance, cont);
 }
 
 /// Asks the player to choose cards from `list`; the prompt lists the zone in its own order (the deck in deck order, the
 /// discard pile oldest first).
-pub fn choose_cards(g: &mut Game, p: usize, purpose: PromptPurpose, list: ListRef, filter: Filter, opts: ChooseCardsOpts, cont: Cont) {
-    g.prompt(p, purpose, PromptKind::ChooseCards { cards: list, filter, opts }, cont);
+pub fn choose_cards(g: &mut Game, p: usize, purpose: PromptPurpose, list: ListRef, filter: Filter, opts: ChooseCardsOpts, provenance: Provenance, cont: Cont) {
+    g.prompt(p, purpose, PromptKind::ChooseCards { cards: list, filter, opts }, provenance, cont);
 }
 
 // ---------------------------------------------------------------------------

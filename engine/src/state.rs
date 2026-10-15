@@ -1387,6 +1387,7 @@ mod tests {
             0,
             crate::purpose::PromptPurpose::DiscardEnergy,
             PromptKind::DiscardEnergy { player_type: crate::types::PlayerType::BottomPlayer, slots, filter: crate::prompts::Filter::none(), o },
+            crate::prompts::Provenance::NONE,
             crate::game::Cont::Noop,
         );
         let sel = g.select_with(false).unwrap().unwrap();

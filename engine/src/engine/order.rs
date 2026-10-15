@@ -319,6 +319,7 @@ pub fn step(g: &mut Game, w: &mut Window) -> R<Step> {
             w.chooser(g),
             crate::purpose::PromptPurpose::OrderEffects,
             PromptKind::Select { values: SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
+            crate::prompts::Provenance::NONE,
             Cont::OrderEffects { w: *w },
         );
         return Ok(Step::Asked);

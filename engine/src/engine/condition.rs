@@ -52,10 +52,10 @@ pub fn heal_view(g: &Game, target: SlotRef, amount: i32, cause: Cause) -> EventV
 pub fn flip_coin(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
     let offer = reflip_offered(g, p, cause)?;
     let cb = match offer {
-        Some(once) => {
+        Some(offer) => {
             g.coin_callbacks.push(cb);
             let callback = (g.coin_callbacks.len() - 1) as u8;
-            crate::game::CoinCb::Reflip { p: p as u8, callback, cause, once }
+            crate::game::CoinCb::Reflip { p: p as u8, callback, cause, offer }
         }
         None => cb,
     };
@@ -66,7 +66,7 @@ pub fn flip_coin(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) 
 pub fn flip_raw(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
     let result = g.rng.coin();
     coin_flipped(g, p, CoinPurpose::Effect, result, cause)?;
-    g.prompt(p, crate::purpose::PromptPurpose::Wait, crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
+    g.prompt(p, crate::purpose::PromptPurpose::Wait, crate::prompts::PromptKind::Wait, crate::prompts::Provenance::NONE, crate::game::Cont::CoinFlipWait { cb, result });
     Ok(result)
 }
 
@@ -84,10 +84,10 @@ pub fn flip_sequence(g: &mut Game, p: usize, mode: u8, cb: crate::game::CoinCb, 
 }
 
 /// The re-flip declaration in play covering player `p`'s flips for an effect caused by `cause` (`Modifier::Reflip`,
-/// `passive::reflip_offered`): the usage record it makes when used, or `None`.
-pub fn reflip_offered(g: &mut Game, p: usize, cause: Cause) -> R<Option<crate::state::UsageKey>> {
+/// `passive::reflip_offered`): the usage record it makes when used and the declaring card, or `None`.
+pub fn reflip_offered(g: &mut Game, p: usize, cause: Cause) -> R<Option<ReflipOffer>> {
     let v = EventView { purpose: Some(CoinPurpose::Effect), ..EventView::new(EventKind::CoinFlip, cause, p as u8, crate::spec::event::whose_turn(g)) };
-    Ok(crate::spec::passive::reflip_offered(g, &v)?.map(|(key, _, _)| key))
+    Ok(crate::spec::passive::reflip_offered(g, &v)?.map(|(once, by)| ReflipOffer { once, by }))
 }
 
 /// The re-flip offer's answer (asked of player `p` after the flips of `callback`'s request: one flip's `result`, or a
@@ -104,7 +104,7 @@ pub fn reflip_answer(g: &mut Game, a: ReflipAsk, yes: bool) -> R {
             Some(_) => g.finish_coin_sequence(a.callback, a.results, a.n, a.result),
         };
     }
-    crate::engine::usage::record(&mut g.st, a.once, crate::state::UsageBy::Player(a.p), crate::state::Until::ThisTurn(a.p));
+    crate::engine::usage::record(&mut g.st, a.offer.once, crate::state::UsageBy::Player(a.p), crate::state::Until::ThisTurn(a.p));
     match a.mode {
         None => {
             let cb = g.coin_callbacks.as_slice()[a.callback as usize];
@@ -119,22 +119,32 @@ pub fn reflip_answer(g: &mut Game, a: ReflipAsk, yes: bool) -> R {
     Ok(())
 }
 
+/// A re-flip declaration that covers a group of flips ([`reflip_offered`]): the usage record its use makes, and the
+/// declaring card.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ReflipOffer {
+    pub once: crate::state::UsageKey,
+    pub by: crate::list::CardId,
+}
+
 /// A pending re-flip offer (`Cont::Reflip`).
 #[derive(Clone, Copy, Debug)]
 pub struct ReflipAsk {
     pub p: u8,
     pub callback: u8,
     pub cause: Cause,
-    pub once: crate::state::UsageKey,
+    pub offer: ReflipOffer,
     pub result: bool,
     pub results: u32,
     pub n: u8,
     pub mode: Option<u8>,
 }
 
-/// Offer the re-flip to player `p` (Backtrack Badge's "you may"; the prompt's message is the Badge's own).
+/// Offer the re-flip to player `p` (Backtrack Badge's "you may"; the prompt's message is the Badge's own): the declaring
+/// card asks, about itself.
 pub fn ask_reflip(g: &mut Game, a: ReflipAsk) {
-    crate::prefabs::confirmation_prompt(g, a.p as usize, crate::purpose::PromptPurpose::Activate, crate::game::Cont::Reflip(a));
+    let by = a.offer.by;
+    crate::prefabs::confirmation_prompt(g, a.p as usize, crate::purpose::PromptPurpose::Activate, crate::prompts::Provenance::by(by).about(by), crate::game::Cont::Reflip(a));
 }
 
 /// The CoinFlip event of player `p`.
@@ -441,13 +451,13 @@ mod tests {
         let atk = |c: crate::list::CardId| Cause::attack(me as u8, Some(c), crate::state::AttackRef { card: c, index: 0 });
         let badge = g.st.slot(me, g.st.players[me].active).tools().iter().next().unwrap();
         let once = crate::engine::usage::declared_key(&g.st, badge, 0);
-        assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(once), "an attack of the [C] Pokémon holding it");
+        assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(ReflipOffer { once, by: badge }), "an attack of the [C] Pokémon holding it");
         assert_eq!(reflip_offered(&mut g, me, atk(slowpoke)).unwrap(), None, "the attacking Pokémon isn't [C]");
         // A copied attack (JP FAQ Backtrack Badge, Slowking's Seek Inspiration using Stoutland's attack): the attacking
         // Pokémon decides, not the Pokémon whose attack is used.
         let copied = |by: crate::list::CardId, of: crate::list::CardId| Cause::attack(me as u8, Some(by), crate::state::AttackRef { card: of, index: 0 });
         assert_eq!(reflip_offered(&mut g, me, copied(slowpoke, snorlax)).unwrap(), None, "a non-[C] Pokémon holding it uses a [C] Pokémon's attack");
-        assert_eq!(reflip_offered(&mut g, me, copied(snorlax, slowpoke)).unwrap(), Some(once), "the [C] Pokémon holding it uses another Pokémon's attack");
+        assert_eq!(reflip_offered(&mut g, me, copied(snorlax, slowpoke)).unwrap(), Some(ReflipOffer { once, by: badge }), "the [C] Pokémon holding it uses another Pokémon's attack");
         let bare = g.st.slot_pokemon(me, g.st.players[me].bench.as_slice()[1]).unwrap();
         assert_eq!(reflip_offered(&mut g, me, atk(bare)).unwrap(), None, "a [C] Pokémon not holding it");
         let ability = Cause::new(CauseKind::Ability, Some(snorlax), me as u8);

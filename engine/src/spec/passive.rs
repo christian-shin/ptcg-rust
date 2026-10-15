@@ -2034,9 +2034,9 @@ pub struct ReflipSpec {
 
 /// The re-flip declaration in play that covers the group of flips `v` (a CoinFlip view: purpose, cause, the player
 /// flipping): its card is in place for its origin and not blocked there, its owner is the one flipping, its usage record
-/// isn't there, and `on` matches (the view's owner is the player flipping). Returns the record to make when it is used. A
-/// game without one answers `None` with a mask test.
-pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)>> {
+/// isn't there, and `on` matches (the view's owner is the player flipping). Returns the record to make when it is used and
+/// the declaring card. A game without one answers `None` with a mask test.
+pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(crate::state::UsageKey, CardId)>> {
     if !g.kinds_present.has(crate::effects::k::DECLARES_REFLIP) {
         return Ok(None);
     }
@@ -2056,7 +2056,7 @@ pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(cr
             if blocked(g, c, ps.origin) || !r.on.eval(g, c, v)? {
                 continue;
             }
-            return Ok(used);
+            return Ok(used.map(|(key, _, _)| (key, c)));
         }
     }
     Ok(None)

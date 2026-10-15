@@ -333,6 +333,36 @@ pub enum PromptClass {
     Decision,
 }
 
+/// Where a question comes from: the card whose effect asks it, and the card it is about.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Provenance {
+    /// The card whose effect asks (the Pokémon whose attack or Ability it is, the Trainer, Tool, Stadium or Energy card);
+    /// `None` for a question the rules ask (setting up, a new Active Pokémon, the Prize cards of a Knock Out, a retreat's
+    /// cost, the order of several effects) and for every chance or information prompt (shuffles, coins, reveals,
+    /// waits): those aren't questions.
+    pub source: Option<CardId>,
+    /// The one card the question is about when it isn't among the answers: the card being attached (where to attach
+    /// it), the Evolution card or the Pokémon being evolved (the other half of an evolution), the card whose effect may
+    /// be used (a "you may"), the Pokémon whose attack or Special Condition is chosen. `None` otherwise (also when the
+    /// question is about several cards).
+    pub subject: Option<CardId>,
+}
+
+impl Provenance {
+    /// No card asks: a rules question, a chance or an information prompt.
+    pub const NONE: Provenance = Provenance { source: None, subject: None };
+
+    /// Asked by `card`'s effect.
+    pub const fn by(card: CardId) -> Provenance {
+        Provenance { source: Some(card), subject: None }
+    }
+
+    /// The question is about `card`.
+    pub const fn about(self, card: CardId) -> Provenance {
+        Provenance { subject: Some(card), ..self }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct PromptRec {
     pub id: u32,
@@ -341,6 +371,8 @@ pub struct PromptRec {
     /// Why the prompt is asked (the recorded `message` is `purpose.message()`).
     pub purpose: PromptPurpose,
     pub kind: PromptKind,
+    /// The card whose effect asks and the card the question is about.
+    pub provenance: Provenance,
     /// Answered (its answer waits in `Game::answers` for the other prompts of its group).
     pub answered: bool,
     /// Decode an answer as the first picks of a longer one: the minimum count isn't required (legality's search for a
@@ -470,7 +502,13 @@ impl PromptRec {
         }
     }
     pub fn class(&self) -> PromptClass {
-        match self.kind {
+        self.kind.class()
+    }
+}
+
+impl PromptKind {
+    pub fn class(&self) -> PromptClass {
+        match self {
             PromptKind::ShuffleDeck | PromptKind::CoinFlip => PromptClass::Chance,
             PromptKind::Alert | PromptKind::ShowCards | PromptKind::ShowMulligan | PromptKind::ConfirmCards | PromptKind::Wait => PromptClass::Info,
             _ => PromptClass::Decision,
