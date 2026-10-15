@@ -1078,7 +1078,7 @@ pub struct DamageAcc {
 /// The printed name (`PowerDef::name_id`) of the Ability the passive of the card `me` is (a `NonStack::SameAbility`
 /// declaration keys on it); none when the card has no Ability.
 fn declaring_ability(g: &Game, me: CardId) -> Option<u16> {
-    g.st.cdef(me).powers.iter().find(|p| p.power_type == PowerType::Ability as u8).map(|p| p.name_id)
+    g.st.cdef(me).powers.iter().find(|p| p.source() == RuleSource::Ability).map(|p| p.name_id)
 }
 
 /// `DamageDealt` at the Attack stage, over the `Attack` effect ("this attack does N more damage" before it is dealt).
@@ -1540,7 +1540,7 @@ fn lockable_power(g: &Game, power: crate::effects::PowerRef) -> bool {
     if power.index == PROBE_GENERIC {
         return true;
     }
-    g.st.cdef(power.card).powers[power.index as usize].power_type == PowerType::Ability as u8
+    g.st.cdef(power.card).powers[power.index as usize].source() == RuleSource::Ability
 }
 
 fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -> bool {
@@ -2691,7 +2691,7 @@ fn locker_owner(g: &Game, me: CardId, locker: Locker) -> Option<usize> {
 
 /// The Ability of a Pokémon card that a lock would turn off (its first Ability).
 fn first_ability(g: &Game, c: CardId) -> Option<crate::effects::PowerRef> {
-    g.st.cdef(c).powers.iter().position(|pw| pw.power_type == PowerType::Ability as u8).map(|i| crate::effects::PowerRef { card: c, index: i as u8 })
+    g.st.cdef(c).powers.iter().position(|pw| pw.source() == RuleSource::Ability).map(|i| crate::effects::PowerRef { card: c, index: i as u8 })
 }
 
 /// Would lock `pa` of `a`, in place, turn off the Ability of lock source `s` where it is now? Position and
@@ -3882,7 +3882,7 @@ mod non_stacking_tests {
                 let Modifier::DamageTaken(t) = &ps.modifier else { continue };
                 if t.nonstacking.is_some() {
                     assert_eq!(ps.origin, RuleSource::Ability, "{}: a non-stacking reduction that isn't an Ability's", d.full_name);
-                    let abilities: Vec<&str> = d.powers.iter().filter(|p| p.power_type == PowerType::Ability as u8).map(|p| p.name).collect();
+                    let abilities: Vec<&str> = d.powers.iter().filter(|p| p.source() == RuleSource::Ability).map(|p| p.name).collect();
                     assert_eq!(abilities, vec!["Curly Wall"], "{}: the Ability a non-stacking reduction is keyed by", d.full_name);
                     declarers.push(d.full_name);
                 }
@@ -3923,7 +3923,7 @@ mod active_lock_equality_tests {
     /// The power part: a lock takes away an Ability (never another kind of power: a Fossil's rule text), and the generic
     /// "has no Abilities" probe.
     fn rule_power(g: &Game, power: PowerRef) -> bool {
-        power.index == PROBE_GENERIC || g.st.cdef(power.card).powers[power.index as usize].power_type == PowerType::Ability as u8
+        power.index == PROBE_GENERIC || g.st.cdef(power.card).powers[power.index as usize].source() == RuleSource::Ability
     }
 
     fn spec_of(key: &str) -> &'static ActiveLockSpec {
