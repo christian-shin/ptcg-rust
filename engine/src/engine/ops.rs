@@ -56,6 +56,9 @@ impl Game {
     pub fn move_to(&mut self, src: ListRef, dst: ListRef, count: Option<usize>) {
         let len = self.lst(src).len();
         let n = count.unwrap_or(len).min(len);
+        if self.record.on {
+            crate::record::moving_first(self, src, n, dst);
+        }
         let mut en_moved: SVec<CardId, 48> = SVec::new();
         if let Some((p, s)) = Self::slot_of(src) {
             let slot = &self.st.players[p].slots[s as usize];
@@ -131,6 +134,9 @@ impl Game {
     }
 
     pub fn move_card_to(&mut self, src: ListRef, c: CardId, dst: ListRef) {
+        if self.record.on {
+            crate::record::moving(self, src, c, dst);
+        }
         self.note_staged(src, c, dst);
         // Entering, leaving or changing slot ends the Abilities the card used (ruling 317).
         if (Self::slot_of(src).is_some() || Self::slot_of(dst).is_some()) && src != dst {

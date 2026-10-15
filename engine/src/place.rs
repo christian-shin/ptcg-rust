@@ -265,7 +265,7 @@ pub(crate) mod tests {
         // A card set aside (staged) for a look is Looking, from the deck.
         let top = g.st.players[me].deck.as_slice()[0];
         let t = g.alloc_temp(&[]);
-        crate::engine::cards_zone::stage(&mut g, ListRef::Deck(me as u8), &[top], t);
+        crate::engine::cards_zone::stage(&mut g, ListRef::Deck(me as u8), &[top], t, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8));
         assert_eq!(g.locate_card(top), Some(CardPlace { owner: me as u8, zone: Zone::Looking { from: RulesZone::Deck }, index: 0 }));
     }
 }

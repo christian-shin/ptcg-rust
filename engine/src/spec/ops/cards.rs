@@ -496,8 +496,9 @@ fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
     v
 }
 
-fn show_to(g: &mut Game, viewer: usize, n: usize) {
-    crate::engine::cards_zone::reveal(g, viewer, n);
+fn show_to(g: &mut Game, viewer: usize, cards: &[CardId]) {
+    crate::record::reveal(g, viewer, cards);
+    crate::engine::cards_zone::reveal(g, viewer, cards.len());
 }
 
 fn to_u8(n: i32) -> u8 {
@@ -559,6 +560,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 RevealWhat::Zone(z) => zone_cards(g, me, f, *z),
                 RevealWhat::Chosen(reg) => reg_list(g, f, *reg).to_vec(),
             };
+            crate::record::reveal(g, f.who(r.to), &cards);
             if !cards.is_empty() || r.when_empty {
                 g.prompt(f.who(r.to), PromptPurpose::Look, PromptKind::ShowCards, Provenance::NONE, Cont::Noop);
             }
@@ -900,7 +902,7 @@ fn verb(g: &mut Game, me: CardId, f: &mut Frame, from: ZoneRef, sel: &CardSel, i
         return Ok(Flow::Next);
     }
     if let Some(w) = reveal {
-        show_to(g, f.who(w), cards.len());
+        show_to(g, f.who(w), &cards);
     }
     let dst = match dest {
         Dest::Look(r) => {
@@ -933,7 +935,7 @@ fn order_prompt(g: &mut Game, me: CardId, f: &mut Frame, src: ListRef, cards: &[
             }
             let t = ListRef::Temp(f.cards[r as usize]);
             if !cards.is_empty() {
-                crate::engine::cards_zone::stage(g, src, cards, t);
+                crate::engine::cards_zone::stage(g, src, cards, t, f.cause);
             }
             t
         }
@@ -977,7 +979,7 @@ fn attach_onto(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, onto: Sl
 fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, position: crate::spec::event::DeckPosition) -> R<Outcome> {
     use crate::spec::event::RulesZone;
     if let ListRef::Temp(_) = dst {
-        crate::engine::cards_zone::stage(g, src, cards, dst);
+        crate::engine::cards_zone::stage(g, src, cards, dst, f.cause);
         return Ok(Outcome::count(cards.len(), cards.len(), 0));
     }
     let zone = crate::engine::knockout::zone_of(dst);
@@ -1116,7 +1118,7 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
     let Some(from) = zone_list(g, me, f, s.pick.from, true) else { return Ok(()) };
     let reveal = |g: &mut Game, on: bool| {
         if on && !chosen.is_empty() {
-            show_to(g, 1 - p, chosen.len());
+            show_to(g, 1 - p, chosen);
         }
     };
     match s.destination {
@@ -2221,9 +2223,11 @@ fn redeal_prizes(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R {
     if count > 0 {
         // The shuffled Prize cards, set aside in that order, then put on the bottom of the deck.
         let temp = g.alloc_temp(&[]);
-        for (c, i) in all.iter().copied() {
-            crate::engine::cards_zone::relocate(g, ListRef::Prize(p as u8, i), &[c], temp, false);
-        }
+        crate::record::scope(g, crate::spec::event::EventKind::Shuffle, p as u8, Some(cause), |g| {
+            for (c, i) in all.iter().copied() {
+                crate::engine::cards_zone::relocate(g, ListRef::Prize(p as u8, i), &[c], temp, false);
+            }
+        });
         let cards: Vec<CardId> = all.iter().map(|x| x.0).collect();
         crate::engine::cards_zone::put_into_deck(g, temp, &cards, crate::spec::event::DeckPosition::Bottom, cause)?;
     }
@@ -3025,7 +3029,9 @@ fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R
         if n == 0 {
             return Ok(Flow::Next);
         }
-        let _ = g.rng.index(n);
+        let k = g.rng.index(n);
+        let seen = g.st.players[o].hand.as_slice()[k];
+        crate::record::reveal(g, f.p as usize, &[seen]);
         bother_show(g, me, f, 4);
         return Ok(Flow::Suspend);
     }
@@ -3053,6 +3059,9 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             // That Prize card remains face up for the rest of the game.
             g.st.players[o].prize_face_up[idx as usize] = true;
             g.st.players[o].prize_public[idx as usize] = true;
+            // Face up: everyone sees it.
+            let up: Vec<CardId> = g.lst(ListRef::Prize(o as u8, idx)).to_vec();
+            crate::record::reveal(g, f.p as usize, &up);
             let n = g.st.players[o].hand.len();
             if n == 0 {
                 bother_show(g, me, f, 4);
@@ -3064,6 +3073,7 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             ch.items[0] = idx;
             ch.items[1] = hand_card;
             g.spec_choices.push(ch);
+            crate::record::reveal(g, f.p as usize, &[hand_card]);
             bother_show(g, me, f, 2);
             Ok(Flow::Suspend)
         }

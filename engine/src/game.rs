@@ -306,6 +306,8 @@ pub struct Game {
     pub reach_skip: u128,
     /// The survive-on-10 groups of the attack in progress waiting for the owner's order (`damage::resolve_survive_groups`).
     pub survive_groups: SVec<crate::engine::damage::SurviveGroup, 2>,
+    /// The game record (`record.rs`): off unless `record_on` is called; not part of the rules state.
+    pub record: crate::record::Recorder,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for the use of a power, the powers a Pokémon has
@@ -390,8 +392,9 @@ impl Game {
             None => Box::new(*self),
         };
         let mut b = b;
-        // A trial's draws are not the game's: they never go into a recorded trace.
+        // A trial's draws are not the game's: they never go into a recorded trace. Nor its events into the game record.
         b.rng.set_record(false);
+        b.record_stop_in_copy();
         Fork(Some(b))
     }
 
@@ -419,6 +422,7 @@ impl Game {
                 survive_groups,
                 order_pending,
                 checkup_held,
+                record,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -459,6 +463,13 @@ impl Game {
             f!((*d).survive_groups).write(*survive_groups);
             f!((*d).order_pending).write(*order_pending);
             f!((*d).checkup_held).write(*checkup_held);
+            // The destination keeps its own recording flag (like the chance recording); a recording game restored from a
+            // copy keeps the entries made up to the copy (a rolled back action's go).
+            let on = (*d).record.on;
+            f!((*d).record).write(record.with_on(on));
+            if on {
+                crate::record::rewind(record.len);
+            }
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -511,6 +522,7 @@ impl Game {
             survive_groups: SVec::new(),
             order_pending: false,
             checkup_held: false,
+            record: crate::record::Recorder::default(),
         }
     }
 
@@ -906,6 +918,9 @@ impl Game {
         }
         self.prompts.as_mut_slice()[pi].answered = true;
         self.answers.push((id, result));
+        if self.record.on && matches!(self.prompts.as_slice()[pi].kind, PromptKind::ShuffleDeck) {
+            crate::record::shuffle(self, self.prompts.as_slice()[pi].player as usize);
+        }
         let item = self.items.as_slice()[ii];
         let all = item.ids.iter().all(|pid| {
             self.prompts.iter().find(|p| p.id == *pid).map(|p| p.answered).unwrap_or(false)
@@ -1152,7 +1167,16 @@ impl Game {
     }
 
     /// Reduces one effect: card handlers in propagation order, then the rule's own reducer.
+    #[inline]
     pub fn reduce_effect(&mut self, id: EffId) -> R {
+        if self.record.on {
+            return crate::record::effect(self, id);
+        }
+        self.reduce_effect_now(id)
+    }
+
+    /// [`Game::reduce_effect`] itself (the game record opens the effect's event around it).
+    pub(crate) fn reduce_effect_now(&mut self, id: EffId) -> R {
         // The use of a power with no program writes nothing a fact reads: the derived facts stay fresh through it.
         let read = match *self.e(id) {
             Effect::Power { power, .. } => !crate::spec::run::power_has_program(self, power),
@@ -1218,6 +1242,9 @@ impl Game {
         if !read {
             // The handlers ran (they may write); the reducers below write the event's consequences.
             self.st.bump();
+        }
+        if self.record.on {
+            crate::record::before_consequences(self, id);
         }
         // The effect's consequences: one reducer per kind.
         match kind {

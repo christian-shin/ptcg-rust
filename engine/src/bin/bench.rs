@@ -1,8 +1,10 @@
 //! Throughput benchmark: uniformly random play from a fuzz spec's decks,
 //! no JSON descriptors, no invariant checks, no recording.
 //!
-//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes]
+//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record]
 //!
+//! `--record` turns the game record on in every game (`Game::record_on`) and takes it after every decision: the cost of
+//! the record (its entries are dropped).
 //! `spec.json` is the fuzz deck spec (default `bench/spec.json`, a copy of the golden deck spec).
 //! Game i has seed S * 100,000 + i and the decks pair as in `fuzz`. Turn
 //! options come from the declared-checks fast path (`legal_actions`), prompt
@@ -72,8 +74,15 @@ fn fail(decisions: u64, why: &str) -> (u64, bool, i8, bool) {
     (decisions, false, -1, true)
 }
 
+/// `--record`: every game records (set once, before the runs).
+static RECORD: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
     let mut g = Game::new(seed);
+    let record = RECORD.load(std::sync::atomic::Ordering::Relaxed);
+    if record {
+        g.record_on();
+    }
     let mut rng = Rng::new(seed.wrapping_mul(2654435761));
     if g.start(decks).and_then(|_| g.settle()).is_err() {
         return fail(0, "start");
@@ -94,6 +103,9 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 }
             }
             Pending::Turn(_) => {
+                if record {
+                    std::hint::black_box(g.take_record());
+                }
                 legal_actions_into(&g, &mut opts);
                 if opts.is_empty() {
                     return fail(decisions, "no legal options");
@@ -105,6 +117,9 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 }
             }
             Pending::Decision(_) => {
+                if record {
+                    std::hint::black_box(g.take_record());
+                }
                 let Ok(Some(sel)) = g.select() else { return fail(decisions, "select") };
                 decisions += 1;
                 let n = sel.options.len();
@@ -180,6 +195,7 @@ fn main() {
             size_of::<ptcg::prompts::PromptRec>()
         );
     }
+    RECORD.store(args.iter().any(|a| a == "--record"), std::sync::atomic::Ordering::Relaxed);
     let spec: Value = serde_json::from_str(&std::fs::read_to_string(&spec_path).expect("spec")).expect("spec json");
     let mut decks: Vec<Vec<DefId>> = Vec::new();
     for d in spec["decks"].as_array().expect("spec.decks") {
