@@ -406,8 +406,8 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
             }
             r
         }
-        Action::Attack { name, from } => fast_attack(ctx, name, from),
-        Action::UseAbility { name, target } => fast_ability(ctx, name, target),
+        Action::Attack { attack, copied } => fast_attack(ctx, attack, copied),
+        Action::UseAbility { power, target } => fast_ability(ctx, power, target),
         Action::UseStadium => fast_use_stadium(ctx),
         Action::Retreat { bench_index } => fast_retreat(ctx, bench_index),
     }
@@ -536,14 +536,17 @@ fn d_def(g: &Game, card: CardId) -> DefId {
 // ---------------------------------------------------------------------------
 // Attacks
 
-fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) -> Option<bool> {
+fn fast_attack(ctx: &mut Ctx, attack: AttackRef, copied: bool) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
-    let found = match ctx.attack_list() {
+    match ctx.attack_list() {
         Err(()) => return Some(false),
-        Ok((_, all)) => turn::find_attack(g, all.as_slice(), name, from),
-    };
-    let Some((attack, copied)) = found else { return Some(false) };
+        Ok((_, all)) => {
+            if !turn::offers(all.as_slice(), attack, copied) {
+                return Some(false);
+            }
+        }
+    }
     if attack.is_clone() {
         return ctx.none("attack: a copy-attack clone");
     }
@@ -571,7 +574,7 @@ fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) ->
 // ---------------------------------------------------------------------------
 // Abilities
 
-fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option<bool> {
+fn fast_ability(ctx: &mut Ctx, power: PowerRef, target: CardTarget) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
     let card = match turn::ability_source(g, p, target) {
@@ -579,24 +582,22 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
         Ok(None) => return ctx.none("ability: no Pokémon"),
         Ok(Some(c)) => c,
     };
-    // The printed power by name: the checked list only removes powers, so one that isn't printed, or that the
-    // core rule refuses, is illegal whatever the lock reads say.
-    let mut same = g.st.cdef(card).powers.iter().enumerate().filter(|(_, pw)| pw.name == name).map(|(i, _)| i);
-    let Some(i) = same.next() else { return Some(false) };
-    if same.next().is_some() {
-        return ctx.none("ability: two powers with one name");
+    // The printed power: the checked list only removes powers, so one that isn't printed, or that the core rule
+    // refuses, is illegal whatever the lock reads say.
+    if power.card != card || power.index as usize >= g.st.cdef(card).powers.len() {
+        return Some(false);
     }
-    let mut power = PowerRef { card, index: i as u8 };
     if crate::spec::run::power_once_check(g, card, power.index, p).is_err() {
         return Some(false);
     }
     // The powers the card has now (in a game with an Ability lock).
     if g.kinds_present.has(k::DECLARES_ABILITY_LOCK) {
         match crate::derived::Facts::powers(ctx, card) {
-            Ok(after) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
-                Some(r) => power = *r,
-                None => return Some(false),
-            },
+            Ok(after) => {
+                if !after.iter().any(|r| *r == power) {
+                    return Some(false);
+                }
+            }
             Err(_) => return Some(false),
         }
     }

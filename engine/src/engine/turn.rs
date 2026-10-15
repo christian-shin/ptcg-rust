@@ -112,19 +112,9 @@ pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64
     Ok(assemble_available_attacks(g, p, &checked))
 }
 
-/// The attack named `name` (from the Benched Pokémon `from`, when copied by Memory Helix) in the list, as the
-/// attack action finds it.
-pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, from: Option<&'static str>) -> Option<(AttackRef, bool)> {
-    attacks
-        .iter()
-        .find(|r| {
-            g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name
-                && match from {
-                    Some(f) => r.1 && g.st.cdef(r.0.card).full_name == f,
-                    None => true,
-                }
-        })
-        .copied()
+/// Is `attack` (copied from a Benched Pokémon or not) in the list of available attacks?
+pub fn offers(attacks: &[(AttackRef, bool)], attack: AttackRef, copied: bool) -> bool {
+    attacks.iter().any(|r| *r == (attack, copied))
 }
 
 /// The printed attack list the derived attack list starts from: seeded with the active tool's attacks.
@@ -174,15 +164,12 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             // Only the Pokémon moving to the Bench loses its effects; the new Active Pokémon keeps its own (id356, id891:
             // ChangeActive's consequences).
         }
-        Action::Attack { name, from } => {
+        Action::Attack { attack, copied } => {
             let pokemon = g.st.active_pokemon(p);
             let attacks = available_attacks(g, p)?;
-            // `from` names the Benched Pokemon of an attack copied by Memory Helix.
-            let found = find_attack(g, attacks.as_slice(), name, from);
-            let (attack, copied) = match found {
-                Some(r) => r,
-                None => crate::bail!("UNKNOWN_ATTACK"),
-            };
+            if !offers(attacks.as_slice(), attack, copied) {
+                crate::bail!("UNKNOWN_ATTACK");
+            }
             let source = SlotRef::new(p, g.st.players[p].active);
             // An attack copied from a Benched Pokémon (Mew ex Memory Helix) runs as the Active Pokémon's.
             let delegate_from = if copied { Some(attack.card) } else { None };
@@ -193,14 +180,13 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                 g.st.player_last_attack_turn[p] = g.st.turn;
             }
         }
-        Action::UseAbility { name, target } => {
+        Action::UseAbility { power, target } => {
             let card = ability_source(g, p, target)?;
             if let Some(c) = card {
                 let powers = crate::derived::powers(g, c)?;
-                let power = match powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
-                    Some(r) => *r,
-                    None => crate::bail!("UNKNOWN_POWER"),
-                };
+                if !powers.iter().any(|r| *r == power) {
+                    crate::bail!("UNKNOWN_POWER");
+                }
                 // The UseAbility event's checks (`engine::turn_action::ability_checks`, the function legality calls).
                 if let Some(code) = crate::engine::turn_action::ability_checks(g, p, power, c, target.slot)? {
                     crate::bail!(code);

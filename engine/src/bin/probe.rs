@@ -455,7 +455,8 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                                 }
                                 (d.full_name.to_string(), Some(c))
                             }
-                            Action::UseAbility { name, target } => {
+                            Action::UseAbility { power, target } => {
+                                let name = ptcg::options::power_name(&g, power);
                                 let src = ptcg::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
                                 match src {
                                     Some(c) => (format!("{} / {}", g.st.cdef(c).full_name, name), None),
@@ -486,7 +487,8 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                     let k = if only_pokemon && !abil.is_empty() && prng.below(100) < 60 {
                         abil[prng.index(abil.len())]
                     } else if !non_pass.is_empty() && prng.below(100) < 92 { non_pass[prng.index(non_pass.len())] } else { opts.iter().position(|o| matches!(o.action, Action::Pass)).unwrap_or(0) };
-                    let used = if let Action::UseAbility { name, target } = opts[k].action {
+                    let used = if let Action::UseAbility { power, target } = opts[k].action {
+                        let name = ptcg::options::power_name(&g, power);
                         ptcg::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s)).map(|c| (name, c, g.st.cdef(c).full_name))
                     } else {
                         None
@@ -499,8 +501,8 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                             let e = reoffer.entry(format!("{} / {}", cname, name)).or_default();
                             e.0 += 1;
                             for o2 in legal_turn_options(&g) {
-                                if let Action::UseAbility { name: n2, target: t2 } = o2.action {
-                                    if n2 == name {
+                                if let Action::UseAbility { power: w2, target: t2 } = o2.action {
+                                    if ptcg::options::power_name(&g, w2) == name {
                                         let c2 = ptcg::prompts::get_target(&g.st, p, t2).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
                                         if c2 == Some(c) {
                                             e.1 += 1;
@@ -609,7 +611,8 @@ fn attack_prompts() {
             continue;
         }
         for o in legal_turn_options(&g) {
-            if let Action::Attack { name, .. } = o.action {
+            if let Action::Attack { attack, .. } = o.action {
+                let name = ptcg::options::attack_name(&g, attack);
                 let mut h = Box::new(g.clone());
                 h.rng.force_coins(&[true; 8]);
                 if h.act(o.action).and_then(|_| h.settle()).is_err() {
@@ -801,7 +804,7 @@ fn main() {
                             tag = Some(("play".to_string(), Some(c)));
                         }
                     }
-                    Action::UseAbility { name, target } if is_pokemon => tag = Some((format!("{}@{:?}", name, target.slot), None)),
+                    Action::UseAbility { power, target } if is_pokemon => tag = Some((format!("{}@{:?}", ptcg::options::power_name(&g, power), target.slot), None)),
                     Action::UseStadium if !is_pokemon && inplay => tag = Some(("stadium".to_string(), None)),
                     _ => {}
                 }

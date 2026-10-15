@@ -2,7 +2,9 @@
 //! checks (`legal.rs`); a trial on a copy of the game only for what is not
 //! declared (a counted fallback). Options come in a fixed order.
 
+use crate::effects::PowerRef;
 use crate::game::{Action, Game};
+use crate::state::AttackRef;
 use crate::legal::{legal_fast, Ctx};
 use crate::list::*;
 use crate::prompts::{own_targets, target_json};
@@ -17,15 +19,14 @@ pub struct TurnOption {
 
 const BOARD: CardTarget = CardTarget::new(PlayerType::BottomPlayer, SlotType::Board, 0);
 
-/// The order of option names in the recorded traces: by UTF-16 code unit.
-fn utf16_cmp(a: &str, b: &str) -> std::cmp::Ordering {
-    a.encode_utf16().cmp(b.encode_utf16())
+/// The printed name of an attack (the trace boundary and messages only: actions carry the attack itself).
+pub fn attack_name(g: &Game, attack: AttackRef) -> &'static str {
+    g.st.cdef(attack.card).attacks[attack.idx()].name
 }
 
-/// The UTF-16 units of the sort key for an attack: its name, then `\0` and the source card
-/// of a copied attack.
-fn attack_key(n: &'static str, from: Option<&'static str>) -> impl Iterator<Item = u16> {
-    n.encode_utf16().chain(from.into_iter().flat_map(|f| std::iter::once(0u16).chain(f.encode_utf16())))
+/// The printed name of an Ability (the trace boundary and messages only).
+pub fn power_name(g: &Game, power: PowerRef) -> &'static str {
+    g.st.cdef(power.card).powers[power.index as usize].name
 }
 
 /// The descriptor's `a` field of a turn action (what the policies tell actions apart by).
@@ -57,16 +58,19 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
             let c = card.expect("PlayCard needs its card");
             json!({ "a": "play", "card": g.card_ref(c), "target": target_json(target) })
         }
-        Action::Attack { name, from: None } => json!({ "a": "attack", "name": name }),
-        Action::Attack { name, from: Some(f) } => json!({ "a": "attack", "name": name, "from": f }),
-        Action::UseAbility { name, target } => json!({ "a": "ability", "name": name, "source": target_json(target) }),
+        // The trace names an attack copied from a Benched Pokémon by that Pokémon's card too.
+        Action::Attack { attack, copied: false } => json!({ "a": "attack", "name": attack_name(g, attack) }),
+        Action::Attack { attack, copied: true } => json!({ "a": "attack", "name": attack_name(g, attack), "from": g.st.cdef(attack.card).full_name }),
+        Action::UseAbility { power, target } => json!({ "a": "ability", "name": power_name(g, power), "source": target_json(target) }),
         Action::UseStadium => json!({ "a": "stadium" }),
         Action::Retreat { bench_index } => json!({ "a": "retreat", "bench": bench_index }),
         Action::Pass => json!({ "a": "pass" }),
     }
 }
 
-/// Structural candidates for the active player's turn, in the order a trace records them.
+/// Structural candidates for the active player's turn, in the rules order (cabt's MAIN order, cabt-format 4.3): the
+/// hand cards by hand index (each one's targets: the Active Spot, then the Bench in order), the Abilities of the
+/// Pokémon in play and the Stadium by position, the attacks in list order, the Retreats, passing.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
     let mut out = Vec::with_capacity(32);
     candidates(&mut Ctx::new(g), &mut out);
@@ -108,65 +112,44 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
         }
     }
 
-    let mut names: SVec<&'static str, 96> = SVec::new();
-    let mut from_names: SVec<(&'static str, &'static str), 48> = SVec::new();
-    let add = |n: &'static str, names: &mut SVec<&'static str, 96>| {
-        if !names.contains(&n) {
-            names.push(n);
-        }
-    };
-    if let Some(c) = g.st.active_pokemon(p) {
-        for a in g.st.cdef(c).attacks {
-            add(a.name, &mut names);
-        }
-    }
-    if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools().len() > 0 {
-        if let Ok(((attacks, copied), _)) = ctx.attack_list() {
-            for a in attacks.iter() {
-                let n = g.st.cdef(a.card).attacks[a.idx()].name;
-                if copied.iter().any(|c| c == a) {
-                    // Copied from a Benched Pokemon (Memory Helix): named by the source card too.
-                    let from = g.st.cdef(a.card).full_name;
-                    if !from_names.iter().any(|(x, f)| *x == n && *f == from) {
-                        from_names.push((n, from));
-                    }
-                } else {
-                    add(n, &mut names);
-                }
-            }
-        }
-    }
-    // The names, then the names with their source card (`name + '\0' + from`), sorted by UTF-16 code unit.
-    let mut keyed: SVec<(&'static str, Option<&'static str>), 144> = SVec::new();
-    for &n in names.iter() {
-        keyed.push((n, None));
-    }
-    for &(n, f) in from_names.iter() {
-        keyed.push((n, Some(f)));
-    }
-    keyed.as_mut_slice().sort_by(|a, b| attack_key(a.0, a.1).cmp(attack_key(b.0, b.1)));
-    for &(n, f) in keyed.iter() {
-        out.push(Action::Attack { name: n, from: f });
-    }
-
+    // The Abilities of the Pokémon in play (the Active Spot, then the Bench), then the Stadium.
     for t in own.iter() {
         let slot = crate::prompts::get_target(&g.st, p, *t).unwrap();
         if let Some(c) = g.st.slot_pokemon(slot.p as usize, slot.s) {
-            let mut pn: SVec<&'static str, 8> = SVec::new();
-            for pw in g.st.cdef(c).powers {
-                if !pn.contains(&pw.name) {
-                    pn.push(pw.name);
-                }
-            }
-            // (The checked power list only removes powers: the printed names are the candidates.)
-            pn.as_mut_slice().sort_by(|a, b| utf16_cmp(a, b));
-            for &n in pn.iter() {
-                out.push(Action::UseAbility { name: n, target: *t });
+            // (The checked power list only removes powers: the printed powers are the candidates.)
+            for i in 0..g.st.cdef(c).powers.len() {
+                out.push(Action::UseAbility { power: PowerRef { card: c, index: i as u8 }, target: *t });
             }
         }
     }
     if g.st.stadium_card().is_some() {
         out.push(Action::UseStadium);
+    }
+    // The attacks: the Active Pokémon's printed ones by index, then the derived ones (a Tool's, an earlier Stage's, a
+    // Benched Pokémon's copied) in the order of the list. An attack a Pokémon card prints is one attack however many
+    // cards of it are in play (two Benched copies of one card give one copied attack).
+    let mut attacks: SVec<(AttackRef, bool), 64> = SVec::new();
+    if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools().len() > 0 {
+        if let Ok((_, all)) = ctx.attack_list() {
+            for r in all.iter() {
+                attacks.push(*r);
+            }
+        }
+    }
+    if attacks.is_empty() {
+        if let Some(c) = g.st.active_pokemon(p) {
+            for i in 0..g.st.cdef(c).attacks.len() {
+                attacks.push((AttackRef { card: c, index: i as u8 }, false));
+            }
+        }
+    }
+    let def_of = |a: AttackRef| g.st.cards[a.card as usize].def;
+    for i in 0..attacks.len() {
+        let (attack, copied) = attacks.as_slice()[i];
+        let seen = attacks.as_slice()[..i].iter().any(|(b, c)| *c == copied && b.index == attack.index && def_of(*b) == def_of(attack));
+        if !seen {
+            out.push(Action::Attack { attack, copied });
+        }
     }
     for (i, b) in pl.bench.iter().enumerate() {
         if !pl.slots[*b as usize].cards().is_empty() {
@@ -303,11 +286,11 @@ fn describe_for_verify(g: &Game, a: Action) -> String {
             let c = g.st.players[p].hand.get(hand_index as usize).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
             format!("[play {} onto {:?}; turn {}]", c, target_json(target), g.st.turn)
         }
-        Action::Attack { name, from } => {
+        Action::Attack { attack, copied } => {
             let c = g.st.active_pokemon(p).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
-            format!("[attack {} {:?} by {}; turn {}]", name, from, c, g.st.turn)
+            format!("[attack {} copied {} by {}; turn {}]", attack_name(g, attack), copied, c, g.st.turn)
         }
-        Action::UseAbility { name, target } => format!("[ability {} at {:?}; turn {}]", name, target_json(target), g.st.turn),
+        Action::UseAbility { power, target } => format!("[ability {} at {:?}; turn {}]", power_name(g, power), target_json(target), g.st.turn),
         _ => format!("[turn {}]", g.st.turn),
     }
 }
@@ -357,4 +340,78 @@ pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
     let mut acts = Vec::new();
     legal_actions_into(g, &mut acts);
     acts.into_iter().map(|action| TurnOption { desc: Value::Null, action }).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::carddb::{cards, def, def_by_full_name, DefId};
+
+    /// The rank of a turn action in cabt's MAIN order (cabt-format 4.3): the hand cards by hand index and target (the
+    /// Active Spot first), then the Abilities and the Stadium by position (the Active Spot, the Bench, the Stadium),
+    /// then the attacks, then the Retreats, then passing.
+    fn rank(a: Action) -> (u8, u8, u8) {
+        let slot = |t: CardTarget| match t.slot {
+            SlotType::Active => 0,
+            SlotType::Bench => 1 + t.index,
+            _ => 100,
+        };
+        match a {
+            Action::PlayCard { hand_index, target } => (0, hand_index, slot(target)),
+            Action::UseAbility { power, target } => (1, slot(target), power.index),
+            Action::UseStadium => (1, 200, 0),
+            Action::Attack { attack, .. } => (2, attack.idx() as u8, 0),
+            Action::Retreat { bench_index } => (3, bench_index, 0),
+            Action::Pass => (4, 0, 0),
+        }
+    }
+
+    /// The candidates and the legal options come in cabt's MAIN order on a constructed board, with the attacks in
+    /// printed order although their names sort the other way.
+    #[test]
+    fn candidates_come_in_the_cabt_main_order() {
+        // A Pokémon whose second attack sorts before its first by name, a Stadium, and Pokémon with an Ability.
+        let attacker = cards()
+            .iter()
+            .position(|c| c.is_pokemon() && c.stage == Stage::Basic as u8 && c.attacks.len() >= 2 && c.attacks[0].name > c.attacks[1].name)
+            .expect("a Pokémon whose attacks are not printed in name order") as DefId;
+        let stadium = cards().iter().position(|c| c.is_trainer() && c.trainer_type() == TrainerType::Stadium).expect("a Stadium") as DefId;
+        let name = |d: DefId| def(d).full_name;
+        let id = |n: &str| def_by_full_name(n).unwrap();
+        let mut deck: Vec<DefId> = vec![attacker, stadium, id("Metang TEF 114"), id("Metang TEF 114"), id("Beldum TEF 113"), id("Beldum TEF 113")];
+        deck.resize(60, id("Metal Energy MEE 8"));
+        let mut checked = 0;
+        for seed in 1..40 {
+            let mut g = Game::new(seed);
+            g.start([&deck, &deck]).unwrap();
+            g.settle().ok();
+            if g.st.active_player != 0 {
+                continue;
+            }
+            let sc = json!({
+                "me": {"reset": true, "active": name(attacker), "active_energy": ["Metal Energy MEE 8", "Metal Energy MEE 8"],
+                       "bench": [{"card": "Metang TEF 114"}, {"card": "Beldum TEF 113"}, {"card": "Metang TEF 114"}],
+                       "hand": ["Metal Energy MEE 8", "Beldum TEF 113", "Metal Energy MEE 8"], "stadium": name(stadium)},
+                "opp": {"reset": true, "active": "Beldum TEF 113"}
+            });
+            if crate::scenario::apply(&mut g, &sc).is_err() {
+                continue;
+            }
+            let cands = candidate_actions(&g);
+            let ranks: Vec<_> = cands.iter().map(|a| rank(*a)).collect();
+            assert!(ranks.windows(2).all(|w| w[0] <= w[1]), "candidates out of order: {:?}", ranks);
+            let groups: Vec<u8> = ranks.iter().map(|r| r.0).collect();
+            for want in 0..5u8 {
+                assert!(groups.contains(&want), "the board offers no candidate of group {want}");
+            }
+            let attacks: Vec<usize> = cands.iter().filter_map(|a| if let Action::Attack { attack, .. } = a { Some(attack.idx()) } else { None }).collect();
+            let printed: Vec<usize> = (0..def(attacker).attacks.len()).collect();
+            assert_eq!(attacks, printed, "the attacks come in printed order");
+            let legal: Vec<_> = legal_actions(&g).iter().map(|o| rank(o.action)).collect();
+            assert!(legal.windows(2).all(|w| w[0] <= w[1]), "legal options out of order: {:?}", legal);
+            assert_eq!(legal.last(), Some(&(4, 0, 0)));
+            checked += 1;
+        }
+        assert!(checked > 0, "no board was built");
+    }
 }

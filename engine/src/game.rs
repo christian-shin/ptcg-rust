@@ -180,9 +180,11 @@ pub const MAX_TEMPS: usize = 32;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
     PlayCard { hand_index: u8, target: CardTarget },
-    /// `from`: full name of the Benched Pokémon whose attack this is (Memory Helix), else None.
-    Attack { name: &'static str, from: Option<&'static str> },
-    UseAbility { name: &'static str, target: CardTarget },
+    /// The attack `attack` of the Active Pokémon's list (its own printed attacks, then the derived ones). `copied`: the
+    /// attack is a Benched Pokémon's, used as the Active Pokémon's own (`attack.card` is that Benched Pokémon).
+    Attack { attack: AttackRef, copied: bool },
+    /// The Ability `power` of the Pokémon at `target` (`power.card` is the card at that spot).
+    UseAbility { power: PowerRef, target: CardTarget },
     UseStadium,
     Retreat { bench_index: u8 },
     Pass,

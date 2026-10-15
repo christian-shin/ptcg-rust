@@ -1454,7 +1454,8 @@ mod answer_tests {
         });
         crate::scenario::apply(&mut g, &sc).unwrap();
         let src = CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0);
-        g.act(crate::game::Action::UseAbility { name: "Metal Maker", target: src }).unwrap();
+        let metang = g.st.slot_pokemon(0, g.st.players[0].active).unwrap();
+        g.act(crate::game::Action::UseAbility { power: crate::effects::PowerRef { card: metang, index: 0 }, target: src }).unwrap();
         g.settle().unwrap();
         let i = match g.pending() {
             Pending::Decision(i) => i,

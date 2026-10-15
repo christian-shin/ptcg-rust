@@ -365,20 +365,11 @@ impl Game {
                             r.in_play_index = Some(target.index);
                         }
                     }
-                    Action::Attack { name, from } => {
+                    Action::Attack { attack, .. } => {
                         r.kind = OptionType::Attack as u8;
-                        // An attack copied from a Benched Pokemon (Memory Helix): the source card and its attack.
-                        let source = from.and_then(|f| {
-                            let pl = &self.st.players[p as usize];
-                            pl.bench.iter().filter_map(|b| self.st.slot_pokemon(p as usize, *b)).find(|c| self.st.cdef(*c).full_name == f)
-                        });
-                        if let Some(c) = source {
-                            r.attack_id = self.st.cdef(c).attacks.iter().position(|a| a.name == name).map(|i| i as u8);
-                            r.card_id = Some(self.st.cards[c as usize].def);
-                        } else if let Some(c) = self.st.active_pokemon(p as usize) {
-                            r.attack_id = self.st.cdef(c).attacks.iter().position(|a| a.name == name).map(|i| i as u8);
-                            r.card_id = Some(self.st.cards[c as usize].def);
-                        }
+                        // The attack and the card that prints it (a Benched Pokemon's, when copied by Memory Helix).
+                        r.attack_id = Some(attack.idx() as u8);
+                        r.card_id = Some(self.st.cards[attack.card as usize].def);
                     }
                     Action::UseAbility { target, .. } => {
                         r.kind = OptionType::Ability as u8;

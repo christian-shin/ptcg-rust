@@ -101,7 +101,7 @@ fn main() {
                     last = match acts.get(k).map(|o| o.action) {
                         Some(Action::PlayCard { hand_index, .. }) => g.st.players[p as usize].hand.get(hand_index as usize).map(|c| g.st.cdef(c).full_name.to_string()).unwrap_or("?".into()),
                         Some(Action::Attack { .. }) => g.st.active_pokemon(p as usize).map(|c| format!("attack of {}", g.st.cdef(c).full_name)).unwrap_or("?".into()),
-                        Some(Action::UseAbility { name, .. }) => format!("ability {}", name),
+                        Some(Action::UseAbility { power, .. }) => format!("ability {}", ptcg::options::power_name(&g, power)),
                         a => format!("{:?}", a),
                     };
                     if g.answer(&sel, &[k]).is_err() { break; }
