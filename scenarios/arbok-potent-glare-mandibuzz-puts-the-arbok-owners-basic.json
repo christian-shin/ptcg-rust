@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Abra TWM 80",
+   "36 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Abra TWM 80",
+   "36 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Psyduck ASC 39",
+  "bench": [
+   {
+    "card": [
+     "Vullaby WHT 63",
+     "Mandibuzz WHT 64"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Ekans DRI 112",
+   "Team Rocket's Arbok DRI 113"
+  ],
+  "hand_to_deck": true,
+  "hand": [
+   "Abra TWM 80"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Look for Prey",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "card": "Abra TWM 80",
+   "in_play": true,
+   "cite": "Potent Glare (card text): 'your opponent can't play any Pokemon that has an Ability from their hand'; Abra is in its owner's hand, not the locked player's, and Mandibuzz's Look for Prey puts it (id959: an effect putting it isn't playing it; RULES.md Putting onto the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "not_contains": [
+    "Abra TWM 80"
+   ],
+   "cite": "Mandibuzz Look for Prey (card text)"
+  }
+ ]
+}
