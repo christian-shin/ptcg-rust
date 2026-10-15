@@ -160,7 +160,7 @@ pub enum Effect {
     /// (`Stadium`, no `target`). `p` is the owner of what leaves. `pokemon`: for a whole Pokémon, its top Pokémon card as
     /// it leaves (what the triggers after the event read); `NO_CARD` otherwise.
     LeavePlay { p: u8, target: Option<SlotRef>, pokemon: CardId, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId, cards: SVec<CardId, 64> },
-    /// The TakePrizes event (`engine::knockout::take_prizes`): player `p` takes the Prize cards `prizes` (Prize list
+    /// The TakePrizes event (`engine::knockout::take_prizes_chosen`): player `p` takes the Prize cards `prizes` (Prize list
     /// indices, in the order taken) into their hand.
     TakePrizes { p: u8, prizes: crate::list::SVec<u8, 6>, cause: Cause },
     /// The RemoveCounters event (events batch 4; `engine::condition::heal`): `damage` HP of damage counters are
