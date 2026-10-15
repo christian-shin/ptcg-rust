@@ -194,6 +194,12 @@ pub fn move_physical(g: &mut Game, src: ListRef, cards: &[CardId], dst: ListRef)
 /// (`CardInst::staged_from`).
 pub fn stage(g: &mut Game, src: ListRef, cards: &[CardId], temp: ListRef, cause: Cause) {
     crate::record::scope(g, EventKind::Look, cause.player, Some(cause), |g| relocate(g, src, cards, temp, false));
+    // Who looks, remembered with the card: the one source of who sees it while it is set aside (`record::look_seen_by`).
+    for &c in cards {
+        if g.st.cards[c as usize].staged_in.is_some() {
+            g.st.cards[c as usize].staged_by = Some(cause.player);
+        }
+    }
     settle(g);
 }
 
