@@ -160,47 +160,33 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
 }
 
 thread_local! {
-    /// Scratch lists of `legal_actions_into`, kept between decisions (no allocation per decision).
-    static LEGAL_SCRATCH: std::cell::RefCell<(Vec<Action>, Vec<Action>)> = const { std::cell::RefCell::new((Vec::new(), Vec::new())) };
+    /// Scratch candidate list of `legal_actions_into`, kept between decisions (no allocation per decision).
+    static LEGAL_SCRATCH: std::cell::RefCell<Vec<Action>> = const { std::cell::RefCell::new(Vec::new()) };
 }
 
-/// The legal actions of the active player's turn into `out` (cleared first), deduplicated, in candidate
-/// order. Two candidates with one descriptor are one option: a card is told apart by its id, so a repeat is
-/// the same action.
+/// The legal actions of the active player's turn into `out` (cleared first), in candidate order. The candidates
+/// are distinct by construction (a hand card is told apart by its index, a target occurs once per card, an attack
+/// is deduplicated by its identity in `candidates`, an Ability is one per power and spot), so there is no
+/// duplicate scan; `PTCG_VERIFY_LEGAL=1` asserts it.
 pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
     out.clear();
-    let (mut cands, mut seen) = LEGAL_SCRATCH.with(|s| std::mem::take(&mut *s.borrow_mut()));
+    let mut cands = LEGAL_SCRATCH.with(|s| std::mem::take(&mut *s.borrow_mut()));
     let mut ctx = Ctx::new(g);
     candidates(&mut ctx, &mut cands);
-    seen.clear();
-    for &action in cands.iter() {
-        if seen_before(&seen, action) {
-            continue;
+    if verify_legal() {
+        for (i, a) in cands.iter().enumerate() {
+            assert!(!cands[..i].contains(a), "duplicate candidate: {:?}", a);
         }
-        seen.push(action);
+    }
+    for &action in cands.iter() {
         if legal_in(&mut ctx, action) {
             out.push(action);
         }
     }
-    LEGAL_SCRATCH.with(|s| *s.borrow_mut() = (cands, seen));
+    LEGAL_SCRATCH.with(|s| *s.borrow_mut() = cands);
 }
 
-/// Whether `action` is among the candidates already seen. The candidates come in runs (the plays of one
-/// hand card, then the other actions), and an action only repeats inside its own run, so only the tail
-/// of `seen` is compared (`PTCG_VERIFY_LEGAL=1` checks this against the full comparison).
-fn seen_before(seen: &[Action], action: Action) -> bool {
-    let tail = |same_run: &dyn Fn(&Action) -> bool| seen.iter().rev().take_while(|x| same_run(x)).any(|x| *x == action);
-    let found = match action {
-        Action::PlayCard { hand_index, .. } => tail(&|x| matches!(x, Action::PlayCard { hand_index: h, .. } if *h == hand_index)),
-        _ => tail(&|x| !matches!(x, Action::PlayCard { .. })),
-    };
-    if verify_legal() {
-        assert_eq!(found, seen.contains(&action), "duplicate candidate scan differs: {:?}", action);
-    }
-    found
-}
-
-/// Legal turn options (deduplicated, in candidate order). Descriptors are built for the legal ones only.
+/// Legal turn options (in candidate order). Descriptors are built for the legal ones only.
 pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
     let mut acts = Vec::new();
     legal_actions_into(g, &mut acts);
@@ -413,5 +399,60 @@ mod tests {
             checked += 1;
         }
         assert!(checked > 0, "no board was built");
+    }
+
+    /// The candidates of every turn decision of 12 games are pairwise distinct (why `legal_actions_into` has no
+    /// duplicate scan), and the evaluations per decision are the candidates: the counts the cost is read from
+    /// (`cargo test ... candidate_evaluations -- --nocapture`).
+    #[test]
+    fn candidate_evaluations_are_distinct_candidates() {
+        use crate::interface::SelectType;
+        let names: Vec<&str> = (0..60)
+            .map(|i| match i {
+                0..=3 => "Duraludon PRE 69",
+                4..=6 => "Team Rocket's Mewtwo ex DRI 81",
+                7..=10 => "Sacred Charm PFL 93",
+                _ => "Metal Energy MEE 8",
+            })
+            .collect();
+        let deck: Vec<u16> = names.iter().map(|n| def_by_full_name(n).unwrap()).collect();
+        let (mut decisions, mut candidates, mut tail_compares) = (0usize, 0usize, 0usize);
+        for seed in 0..12u32 {
+            let mut g = Game::new(seed);
+            g.start([&deck, &deck]).unwrap();
+            let mut x = (seed as u64).wrapping_mul(0x9E3779B97F4A7C15) | 1;
+            while let Some(sel) = g.select_with(false).unwrap() {
+                let mut picks = Vec::new();
+                if sel.select_type == SelectType::Main {
+                    let cands = candidate_actions(&g);
+                    for (i, a) in cands.iter().enumerate() {
+                        assert!(!cands[..i].contains(a), "duplicate candidate {:?}", a);
+                        // What the retired duplicate scan compared: the tail run of the earlier candidates.
+                        tail_compares += match a {
+                            Action::PlayCard { hand_index, .. } => cands[..i]
+                                .iter()
+                                .rev()
+                                .take_while(|y| matches!(y, Action::PlayCard { hand_index: h, .. } if h == hand_index))
+                                .count(),
+                            _ => cands[..i].iter().rev().take_while(|y| !matches!(y, Action::PlayCard { .. })).count(),
+                        };
+                    }
+                    decisions += 1;
+                    candidates += cands.len();
+                    x ^= x << 13;
+                    x ^= x >> 7;
+                    x ^= x << 17;
+                    picks.push((x % sel.options.len() as u64) as usize);
+                } else {
+                    while picks.len() < sel.min_count {
+                        let (mask, _) = g.pick_mask(&sel, &picks);
+                        picks.push(mask.iter().position(|m| *m).expect("a valid pick"));
+                    }
+                }
+                g.answer(&sel, &picks).unwrap();
+            }
+        }
+        println!("turn decisions {decisions}, candidates evaluated {candidates}, retired duplicate-scan comparisons {tail_compares}");
+        assert!(decisions > 0);
     }
 }
