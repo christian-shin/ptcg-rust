@@ -11,7 +11,7 @@ use crate::effects::Effect;
 use crate::game::{CoinCb, Game, R};
 use crate::list::{CardId, SVec};
 use crate::prefabs::*;
-use crate::prompts::{PromptKind, Res, SelectValues};
+use crate::prompts::{PromptKind, Provenance, Res, SelectValues};
 use crate::purpose::PromptPurpose;
 use crate::types::*;
 
@@ -136,7 +136,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if !crate::spec::run::branch_can_change(g, me, f, m.yes) {
                 return Ok(if m.no.is_empty() { Flow::Next } else { Flow::Enter(1) });
             }
-            confirmation_prompt(g, f.who(m.asker), PromptPurpose::Activate, f.cont(me, 1));
+            confirmation_prompt(g, f.who(m.asker), PromptPurpose::Activate, Provenance::by(me).about(me), f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         Op::If(i) => {
@@ -158,7 +158,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if labels.is_empty() {
                 return Ok(Flow::Next);
             }
-            g.prompt(f.who(c.chooser), PromptPurpose::ChooseOption, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 0x80 | mask));
+            g.prompt(f.who(c.chooser), PromptPurpose::ChooseOption, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, Provenance::by(me), f.cont(me, 0x80 | mask));
             Ok(Flow::Suspend)
         }
         Op::EndTurn(t) => {
@@ -317,7 +317,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 f.record(g, me, CHOICE_NO);
                 return Ok(Flow::Next);
             }
-            confirmation_prompt(g, f.who(m.asker), PromptPurpose::Activate, f.cont(me, 1));
+            confirmation_prompt(g, f.who(m.asker), PromptPurpose::Activate, Provenance::by(me).about(me), f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         // A condition the damage can't change: the branch it picks is known now, so the choices
@@ -474,6 +474,7 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
         f.p as usize,
         PromptPurpose::DisableAttack,
         crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked: crate::list::SVec::new() },
+        Provenance::by(me).about(pc),
         f.cont(me, 1),
     );
     true

@@ -261,7 +261,7 @@ fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> 
             }
             SpecialCondition::Burned => {
                 crate::engine::damage::place(g, SlotRef::new(p, a), burn, by_condition)?;
-                g.prompt(p, PromptPurpose::BurnFlip, PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
+                g.prompt(p, PromptPurpose::BurnFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::BurnFlip { p: p as u8, slot: a });
             }
             SpecialCondition::Asleep => {
                 let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;

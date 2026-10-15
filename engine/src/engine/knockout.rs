@@ -331,6 +331,7 @@ fn prize_prompt(g: &mut Game, p: usize, count: i32, cause: Cause) {
             destination: Some(ListRef::Hand(p as u8)),
             face_down_only: false,
         },
+        crate::prompts::Provenance::NONE,
         Cont::TakePrizes { p: p as u8, cause: cause.pack() },
     );
 }
@@ -852,6 +853,7 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
                 allow_cancel: false,
                 blocked: SVec::new(),
             },
+            crate::prompts::Provenance::NONE,
             Cont::ChooseActive { p },
         );
         if g.has_prompts() {
@@ -1050,6 +1052,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
             p,
             PromptPurpose::DiscardCard,
             PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
+            crate::prompts::Provenance::NONE,
             Cont::BenchShrink { p: p as u8, empty: mask },
         );
     }
@@ -1128,7 +1131,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
             inst.moved_to_active_this_turn = false;
             inst.damage_taken_last_turn = 0;
         }
-        g.prompt(p as usize, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
+        g.prompt(p as usize, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, crate::prompts::Provenance::NONE, Cont::ShuffleApplyNoWait { p });
     }
     // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
     // players are new (they held them before the usage records and the lasting table did).
@@ -1138,7 +1141,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];
     g.st.player_last_attack_turn = [0, 0];
-    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, Cont::SuddenDeathCoin);
+    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::SuddenDeathCoin);
     Ok(())
 }
 
@@ -1270,6 +1273,7 @@ pub(crate) fn lasting_ko_trigger(g: &mut Game, e: EffId) -> R {
             p as usize,
             PromptPurpose::DiscardEnergy,
             PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+            crate::prompts::Provenance::by(source_card),
             Cont::DiscardAttackerEnergy { owner, attack, source_card, target: sl },
         );
     }

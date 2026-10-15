@@ -97,7 +97,7 @@ pub enum CoinCb {
     /// sequence ends (`engine::condition::flip_sequence`).
     Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8, cause: crate::cause::Cause, offer: bool },
     /// One flip whose re-flip is offered after its wait; then the request's callback `callback` (`engine::condition::flip_coin`).
-    Reflip { p: u8, callback: u8, cause: crate::cause::Cause, once: crate::state::UsageKey },
+    Reflip { p: u8, callback: u8, cause: crate::cause::Cause, offer: crate::engine::condition::ReflipOffer },
     /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
     SequenceCard { card: CardId, frame: CardFrame },
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
@@ -817,8 +817,16 @@ impl Game {
         self.last_prompt_id
     }
 
-    /// `store.prompt(state, prompt, then)`.
-    pub fn prompt(&mut self, player: usize, purpose: PromptPurpose, kind: PromptKind, cont: Cont) {
+    /// Ask `player` (`kind`, for `purpose`; `provenance`: the card whose effect asks and the card the question is about),
+    /// then `cont` with the answer. A chance or information prompt has no provenance (`Provenance::NONE`).
+    pub fn prompt(&mut self, player: usize, purpose: PromptPurpose, kind: PromptKind, provenance: Provenance, cont: Cont) {
+        if verify_cache() {
+            // A chance or information prompt asks no question; a card program's question is its card's.
+            assert!(provenance == Provenance::NONE || kind.class() == PromptClass::Decision, "a chance or information prompt asks no question");
+            if let (Cont::Card { card, .. }, PromptClass::Decision) = (cont, kind.class()) {
+                assert_eq!(provenance.source, Some(card), "card {card}'s program asks a question that isn't its own");
+            }
+        }
         let kind = construct_prompt(self, kind);
         let cont = self.tag_cont(cont);
         let id = self.next_id();
@@ -826,20 +834,21 @@ impl Game {
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, answered: false, partial: false });
+        self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, provenance, answered: false, partial: false });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
     }
 
-    /// `store.prompt(state, [prompts...], then)`.
+    /// Several prompts answered together, then `cont` (the setup's shuffles, a Pokémon's Sleep flips): chance prompts,
+    /// so no provenance.
     pub fn prompt_group(&mut self, prompts: &[(usize, PromptPurpose, PromptKind)], cont: Cont) {
         let cont = self.tag_cont(cont);
         let mut ids = SVec::new();
         for &(player, purpose, kind) in prompts {
             let id = self.next_id();
             let kind = construct_prompt(self, kind);
-            self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, answered: false, partial: false });
+            self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, provenance: Provenance::NONE, answered: false, partial: false });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -871,7 +880,7 @@ impl Game {
 
     /// A silent wait prompt with a continuation.
     pub fn wait(&mut self, player: usize, cont: Cont) {
-        self.prompt(player, PromptPurpose::Wait, PromptKind::Wait, cont);
+        self.prompt(player, PromptPurpose::Wait, PromptKind::Wait, Provenance::NONE, cont);
     }
 
     fn resolve_wait_items(&mut self) -> R {
@@ -1015,8 +1024,8 @@ impl Game {
             CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
             CoinCb::PlayGate { p, card, target } => crate::engine::play_trainer::gate_coin(self, p, card, target, result),
-            CoinCb::Reflip { p, callback, cause, once } => {
-                crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, once, result, results: 0, n: 0, mode: None });
+            CoinCb::Reflip { p, callback, cause, offer } => {
+                crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, offer, result, results: 0, n: 0, mode: None });
                 Ok(())
             }
             CoinCb::Sequence { p, mode, results, n, callback, cause, offer } => {
@@ -1045,8 +1054,8 @@ impl Game {
                 }
                 // The re-flip offer, its declaration asked again now the flips are done.
                 if offer {
-                    if let Some(once) = crate::engine::condition::reflip_offered(self, p as usize, cause)? {
-                        crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, once, result, results, n, mode: Some(mode) });
+                    if let Some(offer) = crate::engine::condition::reflip_offered(self, p as usize, cause)? {
+                        crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, offer, result, results, n, mode: Some(mode) });
                         return Ok(());
                     }
                 }

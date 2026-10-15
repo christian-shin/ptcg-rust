@@ -240,7 +240,7 @@ fn survive_group_next(g: &mut Game, mut grp: SurviveGroup) -> R {
         for c in grp.cands.iter() {
             names.push(g.st.cdef(c.card).full_name);
         }
-        g.prompt(tp, crate::purpose::PromptPurpose::OrderEffects, crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 }, crate::game::Cont::SurviveOrder { grp });
+        g.prompt(tp, crate::purpose::PromptPurpose::OrderEffects, crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 }, crate::prompts::Provenance::NONE, crate::game::Cont::SurviveOrder { grp });
         return Ok(());
     }
     let c = grp.cands.remove_at(0);
@@ -637,7 +637,7 @@ mod tests {
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);
         let stashed_o = g.stash_opts(MoveOpts::default());
-        g.prompt(me, crate::purpose::PromptPurpose::MoveDamage, PromptKind::MoveDamage { player_type: PlayerType::TopPlayer, slots, max_allowed: SVec::new(), o: stashed_o, single_source: false, single_destination: false, damage_multiple: 10 }, crate::game::Cont::Noop);
+        g.prompt(me, crate::purpose::PromptPurpose::MoveDamage, PromptKind::MoveDamage { player_type: PlayerType::TopPlayer, slots, max_allowed: SVec::new(), o: stashed_o, single_source: false, single_destination: false, damage_multiple: 10 }, crate::prompts::Provenance::NONE, crate::game::Cont::Noop);
         let pr = *g.prompts.as_slice().last().unwrap();
         let act = json!({"player": 1, "slot": 1, "index": 0});
         let b0 = json!({"player": 1, "slot": 2, "index": 0});

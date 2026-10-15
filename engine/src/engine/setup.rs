@@ -144,7 +144,7 @@ fn needs_starter_confirm(g: &Game, p: usize) -> bool {
 
 fn starter_confirm(g: &mut Game, p: usize, mut f: SetupFrame, stage: Stage) {
     f.stage = stage;
-    g.prompt(p, PromptPurpose::Activate, PromptKind::Confirm, Cont::Setup(f));
+    g.prompt(p, PromptPurpose::Activate, PromptKind::Confirm, crate::prompts::Provenance::NONE, Cont::Setup(f));
 }
 
 /// Both hands are dealt: ask player 0 (when needed), then player 1.
@@ -207,7 +207,7 @@ fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool)
 pub fn start(g: &mut Game) -> R {
     // The coin flip for who goes first (APR G).
     let frame = SetupFrame { stage: Stage::Coin, who_begins: false, pm: 0, om: 0, php: false, ohp: false, branch: 0, shown: 0 };
-    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, Cont::Setup(frame));
+    g.prompt(0, PromptPurpose::FirstPlayerFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::Setup(frame));
     Ok(())
 }
 
@@ -230,6 +230,7 @@ fn choose_starting(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
         p,
         PromptPurpose::SetupActive,
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
+        Provenance::NONE,
         Cont::Setup(f),
     );
 }
@@ -264,7 +265,7 @@ fn setup_draw(g: &mut Game, p: usize, n: usize) -> R {
 fn mulligan_shuffle(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     crate::engine::cards_zone::mulligan(g, p);
     f.stage = next;
-    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::Setup(f));
+    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, crate::prompts::Provenance::NONE, Cont::Setup(f));
 }
 
 /// Number of show-mulligan prompts for the frame's branch, in order.
@@ -314,7 +315,7 @@ fn show_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
         let (p, purpose) = owners[f.shown as usize];
         f.shown += 1;
         f.stage = Stage::ShowMulligans;
-        g.prompt(p, purpose, PromptKind::ShowMulligan, Cont::Setup(f));
+        g.prompt(p, purpose, PromptKind::ShowMulligan, crate::prompts::Provenance::NONE, Cont::Setup(f));
         return Ok(());
     }
     after_mulligans(g, f)
@@ -335,6 +336,7 @@ fn after_mulligans(g: &mut Game, mut f: SetupFrame) -> R {
         drawer,
         PromptPurpose::DrawCount,
         PromptKind::Select { values: SelectValues::DrawCards(extra), allow_cancel: false, default_value: 0 },
+        Provenance::NONE,
         Cont::Setup(f),
     );
     Ok(())
@@ -364,6 +366,7 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
         p,
         PromptPurpose::SetupActive,
         PromptKind::ChooseCards { cards: ListRef::Hand(p as u8), filter: Filter::none(), opts },
+        Provenance::NONE,
         Cont::Setup(f),
     );
     Ok(())
@@ -377,7 +380,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             crate::engine::condition::coin_flipped(g, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
             f.who_begins = first.as_bool();
             f.stage = Stage::GoFirst;
-            g.prompt(if f.who_begins { 0 } else { 1 }, PromptPurpose::ChooseFirstPlayer, PromptKind::Confirm, Cont::Setup(f));
+            g.prompt(if f.who_begins { 0 } else { 1 }, PromptPurpose::ChooseFirstPlayer, PromptKind::Confirm, crate::prompts::Provenance::NONE, Cont::Setup(f));
             Ok(())
         }
         Stage::GoFirst => {

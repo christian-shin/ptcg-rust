@@ -107,7 +107,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     g.retain_fx(id);
     let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id, delegate_from };
     if sp.contains(&(SpecialCondition::Confused as u8)) {
-        g.prompt(p, PromptPurpose::ConfusionFlip, PromptKind::CoinFlip, Cont::UseAttack(f));
+        g.prompt(p, PromptPurpose::ConfusionFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::UseAttack(f));
         return Ok(());
     }
     begin_attack(g, f)
@@ -149,7 +149,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
 
 pub fn animation(g: &mut Game, mut f: AttackFrame) -> R {
     f.stage = AtkStage::AfterAnimation;
-    g.prompt(f.p as usize, PromptPurpose::Wait, PromptKind::Wait, Cont::UseAttack(f));
+    g.prompt(f.p as usize, PromptPurpose::Wait, PromptKind::Wait, crate::prompts::Provenance::NONE, Cont::UseAttack(f));
     Ok(())
 }
 
@@ -343,7 +343,9 @@ fn attack_again_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -
         return after_attack_check(g, f.p as usize);
     }
     f.stage = AtkStage::AfterAttackAgainConfirm;
-    g.prompt(f.p as usize, PromptPurpose::Activate, PromptKind::Confirm, Cont::UseAttack(f));
+    // The attacking Pokémon's own text lets it attack again (`attack_twice`): its effect asks, about itself.
+    let attacker = g.st.slot_pokemon(f.attacking.p as usize, f.attacking.s);
+    g.prompt(f.p as usize, PromptPurpose::Activate, PromptKind::Confirm, crate::prompts::Provenance { source: attacker, subject: attacker }, Cont::UseAttack(f));
     Ok(())
 }
 
@@ -426,7 +428,7 @@ pub fn start_use_power(g: &mut Game, id: EffId) -> R {
     // The UseAbility checks were made before the event (`turn_action::ability_checks`, from the turn action).
     let f = PowerFrame { p: p as u8, power, card, bench_target };
     if target.slot == SlotType::Active || target.slot == SlotType::Bench {
-        g.prompt(p, PromptPurpose::Wait, PromptKind::Wait, Cont::UsePower(f));
+        g.prompt(p, PromptPurpose::Wait, PromptKind::Wait, crate::prompts::Provenance::NONE, Cont::UsePower(f));
         return Ok(());
     }
     resume_use_power(g, f)

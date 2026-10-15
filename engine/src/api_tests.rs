@@ -4,6 +4,7 @@
 
 use crate::game::Game;
 use crate::interface::SelectType;
+use crate::list::CardList;
 
 fn assert_send_clone<T: Send + Clone>() {}
 
@@ -124,4 +125,100 @@ fn a_thousand_decisions_run_on_another_thread() {
     .join()
     .unwrap();
     assert_eq!(decisions, 1000, "decisions run");
+}
+
+/// Ends the turn of the player whose turn it is and plays the others' turns by ending them (prompts answered with the first
+/// valid picks), until that player's next turn decision.
+fn to_next_own_turn(g: &mut Game) {
+    let me = g.st.active_player;
+    let mut ended = false;
+    while let Some(sel) = g.select_with(false).unwrap() {
+        if sel.select_type == SelectType::Main {
+            if sel.player == me && ended {
+                return;
+            }
+            ended |= sel.player == me;
+            let end = sel.options.len() - 1;
+            g.answer(&sel, &[end]).unwrap();
+            continue;
+        }
+        let mut picks = Vec::new();
+        while picks.len() < sel.min_count {
+            let (mask, _) = g.pick_mask(&sel, &picks);
+            picks.push(mask.iter().position(|m| *m).expect("a valid pick"));
+        }
+        g.answer(&sel, &picks).unwrap();
+    }
+    panic!("the game ended");
+}
+
+/// The purpose of the decision the game waits for.
+fn asked(g: &Game) -> crate::purpose::PromptPurpose {
+    let crate::game::Pending::Decision(i) = g.pending() else { panic!("no prompt decision") };
+    g.prompts.as_slice()[i].purpose
+}
+
+/// Plays the card named `name` from the hand of the player whose turn it is (its first legal play).
+fn play(g: &mut Game, name: &str) -> crate::list::CardId {
+    let p = g.st.active_player as usize;
+    let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == name).unwrap();
+    let card = g.st.players[p].hand.as_slice()[k];
+    let action = crate::options::legal_actions(g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
+    g.act(action).unwrap();
+    card
+}
+
+/// A prompt says which card's effect asks and which card the question is about (events batch 10 E1): a Trainer's question
+/// is its own, a rules question (setting up) is nobody's.
+#[test]
+fn a_trainer_asks_its_question() {
+    use crate::prompts::Provenance;
+    const MON: &str = "Duraludon PRE 69";
+    let cards = [(MON, 4), ("Switch 30C 127", 4)];
+    let mut g = Game::new(5);
+    let deck: Vec<u16> = cards.iter().flat_map(|(n, k)| std::iter::repeat_n(*n, *k)).chain(std::iter::repeat("Metal Energy MEE 8")).take(60).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+    g.start([&deck, &deck]).unwrap();
+    let setup = g.select().unwrap().unwrap();
+    assert_eq!(setup.provenance, Provenance::NONE, "setting up is a rules question");
+    let mut g = crate::place::tests::game_of(&cards, serde_json::json!({"me": {"reset": true, "active": MON, "bench": [{"card": MON}], "hand": ["Switch 30C 127"]}, "opp": {"reset": true, "active": MON}}));
+    let switch = play(&mut g, "Switch");
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), crate::purpose::PromptPurpose::SwitchPokemon);
+    assert_eq!(sel.provenance, Provenance::by(switch));
+}
+
+/// Rare Candy's two questions: which Pokémon (nothing chosen yet), then which Stage 2 card, about the Pokémon chosen.
+#[test]
+fn an_evolution_asks_about_its_other_half() {
+    use crate::prompts::Provenance;
+    let cards = [("Dreepy ASC 158", 4), ("Dragapult ex ASC 160", 2), ("Rare Candy MEG 125", 4)];
+    let mut g = crate::place::tests::game_of(&cards, serde_json::json!({"me": {"reset": true, "active": "Dreepy ASC 158"}, "opp": {"reset": true, "active": "Dreepy ASC 158"}}));
+    to_next_own_turn(&mut g);
+    crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": "Dreepy ASC 158", "hand": ["Rare Candy MEG 125", "Dragapult ex ASC 160"]}, "opp": {"reset": true, "active": "Dreepy ASC 158"}})).unwrap();
+    let p = g.st.active_player as usize;
+    let dreepy = g.st.active_pokemon(p).unwrap();
+    let candy = play(&mut g, "Rare Candy");
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), crate::purpose::PromptPurpose::EvolvePokemon);
+    assert_eq!(sel.provenance, Provenance::by(candy));
+    let k = sel.options.iter().position(|o| o.serial == Some(dreepy)).unwrap();
+    g.answer(&sel, &[k]).unwrap();
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), crate::purpose::PromptPurpose::EvolutionCard);
+    assert_eq!(sel.provenance, Provenance::by(candy).about(dreepy));
+}
+
+/// An Ability's "you may" is asked by the Pokémon, about the Pokémon whose Ability may be used (Kadabra's Psychic Draw when
+/// it is played to evolve).
+#[test]
+fn a_you_may_asks_about_its_card() {
+    use crate::prompts::Provenance;
+    let cards = [("Abra MEG 54", 4), ("Kadabra MEG 55", 4)];
+    let mut g = crate::place::tests::game_of(&cards, serde_json::json!({"me": {"reset": true, "active": "Abra MEG 54"}, "opp": {"reset": true, "active": "Abra MEG 54"}}));
+    to_next_own_turn(&mut g);
+    crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": "Abra MEG 54", "hand": ["Kadabra MEG 55"]}, "opp": {"reset": true, "active": "Abra MEG 54"}})).unwrap();
+    let kadabra = play(&mut g, "Kadabra");
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), crate::purpose::PromptPurpose::Activate);
+    assert_eq!(sel.provenance, Provenance::by(kadabra).about(kadabra));
 }

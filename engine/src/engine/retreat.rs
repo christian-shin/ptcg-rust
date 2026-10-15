@@ -118,6 +118,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         p,
         PromptPurpose::DiscardEnergy,
         PromptKind::ChooseEnergy { energy: map, cost, allow_cancel: true },
+        crate::prompts::Provenance::NONE,
         Cont::Retreat(RetreatCont { p: p as u8, bench_index, move_to }),
     );
     Ok(())

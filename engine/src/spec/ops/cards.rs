@@ -527,7 +527,7 @@ fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
 }
 
 fn open_shuffle(g: &mut Game, me: CardId, f: &Frame, p: usize, sub: u8) {
-    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, f.cont(me, sub));
+    g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Provenance::NONE, f.cont(me, sub));
 }
 
 // ---------------------------------------------------------------------------
@@ -560,7 +560,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 RevealWhat::Chosen(reg) => reg_list(g, f, *reg).to_vec(),
             };
             if !cards.is_empty() || r.when_empty {
-                g.prompt(f.who(r.to), PromptPurpose::Look, PromptKind::ShowCards, Cont::Noop);
+                g.prompt(f.who(r.to), PromptPurpose::Look, PromptKind::ShowCards, Provenance::NONE, Cont::Noop);
             }
             f.outcome = if cards.is_empty() { Outcome::Impossible } else { Outcome::Done };
             Ok(Flow::Next)
@@ -618,6 +618,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 f.who(pp.chooser),
                 PromptPurpose::TurnPrizeFaceUp,
                 PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: pp.face_down_only },
+                Provenance::by(me),
                 f.cont(me, 1),
             );
             Ok(Flow::Suspend)
@@ -941,7 +942,7 @@ fn order_prompt(g: &mut Game, me: CardId, f: &mut Frame, src: ListRef, cards: &[
         f.outcome = Outcome::Impossible;
         return Ok(Flow::Next);
     }
-    g.prompt(f.who(w), PromptPurpose::OrderCards, PromptKind::OrderCards { cards: list, allow_cancel: false }, f.cont(me, 1));
+    g.prompt(f.who(w), PromptPurpose::OrderCards, PromptKind::OrderCards { cards: list, allow_cancel: false }, Provenance::by(me), f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -1071,7 +1072,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
             None => return false,
         }
     };
-    choose_cards(g, p, purpose, list, Filter::none(), opts, f.cont(me, sub));
+    choose_cards(g, p, purpose, list, Filter::none(), opts, Provenance::by(me), f.cont(me, sub));
     true
 }
 
@@ -1169,10 +1170,16 @@ fn search_attach_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SearchSpec) -> 
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
+    // The card being attached, when the search found one.
+    let subject = match reg_list(g, f, s.pick.into) {
+        [one] => Some(*one),
+        _ => None,
+    };
     g.prompt(
         p,
         PromptPurpose::AttachTo,
         PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        Provenance { subject, ..Provenance::by(me) },
         f.cont(me, 2),
     );
     true
@@ -1261,6 +1268,7 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
         p,
         PromptPurpose::AttachCard,
         PromptKind::AttachEnergy { cards: list, player_type: PlayerType::BottomPlayer, slots: attach_slots(a), filter: Filter::none(), o },
+        Provenance::by(me),
         f.cont(me, 1),
     );
     Ok(true)
@@ -1346,6 +1354,7 @@ fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpe
         chooser,
         PromptPurpose::MoveEnergy,
         PromptKind::MoveEnergy { player_type, slots, filter: Filter::super_type(SuperType::Energy), o: opts },
+        Provenance::by(me),
         f.cont(me, sub),
     );
     true
@@ -1690,7 +1699,7 @@ fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec)
             opts.blocked.push(i as u8);
         }
     }
-    choose_cards(g, p, PromptPurpose::CopyEffect, list, filter, opts, f.cont(me, 1));
+    choose_cards(g, p, PromptPurpose::CopyEffect, list, filter, opts, Provenance::by(me), f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -1864,7 +1873,7 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergyS
         cost.push(ty);
     }
     let energy = g.stash_energy(energy);
-    g.prompt(f.p as usize, d.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, 1));
+    g.prompt(f.p as usize, d.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Provenance::by(me), f.cont(me, 1));
     Ok(true)
 }
 
@@ -1920,7 +1929,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
         MoveEnergyMode::Effect => return false,
     };
     let o = g.stash_opts(o);
-    g.prompt(chooser, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type, slots, filter, o }, f.cont(me, 1));
+    g.prompt(chooser, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type, slots, filter, o }, Provenance::by(me), f.cont(me, 1));
     true
 }
 
@@ -1973,7 +1982,7 @@ fn among_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, a: &AmongS
         Filter::super_type(SuperType::Energy)
     };
     let o = g.stash_opts(o);
-    g.prompt(p, PromptPurpose::DiscardEnergy, PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, f.cont(me, 1));
+    g.prompt(p, PromptPurpose::DiscardEnergy, PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, Provenance::by(me), f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -2054,6 +2063,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
                 chooser,
                 d.purpose(),
                 PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+                Provenance::by(me),
                 f.cont(me, sub),
             );
             Ok(true)
@@ -2069,7 +2079,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
                     opts.blocked.push(i as u8);
                 }
             }
-            choose_cards(g, chooser, d.purpose(), slot.list(), Filter::none(), opts, f.cont(me, sub));
+            choose_cards(g, chooser, d.purpose(), slot.list(), Filter::none(), opts, Provenance::by(me), f.cont(me, sub));
             Ok(true)
         }
         EnergySelection::FromBench { max, pred: pr } => {
@@ -2090,6 +2100,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
                 chooser,
                 d.purpose(),
                 PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: if matches!(pr, Pred::BasicEnergy) { Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() } } else { Filter::super_type(SuperType::Energy) }, o },
+                Provenance::by(me),
                 f.cont(me, sub),
             );
             Ok(true)
@@ -2156,7 +2167,7 @@ fn opp_tools_prompt(g: &mut Game, me: CardId, f: &Frame, max: u8) -> bool {
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
     let opts = MoveOpts { allow_cancel: false, min: 0, max: Some(tools.min(max as usize) as u8), ..Default::default() };
     let opts = g.stash_opts(opts);
-    g.prompt(p, PromptPurpose::DiscardCard, PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter, o: opts }, f.cont(me, 1));
+    g.prompt(p, PromptPurpose::DiscardCard, PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter, o: opts }, Provenance::by(me), f.cont(me, 1));
     true
 }
 
@@ -2283,7 +2294,7 @@ fn move_energy_own_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnerg
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let o = g.stash_opts(o);
-    g.prompt(p, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, f.cont(me, 1));
+    g.prompt(p, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, Provenance::by(me), f.cont(me, 1));
     true
 }
 
@@ -2390,7 +2401,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
                             opts.blocked.push(i as u8);
                         }
                     }
-                    choose_cards(g, f.p as usize, d.purpose(), slot.list(), Filter::none(), opts, f.cont(me, 1));
+                    choose_cards(g, f.p as usize, d.purpose(), slot.list(), Filter::none(), opts, Provenance::by(me), f.cont(me, 1));
                     return Ok(Flow::Suspend);
                 }
             }
@@ -2601,7 +2612,7 @@ fn ec_begin(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
             if cands.is_empty() {
                 return none(g, f);
             }
-            super::board::ask(g, me, f, p, e.purpose(), cands.as_slice(), 1);
+            super::board::ask(g, me, f, p, e.purpose(), cands.as_slice(), None, 1);
             return Ok(Flow::Suspend);
         }
     };
@@ -2637,7 +2648,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                     opts.blocked.push(i as u8);
                 }
             }
-            choose_cards(g, chooser, e.purpose(), list, Filter::super_type(SuperType::Energy), opts, f.cont(me, sub));
+            choose_cards(g, chooser, e.purpose(), list, Filter::super_type(SuperType::Energy), opts, Provenance::by(me), f.cont(me, sub));
             Ok(Flow::Suspend)
         }
         EnergySelection::Cost { n, ty } => {
@@ -2648,7 +2659,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                 cost.push(*ty);
             }
             let energy = g.stash_energy(energy);
-            g.prompt(chooser, e.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, sub));
+            g.prompt(chooser, e.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Provenance::by(me), f.cont(me, sub));
             Ok(Flow::Suspend)
         }
         EnergySelection::All { provided } => {
@@ -2694,6 +2705,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                 chooser,
                 PromptPurpose::MoveEnergy,
                 PromptKind::AttachEnergy { cards: list, player_type: ptype, slots, filter: energy_filter(*kind), o },
+                Provenance::by(me),
                 f.cont(me, sub),
             );
             Ok(Flow::Suspend)
@@ -2775,6 +2787,7 @@ fn ec_prompt(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, rec
         chooser,
         e.purpose(),
         PromptKind::DiscardEnergy { player_type: ptype, slots, filter: Filter::super_type(SuperType::Energy), o },
+        Provenance::by(me),
         f.cont(me, 0xFF),
     );
     Ok(Flow::Suspend)
@@ -2949,6 +2962,7 @@ fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: 
         p,
         PromptPurpose::TakePrize,
         PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
+        Provenance::by(me),
         f.cont(me, 1),
     );
     Ok(Flow::Suspend)
@@ -2978,7 +2992,7 @@ fn ec_tools(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
     let o = MoveOpts { allow_cancel: false, min: to_u8(min_n), max: Some(to_u8(max_n)), ..Default::default() };
     let o = g.stash_opts(o);
-    g.prompt(chooser, e.purpose(), PromptKind::DiscardEnergy { player_type: PlayerType::Any, slots, filter, o }, f.cont(me, 0xFF));
+    g.prompt(chooser, e.purpose(), PromptKind::DiscardEnergy { player_type: PlayerType::Any, slots, filter, o }, Provenance::by(me), f.cont(me, 0xFF));
     Ok(Flow::Suspend)
 }
 
@@ -2988,7 +3002,7 @@ fn ec_tools(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
 const BOTHER_STASH: u64 = u64::MAX - 1;
 
 fn bother_show(g: &mut Game, me: CardId, f: &Frame, sub: u8) {
-    g.prompt(f.p as usize, PromptPurpose::Look, PromptKind::ShowCards, f.cont(me, sub));
+    g.prompt(f.p as usize, PromptPurpose::Look, PromptKind::ShowCards, Provenance::NONE, f.cont(me, sub));
 }
 
 fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R<Flow> {
@@ -3019,6 +3033,7 @@ fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R
         f.p as usize,
         PromptPurpose::TurnPrizeFaceUp,
         PromptKind::ChoosePrize { count: 1, blocked, use_opponent_prizes: true, allow_cancel: false, is_secret: false, destination: None, face_down_only: true },
+        Provenance::by(me),
         f.cont(me, 1),
     );
     Ok(Flow::Suspend)
@@ -3053,7 +3068,7 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             Ok(Flow::Suspend)
         }
         2 => {
-            confirmation_prompt(g, f.p as usize, PromptPurpose::Activate, f.cont(me, 3));
+            confirmation_prompt(g, f.p as usize, PromptPurpose::Activate, Provenance::by(me).about(me), f.cont(me, 3));
             Ok(Flow::Suspend)
         }
         3 => {
