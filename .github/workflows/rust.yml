@@ -88,6 +88,10 @@ jobs:
           key: &test-key cargo-test-${{ runner.os }}-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('engine/Cargo.lock') }}
       - name: Unit and integration tests
         run: cargo test --release --manifest-path engine/Cargo.toml
+      - name: Unit tests under the verification switches
+        run: |
+          PTCG_VERIFY_LEGAL=1 cargo test --release --lib --manifest-path engine/Cargo.toml
+          PTCG_VERIFY_CACHE=1 cargo test --release --lib --manifest-path engine/Cargo.toml
       - if: github.ref == 'refs/heads/main' && steps.cargo.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
