@@ -236,11 +236,11 @@ fn survive_group_next(g: &mut Game, mut grp: SurviveGroup) -> R {
         return Ok(());
     }
     if grp.cands.len() >= 2 {
-        let mut names: SVec<&'static str, 8> = SVec::new();
+        let mut names: SVec<(&'static str, Option<crate::list::CardId>), 8> = SVec::new();
         for c in grp.cands.iter() {
-            names.push(g.st.cdef(c.card).full_name);
+            names.push((g.st.cdef(c.card).full_name, Some(c.card)));
         }
-        g.prompt(tp, crate::purpose::PromptPurpose::OrderEffects, crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 }, crate::prompts::Provenance::NONE, crate::game::Cont::SurviveOrder { grp });
+        g.prompt(tp, crate::purpose::PromptPurpose::OrderEffects, crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Effects(names), allow_cancel: false, default_value: 0 }, crate::prompts::Provenance::NONE, crate::game::Cont::SurviveOrder { grp });
         return Ok(());
     }
     let c = grp.cands.remove_at(0);

@@ -125,6 +125,9 @@ pub struct Opt {
     pub attack_id: Option<u8>,
     pub card_id: Option<u16>,
     pub serial: Option<u8>,
+    /// The card instance whose effect the option is, for the options of an order-of-effects question (not in the
+    /// observation features).
+    pub source: Option<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -405,7 +408,7 @@ impl Game {
         }
     }
 
-    fn prompt_select(&self, i: usize) -> SelectData {
+    pub(crate) fn prompt_select(&self, i: usize) -> SelectData {
         let pr = self.prompts.as_slice()[i];
         let player = pr.player;
         let persp = pr.player as usize;
@@ -434,6 +437,10 @@ impl Game {
                             SelectValues::DrawCards(m) => m as i32 - k as i32,
                             _ => k as i32,
                         }),
+                        source: match values {
+                            SelectValues::Effects(v) => v.as_slice()[k].1,
+                            _ => None,
+                        },
                         ..Default::default()
                     })
                     .collect();

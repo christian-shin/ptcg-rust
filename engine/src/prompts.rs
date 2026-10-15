@@ -198,6 +198,9 @@ pub enum SelectValues {
     Static(&'static [&'static str]),
     /// Card names chosen at run time (the order of step 7 triggers).
     Dyn(SVec<&'static str, 8>),
+    /// Effects waiting to be ordered: each one's label and the card whose effect it is (`None`: no card, the Special
+    /// Conditions check of Pokemon Checkup).
+    Effects(SVec<(&'static str, Option<CardId>), 8>),
 }
 
 impl SelectValues {
@@ -206,6 +209,7 @@ impl SelectValues {
             SelectValues::DrawCards(m) => *m as usize + 1,
             SelectValues::Static(v) => v.len(),
             SelectValues::Dyn(v) => v.len(),
+            SelectValues::Effects(v) => v.len(),
         }
     }
     pub fn values(&self) -> Vec<String> {
@@ -213,6 +217,7 @@ impl SelectValues {
             SelectValues::DrawCards(m) => (0..=*m).rev().map(|i| format!("Draw {} card(s)", i)).collect(),
             SelectValues::Static(v) => v.iter().map(|s| s.to_string()).collect(),
             SelectValues::Dyn(v) => v.iter().map(|s| s.to_string()).collect(),
+            SelectValues::Effects(v) => v.iter().map(|(s, _)| s.to_string()).collect(),
         }
     }
 }
