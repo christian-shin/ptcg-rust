@@ -803,12 +803,18 @@ impl Game {
     /// A choose-cards prompt's answer from the indices into the offered list (`None`: not an index).
     pub(crate) fn decode_choose_cards(&self, cards: ListRef, filter: &Filter, o: &ChooseCardsOpts, partial: bool, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
+        let cancellable = o.allow_cancel;
         let o = &ChooseCardsOpts { min: if partial { 0 } else { o.min }, ..*o };
         let list = self.prompt_list(cards);
         let mut out: List<120> = List::new();
         for i in idx {
             // `cards[index]` is undefined for out-of-range indices; validate rejects it.
             out.push(*list.get(i.ok_or(invalid)?).ok_or(invalid)?);
+        }
+        // Where cancelling is allowed a prompt offers no minimum (it is shown with 0), and picking no card is the cancel
+        // (the same answer as the null one) when the minimum would refuse it.
+        if out.is_empty() && cancellable && o.min > 0 {
+            return Ok(Res::Null);
         }
         if self.choose_cards_valid(list, out.as_slice(), filter, o) {
             Ok(Res::Cards(out))
@@ -1459,6 +1465,7 @@ impl Game {
 #[cfg(test)]
 mod answer_tests {
     use crate::game::{Game, Pending};
+    use crate::list::CardList;
     use crate::types::{CardTarget, PlayerType, SlotType};
     use serde_json::json;
 
@@ -1518,5 +1525,21 @@ mod answer_tests {
         let first = (0..sel.options.len()).find(|j| sel.options[*j].serial == Some(list[e[0]])).unwrap();
         let (mask, _) = g.pick_mask(&sel, &[first]);
         assert!((0..sel.options.len()).all(|j| !mask[j] || sel.options[j].serial != Some(list[e[0]])));
+    }
+    /// A cancellable card choice takes the empty pick list as the cancel (the null answer's result) where the minimum would
+    /// refuse it; a choice that can't be cancelled refuses it, and a minimum of 0 still reads it as picking no card.
+    #[test]
+    fn the_empty_pick_list_cancels_a_cancellable_choice() {
+        use super::{ChooseCardsOpts, Filter, Res};
+        use crate::state::ListRef;
+        let g = crate::place::tests::game_of(&[("Abra MEG 54", 4)], json!({"me": {"reset": true, "active": "Abra MEG 54", "hand": ["Metal Energy MEE 8"]}, "opp": {"reset": true, "active": "Abra MEG 54"}}));
+        let hand = ListRef::Hand(0);
+        let none = || std::iter::empty::<Option<usize>>();
+        let f = Filter::default();
+        assert!(matches!(g.decode_choose_cards(hand, &f, &ChooseCardsOpts::new(1, 1, true), false, none()), Ok(Res::Null)));
+        assert!(g.decode_choose_cards(hand, &f, &ChooseCardsOpts::new(1, 1, false), false, none()).is_err());
+        assert!(matches!(g.decode_choose_cards(hand, &f, &ChooseCardsOpts::new(0, 1, true), false, none()), Ok(Res::Cards(c)) if c.is_empty()));
+        // A pick is still a pick.
+        assert!(matches!(g.decode_choose_cards(hand, &f, &ChooseCardsOpts::new(1, 1, true), false, Some(Some(0)).into_iter()), Ok(Res::Cards(c)) if c.len() == 1));
     }
 }
