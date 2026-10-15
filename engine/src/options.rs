@@ -370,8 +370,24 @@ mod tests {
         for seed in 1..40 {
             let mut g = Game::new(seed);
             g.start([&deck, &deck]).unwrap();
-            g.settle().ok();
-            if g.st.active_player != 0 {
+            // Answer the setup prompts (Active and Bench choices) until the first turn decision: a trial of an
+            // action refuses to run while a prompt is open.
+            let mut stuck = false;
+            while let Some(sel) = g.select_with(false).unwrap() {
+                if sel.select_type == crate::interface::SelectType::Main {
+                    break;
+                }
+                let mut picks = Vec::new();
+                while picks.len() < sel.min_count {
+                    let (mask, _) = g.pick_mask(&sel, &picks);
+                    picks.push(mask.iter().position(|m| *m).expect("a valid pick"));
+                }
+                if g.answer(&sel, &picks).is_err() {
+                    stuck = true;
+                    break;
+                }
+            }
+            if stuck || !matches!(g.pending(), crate::game::Pending::Turn(0)) {
                 continue;
             }
             let sc = json!({
