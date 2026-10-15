@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Beldum@TEF",
+    class: "Beldum",
     attacks: &[
         AttackSpec {
             index: 1,

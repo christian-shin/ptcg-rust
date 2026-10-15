@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Charcadet2",
+    class: "CharcadetSSP",
     // Flamethrower: discard an Energy from this Pokémon.
     attacks: &[AttackSpec {
         index: 1,

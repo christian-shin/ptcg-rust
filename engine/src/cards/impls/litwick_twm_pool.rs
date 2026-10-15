@@ -5,7 +5,7 @@
 //! one shuffle after it (APR E-19). The search can be declined.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LitwickTWMPool",
+    class: "LitwickTWM",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me)]), yes: &[Step::new(Op::Search(SearchSpec {

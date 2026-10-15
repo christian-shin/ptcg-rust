@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Exeggcute@SSP",
+    class: "ExeggcuteSSP",
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: Some(FirstTurnAttack::Attack(0)), shred: None }) }],
     // Precocious Evolution: search your deck for a card that evolves from this Pokémon and put it
     // onto this Pokémon to evolve it, then shuffle.

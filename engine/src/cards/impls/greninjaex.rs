@@ -9,7 +9,7 @@
 //! `TERA_RULE`: a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Greninjaex",
+    class: "GreninjaEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, yes: &[Step::new(Op::Search(SearchSpec {

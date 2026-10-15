@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "NeutralCenter",
+    class: "NeutralizationZone",
     passives: &[
         Passive {
             origin: RuleSource::Stadium,

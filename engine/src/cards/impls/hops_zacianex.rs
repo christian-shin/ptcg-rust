@@ -6,7 +6,7 @@
 //! ApplyEffect event on this Pokémon: `Lasting::CannotUseAttack`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "HopsZacianex",
+    class: "HopsZacianEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), }), hp: Num::Lit(30), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True })),

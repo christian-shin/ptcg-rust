@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "HopsTrevenantASCPool",
+    class: "HopsTrevenant",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(more_damage_if(100, Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: true, tag: Some(tag::HOPS) })),

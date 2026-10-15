@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "BouffalantSSPPool",
+    class: "BouffalantSSP",
     attacks: &[
         // Ready to Ram: during your opponent's next turn, if this Pokémon is damaged by an attack
         // (even if Knocked Out), put 6 damage counters on the Attacking Pokémon.

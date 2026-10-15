@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Pikachuex@SSP|ASC",
+    class: "PikachuEx",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],

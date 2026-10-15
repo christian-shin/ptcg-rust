@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Unown@30C",
+    class: "Unown",
     passives: &[Passive {
         origin: RuleSource::CardRule,
         // Mysterious Signal: if the opponent's Pokémon is Knocked Out by damage from this attack, take 1 more Prize card.

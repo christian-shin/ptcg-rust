@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Genesect@SFA",
+    class: "GenesectSFA",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
         lock: LockDecl::on(

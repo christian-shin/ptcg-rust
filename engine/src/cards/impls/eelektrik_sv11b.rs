@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Eelektrik@ASC",
+    class: "Eelektrik",
     // Dynamotor: once during your turn, you may attach a [L] Energy card from your discard pile to
     // 1 of your Benched Pokémon (it counts as used only when an Energy was attached).
     powers: &[PowerSpec {

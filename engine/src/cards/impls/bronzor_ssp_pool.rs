@@ -2,7 +2,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "BronzorSSPPool",
+    class: "BronzorSSP",
     // Shield Attack: flip a coin, if heads 20 more damage.
     attacks: &[AttackSpec {
         index: 0,

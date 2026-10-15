@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ChiYu@PBL",
+    class: "ChiYuPBL",
     // Whirling Envy: 90 more if this Pokémon has 2 or more damage counters; not affected by Weakness.
     attacks: &[AttackSpec {
         index: 0,

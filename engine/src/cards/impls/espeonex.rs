@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Espeonex",
+    class: "EspeonEx",
     attacks: &[
         // Psych Out: discard 1 random card from your opponent's hand.
         AttackSpec {

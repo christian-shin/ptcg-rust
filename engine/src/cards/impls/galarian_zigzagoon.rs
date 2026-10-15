@@ -4,7 +4,7 @@
 //! and the like prevent it).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "GalarianZigzagoon@Galarian Zigzagoon FST 159",
+    class: "GalarianZigzagoon",
     attacks: &[AttackSpec {
         index: 0,
         // The Paralysis is an attack effect: a coin flip, then GainCondition(Paralyzed) with the attack's cause.

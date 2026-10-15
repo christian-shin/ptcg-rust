@@ -6,7 +6,7 @@
 //! the Supporter's effect; the second is skipped when you have no Prize cards left). No: you draw 4.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LtSurgesBargainMEGPool",
+    class: "LtSurgesBargain",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],

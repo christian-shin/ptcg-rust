@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ColresssObsession",
+    class: "ColresssTenacity",
     // Search your deck for a Stadium card and an Energy card, reveal them, put them into your
     // hand, shuffle.
     play: Some(PlaySpec {

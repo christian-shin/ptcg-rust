@@ -7,7 +7,7 @@
 //! TWM 19: "Put up to 2 Pokémon from your discard pile into your hand.") has no "reveal them"; the move reveals them (id787).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "IronLeaves@TWM",
+    class: "IronLeaves",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Search(SearchSpec {

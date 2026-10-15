@@ -12,7 +12,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Crustle@DRI",
+    class: "CrustleDRI",
     attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] }],
     passives: &[Passive {
         origin: RuleSource::Ability,

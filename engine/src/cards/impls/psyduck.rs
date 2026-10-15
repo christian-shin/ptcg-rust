@@ -17,7 +17,7 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
 };
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Psyduck@ASC|MEP",
+    class: "Psyduck",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AbilityLock(DAMP) }],
     ..CardSpec::NONE
 };

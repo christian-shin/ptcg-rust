@@ -6,7 +6,7 @@
 //! a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Jolteonex",
+    class: "JolteonEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::FromBench { max: 2, pred: Pred::BasicEnergy }, ..DiscardEnergySpec::DEFAULT })),

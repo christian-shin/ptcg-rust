@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Dudunsparceex",
+    class: "DudunsparceEx",
     attacks: &[
         // Tenacious Tail: 60 damage for each of your opponent's Pokémon ex in play.
         AttackSpec {

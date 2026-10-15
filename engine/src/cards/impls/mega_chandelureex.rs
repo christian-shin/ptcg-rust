@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "MegaChandelureex",
+    class: "MegaChandelureEx",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::before_damage(damage_is(Num::Add(&Num::Lit(130), &Num::Mul(&Num::RetreatCostColorless(Who::Opp), &Num::Lit(50)))))],

@@ -1,8 +1,8 @@
 //! Card behaviors. Each card with logic is a [`CardImpl`]: a `reduce` handler for the effects it subscribes to, plus
 //! resume functions for its continuations.
 //!
-//! The registry maps a behavior class name (`CardDef::behavior`) to its
-//! implementation, so reprints share one port.
+//! The registry maps a behavior class key (`CardDef::behavior`, an official card name; see
+//! tools/rename_classes.py) to its implementation, so reprints share one port.
 
 use crate::carddb::{cards as all_defs, DefId};
 use crate::effects::{EffId, KindMask};
@@ -67,23 +67,11 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
                 if d.behavior.is_empty() {
                     None
                 } else {
-                    registry::IMPLS.iter().copied().find(|i| class_matches(i.class, d))
+                    registry::IMPLS.iter().copied().find(|i| i.class == d.behavior)
                 }
             })
             .collect()
     })
-}
-
-/// `class` is the behavior class name, optionally qualified as `Class@SET`
-/// when two cards define classes with the same name (e.g. `Koraidonex` in
-/// both ASC and TEF).
-fn class_matches(class: &str, d: &crate::carddb::CardDef) -> bool {
-    match class.split_once('@') {
-        // `Class@SET` or `Class@Full Name` pins a port to one printing;
-        // `Class@A|B` to several (e.g. an old printing and its reprint).
-        Some((c, q)) => c == d.behavior && q.split('|').any(|q| q == d.set || q == d.full_name),
-        None => class == d.behavior,
-    }
 }
 
 #[inline]
@@ -101,7 +89,7 @@ pub fn spec_for(d: DefId) -> Option<&'static crate::spec::CardSpec> {
                 if d.behavior.is_empty() {
                     None
                 } else {
-                    registry::SPECS.iter().copied().find(|s| class_matches(s.class, d))
+                    registry::SPECS.iter().copied().find(|s| s.class == d.behavior)
                 }
             })
             .collect()
@@ -126,5 +114,38 @@ pub fn coin_result(g: &mut Game, card: CardId, f: CardFrame, result: bool) -> R 
     match impl_for(d).and_then(|i| i.coin) {
         Some(r) => r(g, card, f, result),
         None => Ok(()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Every card resolves to the implementation it resolved to before the behavior class keys were renamed to
+    /// official names (tools/rename_classes.py): `impl_table.txt` was written from the old matching (`Class@SET`
+    /// qualifiers and all) before the rename. A key names exactly one implementation, and a card with a behavior
+    /// the table lists as "-" has none.
+    #[test]
+    fn every_def_resolves_to_the_impl_it_had_before_the_rename() {
+        let mut want: std::collections::HashMap<&str, &str> = std::collections::HashMap::new();
+        for line in include_str!("impl_table.txt").lines().filter(|l| !l.starts_with('#')) {
+            let (card, key) = line.split_once('\t').unwrap();
+            assert!(want.insert(card, key).is_none(), "{card} twice");
+        }
+        let mut keys = std::collections::HashSet::new();
+        for i in registry::IMPLS {
+            assert!(keys.insert(i.class), "two implementations carry the key {}", i.class);
+        }
+        for (id, d) in all_defs().iter().enumerate() {
+            let got = impl_for(id as DefId).map(|i| i.class);
+            match want.get(d.full_name) {
+                Some(&"-") => assert!(got.is_none() && !d.behavior.is_empty(), "{}", d.full_name),
+                Some(&key) => {
+                    assert_eq!(d.behavior, key, "{}: behavior key", d.full_name);
+                    assert_eq!(got, Some(key), "{}: implementation", d.full_name);
+                }
+                None => assert!(d.behavior.is_empty() && got.is_none(), "{}: not in the frozen table", d.full_name),
+            }
+        }
     }
 }

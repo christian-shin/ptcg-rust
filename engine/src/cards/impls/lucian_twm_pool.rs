@@ -8,7 +8,7 @@
 //! have any effect can't be played, id925), and no lock refuses a hand card going into the deck, so no `Cond::Done`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LucianTWMPool",
+    class: "Lucian",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Any(&[Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any), Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any)])],

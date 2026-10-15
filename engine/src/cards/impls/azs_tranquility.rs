@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "AzsTranquility",
+    class: "AZsTranquility",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],

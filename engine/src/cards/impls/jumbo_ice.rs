@@ -6,7 +6,7 @@
 //! Not playable when the Active Pokémon has no damage or less Energy (it would do nothing; D10).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "JumboIce",
+    class: "JumboIceCream",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::ProvidedUnits), CmpOp::Ge, Num::Lit(3))],

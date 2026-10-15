@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Annihilape@PBL",
+    class: "AnnihilapePBL",
     // Durable Body: if this Pokémon would be Knocked Out by damage from an attack, flip a coin;
     // heads, it survives with 10 HP.
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::OnCoin }) }],

@@ -10,7 +10,7 @@
 //! Pokémon). A Tool lock turns it off.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "HandyFan",
+    class: "HandheldFan",
     triggers: &[
         Trigger { origin: RuleSource::Tool, event: Event::On(EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Slot(SlotPred::Holder), EventPred::DamagedActive])), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::ToolBlocked)]), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::CausePokemon), selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false, kind: EnergyKind::Any }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))], no: &[] }))] },
     ],

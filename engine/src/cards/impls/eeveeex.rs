@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Eeveeex",
+    class: "EeveeEx",
     passives: &[
         // Rainbow DNA.
         Passive {

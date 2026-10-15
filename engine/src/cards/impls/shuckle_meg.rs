@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Shuckle@MEG",
+    class: "Shuckle",
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn,

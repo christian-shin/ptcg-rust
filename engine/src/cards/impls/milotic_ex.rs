@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Miloticex",
+    class: "MiloticEx",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Asleep]))] }],
     passives: &[
         // Sparkling Scales: prevent all damage and effects done to this Pokémon by the opponent's Tera Pokémon's attacks (every

@@ -9,7 +9,7 @@
 //! No once-per-turn usage record: the card leaves play.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Magneton@SSP",
+    class: "Magneton",
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,

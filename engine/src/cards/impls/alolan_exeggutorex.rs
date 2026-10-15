@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "AlolanExeggutorex",
+    class: "AlolanExeggutorEx",
     attacks: &[
         // Tropical Frenzy: attach any number of Basic Energy from your hand to your Pokémon in any way.
         AttackSpec {

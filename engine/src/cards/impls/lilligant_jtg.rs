@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Lilligant@JTG",
+    class: "Lilligant",
     passives: &[Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::DamageDealt(DamageDealtSpec {

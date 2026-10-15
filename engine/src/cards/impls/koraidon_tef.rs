@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Koraidon@TEF",
+    class: "KoraidonTEF",
     attacks: &[
         // Primordial Beatdown: 30 for each of your Ancient Pokémon in play.
         AttackSpec {

@@ -7,7 +7,7 @@
 //! of your Benched Pokémon after the damage. The Tera rule is `TERA_RULE`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Leafeonex",
+    class: "LeafeonEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(damage_is(Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Opp), EnergyUnit::ProvidedUnits), &Num::Lit(60)))),

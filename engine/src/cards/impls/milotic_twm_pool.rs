@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "MiloticTWMPool",
+    class: "Milotic",
     passives: &[Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::BlockUse(BlockUseSpec {

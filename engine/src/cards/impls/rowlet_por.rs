@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Rowlet@POR",
+    class: "RowletPOR",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::If(IfSpec {

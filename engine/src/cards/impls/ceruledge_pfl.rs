@@ -10,7 +10,7 @@ const FIRE_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy
 const HAS_FOUR: Cond = Cond::Cmp(Num::CardCount(ZoneRef(Who::Me, Zone::Hand), FIRE_ENERGY), CmpOp::Ge, Num::Lit(4));
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Ceruledge@PFL",
+    class: "CeruledgePFL",
     // Purgatory Slash: discard 4 Basic [R] Energy cards from your hand or this attack does nothing.
     attacks: &[AttackSpec {
         index: 0,

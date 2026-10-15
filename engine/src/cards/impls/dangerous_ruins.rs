@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "DangerousRuins",
+    class: "RiskyRuins",
     passives: &[
         // Automatically active: it can't be announced and used.
     ],

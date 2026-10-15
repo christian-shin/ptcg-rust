@@ -2,7 +2,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "NightMine",
+    class: "NighttimeMine",
     passives: &[
         Passive {
             origin: RuleSource::Stadium,

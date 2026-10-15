@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Ceruledgeex",
+    class: "CeruledgeEx",
     attacks: &[
         // Abyssal Flame: 20 more damage for each Energy card in your discard pile.
         AttackSpec {

@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Palafin@TWM",
+    class: "PalafinTWM",
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,

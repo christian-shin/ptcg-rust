@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "DeliveryBox",
+    class: "BoxedOrder",
     // Search your deck for up to 2 Item cards, reveal them, and put them into your hand. Then,
     // shuffle your deck. Your turn ends.
     play: Some(PlaySpec {

@@ -6,7 +6,7 @@
 //! caused by this attack (D1).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Goldeen@TWM|PRE",
+    class: "Goldeen",
     // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack it has twice (read by the core when
     // the second attack would be offered: `attack::attack_twice`).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackTwice(AttackTwiceSpec { guard: Cond::StadiumInPlay(Pred::Name("Festival Grounds")) }) }],

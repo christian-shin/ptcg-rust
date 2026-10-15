@@ -14,7 +14,7 @@
 //! Tree is a Stadium as well: the two are never in play together.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LushForest",
+    class: "ForestOfVitality",
     passives: &[
         Passive {
             origin: RuleSource::Stadium,

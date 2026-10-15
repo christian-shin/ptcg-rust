@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Alakazam@MEG",
+    class: "AlakazamMEG",
     // Powerful Hand: 2 damage counters on the opponent's Active for each card in your hand (one PlaceCounters event).
     attacks: &[AttackSpec {
         index: 0,

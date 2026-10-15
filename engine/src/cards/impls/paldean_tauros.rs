@@ -4,7 +4,7 @@ use crate::spec::prelude::*;
 use crate::types::Stage;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "PaldeanTauros",
+    class: "PaldeanTaurosSSP18",
     attacks: &[
         AttackSpec {
             index: 1,

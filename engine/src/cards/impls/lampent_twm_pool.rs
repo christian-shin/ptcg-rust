@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "LampentTWMPool",
+    class: "LampentTWM",
     attacks: &[AttackSpec {
         index: 1,
         steps: &[

@@ -10,7 +10,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "TeamRocketsBotherBotDRIPool",
+    class: "TeamRocketsBotherBot",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         // Playable unless the opponent has no face-down Prize card and no card in hand.

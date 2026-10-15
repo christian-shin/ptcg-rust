@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Durantex",
+    class: "DurantEx",
     // Sudden Shearing: when you play this Pokémon from your hand onto your Bench, you may discard
     // the top card of your opponent's deck.
     triggers: &[Trigger {

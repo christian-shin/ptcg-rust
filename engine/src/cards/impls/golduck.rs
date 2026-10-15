@@ -5,7 +5,7 @@
 use super::psyduck::DAMP;
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Golduck@ASC|MEP",
+    class: "Golduck",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::Provided(ct::WATER)), &Num::Lit(20)), when: Cond::True })),

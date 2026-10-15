@@ -3253,6 +3253,6 @@ mod pick_purpose_tests {
         // A Pokémon card from the discard pile switched with a Pokémon in play.
         assert_eq!(outcomes("TransformationTome"), [P::SwapPokemon]);
         // Energy from the hand discarded, Energy from the discard pile into the hand.
-        assert_eq!(outcomes("EnergyRetrieval@BS"), [P::DiscardCard, P::PutIntoHand]);
+        assert_eq!(outcomes("EnergyRetrievalBS"), [P::DiscardCard, P::PutIntoHand]);
     }
 }

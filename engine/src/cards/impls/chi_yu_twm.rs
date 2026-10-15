@@ -12,7 +12,7 @@ const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
 const STADIUM_IN_PLAY: Cond = Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ChiYu@TWM",
+    class: "ChiYuTWM",
     attacks: &[
         // Allure: draw 2 cards.
         AttackSpec {

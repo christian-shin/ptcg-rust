@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Blisseyex",
+    class: "BlisseyEx",
     // Happy Switch: once during your turn, you may move a Basic Energy from 1 of your Pokémon to
     // another of your Pokémon.
     powers: &[PowerSpec {

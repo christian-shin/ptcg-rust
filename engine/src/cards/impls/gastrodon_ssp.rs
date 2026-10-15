@@ -7,7 +7,7 @@ use crate::spec::prelude::*;
 use crate::types::Stage;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Gastrodon@SSP",
+    class: "Gastrodon",
     passives: &[Passive {
         origin: RuleSource::Ability,
         // While on your Bench: Benched Stage 2 Pokémon (both players') have no Abilities.

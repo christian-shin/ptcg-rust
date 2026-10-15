@@ -6,7 +6,7 @@
 //! from the top of the deck (one event carrying the cards, D3), an effect after the damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Haxorus@SFA",
+    class: "HaxorusSFA",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), when: Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Opp)), EnergyUnit::SpecialEnergyCards), CmpOp::Gt, Num::Lit(0)) })),

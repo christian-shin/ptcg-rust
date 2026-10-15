@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Dragapultex",
+    class: "DragapultEx",
     // Phantom Dive: put 6 damage counters on your opponent's Benched Pokémon in any way you like.
     attacks: &[AttackSpec {
         index: 1,

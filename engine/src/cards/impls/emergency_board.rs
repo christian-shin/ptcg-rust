@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EmergencyBoard",
+    class: "RescueBoard",
     passives: &[
         // [C] less; with 30 or less HP remaining, no Retreat Cost.
         Passive {

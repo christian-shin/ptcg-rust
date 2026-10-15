@@ -15,7 +15,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "CornerstoneMaskOgerponex",
+    class: "CornerstoneMaskOgerponEx",
     // Demolish: not affected by Weakness, Resistance or effects on the Defending Pokémon.
     attacks: &[AttackSpec {
         index: 0,

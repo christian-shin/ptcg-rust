@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "MegaKangaskhanex",
+    class: "MegaKangaskhanEx",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::UntilTails, per_heads: PerHeads::DamageAdd(50), ..CoinSpec::DEFAULT }))],

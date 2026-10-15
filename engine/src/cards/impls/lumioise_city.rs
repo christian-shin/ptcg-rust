@@ -4,7 +4,7 @@
 //! A Stadium use (UseStadium). The turn ends after the shuffle even when no Pokémon was chosen (JP FAQ Lumiose City).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LumioiseCity",
+    class: "LumioseCity",
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
         needs: &[],

@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Slakingex",
+    class: "SlakingEx",
     // Born to Slack: if your opponent has no Pokémon ex or Pokémon V in play, this Pokémon can't attack.
     // A lock over its own UseAttack while the opponent has no Pokémon ex or V in play.
     passives: &[Passive {

@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "TealMaskOgerponex",
+    class: "TealMaskOgerponEx",
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) }],
     powers: &[PowerSpec {
         index: 0,

@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Potion@POR",
+    class: "PotionPOR",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

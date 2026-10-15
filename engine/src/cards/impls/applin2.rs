@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Applin2",
+    class: "ApplinTWM17",
     // Tumbling Attack: flip a coin, if heads this attack does 20 more damage.
     attacks: &[AttackSpec {
         index: 0,

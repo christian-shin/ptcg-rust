@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "SuperPotion@JTG",
+    class: "SuperPotionJTG",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

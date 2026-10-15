@@ -12,7 +12,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "RockFightingEnergy",
+    class: "RockyFightingEnergy",
     passives: &[
         Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::FIGHTING])] }) },
         // Prevent all effects of attacks used by your opponent's Pokémon done to the [F] Pokémon this is attached to (every

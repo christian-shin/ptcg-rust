@@ -10,7 +10,7 @@
 //! id1958). Power Stomp discards 2 Energy units, never more cards than 2 (id2127).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "IronBoulderexTEFPool",
+    class: "IronBoulderEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Retaliate(80) })),

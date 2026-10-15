@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Yveltal@30C",
+    class: "Yveltal30C",
     // Your opponent's Active Pokémon can't be healed: a `Prevent` over RemoveCounters.
     passives: &[Passive {
         origin: RuleSource::Ability,

@@ -12,7 +12,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Terapagosex",
+    class: "TerapagosEx",
     passives: &[
         // Tera: no attack damage while Benched.
         Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },

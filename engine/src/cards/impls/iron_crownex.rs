@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "IronCrownex",
+    class: "IronCrownEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true })),

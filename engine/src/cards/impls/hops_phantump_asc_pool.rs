@@ -5,7 +5,7 @@
 //! `Lasting::PreventAttackEffects` (a `Prevent` naming no kind), each one ApplyEffect event, both stored on this Pokémon.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "HopsPhantumpASCPool",
+    class: "HopsPhantump",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Any) })), Step::new(Op::Arm(ArmSpec { what: Lasting::PreventAttackEffects }))], ..CoinSpec::DEFAULT })),

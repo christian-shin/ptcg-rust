@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Skeledirge@SSP",
+    class: "Skeledirge",
     // Unaware: prevent all effects of attacks used by the opponent's Pokémon done to this Pokémon.
     passives: &[
         // Every event the opponent's attacks cause to this Pokémon, the switches included (APR C-04 / C-05, id2025,

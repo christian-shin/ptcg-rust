@@ -5,7 +5,7 @@
 //! hand, id2199, id2301); used through Look-Alike Show it may take 0 (D5, APR D-05).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LanasAssistance",
+    class: "LanasAid",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],

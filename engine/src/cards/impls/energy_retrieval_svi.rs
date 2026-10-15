@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EnergyRetrieval@CRI",
+    class: "EnergyRetrievalCRI",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

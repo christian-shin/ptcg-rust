@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ChandelureTWMPool",
+    class: "Chandelure",
     // Alluring Light: once during your turn, you may have each player draw a card.
     powers: &[PowerSpec {
         index: 0,

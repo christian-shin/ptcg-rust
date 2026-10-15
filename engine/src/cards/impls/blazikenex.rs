@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Blazikenex",
+    class: "BlazikenEx",
     // Seething Spirit: once during your turn, attach a Basic Energy card from your discard pile to
     // 1 of your Pokémon.
     powers: &[PowerSpec {

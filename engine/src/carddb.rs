@@ -47,9 +47,8 @@ pub struct CardDef {
     /// International set code and printing number.
     pub set: &'static str,
     pub set_number: &'static str,
-    /// Class of the printed card.
-    pub class: &'static str,
-    /// Class in the prototype chain that carries the card's logic ("" if none).
+    /// The key of the behavior class that carries the card's logic (an official card name, with the set code when
+    /// two implementations share a name; "" if none). Reprints of one text share it.
     pub behavior: &'static str,
     pub super_type: u8,
     pub regulation_mark: &'static str,
@@ -249,7 +248,6 @@ mod phrase_tests {
             name: "Test",
             set: "TST",
             set_number: "1",
-            class: "",
             behavior: "",
             super_type: 1,
             regulation_mark: "",

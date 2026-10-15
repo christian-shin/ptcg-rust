@@ -10,7 +10,7 @@ const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 const EVOLUTION: Pred = Pred::All(&[Pred::Pokemon, Pred::EvolvesFromActive]);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EeveeTWMPool",
+    class: "EeveeTWM",
     attacks: &[
         // Ascension: search your deck for a card that evolves from this Pokémon and put it onto this
         // Pokémon to evolve it, then shuffle.

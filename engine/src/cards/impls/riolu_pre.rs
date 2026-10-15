@@ -2,7 +2,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Riolu@PRE",
+    class: "RioluPRE",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::before_damage(Op::Coin(CoinSpec { heads: &[Step::new(more_damage_if(20, Cond::True))], ..CoinSpec::DEFAULT }))],

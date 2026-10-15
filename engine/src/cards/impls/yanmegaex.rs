@@ -10,7 +10,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Yanmegaex",
+    class: "YanmegaEx",
     triggers: &[
         // Buzz Boost: once during your turn, when this Pokémon moves from your Bench to the Active Spot, you may search your
         // deck for up to 3 Basic [G] Energy and attach them to this Pokémon, then shuffle.

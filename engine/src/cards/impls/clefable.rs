@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Clefable@TWM|ASC",
+    class: "Clefable",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[

@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "WalkingWakeex",
+    class: "WalkingWakeEx",
     // Azure Wave: damage from this Pokémon's attacks isn't affected by any effects on your opponent's Active Pokémon.
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: None, shred: Some(SlotPred::Holder) }) }],
     attacks: &[AttackSpec {

@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Togekiss@SSP|ASC",
+    class: "Togekiss",
     // Wonder Kiss: whenever your opponent's Active Pokémon gets Knocked Out, flip a coin; if heads, take 1 more Prize card
     // for that Knock Out (does not stack: the usage record of the Knocked Out Pokémon, id2083).
     triggers: &[Trigger {

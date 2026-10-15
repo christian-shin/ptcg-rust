@@ -7,7 +7,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ThickScaleASCPool",
+    class: "ThickScale",
     passives: &[Passive {
         origin: RuleSource::Tool,
         modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 50, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::DRAGON)]), source: SlotPred::OneOf(&[SlotPred::TypeIs(ct::GRASS), SlotPred::TypeIs(ct::FIRE), SlotPred::TypeIs(ct::WATER), SlotPred::TypeIs(ct::LIGHTNING)]), ..DamageTakenSpec::DEFAULT }),

@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Drilbur@PBL",
+    class: "DrilburPBL",
     // Call for Family: search your deck for up to 2 Basic Pokémon and put them onto your Bench,
     // then shuffle (the attack just does its damage with an empty deck or a full Bench).
     attacks: &[AttackSpec {

@@ -7,7 +7,7 @@
 //! id1653): nothing without a Benched Pokémon or an Energy on it, no cancel.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "IronTreadsTEFPool",
+    class: "IronTreads",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::All(&[SlotPred::IsActive, SlotPred::HasCard(Pred::Energy)]))]), yes: &[Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Active(Who::Me))), predicate: Pred::Energy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..AttachSpec::DEFAULT }))], no: &[] })),

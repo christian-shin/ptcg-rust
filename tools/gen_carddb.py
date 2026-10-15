@@ -79,7 +79,6 @@ for key, c in cards.items():
         'name: %s' % lit(c['name']),
         'set: %s' % lit(c['set']),
         'set_number: %s' % lit(c['setNumber']),
-        'class: %s' % lit(c['class']),
         'behavior: %s' % lit(c['behavior']),
         'super_type: %d' % c['superType'],
         'regulation_mark: %s' % lit(c['regulationMark']),

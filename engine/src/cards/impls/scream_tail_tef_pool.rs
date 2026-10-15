@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ScreamTailTEFPool",
+    class: "ScreamTail",
     attacks: &[
         AttackSpec {
             index: 0,

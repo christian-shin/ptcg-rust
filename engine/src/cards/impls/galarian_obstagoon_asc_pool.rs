@@ -5,7 +5,7 @@
 //! damage: a LeavePlay (D1), chosen by the player, cause: this attack.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "GalarianObstagoonASCPool",
+    class: "GalarianObstagoon",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(damage_is(Num::Mul(&Num::DamageOn(SlotExpr::Active(Who::Opp)), &Num::Lit(7)))),

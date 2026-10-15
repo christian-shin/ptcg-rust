@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "DelibirdMEGPool",
+    class: "Delibird",
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: Some(FirstTurnAttack::Attack(0)), shred: None }) }],
     // Quick Gift: search your deck for a card and put it into your hand, then shuffle.
     attacks: &[AttackSpec {

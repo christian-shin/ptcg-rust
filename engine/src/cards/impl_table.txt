@@ -1,0 +1,807 @@
+# card (international key) -> the class key of the implementation it resolved to when the keys were
+# renamed (tools/rename_classes.py frozen, made with the old matching); "-" = behavior not ported.
+Hop's Phantump ASC 95	HopsPhantump
+Hop's Trevenant ASC 96	HopsTrevenant
+Thick Scale ASC 211	ThickScale
+Team Rocket's Houndoom DRI 38	TeamRocketsHoundoom
+Ethan's Sudowoodo DRI 93	EthansSudowoodo
+Team Rocket's Bother-Bot DRI 172	TeamRocketsBotherBot
+Lt. Surge's Bargain MEG 120	LtSurgesBargain
+Voltaic Lightning Energy PBL 84	VoltaicLightningEnergy
+Growing Grass Energy POR 86	GrowingGrassEnergy
+Ogre's Mask PRE 118	OgresMask
+Fidough SCR 66	Fidough
+Payapa Berry SCR 141	PayapaBerry
+Babiri Berry SSP 163	BabiriBerry
+Zacian ex SVP 198	ZacianEx
+Iron Boulder ex TEF 99	IronBoulderEx
+Iron Treads TEF 118	IronTreads
+Lucian TWM 157	Lucian
+Team Rocket's Mimikyu ASC 97	TeamRocketsMimikyu
+Galarian Obstagoon ASC 132	GalarianObstagoon
+Petilil BLK 6	Petilil
+Amoonguss BLK 11	Amoonguss
+Gurdurr BLK 48	GurdurrBLK
+Dhelmise JTG 70	DhelmiseJTG
+Chi-Yu MEG 31	ChiYuMEG
+Shroodle MEG 91	Shroodle
+Delibird MEG 105	Delibird
+Buneary MEG 107	BunearyMEG
+Cottonee MEP 18	Cottonee
+Pawmot PFL 34	Pawmot
+Paldean Tauros SSP 39	PaldeanTaurosSSP39
+Mankey SSP 98	Mankey
+Passimian SSP 111	Passimian
+Swablu SSP 148	Swablu
+Bouffalant SSP 151	BouffalantSSP
+Dhelmise TEF 19	DhelmiseTEF
+Beheeyem TEF 74	Beheeyem
+Scream Tail TEF 77	ScreamTail
+Volbeat TWM 9	Volbeat
+Teal Mask Ogerpon TWM 24	TealMaskOgerpon
+Litwick TWM 36	LitwickTWM
+Lampent TWM 37	LampentTWM
+Chandelure TWM 38	Chandelure
+Milotic TWM 50	Milotic
+Glalie TWM 52	Glalie
+Eevee TWM 135	EeveeTWM
+Mandibuzz WHT 64	Mandibuzz
+Mew ex 30C 66	MewEx
+Poké Pad 30C 126	PokePad
+Switch 30C 127	Switch
+Ultra Ball 30C 128	UltraBall
+Budew ASC 16	Budew
+Team Rocket's Tarountula ASC 18	TeamRocketsTarountula
+Team Rocket's Spidops ASC 19	TeamRocketsSpidops
+Ethan's Magcargo ASC 24	EthansMagcargo
+Ethan's Ho-Oh ex ASC 26	EthansHoOhEx
+Psyduck ASC 39	Psyduck
+Golduck ASC 40	Golduck
+Tynamo ASC 59	Tynamo
+Eelektrik ASC 60	Eelektrik
+Iono's Wattrel ASC 71	IonosWattrel
+Iono's Kilowattrel ASC 72	IonosKilowattrel
+Clefable ASC 75	Clefable
+Lillie's Clefairy ex ASC 76	LilliesClefairyEx
+Team Rocket's Mewtwo ex ASC 79	TeamRocketsMewtwoEx
+Togetic ASC 81	Togetic
+Togekiss ASC 82	Togekiss
+Ralts ASC 87	Ralts
+Kirlia ASC 88	Kirlia
+Mega Gardevoir ex ASC 89	MegaGardevoirEx
+Munkidori ASC 99	Munkidori
+Lunatone ASC 105	Lunatone
+Solrock ASC 106	SolrockASC
+Cynthia's Gible ASC 109	CynthiasGible
+Cynthia's Gabite ASC 110	CynthiasGabite
+Cynthia's Garchomp ex ASC 111	CynthiasGarchompEx
+Riolu ASC 112	RioluMEG
+Mega Lucario ex ASC 113	MegaLucarioEx
+Mega Gengar ex ASC 125	MegaGengarEx
+Team Rocket's Murkrow ASC 126	TeamRocketsMurkrow
+Cynthia's Spiritomb ASC 133	CynthiasSpiritomb
+N's Zoroark ex ASC 137	NsZoroarkEx
+Fezandipiti ex ASC 142	FezandipitiEx
+N's Reshiram ASC 154	NsReshiram
+Drakloak ASC 159	Drakloak
+Dragapult ex ASC 160	DragapultEx
+Fan Rotom ASC 171	FanRotom
+Hop's Cramorant ASC 177	HopsCramorant
+Terapagos ex ASC 179	TerapagosEx
+Acerola's Mischief ASC 180	AcerolasMischief
+Air Balloon ASC 181	AirBalloon
+Boss's Orders ASC 183	BosssOrders
+Buddy-Buddy Poffin ASC 184	BuddyBuddyPoffin
+Counter Gain ASC 186	CounterGain
+Fighting Gong ASC 187	FightingGong
+Glass Trumpet ASC 189	GlassTrumpet
+Iris's Fighting Spirit ASC 190	IrissFightingSpirit
+Lillie's Determination ASC 192	LilliesDetermination
+Mega Signal ASC 193	MegaSignal
+Mystery Garden ASC 194	MysteryGarden
+N's PP Up ASC 195	NsPPUp
+Night Stretcher ASC 196	NightStretcher
+Premium Power Pro ASC 199	PremiumPowerPro
+Surfer ASC 200	Surfer
+Team Rocket's Archer ASC 201	TeamRocketsArcher
+Team Rocket's Ariana ASC 202	TeamRocketsAriana
+Team Rocket's Factory ASC 203	TeamRocketsFactory
+Team Rocket's Giovanni ASC 204	TeamRocketsGiovanni
+Team Rocket's Petrel ASC 207	TeamRocketsPetrel
+Team Rocket's Proton ASC 208	TeamRocketsProton
+Team Rocket's Transceiver ASC 209	TeamRocketsTransceiver
+Team Rocket's Watchtower ASC 210	TeamRocketsWatchtower
+Prism Energy ASC 216	PrismEnergy
+Team Rocket's Energy ASC 217	TeamRocketsEnergy
+Black Belt's Training ASC 255	BlackBeltsTraining
+Cheren ASC 258	Cheren
+Jamming Tower ASC 261	JammingTower
+Mega Diancie ex ASC 267	MegaDiancieEx
+Marnie's Grimmsnarl ex ASC 287	MarniesGrimmsnarlEx
+Steven's Metagross ex ASC 289	StevensMetagrossEx
+Crustle BLK 52	CrustleBLK
+Pokégear 3.0 BLK 84	Pokegear30
+Energy Retrieval CRI 108	EnergyRetrievalCRI
+Jumbo Ice Cream CRI 109	JumboIceCream
+Surfing Beach CRI 114	SurfingBeach
+Tool Scrapper CRI 115	ToolScrapper
+Rellor DRI 24	RellorSSP
+Levincia DRI 244	Levincia
+Super Potion JTG 158	SuperPotionJTG
+Pokémon Center Lady MEG 123	PokemonCenterLady
+Rare Candy MEG 125	RareCandy
+Repel MEG 126	Repel
+Brave Bangle PBL 104	BraveBangle
+Crushing Hammer PBL 105	CrushingHammer
+Energy Switch PBL 107	EnergySwitch
+Iron Defender PBL 110	IronDefender
+Ignition Energy PFL 124	IgnitionEnergy
+Energy Search POR 72	EnergySearch
+Judge POR 76	Judge
+Poké Ball POR 80	PokeBall
+Pokémon Catcher POR 82	PokemonCatcherPOR
+Potion POR 83	PotionPOR
+Energy Recycler POR 108	EnergyRecycler
+Forest of Vitality POR 109	ForestOfVitality
+Sacred Ash POR 115	SacredAshPOR
+Wondrous Patch POR 117	WondrousPatch
+Dipplin PRE 10	DipplinTWM
+Hydrapple ex PRE 11	HydrappleEx
+Teal Mask Ogerpon ex PRE 12	TealMaskOgerponEx
+Pyroar PRE 16	PyroarPRE
+Hearthflame Mask Ogerpon ex PRE 17	HearthflameMaskOgerponEx
+Goldeen PRE 20	Goldeen
+Wellspring Mask Ogerpon ex PRE 27	WellspringMaskOgerponEx
+Iron Thorns ex PRE 32	IronThornsEx
+Duskull PRE 35	Duskull
+Dusclops PRE 36	Dusclops
+Dusknoir PRE 37	Dusknoir
+Sylveon ex PRE 41	SylveonEx
+Flutter Mane PRE 43	FlutterMane
+Fezandipiti PRE 45	Fezandipiti
+Iron Boulder PRE 46	IronBoulder
+Bloodmoon Ursaluna PRE 54	BloodmoonUrsaluna
+Great Tusk PRE 55	GreatTusk
+Okidogi PRE 57	Okidogi
+Cornerstone Mask Ogerpon ex PRE 58	CornerstoneMaskOgerponEx
+Roaring Moon PRE 65	RoaringMoon
+Duraludon PRE 69	DuraludonSCR
+Archaludon PRE 70	ArchaludonSCR
+Eevee PRE 74	EeveeSSP
+Noctowl PRE 78	Noctowl
+Dunsparce PRE 79	DunsparceTEF
+Dudunsparce PRE 80	Dudunsparce
+Area Zero Underdepths PRE 94	AreaZeroUnderdepths
+Binding Mochi PRE 95	BindingMochi
+Briar PRE 100	Briar
+Bug Catching Set PRE 102	BugCatchingSet
+Carmine PRE 103	Carmine
+Ciphermaniac's Codebreaking PRE 104	CiphermaniacsCodebreaking
+Crispin PRE 105	Crispin
+Explorer's Guidance PRE 107	ExplorersGuidance
+Festival Grounds PRE 108	FestivalGrounds
+Janine's Secret Art PRE 112	JaninesSecretArt
+Kieran PRE 113	Kieran
+Lacey PRE 114	Lacey
+Maximum Belt PRE 117	MaximumBelt
+Prime Catcher PRE 119	PrimeCatcher
+Rescue Board PRE 126	RescueBoard
+Scoop Up Cyclone PRE 128	ScoopUpCyclone
+Sparkling Crystal PRE 129	SparklingCrystal
+Eri PRE 136	Eri
+Ceruledge ex PRE 147	CeruledgeEx
+Palafin ex PRE 151	PalafinEx
+Iron Crown ex PRE 158	IronCrownEx
+Pecharunt ex PRE 163	PecharuntEx
+Raging Bolt ex PRE 166	RagingBoltEx
+Bloodmoon Ursaluna ex PRE 168	BloodmoonUrsalunaEx
+Drayton PRE 172	Drayton
+Iron Leaves ex PRE 176	IronLeavesEx
+Walking Wake ex PRE 178	WalkingWakeEx
+Bronzor SSP 126	BronzorSSP
+Scramble Switch SSP 186	ScrambleSwitch
+Pecharunt SVP 129	Pecharunt
+Cook TWM 147	Cook
+Cofagrigus WHT 40	CofagrigusWHT
+N's Darmanitan ASC 33	NsDarmanitan
+Pikachu ex ASC 57	PikachuEx
+Slowpoke MEP 86	SlowpokeMEP86
+Exeggcute 30C 1	Exeggcute30C
+Alolan Exeggutor 30C 2	AlolanExeggutor
+Unown 30C 72	Unown
+Lucario 30C 83	Lucario
+Seismitoad 30C 84	Seismitoad
+Yveltal 30C 100	Yveltal30C
+Jirachi ex 30C 102	JirachiEx
+Chikorita ASC 8	Chikorita
+Mega Meganium ex ASC 10	MegaMeganiumEx
+Mega Charizard Y ex ASC 22	MegaCharizardYEx
+Mega Froslass ex ASC 47	MegaFroslassEx
+Stunfisk ASC 62	Stunfisk
+Marill ASC 83	Marill
+Azumarill ex ASC 84	AzumarillEx
+Spectrier ASC 98	Spectrier
+Stunfisk ex ASC 114	StunfiskEx
+Mega Hawlucha ex ASC 116	MegaHawluchaEx
+Koraidon ex ASC 121	KoraidonExASC
+Team Rocket's Honchkrow ASC 127	TeamRocketsHonchkrow
+Dragonair ASC 151	Dragonair
+Mega Dragonite ex ASC 152	MegaDragoniteEx
+N's Zekrom ASC 155	NsZekrom
+Team Rocket's Kangaskhan ex ASC 162	TeamRocketsKangaskhanEx
+Mega Audino ex ASC 172	MegaAudinoEx
+Canari ASC 185	Canari
+Light Ball ASC 191	LightBall
+Nighttime Mine ASC 197	NighttimeMine
+Zekrom ex BLK 34	ZekromEx
+Elgyem BLK 40	Elgyem
+Genesect ex BLK 67	GenesectEx
+Fennel BLK 82	Fennel
+N's Plan BLK 83	NsPlan
+Weedle CRI 1	Weedle
+Kakuna CRI 2	Kakuna
+Beedrill ex CRI 3	BeedrillEx
+Froakie CRI 20	FroakieCRI
+Frogadier CRI 21	FrogadierCRI
+Mega Greninja ex CRI 22	MegaGreninjaEx
+Deoxys CRI 32	DeoxysCRI32
+Deoxys CRI 33	DeoxysCRI33
+Trubbish CRI 56	Trubbish
+Metagross CRI 61	MetagrossCRI
+Patrat CRI 70	Patrat
+AZ's Tranquility CRI 76	AZsTranquility
+Great Haul Net CRI 78	GreatHaulNet
+Philippe CRI 79	Philippe
+Prism Tower CRI 80	PrismTower
+Special Red Card CRI 82	SpecialRedCard
+Transformation Tome CRI 83	TransformationTome
+Bubbly Water Energy CRI 84	BubblyWaterEnergy
+Magnetic Metal Energy CRI 85	MagneticMetalEnergy
+Yanma DRI 2	Yanma
+Yanmega ex DRI 3	YanmegaEx
+Shaymin DRI 10	Shaymin
+Dwebble DRI 11	Dwebble
+Crustle DRI 12	CrustleDRI
+Applin DRI 16	ApplinDRI
+Hydrapple DRI 18	Hydrapple
+Dolliv DRI 22	Dolliv
+Arboliva ex DRI 23	ArbolivaEx
+Ethan's Cyndaquil DRI 32	EthansCyndaquil
+Ethan's Typhlosion DRI 34	EthansTyphlosion
+Torchic DRI 40	Torchic
+Combusken DRI 41	Combusken
+Team Rocket's Articuno DRI 51	TeamRocketsArticuno
+Team Rocket's Zapdos DRI 70	TeamRocketsZapdos
+Ethan's Pichu DRI 71	EthansPichu
+Zeraora DRI 78	ZeraoraDRI
+Team Rocket's Wobbuffet DRI 82	TeamRocketsWobbuffet
+Steven's Baltoy DRI 83	StevensBaltoy
+Steven's Claydol DRI 84	StevensClaydol
+Marnie's Impidimp DRI 134	MarniesImpidimp
+Marnie's Morpeko DRI 137	MarniesMorpeko
+Steven's Metang DRI 144	StevensMetang
+Team Rocket's Porygon DRI 153	TeamRocketsPorygon
+Team Rocket's Porygon2 DRI 154	TeamRocketsPorygon2
+Team Rocket's Porygon-Z DRI 155	TeamRocketsPorygonZ
+Cynthia's Power Weight DRI 162	CynthiasPowerWeight
+Ethan's Adventure DRI 165	EthansAdventure
+Spikemuth Gym DRI 169	SpikemuthGym
+Team Rocket's Venture Bomb DRI 179	TeamRocketsVentureBomb
+Lilligant JTG 7	Lilligant
+Maractus JTG 8	Maractus
+Magmortar JTG 21	Magmortar
+Volcanion ex JTG 31	VolcanionEx
+N's Sigilyph JTG 64	NsSigilyph
+Swinub JTG 77	Swinub
+Mamoswine ex JTG 79	MamoswineEx
+Larvitar JTG 80	Larvitar
+Tyranitar JTG 95	Tyranitar
+Hop's Zacian ex JTG 111	HopsZacianEx
+Salamence ex JTG 114	SalamenceEx
+Hop's Snorlax JTG 117	HopsSnorlax
+Dunsparce JTG 120	DunsparceJTG
+Dudunsparce ex JTG 121	DudunsparceEx
+Hop's Dubwool JTG 136	HopsDubwool
+Brock's Scouting JTG 146	BrocksScouting
+Hop's Bag JTG 147	HopsBag
+Hop's Choice Band JTG 148	HopsChoiceBand
+Lillie's Pearl JTG 151	LilliesPearl
+N's Castle JTG 152	NsCastle
+Postwick JTG 154	Postwick
+Redeemable Ticket JTG 156	RedeemableTicket
+Ruffian JTG 157	Ruffian
+Spiky Energy JTG 159	SpikyEnergy
+Bulbasaur MEG 1	Bulbasaur
+Mega Venusaur ex MEG 3	MegaVenusaurEx
+Bayleef MEG 9	Bayleef
+Meganium MEG 10	Meganium
+Shuckle MEG 11	Shuckle
+Celebi MEG 12	Celebi
+Electrike MEG 49	Electrike
+Mega Manectric ex MEG 50	MegaManectricEx
+Abra MEG 54	AbraMEG
+Kadabra MEG 55	Kadabra
+Onix MEG 70	Onix
+Hariyama MEG 73	Hariyama
+Mega Absol ex MEG 86	MegaAbsolEx
+Yveltal MEG 88	YveltalMEG
+Steelix MEG 93	Steelix
+Mega Mawile ex MEG 94	MegaMawileEx
+Dialga MEG 95	Dialga
+Mega Latias ex MEG 100	MegaLatiasEx
+Mega Kangaskhan ex MEG 104	MegaKangaskhanEx
+Yungoos MEG 109	Yungoos
+Risky Ruins MEG 127	RiskyRuins
+Strange Timepiece MEG 128	StrangeTimepiece
+Wally's Compassion MEG 132	WallysCompassion
+Poltchageist PBL 5	Poltchageist
+Sinistcha PBL 6	Sinistcha
+Manectric PBL 24	Manectric
+Slowpoke PBL 29	SlowpokePBL
+Mega Slowbro ex PBL 31	MegaSlowbroEx
+Shuppet PBL 33	Shuppet
+Banette PBL 34	Banette
+Spiritomb PBL 35	Spiritomb
+Litwick PBL 36	LitwickPBL
+Lampent PBL 37	LampentPBL
+Mega Chandelure ex PBL 38	MegaChandelureEx
+Dhelmise PBL 39	DhelmisePBL
+Annihilape PBL 41	AnnihilapePBL
+Drilbur PBL 46	DrilburPBL
+Mega Darkrai ex PBL 48	MegaDarkraiEx
+Chi-Yu PBL 59	ChiYuPBL
+Mega Excadrill ex PBL 65	MegaExcadrillEx
+Pikipek PBL 66	Pikipek
+Trumbeak PBL 67	Trumbeak
+Toucannon PBL 68	Toucannon
+Backtrack Badge PBL 74	BacktrackBadge
+Dark Bell PBL 75	DarkBell
+Gladion's Final Battle PBL 77	GladionsFinalBattle
+Gwynn PBL 78	Gwynn
+Rust Syndicate Grunt PBL 81	RustSyndicateGrunt
+Shadowy Darkness Energy PBL 83	ShadowyDarknessEnergy
+Mega Heracross ex PFL 4	MegaHeracrossEx
+Genesect PFL 8	GenesectPFL
+Mega Charizard X ex PFL 13	MegaCharizardXEx
+Moltres PFL 14	Moltres
+Oricorio ex PFL 18	OricorioEx
+Piplup PFL 27	Piplup
+Zacian PFL 45	Zacian
+Mega Sharpedo ex PFL 61	MegaSharpedoEx
+Seviper PFL 62	Seviper
+Empoleon ex PFL 70	EmpoleonEx
+Duraludon PFL 74	DuraludonPFL
+Archaludon PFL 75	ArchaludonPFL
+Buneary PFL 83	BunearyPFL
+Mega Lopunny ex PFL 84	MegaLopunnyEx
+Battle Cage PFL 85	BattleCage
+Blowtorch PFL 86	Blowtorch
+Dawn PFL 87	Dawn
+Firebreather PFL 89	Firebreather
+Grimsley's Move PFL 90	GrimsleysMove
+Punk Helmet PFL 92	PunkHelmet
+Sacred Charm PFL 93	SacredCharm
+Spewpa POR 8	Spewpa
+Vivillon POR 9	Vivillon
+Rowlet POR 10	RowletPOR
+Dartrix POR 11	DartrixPOR
+Decidueye ex POR 12	DecidueyeEx
+Mega Starmie ex POR 21	MegaStarmieEx
+Clefairy POR 30	Clefairy
+Binacle POR 42	Binacle
+Barbaracle POR 43	Barbaracle
+Skorupi POR 51	Skorupi
+Drapion POR 52	Drapion
+Mega Skarmory ex POR 55	MegaSkarmoryEx
+Meowth ex POR 62	MeowthEx
+Furfrou POR 67	Furfrou
+Energy Swatter POR 73	EnergySwatter
+Jacinthe POR 75	Jacinthe
+Lumiose City POR 77	LumioseCity
+Lumiose Galette POR 78	LumioseGalette
+Naveen POR 79	Naveen
+Rosa's Encouragement POR 84	RosasEncouragement
+Tarragon POR 85	Tarragon
+Rocky Fighting Energy POR 87	RockyFightingEnergy
+Telepathic Psychic Energy POR 88	TelepathicPsychicEnergy
+Leafeon ex PRE 6	LeafeonEx
+Flareon ex PRE 14	FlareonEx
+Seaking PRE 21	Seaking
+Jolteon ex PRE 30	JolteonEx
+Sylveon PRE 40	Sylveon
+Riolu PRE 50	RioluPRE
+Umbreon ex PRE 60	UmbreonEx
+Eevee ex PRE 75	EeveeEx
+Hoothoot PRE 77	HoothootPRE
+Regigigas PRE 86	Regigigas
+Haban Berry PRE 111	HabanBerry
+Larry's Skill PRE 115	LarrysSkill
+Max Rod PRE 116	MaxRod
+Roto-Stick PRE 127	RotoStick
+Dipplin SCR 13	DipplinSCR
+Crabominable SCR 42	Crabominable
+Joltik SCR 50	Joltik
+Galvantula ex SCR 51	GalvantulaEx
+Zeraora SCR 55	ZeraoraSCR
+Slowpoke SCR 57	SlowpokeSCR
+Slowking SCR 58	Slowking
+Comfey SCR 63	Comfey
+Diancie SCR 86	Diancie
+Raging Bolt SCR 111	RagingBolt
+Eevee SCR 113	EeveeSCR
+Hoothoot SCR 114	HoothootSCR
+Bouffalant SCR 119	BouffalantSCR
+Grand Tree SCR 136	GrandTree
+Gravity Gemstone SCR 137	GravityGemstone
+Kofu SCR 138	Kofu
+Galvantula SFA 2	Galvantula
+Rowlet SFA 3	RowletSFA
+Dartrix SFA 4	DartrixSFA
+Tapu Bulu SFA 6	TapuBulu
+Cresselia SFA 21	Cresselia
+Slither Wing SFA 26	SlitherWing
+Zorua SFA 31	ZoruaSFA
+Yveltal SFA 35	YveltalSFA
+Okidogi ex SFA 36	OkidogiEx
+Munkidori ex SFA 37	MunkidoriEx
+Genesect SFA 40	GenesectSFA
+Varoom SFA 43	Varoom
+Haxorus SFA 46	HaxorusSFA
+Kyurem SFA 47	Kyurem
+Eevee SFA 50	EeveeSFA
+Academy at Night SFA 54	AcademyAtNight
+Cassiopeia SFA 56	Cassiopeia
+Colress's Tenacity SFA 57	ColresssTenacity
+Dangerous Laser SFA 58	DangerousLaser
+Neutralization Zone SFA 60	NeutralizationZone
+Poké Vital A SFA 62	PokeVitalA
+Powerglass SFA 63	Powerglass
+Xerosic's Machinations SFA 64	XerosicsMachinations
+Exeggcute SSP 1	ExeggcuteSSP
+Durant ex SSP 4	DurantEx
+Zarude SSP 11	Zarude
+Paldean Tauros SSP 18	PaldeanTaurosSSP18
+Ho-Oh SSP 19	HoOh
+Victini SSP 21	Victini
+Centiskorch SSP 28	Centiskorch
+Fuecoco SSP 29	Fuecoco
+Skeledirge SSP 31	Skeledirge
+Charcadet SSP 33	CharcadetSSP
+Armarouge SSP 34	Armarouge
+Feebas SSP 41	FeebasSSP
+Milotic ex SSP 42	MiloticEx
+Walrein SSP 45	Walrein
+Black Kyurem ex SSP 48	BlackKyuremEx
+Chien-Pao SSP 56	ChienPao
+Magneton SSP 59	Magneton
+Rotom SSP 61	Rotom
+Azumarill SSP 74	Azumarill
+Latias ex SSP 76	LatiasEx
+Cofagrigus SSP 83	CofagrigusSSP
+Dedenne SSP 87	Dedenne
+Flittle SSP 94	Flittle
+Gimmighoul SSP 97	Gimmighoul
+Annihilape SSP 100	AnnihilapeSSP
+Gastrodon SSP 107	Gastrodon
+Koraidon SSP 116	KoraidonSSP
+Deino SSP 117	Deino
+Zweilous SSP 118	Zweilous
+Hydreigon ex SSP 119	HydreigonEx
+Duraludon SSP 129	DuraludonSSP
+Archaludon ex SSP 130	ArchaludonEx
+Gholdengo SSP 131	Gholdengo
+Alolan Exeggutor ex SSP 133	AlolanExeggutorEx
+Turtonator SSP 137	Turtonator
+Eternatus SSP 141	Eternatus
+Slakoth SSP 145	Slakoth
+Slaking ex SSP 147	SlakingEx
+Brilliant Blender SSP 164	BrilliantBlender
+Call Bell SSP 165	CallBell
+Cyrano SSP 170	Cyrano
+Dusk Ball SSP 175	DuskBall
+Energy Search Pro SSP 176	EnergySearchPro
+Gravity Mountain SSP 177	GravityMountain
+Lisia's Appeal SSP 179	LisiasAppeal
+Lively Stadium SSP 180	LivelyStadium
+Meddling Memo SSP 181	MeddlingMemo
+Megaton Blower SSP 182	MegatonBlower
+Miracle Headset SSP 183	MiracleHeadset
+Precious Trolley SSP 185	PreciousTrolley
+Tera Orb SSP 189	TeraOrb
+Enriching Energy SSP 191	EnrichingEnergy
+Scyther TEF 1	Scyther
+Rellor TEF 23	RellorTEF
+Rabsca TEF 24	Rabsca
+Litten TEF 32	Litten
+Incineroar ex TEF 34	IncineroarEx
+Sizzlipede TEF 36	Sizzlipede
+Gouging Fire ex TEF 38	GougingFireEx
+Totodile TEF 39	Totodile
+Croconaw TEF 40	Croconaw
+Feraligatr TEF 41	Feraligatr
+Palafin TEF 49	PalafinTEF
+Mr. Mime TEF 63	MrMime
+Girafarig TEF 66	GirafarigTEF
+Bronzor TEF 68	BronzorTEF
+Bronzong TEF 69	Bronzong
+Relicanth TEF 84	Relicanth
+Drilbur TEF 85	DrilburTEF
+Sandy Shocks TEF 98	SandyShocks
+Farigiraf ex TEF 108	FarigirafEx
+Scizor ex TEF 111	ScizorEx
+Beldum TEF 113	Beldum
+Metang TEF 114	Metang
+Metagross TEF 115	MetagrossTEF
+Koraidon TEF 119	KoraidonTEF
+Koraidon ex TEF 120	KoraidonExTEF
+Miraidon TEF 121	Miraidon
+Miraidon ex TEF 122	MiraidonEx
+Hoothoot TEF 126	HoothootTEF
+Chatot TEF 132	Chatot
+Minccino TEF 136	MinccinoTEF
+Cinccino TEF 137	Cinccino
+Awakening Drum TEF 141	AwakeningDrum
+Bianca's Devotion TEF 142	BiancasDevotion
+Boxed Order TEF 143	BoxedOrder
+Full Metal Lab TEF 148	FullMetalLab
+Hand Trimmer TEF 150	HandTrimmer
+Heavy Baton TEF 151	HeavyBaton
+Hero's Cape TEF 152	HerosCape
+Master Ball TEF 153	MasterBall
+Morty's Conviction TEF 155	MortysConviction
+Perilous Jungle TEF 156	PerilousJungle
+Reboot Pod TEF 158	RebootPod
+Salvatore TEF 160	Salvatore
+Mist Energy TEF 161	MistEnergy
+Neo Upper Energy TEF 162	NeoUpperEnergy
+Illumise TWM 10	Illumise
+Thwackey TWM 15	Thwackey
+Rillaboom TWM 16	Rillaboom
+Applin TWM 17	ApplinTWM17
+Iron Leaves TWM 19	IronLeaves
+Chi-Yu TWM 39	ChiYuTWM
+Feebas TWM 49	FeebasTWM
+Snorunt TWM 51	Snorunt
+Froslass TWM 53	Froslass
+Froakie TWM 56	FroakieTWM
+Frogadier TWM 57	FrogadierTWM
+Finizen TWM 59	Finizen
+Palafin TWM 60	PalafinTWM
+Walking Wake TWM 63	WalkingWake
+Zapdos TWM 65	Zapdos
+Luxray ex TWM 68	LuxrayEx
+Morpeko TWM 72	Morpeko
+Abra TWM 80	AbraTWM
+Alakazam TWM 82	AlakazamTWM
+Girafarig TWM 83	GirafarigTWM
+Enamorus TWM 93	Enamorus
+Scream Tail ex TWM 94	ScreamTailEx
+Hisuian Growlithe TWM 99	HisuianGrowlithe
+Hisuian Arcanine TWM 100	HisuianArcanine
+Timburr TWM 103	Timburr
+Gurdurr TWM 104	GurdurrTWM
+Conkeldurr TWM 105	Conkeldurr
+Greninja ex TWM 106	GreninjaEx
+Ting-Lu TWM 110	TingLu
+Brute Bonnet TWM 118	BruteBonnet
+Heatran TWM 123	Heatran
+Applin TWM 126	ApplinTWM126
+Tatsugiri TWM 131	Tatsugiri
+Farfetch'd TWM 132	Farfetchd
+Chansey TWM 133	Chansey
+Blissey ex TWM 134	BlisseyEx
+Accompanying Flute TWM 142	AccompanyingFlute
+Community Center TWM 146	CommunityCenter
+Enhanced Hammer TWM 148	EnhancedHammer
+Handheld Fan TWM 150	HandheldFan
+Hassel TWM 151	Hassel
+Hyper Aroma TWM 152	HyperAroma
+Lana's Aid TWM 155	LanasAid
+Love Ball TWM 156	LoveBall
+Lucky Helmet TWM 158	LuckyHelmet
+Secret Box TWM 163	SecretBox
+Survival Brace TWM 164	SurvivalBrace
+Unfair Stamp TWM 165	UnfairStamp
+Boomerang Energy TWM 166	BoomerangEnergy
+Legacy Energy TWM 167	LegacyEnergy
+Whimsicott ex WHT 5	WhimsicottEx
+Reshiram ex WHT 20	ReshiramEx
+Frillish WHT 44	Frillish
+Jellicent ex WHT 45	JellicentEx
+Terrakion WHT 54	Terrakion
+Purrloin WHT 55	Purrloin
+Zorua WHT 61	ZoruaWHT
+Zoroark WHT 62	Zoroark
+Harlequin WHT 83	Harlequin
+Hilda WHT 84	Hilda
+Tirtouga BLK 22	Tirtouga
+Meloetta ex BLK 44	MeloettaEx
+Haxorus BLK 70	HaxorusBLK
+Ethan's Pinsir DRI 1	EthansPinsir
+Cynthia's Roserade DRI 8	CynthiasRoserade
+Ethan's Quilava DRI 33	EthansQuilava
+Blaziken DRI 42	Blaziken
+Team Rocket's Chingling DRI 85	TeamRocketsChingling
+Team Rocket's Ekans DRI 112	TeamRocketsEkans
+Team Rocket's Arbok DRI 113	TeamRocketsArbok
+Team Rocket's Sneasel DRI 128	TeamRocketsSneasel
+Blaziken ex JTG 24	BlazikenEx
+Tapu Koko ex JTG 51	TapuKokoEx
+N's Purrloin JTG 96	NsPurrloin
+Cinderace MEG 28	Cinderace
+Alakazam MEG 56	AlakazamMEG
+Gumshoos MEG 110	Gumshoos
+Charmander PFL 11	Charmander
+Charcadet PFL 19	CharcadetPFL
+Ceruledge PFL 20	CeruledgePFL
+Carvanha PFL 60	Carvanha
+Toxel PFL 67	Toxel
+Toxtricity PFL 68	Toxtricity
+Espeon ex PRE 34	EspeonEx
+Antique Root Fossil SCR 130	AntiqueRootFossil
+Ceruledge SSP 35	CeruledgeSSP
+Gouging Fire SSP 38	GougingFire
+Smoochum SSP 75	Smoochum
+Poké Pad ASC 198	PokePad
+Switch BS 95	Switch
+Ultra Ball SVI 196	UltraBall
+Budew PRE 4	Budew
+Team Rocket's Tarountula DRI 19	TeamRocketsTarountula
+Team Rocket's Spidops DRI 20	TeamRocketsSpidops
+Ethan's Magcargo DRI 36	EthansMagcargo
+Ethan's Ho-Oh ex DRI 39	EthansHoOhEx
+Psyduck MEP 7	Psyduck
+Golduck MEP 8	Golduck
+Tynamo BLK 30	Tynamo
+Iono's Wattrel JTG 54	IonosWattrel
+Iono's Kilowattrel JTG 55	IonosKilowattrel
+Clefable TWM 79	Clefable
+Lillie's Clefairy ex JTG 56	LilliesClefairyEx
+Team Rocket's Mewtwo ex DRI 81	TeamRocketsMewtwoEx
+Togetic SSP 71	Togetic
+Togekiss SSP 72	Togekiss
+Ralts MEG 58	Ralts
+Kirlia MEG 59	Kirlia
+Mega Gardevoir ex MEG 60	MegaGardevoirEx
+Munkidori TWM 95	Munkidori
+Lunatone MEG 74	Lunatone
+Solrock XY 64	SolrockXY
+Cynthia's Gible DRI 102	CynthiasGible
+Cynthia's Gabite DRI 103	CynthiasGabite
+Cynthia's Garchomp ex DRI 104	CynthiasGarchompEx
+Riolu MEG 76	RioluMEG
+Mega Lucario ex MEG 77	MegaLucarioEx
+Gastly EVO 47	Gastly
+Haunter SSH 84	Haunter
+Mega Gengar ex PFL 56	MegaGengarEx
+Team Rocket's Murkrow DRI 127	TeamRocketsMurkrow
+Cynthia's Spiritomb DRI 129	CynthiasSpiritomb
+N's Zoroark ex JTG 98	NsZoroarkEx
+Fezandipiti ex SFA 38	FezandipitiEx
+N's Reshiram JTG 116	NsReshiram
+Drakloak TWM 129	Drakloak
+Dragapult ex TWM 130	DragapultEx
+Fan Rotom SCR 118	FanRotom
+Hop's Cramorant JTG 138	HopsCramorant
+Terapagos ex SCR 128	TerapagosEx
+Air Balloon SSH 156	AirBalloon
+Boss's Orders PAL 172	BosssOrders
+Buddy-Buddy Poffin TEF 144	BuddyBuddyPoffin
+Counter Gain LOT 170	CounterGain
+Glass Trumpet SCR 135	GlassTrumpet
+Iris's Fighting Spirit JTG 149	IrissFightingSpirit
+Lillie's Determination MEG 119	LilliesDetermination
+Mega Signal MEG 121	MegaSignal
+Mystery Garden MEG 122	MysteryGarden
+N's PP Up JTG 153	NsPPUp
+Night Stretcher SFA 61	NightStretcher
+Premium Power Pro MEG 124	PremiumPowerPro
+Surfer SSP 187	Surfer
+Team Rocket's Archer DRI 170	TeamRocketsArcher
+Team Rocket's Ariana DRI 171	TeamRocketsAriana
+Team Rocket's Factory DRI 173	TeamRocketsFactory
+Team Rocket's Giovanni DRI 174	TeamRocketsGiovanni
+Team Rocket's Petrel DRI 176	TeamRocketsPetrel
+Team Rocket's Proton DRI 177	TeamRocketsProton
+Team Rocket's Transceiver DRI 178	TeamRocketsTransceiver
+Team Rocket's Watchtower DRI 180	TeamRocketsWatchtower
+Prism Energy NXD 93	PrismEnergy
+Team Rocket's Energy DRI 182	TeamRocketsEnergy
+Black Belt's Training JTG 145	BlackBeltsTraining
+Cheren EPO 91	Cheren
+Jamming Tower TWM 153	JammingTower
+Mega Diancie ex PFL 41	MegaDiancieEx
+Marnie's Grimmsnarl ex DRI 136	MarniesGrimmsnarlEx
+Steven's Metagross ex DRI 145	StevensMetagrossEx
+Crustle BCR 85	CrustleBCR
+Pokégear 3.0 SVI 186	Pokegear30
+Energy Retrieval BS 81	EnergyRetrievalBS
+Jumbo Ice Cream PFL 91	JumboIceCream
+Surfing Beach MEG 129	SurfingBeach
+Tool Scrapper DRX 116	ToolScrapper
+Rellor SSP 13	RellorSSP
+Levincia JTG 150	Levincia
+Minccino SSH 145	MinccinoSSH
+Super Potion BS 90	SuperPotionBS
+Pokémon Center Lady MEG 116	PokemonCenterLady
+Repel SUM 130	Repel
+Brave Bangle WHT 80	BraveBangle
+Crushing Hammer SVI 168	CrushingHammer
+Energy Switch SVI 173	EnergySwitch
+Iron Defender MEG 118	IronDefender
+Ignition Energy WHT 86	IgnitionEnergy
+Energy Search SVI 172	EnergySearch
+Judge FST 235	Judge
+Poké Ball JU 64	PokeBall
+Pokémon Catcher SSH 175	PokemonCatcherSSH
+Potion BS 94	PotionBS
+Energy Recycler BST 124	EnergyRecycler
+Forest of Vitality MEG 117	ForestOfVitality
+Sacred Ash FLF 96	SacredAshFLF
+Wondrous Patch PFL 94	WondrousPatch
+Dipplin TWM 18	DipplinTWM
+Hydrapple ex SCR 14	HydrappleEx
+Teal Mask Ogerpon ex TWM 25	TealMaskOgerponEx
+Pyroar STS 23	-
+Hearthflame Mask Ogerpon ex TWM 40	HearthflameMaskOgerponEx
+Goldeen TWM 44	Goldeen
+Wellspring Mask Ogerpon ex TWM 64	WellspringMaskOgerponEx
+Iron Thorns ex TWM 77	IronThornsEx
+Duskull SFA 18	Duskull
+Dusclops SFA 19	Dusclops
+Dusknoir SFA 20	Dusknoir
+Sylveon ex PRE 156	SylveonEx
+Flutter Mane TEF 78	FlutterMane
+Fezandipiti TWM 96	Fezandipiti
+Iron Boulder SCR 71	IronBoulder
+Bloodmoon Ursaluna SFA 25	BloodmoonUrsaluna
+Great Tusk TEF 97	GreatTusk
+Okidogi TWM 111	Okidogi
+Cornerstone Mask Ogerpon ex TWM 112	CornerstoneMaskOgerponEx
+Roaring Moon TEF 109	RoaringMoon
+Duraludon SCR 106	DuraludonSCR
+Archaludon SCR 107	ArchaludonSCR
+Eevee SSP 143	EeveeSSP
+Noctowl SCR 115	Noctowl
+Dunsparce TEF 128	DunsparceTEF
+Dudunsparce TEF 129	Dudunsparce
+Area Zero Underdepths SCR 131	AreaZeroUnderdepths
+Binding Mochi SFA 55	BindingMochi
+Briar SCR 132	Briar
+Bug Catching Set TWM 143	BugCatchingSet
+Carmine TWM 145	Carmine
+Ciphermaniac's Codebreaking TEF 145	CiphermaniacsCodebreaking
+Crispin SCR 133	Crispin
+Explorer's Guidance TEF 147	ExplorersGuidance
+Festival Grounds TWM 149	FestivalGrounds
+Janine's Secret Art SFA 59	JaninesSecretArt
+Kieran TWM 154	Kieran
+Lacey PRE 175	Lacey
+Maximum Belt TEF 154	MaximumBelt
+Prime Catcher TEF 157	PrimeCatcher
+Rescue Board TEF 159	RescueBoard
+Scoop Up Cyclone TWM 162	ScoopUpCyclone
+Sparkling Crystal SCR 142	SparklingCrystal
+Eri TEF 146	Eri
+Ceruledge ex SSP 36	CeruledgeEx
+Palafin ex TWM 61	PalafinEx
+Iron Crown ex TEF 81	IronCrownEx
+Pecharunt ex SFA 39	PecharuntEx
+Raging Bolt ex TEF 123	RagingBoltEx
+Bloodmoon Ursaluna ex TWM 141	BloodmoonUrsalunaEx
+Drayton SSP 174	Drayton
+Iron Leaves ex TEF 25	IronLeavesEx
+Walking Wake ex TEF 50	WalkingWakeEx
+Riolu VIV 90	RioluVIV
+Scramble Switch PLS 129	ScrambleSwitch
+Pecharunt SVP 149	Pecharunt
+Cook FST 228	Cook
+Cofagrigus NVI 46	-
+Vullaby RCL 119	Vullaby
+N's Darmanitan JTG 27	NsDarmanitan
+Pikachu ex SSP 57	PikachuEx
+Slowpoke MEP 70	-
+Shelgon JTG 113	Shelgon
+Torracat TEF 33	Torracat
+Antique Cover Fossil SCR 129	AntiqueCoverFossil
+Galarian Zigzagoon FST 159	GalarianZigzagoon

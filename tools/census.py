@@ -292,7 +292,6 @@ def load_names(root):
     for key, c in cards.items():
         add(key, "key")
         add(c["name"], "card")
-        add(c.get("class"), "class")
         add(c.get("behavior"), "behavior")
         for a in c.get("attacks", []):
             add(a["name"], "attack")

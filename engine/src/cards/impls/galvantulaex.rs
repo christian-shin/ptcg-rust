@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Galvantulaex",
+    class: "GalvantulaEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(more_damage_if(110, Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Top(Pred::OneOf(&[Pred::PokemonEx, Pred::PokemonV]))))),

@@ -6,7 +6,7 @@
 //! an EnterPlay, then one shuffle after the search (APR E-19).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Lampent",
+    class: "LampentPBL",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me), Cond::Not(&Cond::KnownCopies { who: Who::Me, name: "Lampent", at_least: 4 })]), yes: &[Step::new(Op::Search(SearchSpec {

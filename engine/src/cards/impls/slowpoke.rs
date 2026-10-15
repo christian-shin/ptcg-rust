@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Slowpoke@SCR",
+    class: "SlowpokeSCR",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::Search(SearchSpec {

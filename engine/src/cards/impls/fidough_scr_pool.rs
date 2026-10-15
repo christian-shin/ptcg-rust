@@ -5,7 +5,7 @@
 //! once (APR E-19). With an empty deck or a full Bench the attack does nothing (no search, no shuffle).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "FidoughSCRPool",
+    class: "Fidough",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me)]), yes: &[Step::new(Op::Search(SearchSpec {

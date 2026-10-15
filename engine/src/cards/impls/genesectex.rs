@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 use crate::types::Stage;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Genesectex",
+    class: "GenesectEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(30) })),

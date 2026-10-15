@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "PerformanceFlute",
+    class: "AccompanyingFlute",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[Cond::BenchSpace(Who::Opp)],

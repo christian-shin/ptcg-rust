@@ -9,7 +9,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "SurvivalCast",
+    class: "SurvivalBrace",
     passives: &[Passive { origin: RuleSource::Tool, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::ToolIfFullHp }) }],
     ..CardSpec::NONE
 };

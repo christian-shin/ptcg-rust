@@ -4,7 +4,7 @@
 //! Crazy Headbutt discards one Energy after the damage (a LeavePlay event, this attack its cause).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "GlalieTWMPool",
+    class: "Glalie",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(damage_is(Num::Mul(&Num::DamageOn(SlotExpr::Active(Who::Opp)), &Num::Lit(2)))),

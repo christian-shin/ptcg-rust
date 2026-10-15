@@ -10,7 +10,7 @@
 //! Tera rule is `TERA_RULE`: a `Prevent` over `Kind(Damage)` while Benched.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "HearthflameMaskOgerponex",
+    class: "HearthflameMaskOgerponEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(damage_is(Num::Mul(&Num::DamageOn(SlotExpr::This), &Num::Lit(2)))),

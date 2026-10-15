@@ -12,7 +12,7 @@ use crate::spec::prelude::*;
 const METAL_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Metal Energy")]);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Archaludonex",
+    class: "ArchaludonEx",
     // Assemble Alloy: when you play this Pokémon from your hand to evolve, you may attach 2 Basic
     // [M] Energy from your discard pile to your [M] Pokémon in any way you like.
     triggers: &[Trigger {

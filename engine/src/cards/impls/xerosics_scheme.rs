@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "XerosicsScheme",
+    class: "XerosicsMachinations",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Opp, Zone::Hand)), CmpOp::Gt, Num::Lit(3))],

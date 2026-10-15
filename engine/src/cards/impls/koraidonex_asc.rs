@@ -6,7 +6,7 @@
 //! `TERA_RULE` (a `Prevent` over damage while on the Bench). This port is the ASC card (the TEF Koraidon ex is a different card).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Koraidonex@ASC",
+    class: "KoraidonExASC",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(more_damage_if(120, Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: true, tag: None })),

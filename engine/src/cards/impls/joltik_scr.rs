@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Joltik@SCR",
+    class: "Joltik",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Attach(AttachSpec {
                 chooser: Who::Me,
                 from: ZoneRef(Who::Me, Zone::Deck),

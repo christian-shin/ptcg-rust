@@ -8,7 +8,7 @@
 //! (`EnergyUnit::Provided`: "Energy attached" counts the Energy provided, RULES.md).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Galvantula@SFA",
+    class: "Galvantula",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(more_damage_if(80, Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::Provided(ct::LIGHTNING)), CmpOp::Gt, Num::Lit(0)))),

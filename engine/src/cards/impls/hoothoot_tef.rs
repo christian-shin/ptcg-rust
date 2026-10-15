@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Hoothoot@TEF",
+    class: "HoothootTEF",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Reveal(RevealSpec {
                 cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)),
                 by: Who::Opp,

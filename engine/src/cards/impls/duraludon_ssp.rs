@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Duraludon@SSP",
+    class: "DuraludonSSP",
     // Duralubeam: discard 2 Energy from this Pokémon.
     attacks: &[AttackSpec {
         index: 1,

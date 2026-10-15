@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "CrustleBLKPool",
+    class: "CrustleBLK",
     // Sturdy: if this Pokémon has full HP and would be Knocked Out by damage from an attack, it is
     // not Knocked Out and its remaining HP becomes 10.
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::IfFullHp }) }],

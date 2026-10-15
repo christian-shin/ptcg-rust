@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 use crate::types::SpecialCondition;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "SlowpokeMEP86Pool",
+    class: "SlowpokeMEP86",
     passives: &[Passive {
         origin: RuleSource::Ability,
         // This Pokémon can't be Confused.

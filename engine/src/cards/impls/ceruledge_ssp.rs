@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Ceruledge@SSP",
+    class: "CeruledgeSSP",
     attacks: &[
         // Blaze Curse: discard all Special Energy from each of your opponent's Pokémon.
         AttackSpec {

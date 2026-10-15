@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Drilbur@TEF",
+    class: "DrilburTEF",
     // Dig Dig Dig: when you play this Pokémon from your hand onto your Bench, you may search your
     // deck for up to 3 Basic [F] Energy cards and discard them, then shuffle.
     triggers: &[Trigger {

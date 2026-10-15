@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Arbolivaex",
+    class: "ArbolivaEx",
     attacks: &[
         // Oil Salvo: choose 1 of your opponent's Pokémon 6 times; 20 damage each time, not
         // affected by Weakness or Resistance.

@@ -10,7 +10,7 @@
 //! with no cancel and only when there is a Benched Pokémon.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "IronThornsex",
+    class: "IronThornsEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), yes: &[Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Active(Who::Me))), predicate: Pred::Energy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..AttachSpec::DEFAULT }))], no: &[] })),

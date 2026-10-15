@@ -5,7 +5,7 @@
 //! three flags before the damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Jirachiex",
+    class: "JirachiEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(7)) }))] },
         // Swift: not affected by Weakness, Resistance or effects on the Defending Pokémon.

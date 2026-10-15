@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Duraludon@PFL",
+    class: "DuraludonPFL",
     // Hyper Beam: discard an Energy from your opponent's Active Pokémon.
     attacks: &[AttackSpec {
         index: 0,

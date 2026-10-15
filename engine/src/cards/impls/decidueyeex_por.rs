@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Decidueyeex@POR",
+    class: "DecidueyeEx",
     // Sniper's Eye: if your opponent has exactly 4 cards in their hand, ignore all [C] Energy in the
     // costs of attacks used by this Pokémon.
     passives: &[Passive {

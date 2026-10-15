@@ -6,7 +6,7 @@
 //! D-12). Only [C] is taken off: Blaze Blast's [R] stays (scenarios fix-attack-cost-incineroar-ex-hustle-play-*).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Incineroarex",
+    class: "IncineroarEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(inflict(&[SpecialCondition::Burned])),

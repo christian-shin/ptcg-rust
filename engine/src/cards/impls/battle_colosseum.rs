@@ -10,7 +10,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "BattleColosseum",
+    class: "BattleCage",
     passives: &[
         // Automatically active: it can't be announced and used.
         // Damage counters placed on a Benched Pokémon, or moved onto one (they leave their source and vanish: id2257, JP FAQ

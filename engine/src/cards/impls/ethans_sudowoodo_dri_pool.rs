@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EthansSudowoodoDRIPool",
+    class: "EthansSudowoodo",
     attacks: &[
         // Impound: during your opponent's next turn the Defending Pokémon can't retreat.
         AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] },

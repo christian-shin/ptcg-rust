@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "NightTimeAcademy",
+    class: "AcademyAtNight",
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
         needs: &[],

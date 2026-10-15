@@ -8,7 +8,7 @@
 //! Storm counts the [G] Energy provided by every Pokémon of yours (an Energy that provides [G] or any type counts).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Hydrappleex",
+    class: "HydrappleEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Me), EnergyUnit::Provided(ct::GRASS)), &Num::Lit(30)), when: Cond::True })),

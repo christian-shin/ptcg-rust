@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 use crate::types::SpecialCondition;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Hoothoot@PRE",
+    class: "HoothootPRE",
     passives: &[Passive {
         origin: RuleSource::Ability,
         // This Pokémon can't be Asleep (any cause: events batch 4).

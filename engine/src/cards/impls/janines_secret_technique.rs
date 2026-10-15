@@ -8,7 +8,7 @@
 //! Secret Art). With an empty deck the card has no effect (id925).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "JaninesSecretTechnique",
+    class: "JaninesSecretArt",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],

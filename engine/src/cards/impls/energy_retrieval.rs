@@ -9,7 +9,7 @@ const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);
 const DISCARD: ZoneRef = ZoneRef(Who::Me, Zone::Discard);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EnergyRetrieval@BS",
+    class: "EnergyRetrievalBS",
     // Trade 1 of the other cards in your hand for up to 2 Basic Energy cards from your discard pile.
     play: Some(PlaySpec {
         kind: PlayKind::Item,

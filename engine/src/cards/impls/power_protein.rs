@@ -7,7 +7,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "PowerProtein",
+    class: "PremiumPowerPro",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

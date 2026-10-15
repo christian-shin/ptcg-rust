@@ -3,7 +3,7 @@
 //! Script per turn). Cruel Arrow — 100 damage to 1 of your opponent's Pokémon.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Fezandipitiex",
+    class: "FezandipitiEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), }), hp: Num::Lit(100), target_damage_mul: 0, calc: DamageCalc::Auto, when: Cond::True })),

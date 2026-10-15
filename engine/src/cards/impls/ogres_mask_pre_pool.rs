@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "OgresMaskPREPool",
+    class: "OgresMask",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

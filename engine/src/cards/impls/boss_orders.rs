@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "BossOrders",
+    class: "BosssOrders",
     // Switch 1 of your opponent's Benched Pokémon with their Active Pokémon (it can't be played
     // when it would not change the game state; used through an attack it does nothing then).
     play: Some(PlaySpec {

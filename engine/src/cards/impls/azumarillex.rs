@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Azumarillex",
+    class: "AzumarillEx",
     // Bubble Gathering: as often as you like during your turn, move an Energy from 1 of your
     // other Pokémon to this Pokémon.
     powers: &[PowerSpec {

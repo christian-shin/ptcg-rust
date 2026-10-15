@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "EthansHoOhex",
+    class: "EthansHoOhEx",
     // Golden Flame: once during your turn, you may attach up to 2 Basic [R] Energy from your hand to
     // 1 of your Benched Ethan's Pokémon.
     powers: &[PowerSpec {

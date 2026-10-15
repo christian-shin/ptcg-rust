@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "HelperBell",
+    class: "CallBell",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[Cond::Printed(&Cond::Cmp(Num::Turn, CmpOp::Eq, Num::Lit(2)))],

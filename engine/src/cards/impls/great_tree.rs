@@ -23,7 +23,7 @@ use crate::spec::prelude::*;
 use crate::types::Stage;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "GreatTree",
+    class: "GrandTree",
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
         needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::CanEvolveBasic(Who::Me)],

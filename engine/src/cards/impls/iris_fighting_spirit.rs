@@ -7,7 +7,7 @@
 //! hand (nothing to draw after the discard) or an empty deck the card has no effect, so it isn't playable (D10, id925, id1124).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "IrisFightingSpirit",
+    class: "IrissFightingSpirit",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Printed(&Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Ge, Num::Lit(1))), Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Lt, Num::Lit(7))],

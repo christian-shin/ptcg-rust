@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "BubbleWaterEnergy",
+    class: "BubblyWaterEnergy",
     // The [W] Pokémon this card is attached to recovers from all Special Conditions and can't be
     // affected by any Special Conditions.
     passives: &[

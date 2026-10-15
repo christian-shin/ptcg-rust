@@ -7,7 +7,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "MagnetMetalEnergy",
+    class: "MagneticMetalEnergy",
     passives: &[
         Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::METAL])] }) },
         // On a [M] Pokémon: no Retreat Cost.

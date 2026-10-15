@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "NsZoroarkex",
+    class: "NsZoroarkEx",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec {

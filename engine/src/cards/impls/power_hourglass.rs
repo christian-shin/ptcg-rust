@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "PowerHourglass",
+    class: "Powerglass",
     triggers: &[Trigger {
         origin: RuleSource::Tool,
         event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),

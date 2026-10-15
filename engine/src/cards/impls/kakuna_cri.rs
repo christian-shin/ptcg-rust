@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Kakuna@CRI",
+    class: "Kakuna",
     passives: &[Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 20, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), from_any_attack: true, ..DamageTakenSpec::DEFAULT }),

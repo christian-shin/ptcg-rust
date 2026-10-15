@@ -9,7 +9,7 @@
 //! the attack (Mist Energy prevents it).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Gastly@EVO",
+    class: "Gastly",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::DiscardAttackerEnergyIfKnockedOut })),

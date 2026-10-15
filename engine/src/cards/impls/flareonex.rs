@@ -7,7 +7,7 @@
 //! Carnelian arms the `CANT_ATTACK` lock on this Pokémon until your next turn. Tera is `TERA_RULE`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Flareonex",
+    class: "FlareonEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::Search(SearchSpec {

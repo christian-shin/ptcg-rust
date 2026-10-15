@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Applin@TWM",
+    class: "ApplinTWM126",
     // Find a Friend: search your deck for a Pokémon, reveal it, put it into your hand, then shuffle.
     attacks: &[AttackSpec {
         index: 0,

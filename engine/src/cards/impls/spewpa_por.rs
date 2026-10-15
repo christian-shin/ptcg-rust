@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Spewpa@POR",
+    class: "Spewpa",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::Coin(CoinSpec {

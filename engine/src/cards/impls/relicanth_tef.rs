@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Relicanth@TEF",
+    class: "Relicanth",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::GrantAttacks(GrantAttacksSpec {}) }],
     ..CardSpec::NONE
 };

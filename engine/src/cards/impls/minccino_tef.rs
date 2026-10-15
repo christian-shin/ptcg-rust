@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Minccino@TEF",
+    class: "MinccinoTEF",
     attacks: &[
         AttackSpec { index: 0, steps: &[] },
         AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::OppTools { max: 2 }, ..DiscardEnergySpec::DEFAULT }))] },

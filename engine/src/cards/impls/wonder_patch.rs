@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "WonderPatch",
+    class: "WondrousPatch",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],

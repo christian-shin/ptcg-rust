@@ -8,7 +8,7 @@
 //! Clefairy ex).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "LilliesClefairyex",
+    class: "LilliesClefairyEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::Add(&Num::BenchCount(Who::Me), &Num::BenchCount(Who::Opp)), &Num::Lit(20)), when: Cond::True })),

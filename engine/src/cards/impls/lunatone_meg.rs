@@ -7,7 +7,7 @@
 //! owner's turn. Solrock may be Active or Benched (by name).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Lunatone@MEG|ASC",
+    class: "Lunatone",
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,

@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Eevee@SCR",
+    class: "EeveeSCR",
     // Call for Family: search your deck for a Basic Pokémon and put it onto your Bench, then
     // shuffle (nothing happens with no empty Bench space; the search can be cancelled).
     attacks: &[AttackSpec {

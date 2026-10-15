@@ -6,7 +6,7 @@
 //! this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Hydreigonex",
+    class: "HydreigonEx",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), ..DiscardSpec::DEFAULT })),

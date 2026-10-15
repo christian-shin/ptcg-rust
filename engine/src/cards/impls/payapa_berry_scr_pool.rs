@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "PayapaBerrySCRPool",
+    class: "PayapaBerry",
     passives: &[Passive {
         origin: RuleSource::Tool,
         modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 60, subject: SlotPred::Holder, source: SlotPred::TypeIs(ct::PSYCHIC), then_discard: true, ..DamageTakenSpec::DEFAULT }),

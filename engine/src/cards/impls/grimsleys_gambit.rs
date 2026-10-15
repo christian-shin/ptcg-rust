@@ -9,7 +9,7 @@
 //! fix-grimsleys-move-*-r7d); used through Look-Alike Show none is required.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "GrimsleysGambit",
+    class: "GrimsleysMove",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Printed(&Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2))), Cond::BenchSpace(Who::Me)],

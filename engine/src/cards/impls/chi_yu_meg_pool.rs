@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "ChiYuMEGPool",
+    class: "ChiYuMEG",
     // Scorching Earth: if your opponent has a Stadium in play, discard it. If you do, your opponent
     // can't play any Stadium cards from their hand during their next turn.
     attacks: &[AttackSpec {
