@@ -8,6 +8,7 @@
 use crate::game::{Game, GameError, R};
 use crate::list::*;
 use crate::rng::Rng;
+use crate::state::ListRef;
 
 /// Hidden cards of `owner` as seen by `viewer`, and their zones.
 fn hidden_zones(viewer: usize, owner: usize) -> (bool, bool) {
@@ -65,6 +66,68 @@ pub fn set_hidden(g: &mut Game, viewer: usize, owner: usize, deck: &[CardId], pr
     Ok(())
 }
 
+/// Where an unseen card lies: a position of its owner's deck, or one of their face-down Prize cards (pile, position).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Unseen {
+    Deck(usize),
+    Prize(usize, usize),
+}
+
+impl Game {
+    /// Swap two cards that no player can see, each taking the other's place: each is in a deck or is a face-down Prize
+    /// card no effect made public, both belong to the same player, and no open prompt shows the deck it is in (a search
+    /// lists the deck it searches). Nothing else changes: no event, no shuffle, every zone keeps its size. Refused with
+    /// `CARD_NOT_UNSEEN` otherwise (a card in a hand, in play, set aside, face up; cards of two players; a deck an open
+    /// prompt lists). A determinization primitive: a host that replays a recorded game puts the cards the recording
+    /// revealed where the engine will take them from; a search samples hidden cards the same way.
+    pub fn swap_unseen(&mut self, a: CardId, b: CardId) -> R {
+        let (Some(pa), Some(pb)) = (self.unseen_at(a), self.unseen_at(b)) else { return Err(GameError("CARD_NOT_UNSEEN")) };
+        let owner = self.st.owner(a);
+        if self.st.owner(b) != owner {
+            return Err(GameError("CARD_NOT_UNSEEN"));
+        }
+        let pu = owner as u8;
+        let pl = &mut self.st.players[owner];
+        for (at, c) in [(pa, b), (pb, a)] {
+            match at {
+                Unseen::Deck(i) => pl.deck.as_mut_slice()[i] = c,
+                Unseen::Prize(i, k) => pl.prizes[i].as_mut_slice()[k] = c,
+            }
+        }
+        for (at, c) in [(pa, b), (pb, a)] {
+            self.st.put_at(c, match at {
+                Unseen::Deck(_) => ListRef::Deck(pu),
+                Unseen::Prize(i, _) => ListRef::Prize(pu, i as u8),
+            });
+        }
+        self.st.bump_layout();
+        Ok(())
+    }
+
+    /// The place of card `c` when no player can see it ([`Game::swap_unseen`]).
+    fn unseen_at(&self, c: CardId) -> Option<Unseen> {
+        if c >= self.st.n_cards {
+            return None;
+        }
+        let p = self.st.owner(c);
+        let pl = &self.st.players[p];
+        let at = match self.st.locate(c)? {
+            ListRef::Deck(q) if q as usize == p => Unseen::Deck(pl.deck.index_of(c)?),
+            ListRef::Prize(q, i) if q as usize == p && !pl.prize_face_up[i as usize] && !pl.prize_public[i as usize] => Unseen::Prize(i as usize, pl.prizes[i as usize].index_of(c)?),
+            _ => return None,
+        };
+        let shown = |r: ListRef| r == ListRef::Deck(p as u8);
+        let listed = self.prompts.iter().filter(|pr| !pr.answered).any(|pr| match pr.kind {
+            crate::prompts::PromptKind::ChooseCards { cards, .. } | crate::prompts::PromptKind::OrderCards { cards, .. } | crate::prompts::PromptKind::AttachEnergy { cards, .. } => shown(cards),
+            _ => false,
+        });
+        if matches!(at, Unseen::Deck(_)) && listed {
+            return None;
+        }
+        Some(at)
+    }
+}
+
 /// Uniformly random determinization for `viewer`, and a fresh chance seed.
 pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
     let mut rng = Rng::new(seed);
@@ -92,4 +155,64 @@ pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
     }
     g.rng = Rng::new(rng.next_u32());
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::place::tests::game_of;
+    use crate::place::Zone;
+    use serde_json::json;
+
+    const MON: &str = "Hop's Phantump ASC 95";
+    const POFFIN: &str = "Buddy-Buddy Poffin TEF 144";
+
+    /// Two deck cards, or a deck card and a face-down Prize card, of one player trade places; the locations follow.
+    #[test]
+    fn unseen_cards_trade_places() {
+        let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON}, "opp": {"reset": true, "active": MON}}));
+        let p = g.st.active_player as usize;
+        let deck = g.st.players[p].deck.as_slice().to_vec();
+        let (a, b) = (deck[0], deck[5]);
+        g.swap_unseen(a, b).unwrap();
+        assert_eq!((g.st.players[p].deck.as_slice()[0], g.st.players[p].deck.as_slice()[5]), (b, a));
+        assert_eq!(g.locate_card(b).unwrap().index, 0);
+        assert_eq!(g.locate_card(a).unwrap().index, 5);
+        let prize = g.st.players[p].prizes[2].as_slice()[0];
+        g.swap_unseen(a, prize).unwrap();
+        assert_eq!(g.st.players[p].prizes[2].as_slice()[0], a);
+        assert_eq!(g.st.players[p].deck.as_slice()[5], prize);
+        assert_eq!(g.locate_card(a).unwrap().zone, Zone::Prizes);
+        assert_eq!(g.locate_card(prize).unwrap().zone, Zone::Deck);
+        assert_eq!(g.st.players[p].deck.len(), deck.len());
+    }
+
+    /// A card a player can see is never swapped: a hand card, a Pokémon in play, a face-up Prize card, cards of two
+    /// players, and the deck while a search's prompt lists it.
+    #[test]
+    fn a_seen_card_is_not_swapped() {
+        let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN]}, "opp": {"reset": true, "active": MON}}));
+        let p = g.st.active_player as usize;
+        let top = g.st.players[p].deck.as_slice()[0];
+        let refused = Err(GameError("CARD_NOT_UNSEEN"));
+        let hand = g.st.players[p].hand.as_slice()[0];
+        assert_eq!(g.swap_unseen(top, hand), refused);
+        let active = g.st.active_pokemon(p).unwrap();
+        assert_eq!(g.swap_unseen(active, top), refused);
+        let theirs = g.st.players[1 - p].deck.as_slice()[0];
+        assert_eq!(g.swap_unseen(top, theirs), refused);
+        g.st.players[p].prize_face_up[0] = true;
+        let up = g.st.players[p].prizes[0].as_slice()[0];
+        assert_eq!(g.swap_unseen(top, up), refused);
+        // While the search's prompt lists the deck, its cards are seen by the player searching.
+        let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
+        g.act(play).unwrap();
+        g.select().unwrap().unwrap();
+        let deck = g.st.players[p].deck.as_slice().to_vec();
+        assert_eq!(g.swap_unseen(deck[0], deck[1]), refused);
+        let down = g.st.players[p].prizes[1].as_slice()[0];
+        let other = g.st.players[p].prizes[3].as_slice()[0];
+        assert_eq!(g.swap_unseen(down, other), Ok(()), "face-down Prize cards stay unseen during the search");
+    }
 }
