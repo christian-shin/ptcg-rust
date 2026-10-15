@@ -33,5 +33,6 @@ pub mod search;
 pub mod selfplay;
 pub mod state;
 pub mod types;
+pub mod view;
 
 pub use game::{Action, Game, GameError, Pending};
