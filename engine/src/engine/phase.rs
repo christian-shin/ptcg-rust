@@ -15,6 +15,7 @@ pub fn end_game(g: &mut Game, winner: Winner) {
     if g.st.phase == GamePhase::Finished {
         return;
     }
+    crate::record::game_end(g, winner, g.st.end_reason);
     g.st.winner = winner;
     g.st.phase = GamePhase::Finished;
     // The game flow's writes are writes too (the derived facts are stale: `State::version`).
@@ -57,7 +58,8 @@ fn start_next_turn(g: &mut Game) -> R {
     let a = g.st.players[p].active;
     // Pokémon Checkup: a Pokémon Paralyzed since the start of its owner's last turn recovers.
     crate::engine::condition::remove(g, SlotRef::new(p, a), SpecialCondition::Paralyzed, crate::engine::condition::by_checkup(p))?;
-    g.move_to(ListRef::Supporter(p as u8), ListRef::Discard(p as u8), None);
+    // A card left in the play area goes to the discard pile with the end of the turn.
+    crate::record::scope(g, crate::spec::event::EventKind::EndTurn, p as u8, None, |g| g.move_to(ListRef::Supporter(p as u8), ListRef::Discard(p as u8), None));
     between_turns(g, OnComplete::InitNextTurn)
 }
 

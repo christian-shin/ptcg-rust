@@ -154,6 +154,7 @@ fn eval_p0(g: &mut Game, mut f: SetupFrame) -> R {
         return Ok(());
     }
     f.php = hand_has_starting_pokemon(g, 0);
+    crate::record::basic_check(g, 0, f.php);
     eval_p1(g, f)
 }
 
@@ -163,6 +164,7 @@ fn eval_p1(g: &mut Game, mut f: SetupFrame) -> R {
         return Ok(());
     }
     f.ohp = hand_has_starting_pokemon(g, 1);
+    crate::record::basic_check(g, 1, f.ohp);
     after_eval(g, f)
 }
 
@@ -190,6 +192,7 @@ fn after_eval(g: &mut Game, mut f: SetupFrame) -> R {
 
 /// The mulliganing player of branch A (`other` = 1) or B (0) drew 7: `has` says whether the hand has a starter.
 fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool) -> R {
+    crate::record::basic_check(g, other, has);
     let a = other == 1;
     if has {
         let next = if a { Stage::AOppSetup } else { Stage::BPlayerSetup };
@@ -401,10 +404,12 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         }
         Stage::ConfP0 => {
             f.php = matches!(first, Res::Bool(true));
+            crate::record::basic_check(g, 0, f.php);
             eval_p1(g, f)
         }
         Stage::ConfP1 => {
             f.ohp = matches!(first, Res::Bool(true));
+            crate::record::basic_check(g, 1, f.ohp);
             after_eval(g, f)
         }
         Stage::ConfA => after_mulligan_draw(g, 1, f, matches!(first, Res::Bool(true))),
@@ -475,6 +480,8 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
 }
 
 fn finish(g: &mut Game) -> R {
+    // The Pokémon put down face down are turned face up (SSP rulebook p. 8 step 8).
+    crate::record::setup_revealed(g);
     let first = g.st.active_player as usize;
     let second = 1 - first;
     // The Pokémon put down at setup count as entering play on their owner's first turn (`Slot::entered_turn`).

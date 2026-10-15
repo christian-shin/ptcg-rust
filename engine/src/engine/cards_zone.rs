@@ -190,9 +190,10 @@ pub fn move_physical(g: &mut Game, src: ListRef, cards: &[CardId], dst: ListRef)
 }
 
 /// Stage `cards` from `src` into the staging list `temp` (cards looked at, chosen to be put somewhere: never a zone, design
-/// section 11 item 5). The staged cards remember the rules zone they came from (`CardInst::staged_from`).
-pub fn stage(g: &mut Game, src: ListRef, cards: &[CardId], temp: ListRef) {
-    relocate(g, src, cards, temp, false);
+/// section 11 item 5), by `cause` (the player who looks). The staged cards remember the rules zone they came from
+/// (`CardInst::staged_from`).
+pub fn stage(g: &mut Game, src: ListRef, cards: &[CardId], temp: ListRef, cause: Cause) {
+    crate::record::scope(g, EventKind::Look, cause.player, Some(cause), |g| relocate(g, src, cards, temp, false));
     settle(g);
 }
 
@@ -400,23 +401,35 @@ pub fn mulligan(g: &mut Game, p: usize) {
         }
         v
     };
-    relocate(g, ListRef::Hand(p as u8), hand.as_slice(), ListRef::Deck(p as u8), false);
+    // The hand is revealed to the opponent, then shuffled back (SSP rulebook p. 8: "reveal your hand to your opponent and
+    // shuffle your hand back into your deck").
+    let cause = Cause::rule(crate::cause::RuleWhich::Setup, p as u8);
+    crate::record::scope(g, EventKind::Mulligan, p as u8, Some(cause), |g| {
+        crate::record::reveal(g, 1 - p, hand.as_slice());
+        relocate(g, ListRef::Hand(p as u8), hand.as_slice(), ListRef::Deck(p as u8), false)
+    });
 }
 
 /// SetPrizes (APR G): the top 6 cards of player `p`'s deck become their Prize cards, one per position. No card reacts to
 /// it (user decision D2).
 pub fn set_prizes(g: &mut Game, p: usize) {
-    for i in 0..6u8 {
-        let Some(&c) = g.st.players[p].deck.as_slice().first() else { return };
-        relocate(g, ListRef::Deck(p as u8), &[c], ListRef::Prize(p as u8, i), false);
+    let cause = Cause::rule(crate::cause::RuleWhich::Setup, p as u8);
+    let all = crate::record::scope(g, EventKind::SetPrizes, p as u8, Some(cause), |g| {
+        for i in 0..6u8 {
+            let Some(&c) = g.st.players[p].deck.as_slice().first() else { return false };
+            relocate(g, ListRef::Deck(p as u8), &[c], ListRef::Prize(p as u8, i), false);
+        }
+        true
+    });
+    if all {
+        settle(g);
     }
-    settle(g);
 }
 
 /// SetPrizes: `card` (in `from`) becomes player `p`'s Prize card in Prize position `index` (Bother-Bot's switch, user
 /// decision D12). No card reacts to it.
 pub fn set_prize(g: &mut Game, from: ListRef, card: CardId, p: usize, index: u8) {
-    relocate(g, from, &[card], ListRef::Prize(p as u8, index), false);
+    crate::record::scope(g, EventKind::SetPrizes, p as u8, None, |g| relocate(g, from, &[card], ListRef::Prize(p as u8, index), false));
     settle(g);
 }
 

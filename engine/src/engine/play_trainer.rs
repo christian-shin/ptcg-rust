@@ -200,8 +200,14 @@ pub fn gate_coin(g: &mut Game, p: u8, card: CardId, target: Option<SlotRef>, hea
     Ok(())
 }
 
-/// The play itself, checks done: the card's way into the play area or into play, the event (its program), the cleanup.
+/// The play itself, checks done: the card's way into the play area or into play, the event (its program), the cleanup
+/// (in the game record, the card's moves are the play's).
 fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
+    let cause = Cause::rule(RuleWhich::Action, p as u8);
+    crate::record::scope(g, crate::spec::event::EventKind::PlayTrainer, p as u8, Some(cause), |g| resolve_play(g, p, card, target))
+}
+
+fn resolve_play(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
     let pu = p as u8;
     let cause = Cause::rule(RuleWhich::Action, pu);
     match g.st.cdef(card).trainer_type() {
@@ -281,7 +287,8 @@ pub fn trainer_cleanup(g: &mut Game, p: usize, card: CardId) {
         return;
     }
     let t = cleanup_target(g, card)(p as u8);
-    g.move_card_to(ListRef::Supporter(p as u8), card, t);
+    let cause = Cause::rule(RuleWhich::Action, p as u8);
+    crate::record::scope(g, crate::spec::event::EventKind::PlayTrainer, p as u8, Some(cause), |g| g.move_card_to(ListRef::Supporter(p as u8), card, t));
 }
 
 /// A played card its program discarded while prompts are still open goes back to the play area until the effect ends.

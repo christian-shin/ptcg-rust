@@ -1088,6 +1088,9 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
 /// 1487). Every zone, the tools and the Supporter back to the deck, a fresh Player for everything else (Pokémon slots, Prize lists, per-turn and
 /// per-game flags), the card instance flags and the last attacks reset, shuffle, then flip for the first player.
 fn initiate_sudden_death(g: &mut Game) -> R {
+    // In the game record: the game ends in a tie, and its cards go back to the decks for the Tiebreaker game.
+    crate::record::game_end(g, WINNER_DRAW, None);
+    let gathering = crate::record::begin(g, EventKind::GameEnd, NO_PLAYER, None);
     for p in 0..2u8 {
         let pl = &g.st.players[p as usize];
         let mut slot_lists: Vec<ListRef> = vec![ListRef::Slot(p, pl.active)];
@@ -1130,6 +1133,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         }
         g.prompt(p as usize, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
     }
+    crate::record::end(g, gathering);
     // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
     // players are new (they held them before the usage records and the lasting table did).
     g.st.usage.clear();
