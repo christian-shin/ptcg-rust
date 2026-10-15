@@ -10,12 +10,18 @@ pub enum Draw {
     Index(usize, usize),
 }
 
+/// The replay tape: the recorded outcomes still to be fed, and the draws it had no outcome for.
+struct Tape {
+    draws: Vec<Draw>,
+    misses: usize,
+}
+
 thread_local! {
     /// Recorded outcomes a replay feeds back (`diff`'s
     /// observable mode). While set, every real draw takes the first outcome
     /// of its kind and size instead of the seeded stream, so a change in when
     /// a coin, shuffle or random pick happens does not shift the others.
-    static TAPE: std::cell::RefCell<Option<Vec<Draw>>> = const { std::cell::RefCell::new(None) };
+    static TAPE: std::cell::RefCell<Option<Tape>> = const { std::cell::RefCell::new(None) };
 }
 
 thread_local! {
@@ -35,17 +41,36 @@ fn record(rec: bool, d: impl FnOnce() -> Draw) {
     }
 }
 
-/// Set (or clear, with `None`) the replay tape for this thread.
+/// Set (or clear, with `None`) the replay tape for this thread; its miss count starts at 0.
 pub fn set_tape(t: Option<Vec<Draw>>) {
-    TAPE.with(|c| *c.borrow_mut() = t);
+    TAPE.with(|c| *c.borrow_mut() = t.map(|draws| Tape { draws, misses: 0 }));
 }
 
+/// The draws made on this thread since the tape was set that it had no outcome of their kind and size for (served by a
+/// forced coin or the seeded stream instead): a replay that matches its recording has none. 0 without a tape. A legality
+/// trial's fixed generator never reads the tape, so its draws never count.
+pub fn tape_misses() -> usize {
+    TAPE.with(|c| c.borrow().as_ref().map_or(0, |t| t.misses))
+}
+
+/// The outcomes on this thread's tape that no draw has taken yet (0 without a tape).
+pub fn tape_left() -> usize {
+    TAPE.with(|c| c.borrow().as_ref().map_or(0, |t| t.draws.len()))
+}
+
+/// The first outcome on the tape that `want` accepts, taken off the tape; `None` without a tape, or when the tape has none
+/// (a miss, counted). Nothing is written without a tape.
 fn take_from_tape(want: impl Fn(&Draw) -> bool) -> Option<Draw> {
     TAPE.with(|c| {
         let mut t = c.borrow_mut();
         let tape = t.as_mut()?;
-        let k = tape.iter().position(want)?;
-        Some(tape.remove(k))
+        match tape.draws.iter().position(want) {
+            Some(k) => Some(tape.draws.remove(k)),
+            None => {
+                tape.misses += 1;
+                None
+            }
+        }
     })
 }
 
@@ -215,5 +240,34 @@ mod tests {
         let mut out = [0u8; 120];
         r.shuffle(60, &mut out);
         assert_eq!(&out[..5], &[20, 33, 8, 5, 2]);
+    }
+
+    /// The tape's counters: an outcome of the wanted kind and size is taken (left goes down), a draw the tape has nothing
+    /// for is a miss, a legality trial's fixed generator never touches the tape, and clearing the tape clears both.
+    #[test]
+    fn the_tape_counts_what_it_could_not_serve() {
+        set_tape(Some(vec![Draw::Coin(true), Draw::Shuffle(vec![1, 0]), Draw::Index(3, 2)]));
+        assert_eq!((tape_left(), tape_misses()), (3, 0));
+        let mut r = Rng::new(7);
+        assert!(r.coin());
+        assert_eq!(r.index(3), 2);
+        assert_eq!((tape_left(), tape_misses()), (1, 0));
+        let mut out = [0u8; 4];
+        r.shuffle(3, &mut out);
+        assert_eq!((tape_left(), tape_misses()), (1, 1), "no shuffle of 3 on the tape: a miss, the shuffle of 2 stays");
+        r.coin();
+        assert_eq!((tape_left(), tape_misses()), (1, 2));
+        let mut z = Rng::zero();
+        z.coin();
+        z.index(3);
+        z.shuffle(2, &mut out);
+        assert_eq!((tape_left(), tape_misses()), (1, 2), "a fixed generator reads no tape");
+        r.shuffle(2, &mut out);
+        assert_eq!(&out[..2], &[1, 0]);
+        assert_eq!((tape_left(), tape_misses()), (0, 2));
+        set_tape(None);
+        assert_eq!((tape_left(), tape_misses()), (0, 0));
+        r.coin();
+        assert_eq!(tape_misses(), 0, "no tape, no miss");
     }
 }
