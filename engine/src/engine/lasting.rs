@@ -499,6 +499,10 @@ pub fn clear_spot(st: &mut State, p: usize, s: SlotId) {
 /// the Knock Out trigger, the next-turn bonus replacing the previous); the "attacks do less damage" on `p`'s Pokémon ends; the
 /// TakesMore damage and the cost increases roll over (both players', `p`'s side first); `p`'s player locks count a turn.
 pub fn end_turn(st: &mut State, p: usize) {
+    // Every step below reads or rewrites an entry of the table: with none, there is nothing to end (a plain read).
+    if st.lasting.is_empty() {
+        return;
+    }
     let o = 1 - p;
     // The "(This includes new Pokémon)" entries that last through player `p`'s turn end.
     st.lasting.retain(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));

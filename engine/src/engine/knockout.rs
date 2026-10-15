@@ -515,20 +515,21 @@ fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_R
     let hp_fixed = g.decls.sets[crate::decl::fam::HP] == 0;
     for p in 0..2 {
         for s in g.st.players[p].in_play() {
+            let pending = g.st.slot(p, s).ko_pending.is_some();
+            // An undamaged Pokémon can't be at 0 HP in a legality trial (no effect lowers HP to 0 there) or when no card
+            // changes HP; its HP isn't read. With no pending Knock Out either, the spot is passed on plain reads.
+            let skip = g.st.slot(p, s).damage == 0 && (g.trial || hp_fixed);
+            if skip && !pending && !crate::game::verify_cache() {
+                continue;
+            }
             // forEachPokemon skips slots without a Pokémon card (e.g. a Bench
             // slot holding only an Energy moved there by Team Rocket's Zapdos).
             if g.st.slot_pokemon(p, s).is_none() {
                 continue;
             }
-            let pending = g.st.slot(p, s).ko_pending.is_some();
-            // An undamaged Pokémon can't be at 0 HP in a legality trial (no effect lowers HP to 0 there) or when no card
-            // changes HP; its HP isn't read.
-            let skip = g.st.slot(p, s).damage == 0 && (g.trial || hp_fixed);
             if skip && !crate::game::verify_cache() {
-                if pending {
-                    out.push(SlotRef::new(p, s));
-                    by_hp.push(false);
-                }
+                out.push(SlotRef::new(p, s));
+                by_hp.push(false);
                 continue;
             }
             let hp = crate::derived::hp(g, p, s)?;
