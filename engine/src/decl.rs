@@ -392,7 +392,7 @@ fn prop_key(st: &State, c: CardId) -> Option<u32> {
 // The order cache (batch 8 C7c; review 8a should-fix 1): the readers' card lists depend only on where the cards are, so
 // they are kept per layout generation (`State::layout_gen`) and computed again only after a card moves. `Game` keeps one
 // (`Game::order_cache`, not copied by `copy_from`: another line of play may reach the same generation number), legality's
-// `Ctx` its own for the decision. `PTCG_VERIFY_CACHE=1` checks every list against the propagation order computed fresh
+// `Ctx` its own for the decision, which reads the game's warm lists of the same generation first (`warm`). `PTCG_VERIFY_CACHE=1` checks every list against the propagation order computed fresh
 // (`Game::decl_in_place`, `decl_ordered`, `decl_kind_listeners`).
 
 /// One cached list: the family read in place (`IN_PLACE`) or a set of cards (`SET`), the rank class, the cards in order.
@@ -433,6 +433,15 @@ impl OrderCache {
         self.valid = false;
     }
 
+    /// The list kept for the layout generation, without touching the cache (`Ctx` reads the game's warm lists).
+    #[inline]
+    fn peek(&self, layout_gen: u32, tag: u8, key: u128, class: u16) -> Option<SVec<CardId, 120>> {
+        if !self.valid || self.gen != layout_gen {
+            return None;
+        }
+        self.entries.iter().find(|e| e.tag == tag && e.key == key && e.class == class).map(|e| e.cards)
+    }
+
     #[inline]
     fn get(&mut self, layout_gen: u32, tag: u8, key: u128, class: u16) -> Option<SVec<CardId, 120>> {
         if !self.valid || self.gen != layout_gen {
@@ -457,13 +466,18 @@ impl OrderCache {
     }
 }
 
-/// [`in_place`] through `cache`.
+/// [`in_place`] through `cache`; `warm` is another cache (the game's, for legality, which reads a `&Game`) whose lists of
+/// this layout generation are read when `cache` has none.
 #[inline]
-pub fn in_place_cached(st: &State, decls: &DeclIndex, cache: &mut OrderCache, f: usize, class: u16) -> SVec<CardId, 120> {
+pub fn in_place_cached(st: &State, decls: &DeclIndex, cache: &mut OrderCache, warm: Option<&OrderCache>, f: usize, class: u16) -> SVec<CardId, 120> {
     if decls.sets[f] == 0 {
         return SVec::new();
     }
     if let Some(cards) = cache.get(st.layout_gen, IN_PLACE, f as u128, class) {
+        return cards;
+    }
+    if let Some(cards) = warm.and_then(|w| w.peek(st.layout_gen, IN_PLACE, f as u128, class)) {
+        cache.put(IN_PLACE, f as u128, class, cards);
         return cards;
     }
     let cards = in_place_st(st, decls.sets[f], f, class);
@@ -473,12 +487,16 @@ pub fn in_place_cached(st: &State, decls: &DeclIndex, cache: &mut OrderCache, f:
 
 /// [`kind_order`] through `cache`: the cards of `set` in the propagation order of rank class `class`.
 #[inline]
-pub fn ordered_cached(st: &State, cache: &mut OrderCache, set: u128, class: u16) -> SVec<CardId, 120> {
+pub fn ordered_cached(st: &State, cache: &mut OrderCache, warm: Option<&OrderCache>, set: u128, class: u16) -> SVec<CardId, 120> {
     if set & set.wrapping_sub(1) == 0 {
         // No card or one: nothing to sort.
         return kind_order_st(st, set, class);
     }
     if let Some(cards) = cache.get(st.layout_gen, SET, set, class) {
+        return cards;
+    }
+    if let Some(cards) = warm.and_then(|w| w.peek(st.layout_gen, SET, set, class)) {
+        cache.put(SET, set, class, cards);
         return cards;
     }
     let cards = kind_order_st(st, set, class);

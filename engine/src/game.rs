@@ -555,7 +555,7 @@ impl Game {
     /// ([`crate::decl::in_place`] through the order cache).
     #[inline]
     pub fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::in_place_cached(&self.st, &self.decls, &mut self.order_cache, f, class);
+        let r = crate::decl::in_place_cached(&self.st, &self.decls, &mut self.order_cache, None, f, class);
         if verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::in_place(self, f, class).as_slice(), "the order cache's in-place list differs (family {f})");
         }
@@ -566,7 +566,7 @@ impl Game {
     /// cache).
     #[inline]
     pub fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::ordered_cached(&self.st, &mut self.order_cache, set, class);
+        let r = crate::decl::ordered_cached(&self.st, &mut self.order_cache, None, set, class);
         if verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::kind_order(self, set, class).as_slice(), "the order cache's list differs (class {class})");
         }

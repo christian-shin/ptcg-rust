@@ -254,7 +254,7 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, &mut self.order, f, class);
+        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, &mut self.order, Some(&self.g.order_cache), f, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::in_place(self.g, f, class).as_slice(), "legality's order cache differs (family {f})");
         }
@@ -262,7 +262,7 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::ordered_cached(&self.g.st, &mut self.order, set, class);
+        let r = crate::decl::ordered_cached(&self.g.st, &mut self.order, Some(&self.g.order_cache), set, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::kind_order(self.g, set, class).as_slice(), "legality's order cache differs (class {class})");
         }
