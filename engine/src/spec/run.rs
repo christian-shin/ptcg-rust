@@ -431,7 +431,7 @@ fn list_at(spec: &'static CardSpec, f: &Frame) -> &'static [Step] {
 ///   the frame's attack effect;
 /// - a Trainer: its own kind (Item / Supporter: `Trainer`, Tool, Stadium); used as the effect of an attack
 ///   (Look-Alike Show): that attack, the Pokémon that used it;
-/// - an Ability: `Ability`; the Stadium's use: `Stadium`;
+/// - an Ability: `Ability` (a power that is a rule printed on the card, a Fossil's discard: `Rule { CardRule }`); the Stadium's use: `Stadium`;
 /// - a trigger: the trigger's origin (`Cause::of_origin`), caused by the card's owner.
 pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, via_attack: bool) -> Cause {
     match prog {
@@ -446,10 +446,18 @@ pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, v
             None => Cause { kind: CauseKind::Attack, card: None, player: p, attack: g.st.last_attack },
         },
         Prog::Play => Cause::of_trainer(g, me, p),
-        Prog::Power(_) => Cause::new(CauseKind::Ability, Some(me), p),
+        Prog::Power(i) => power_cause(g, me, i, p),
         Prog::UseStadium => Cause::new(CauseKind::Stadium, Some(me), p),
         Prog::Trigger(i) => trigger_cause(g, me, &spec_of(g, me).triggers[i as usize], eff),
     }
+}
+
+/// The cause of using the declared power `i` of `me` (player `p`): an Ability's is `Ability`; a power that is a rule printed
+/// on the card (a Fossil's "you may discard this card from play") is `Rule { CardRule }` (`PowerDef::source`), so what
+/// locks or prevents Abilities doesn't reach it.
+fn power_cause(g: &Game, me: CardId, i: u8, p: u8) -> Cause {
+    let printed = spec_of(g, me).powers[i as usize].index as usize;
+    Cause::of_origin(g.st.cdef(me).powers[printed].source(), me, p)
 }
 
 /// A trigger's cause: its origin, caused by the card's owner; a `CardRule` trigger by its event (the end of
@@ -981,7 +989,7 @@ pub fn power_check<F: crate::derived::Facts>(g: &mut F, me: CardId, index: u8, p
     let Some(spec) = crate::cards::spec_for(g.g().st.cards[me as usize].def) else { return Ok(()) };
     for (i, pw) in spec.powers.iter().enumerate() {
         if pw.index == index {
-            let f = Frame::for_check(Prog::Power(i as u8), Phase::Use, p, Cause::new(CauseKind::Ability, Some(me), p as u8), [NO_CARD; 2]);
+            let f = Frame::for_check(Prog::Power(i as u8), Phase::Use, p, power_cause(g.g(), me, i as u8, p as u8), [NO_CARD; 2]);
             return check_power(g, me, pw, &f);
         }
     }
@@ -1420,4 +1428,27 @@ fn runs_in(at: RuleStep, phase: Phase) -> bool {
             | (RuleStep::Cost, Phase::Use)
             | (RuleStep::Consequence, Phase::Use)
     )
+}
+
+#[cfg(test)]
+mod power_cause_tests {
+    //! A power's cause follows its printed kind (`PowerDef::source`): an Ability's is `Ability`, a Fossil's "you may discard
+    //! this card from play" (a rule printed on the card) is `Rule { CardRule }`.
+    use super::*;
+    use crate::cause::{CauseKind, RuleWhich};
+
+    #[test]
+    fn a_fossils_discard_is_a_card_rule_not_an_ability() {
+        let kind = |card: &str, power: u8| {
+            let def = crate::carddb::def_by_full_name(card).unwrap();
+            let deck: Vec<u16> = std::iter::repeat(def).take(60).collect();
+            let mut g = Game::new(7);
+            g.start([&deck, &deck]).unwrap();
+            let me = g.st.cards.iter().position(|c| c.def == def).unwrap() as CardId;
+            frame_cause(&g, me, Prog::Power(power), 0, 0, false).kind
+        };
+        assert_eq!(kind("Antique Root Fossil SCR 130", 0), CauseKind::Rule { which: RuleWhich::CardRule });
+        assert_eq!(kind("Antique Cover Fossil SCR 129", 0), CauseKind::Rule { which: RuleWhich::CardRule });
+        assert_eq!(kind("Mandibuzz WHT 64", 0), CauseKind::Ability);
+    }
 }
