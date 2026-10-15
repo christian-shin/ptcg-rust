@@ -1,0 +1,52 @@
+# The engine's Python wheel (python/: PyO3 abi3-py39, maturin) built in a manylinux2014 container, smoke-tested on stock
+# Python 3.9 and 3.11, and uploaded as an artifact. Runs on ci/** pushes that touch the engine, the bindings or this file,
+# and on demand.
+name: wheel
+run-name: wheel ${{ github.ref_name }}
+
+on:
+  push:
+    branches: ["ci/**"]
+    paths: ["engine/**", "python/**", "data/**", ".github/workflows/wheel.yml", "tools/wheel_smoke.py"]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: never
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release --out dist --manifest-path python/Cargo.toml
+          target: x86_64
+          manylinux: "2014"
+      - run: ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ptcg-wheel
+          path: dist/*.whl
+          if-no-files-found: error
+
+  smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ptcg-wheel
+          path: dist
+      - run: |
+          ls -l dist
+          python -m pip install numpy dist/*.whl
+          python -I tools/wheel_smoke.py
