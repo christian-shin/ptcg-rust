@@ -64,7 +64,7 @@ fn is_session_clone(s: &CopySession, a: AttackRef) -> bool {
 }
 
 fn copycat_in_play(g: &Game, c: CardId) -> bool {
-    (0..2).any(|p| g.st.players[p].in_play().iter().any(|s| g.st.slot_pokemon(p, *s) == Some(c)))
+    (0..2).any(|p| g.st.players[p].in_play().any(|s| g.st.slot_pokemon(p, s) == Some(c)))
 }
 
 fn target_includes(g: &Game, t: SlotRef, c: CardId) -> bool {

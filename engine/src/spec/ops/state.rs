@@ -9,7 +9,7 @@ use super::super::run::{Flow, Frame};
 use super::super::*;
 use crate::effects::{ApplyTarget, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::list::{CardId, SVec};
+use crate::list::CardId;
 use crate::prompts::Res;
 use crate::types::Stage;
 
@@ -313,8 +313,8 @@ fn arm_each(g: &mut Game, me: CardId, f: &Frame, a: &'static ArmEachSpec) -> R {
         _ => (f.p as usize, None),
     };
     let q = f.who(a.side);
-    let slots: SVec<crate::state::SlotId, { crate::state::MAX_SLOTS }> = g.st.players[q].in_play();
-    for s in slots.iter().copied() {
+    let slots = g.st.players[q].in_play();
+    for s in slots {
         let t = SlotRef::new(q, s);
         if g.st.slot_pokemon(q, s).is_none() || !crate::spec::value::slot_pred_m(g, me, t, &a.subject)? {
             continue;

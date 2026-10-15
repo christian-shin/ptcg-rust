@@ -54,6 +54,36 @@ pub struct Slot {
     pub is_public: bool,
 }
 
+/// The occupied spots of a player, the Active Spot first and then the Bench in order ([`Player::in_play`]).
+#[derive(Clone, Copy)]
+pub struct InPlay {
+    occupied: u16,
+    active: SlotId,
+    bench: SVec<SlotId, MAX_BENCH>,
+    next: u8,
+}
+
+impl InPlay {
+    /// No spot of the player holds a card.
+    pub fn is_empty(mut self) -> bool {
+        self.next().is_none()
+    }
+}
+
+impl Iterator for InPlay {
+    type Item = SlotId;
+    #[inline]
+    fn next(&mut self) -> Option<SlotId> {
+        loop {
+            let s = if self.next == 0 { self.active } else { *self.bench.as_slice().get(self.next as usize - 1)? };
+            self.next += 1;
+            if self.occupied >> s & 1 != 0 {
+                return Some(s);
+            }
+        }
+    }
+}
+
 impl Slot {
     /// The cards of the spot: the Pokemon stack and what is attached to it.
     #[inline]
@@ -92,9 +122,12 @@ impl Slot {
 }
 
 /// The one write path to a spot's card lists: it lends the lists out mutably and, on drop, recomputes the spot's top
-/// Pokemon from them. A list is private to this module, so no other write to it can exist.
+/// Pokemon and whether it holds a card (`Player::occupied`) from them. A list is private to this module, so no other write to it can exist.
 pub struct SlotEdit<'a> {
     slot: &'a mut Slot,
+    /// The player's `occupied` mask and this spot's bit in it.
+    occupied: &'a mut u16,
+    bit: u16,
     insts: &'a [CardInst; MAX_CARDS],
 }
 
@@ -123,6 +156,11 @@ impl Drop for SlotEdit<'_> {
     #[inline]
     fn drop(&mut self) {
         self.slot.top = self.slot.top_scan(self.insts).unwrap_or(NO_CARD);
+        if self.slot.cards.is_empty() {
+            *self.occupied &= !self.bit;
+        } else {
+            *self.occupied |= self.bit;
+        }
     }
 }
 
@@ -401,6 +439,9 @@ pub struct Player {
     /// The Prize card is face up.
     pub prize_face_up: [bool; 6],
     pub slots: [Slot; MAX_SLOTS],
+    /// Bit `s` is set when spot `s` holds a card. Kept by [`SlotEdit`]'s drop and `alloc_slot`; read only through
+    /// [`Player::in_play`] (`PTCG_VERIFY_CACHE=1` checks it against the scan of the lists).
+    occupied: u16,
     pub slot_used: [bool; MAX_SLOTS],
     pub active: SlotId,
     pub bench: SVec<SlotId, MAX_BENCH>,
@@ -441,6 +482,7 @@ impl Player {
             prize_public: [false; 6],
             prize_face_up: [false; 6],
             slots: [Slot::default(); MAX_SLOTS],
+            occupied: 0,
             slot_used: [false; MAX_SLOTS],
             active: 0,
             bench: SVec::new(),
@@ -473,18 +515,21 @@ impl Player {
     pub fn bench_slot(&self, i: usize) -> &Slot {
         &self.slots[self.bench.as_slice()[i] as usize]
     }
-    /// The occupied slots: the Active Spot, then the Bench in order.
-    pub fn in_play(&self) -> SVec<SlotId, MAX_SLOTS> {
-        let mut out = SVec::new();
-        if !self.slots[self.active as usize].cards.is_empty() {
-            out.push(self.active);
-        }
-        for &b in self.bench.iter() {
-            if !self.slots[b as usize].cards.is_empty() {
-                out.push(b);
+    /// The occupied slots: the Active Spot, then the Bench in order (read from the kept `occupied` mask; a `Copy`
+    /// iterator that borrows nothing, so the state can be written while it is walked).
+    #[inline]
+    pub fn in_play(&self) -> InPlay {
+        let r = InPlay { occupied: self.occupied, active: self.active, bench: self.bench, next: 0 };
+        if crate::game::verify_cache() {
+            let mut scan: SVec<SlotId, MAX_SLOTS> = SVec::new();
+            for s in std::iter::once(self.active).chain(self.bench.iter().copied()) {
+                if !self.slots[s as usize].cards().is_empty() {
+                    scan.push(s);
+                }
             }
+            assert!(r.eq(scan.iter().copied()), "Player::occupied answered differently from the scan of the spots");
         }
-        out
+        r
     }
     /// All board slots (active + bench), occupied or not.
     pub fn all_slots(&self) -> SVec<SlotId, MAX_SLOTS> {
@@ -507,6 +552,7 @@ impl Player {
             if !self.slot_used[i] {
                 self.slot_used[i] = true;
                 self.slots[i] = Slot::default();
+                self.occupied &= !(1 << i);
                 return i as SlotId;
             }
         }
@@ -943,7 +989,8 @@ impl State {
     /// The one write path to a spot's card lists (see [`SlotEdit`]).
     #[inline]
     pub fn slot_edit(&mut self, p: usize, s: SlotId) -> SlotEdit<'_> {
-        SlotEdit { slot: &mut self.players[p].slots[s as usize], insts: &self.cards }
+        let pl = &mut self.players[p];
+        SlotEdit { slot: &mut pl.slots[s as usize], occupied: &mut pl.occupied, bit: 1 << s, insts: &self.cards }
     }
 
     fn plain_list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
@@ -1096,6 +1143,41 @@ mod tests {
         // Bench shrink: a spot taken off the Bench keeps a consistent top.
         g.st.players[0].bench.clear();
         assert_tops(&g);
+    }
+
+    /// `Player::occupied` against the scan of the lists, and `in_play` in the order Active then Bench.
+    fn assert_occupied(g: &Game) {
+        for pl in g.st.players.iter() {
+            for s in 0..MAX_SLOTS {
+                if pl.slot_used[s] {
+                    assert_eq!(pl.occupied >> s & 1 != 0, !pl.slots[s].cards().is_empty(), "spot {s}");
+                }
+            }
+            let want: Vec<SlotId> = std::iter::once(pl.active).chain(pl.bench.iter().copied()).filter(|&s| !pl.slots[s as usize].cards().is_empty()).collect();
+            assert_eq!(pl.in_play().collect::<Vec<_>>(), want);
+        }
+    }
+
+    #[test]
+    fn occupied_follows_scenario_loading_attach_knock_out_and_bench_shrink() {
+        let mut g = game();
+        assert_occupied(&g);
+        assert_eq!(g.st.players[0].in_play().count(), 3);
+        let a = g.st.players[0].active;
+        let (en, from) = find(&g, 0, ENERGY);
+        g.move_card_to(from, en, ListRef::Slot(0, a));
+        assert_occupied(&g);
+        let b = g.st.players[0].bench.as_slice()[0];
+        crate::engine::cards_zone::relocate_spot(&mut g, crate::effects::SlotRef::new(0, b), ListRef::Discard(0));
+        assert_occupied(&g);
+        assert_eq!(g.st.players[0].in_play().count(), 2);
+        // A Bench spot gone from the Bench is no longer visited.
+        g.st.players[0].bench.remove_at(1);
+        assert_occupied(&g);
+        assert_eq!(g.st.players[0].in_play().count(), 1);
+        // A fresh spot is empty.
+        let n = g.st.alloc_slot(0);
+        assert_eq!(g.st.players[0].occupied >> n & 1, 0);
     }
 
     #[test]

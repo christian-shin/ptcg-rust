@@ -364,10 +364,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     // version before them and before the state check reads the facts.
     g.st.bump();
     // usedTurnSkip / pendingEndOfTurnEffects: not modeled.
-    for s in g.st.players[p].in_play().iter() {
-        let slot = &mut g.st.players[p].slots[*s as usize];
+    for s in g.st.players[p].in_play() {
+        let slot = &mut g.st.players[p].slots[s as usize];
         slot.healed_this_turn = false;
-        if let Some(c) = g.st.slot_pokemon(p, *s) {
+        if let Some(c) = g.st.slot_pokemon(p, s) {
             g.st.cards[c as usize].damage_taken_last_turn = 0;
         }
     }

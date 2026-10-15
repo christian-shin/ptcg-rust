@@ -244,8 +244,8 @@ pub fn permitted<F: crate::derived::Facts>(g: &mut F, v: &EventView, limit: Limi
         cands.push(s);
     }
     for q in 0..2 {
-        for s in g.g().st.players[q].in_play().iter() {
-            let slot = g.g().st.slot(q, *s);
+        for s in g.g().st.players[q].in_play() {
+            let slot = g.g().st.slot(q, s);
             for c in slot.cards().iter().chain(slot.tools().iter()) {
                 cands.push(c);
             }

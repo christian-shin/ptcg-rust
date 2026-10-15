@@ -1810,8 +1810,8 @@ fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
         }
     }
     for q in 0..2 {
-        for s in g.st.players[q].in_play().iter() {
-            known += g.st.players[q].slots[*s as usize].cards().iter().filter(|c| named(*c)).count();
+        for s in g.st.players[q].in_play() {
+            known += g.st.players[q].slots[s as usize].cards().iter().filter(|c| named(*c)).count();
         }
     }
     (known as u32) < limit

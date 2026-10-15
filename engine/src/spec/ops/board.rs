@@ -813,11 +813,11 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
 fn counters_locked(g: &Game, f: &Frame) -> bool {
     let mut ctx = crate::legal::Ctx::new(g);
     for p in 0..2 {
-        for s in g.st.players[p].in_play().iter() {
-            if g.st.slot_pokemon(p, *s).is_none() {
+        for s in g.st.players[p].in_play() {
+            if g.st.slot_pokemon(p, s).is_none() {
                 continue;
             }
-            let v = crate::engine::damage::move_view(g, SlotRef::new(p, *s), crate::spec::event::MoveEnd::From, 10, f.cause);
+            let v = crate::engine::damage::move_view(g, SlotRef::new(p, s), crate::spec::event::MoveEnd::From, 10, f.cause);
             if matches!(crate::spec::passive::event_locked(&mut ctx, &v), Ok(None)) {
                 return false;
             }

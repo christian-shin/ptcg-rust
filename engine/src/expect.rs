@@ -283,7 +283,7 @@ fn find_slot(g: &Game, a: &Value, p: usize) -> Result<Option<SlotId>, String> {
         Ok(pl.bench.get(i as usize).copied().filter(|&s| g.st.slot_pokemon(p, s).is_some()))
     } else if selects_by_card(a) {
         let n = a["card"].as_str().unwrap();
-        Ok(pl.in_play().iter().copied().find(|&s| g.st.slot_pokemons(p, s).iter().any(|&c| names_eq(c, g, n))))
+        Ok(pl.in_play().find(|&s| g.st.slot_pokemons(p, s).iter().any(|&c| names_eq(c, g, n))))
     } else {
         Err("bad slot selector (slot: \"active\", bench: N or card: name)".into())
     }

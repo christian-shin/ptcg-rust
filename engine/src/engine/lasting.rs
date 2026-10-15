@@ -85,7 +85,7 @@ fn modify(st: &mut State, on: LastingOn, k: Kind, f: impl FnOnce(&mut LastingEff
 }
 
 /// The spots player `p` has in play (with cards), as the end-of-turn processing visits them.
-fn in_play(st: &State, p: usize) -> SVec<SlotId, { crate::state::MAX_SLOTS }> {
+fn in_play(st: &State, p: usize) -> crate::state::InPlay {
     st.players[p].in_play()
 }
 
@@ -330,7 +330,7 @@ pub fn set_takes_more(st: &mut State, p: usize, s: SlotId, n: i32, attacker: u8,
 
 /// The TakesMore damage re-armed after an attack (the AfterAttack reducer): `rearm` becomes `pending`.
 pub fn rearm_takes_more_after_attack(st: &mut State, o: usize) {
-    for s in in_play(st, o).iter().copied() {
+    for s in in_play(st, o) {
         let on = LastingOn::pokemon(o, s);
         if let Some(LastingEffect { what: LastingWhat::TakesMoreDamage { rearm: true, .. }, .. }) = find(st, on, Kind::TakesMore) {
             modify(st, on, Kind::TakesMore, |e| {
@@ -458,7 +458,7 @@ pub fn remove_records_of(st: &mut State, p: usize, source: CardId) {
 pub fn recorded_slot(st: &State, source: CardId) -> Option<(usize, SlotId)> {
     for p in 0..2 {
         let pl = &st.players[p];
-        for s in pl.in_play().iter().copied() {
+        for s in pl.in_play() {
             if !pl.slots[s as usize].cards().is_empty() && is_recorded(st, p, s, source) {
                 return Some((p, s));
             }
@@ -502,7 +502,7 @@ pub fn end_turn(st: &mut State, p: usize) {
     let o = 1 - p;
     // The "(This includes new Pokémon)" entries that last through player `p`'s turn end.
     st.lasting.retain(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));
-    for s in in_play(st, o).iter().copied() {
+    for s in in_play(st, o) {
         let on = LastingOn::pokemon(o, s);
         st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(_))));
         if let Some(LastingEffect { what: LastingWhat::NoWeakness { .. }, .. }) = find(st, on, Kind::NoWeakness) {
@@ -515,7 +515,7 @@ pub fn end_turn(st: &mut State, p: usize) {
         set(st, on, Kind::RetaliateArmed, None);
         st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { .. })));
     }
-    for s in in_play(st, p).iter().copied() {
+    for s in in_play(st, p) {
         let on = LastingOn::pokemon(p, s);
         // The locks on the Pokémon count this turn of its owner (events batch 7, D14).
         st.lasting.retain_mut(|l| {
@@ -576,7 +576,7 @@ pub fn end_turn(st: &mut State, p: usize) {
     // "The Defending Pokémon takes N more damage": armed at the end of the defending player's turn, then cleared at the
     // end of the attacker's following turn.
     for q in [p, o] {
-        for s in in_play(st, q).iter().copied() {
+        for s in in_play(st, q) {
             let on = LastingOn::pokemon(q, s);
             if let Some(LastingEffect { what: LastingWhat::TakesMoreDamage { pending: true, attacker, .. }, .. }) = find(st, on, Kind::TakesMore) {
                 if *attacker != Some(p as u8) {
@@ -590,7 +590,7 @@ pub fn end_turn(st: &mut State, p: usize) {
         }
     }
     for q in [p, o] {
-        for s in in_play(st, q).iter().copied() {
+        for s in in_play(st, q) {
             let on = LastingOn::pokemon(q, s);
             if let Some(LastingEffect { what: LastingWhat::TakesMoreDamage { amount, attacker, pending: false, .. }, .. }) = find(st, on, Kind::TakesMore) {
                 if *attacker == Some(p as u8) && *amount > 0 {
@@ -624,7 +624,7 @@ fn cost_increase_end_of_turn(st: &mut State, p: usize) {
     let me = Some(p as u8);
     for pass in 0..2 {
         for q in [p, 1 - p] {
-            for s in in_play(st, q).iter().copied() {
+            for s in in_play(st, q) {
                 if st.slot_pokemon(q, s).is_none() {
                     continue;
                 }
@@ -655,7 +655,7 @@ fn cost_increase_end_of_turn(st: &mut State, p: usize) {
 /// Pokémon ends.
 pub fn after_end_turn(st: &mut State, p: usize) {
     let o = 1 - p;
-    for s in in_play(st, o).iter().copied() {
+    for s in in_play(st, o) {
         if st.slot_pokemon(o, s).is_none() {
             continue;
         }

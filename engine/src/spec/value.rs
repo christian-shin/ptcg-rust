@@ -563,8 +563,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                     d.is_pokemon() && d.name == name
                 };
                 let mut n = pl.hand.iter().filter(|c| named(*c)).count() + pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
-                for s in pl.in_play().iter() {
-                    n += pl.slots[*s as usize].cards().iter().filter(|c| named(*c)).count();
+                for s in pl.in_play() {
+                    n += pl.slots[s as usize].cards().iter().filter(|c| named(*c)).count();
                 }
                 n
             };
@@ -586,7 +586,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
 /// The Fossil is the Pokémon of one of its owner's slots.
 fn fossil_in_play(g: &Game, c: CardId) -> bool {
     let p = g.st.owner(c);
-    g.st.players[p].in_play().iter().any(|s| g.st.slot_pokemon(p, *s) == Some(c))
+    g.st.players[p].in_play().any(|s| g.st.slot_pokemon(p, s) == Some(c))
 }
 
 pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
@@ -815,8 +815,8 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
         }
         SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => {
             let p = f.who(*w);
-            for s in g.st.players[p].in_play().iter() {
-                out.push(SlotRef::new(p, *s));
+            for s in g.st.players[p].in_play() {
+                out.push(SlotRef::new(p, s));
             }
         }
         SlotSel::Filtered(inner, sp) => {

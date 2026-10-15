@@ -2678,7 +2678,7 @@ fn locker_owner(g: &Game, me: CardId, locker: Locker) -> Option<usize> {
             found
         }
         Locker::InPlayEitherSide => {
-            let in_play = (0..2usize).any(|q| g.st.players[q].in_play().iter().any(|s| g.st.slot_pokemon(q, *s) == Some(me)));
+            let in_play = (0..2usize).any(|q| g.st.players[q].in_play().any(|s| g.st.slot_pokemon(q, s) == Some(me)));
             if in_play {
                 g.st.locate(me).and_then(|x| x.owner())
             } else {
@@ -2859,8 +2859,8 @@ fn lock_sync_now(g: &mut Game) {
         // left play, by card.
         let mut sources: SVec<CardId, 24> = SVec::new();
         for q in 0..2usize {
-            for s in g.st.players[q].in_play().iter() {
-                if let Some(c) = g.st.slot_pokemon(q, *s) {
+            for s in g.st.players[q].in_play() {
+                if let Some(c) = g.st.slot_pokemon(q, s) {
                     if is_locker(c) {
                         sources.push(c);
                     }
@@ -4040,7 +4040,7 @@ mod active_lock_equality_tests {
         for sc in boards {
             let g = game(sc);
             let sources: Vec<CardId> = (0..g.st.n_cards).filter(|c| lock_passives(&g, *c).next().is_some()).collect();
-            let tops: Vec<(usize, crate::state::SlotId, CardId)> = (0..2usize).flat_map(|q| g.st.players[q].in_play().iter().map(move |s| (q, *s)).collect::<Vec<_>>()).filter_map(|(q, s)| g.st.slot_pokemon(q, s).map(|c| (q, s, c))).collect();
+            let tops: Vec<(usize, crate::state::SlotId, CardId)> = (0..2usize).flat_map(|q| g.st.players[q].in_play().map(move |s| (q, s)).collect::<Vec<_>>()).filter_map(|(q, s)| g.st.slot_pokemon(q, s).map(|c| (q, s, c))).collect();
             for src in sources {
                 let ps = lock_passives(&g, src).next().unwrap();
                 let Modifier::ActiveLock(spec) = &ps.modifier else { continue };
