@@ -21,8 +21,8 @@
 //! - [`leave_play`]: a Pokémon and every card attached to it leave play (a Knock Out's, by the rule; an effect's: Scoop
 //!   Up Cyclone, a Fossil's discard, a Pokémon shuffled into the deck, the Bench shrinking). Its Special Conditions and
 //!   effects go with it (no RemoveCondition event), the spot is reset.
-//! - [`take_prizes`]: Prize cards to the taker's hand, as many as there are; with fewer left than the count all are
-//!   taken, otherwise the player chooses.
+//! - [`take_prizes_chosen`]: the chosen Prize cards to the taker's hand (the TakePrizes event); the Knock Out's own take
+//!   (all of them when no more than the count are left, otherwise the player chooses) is made by its state check.
 //! - [`game_end`]: the winner and why (Prizes, no Pokémon, deck-out, a card's effect, the Tiebreaker's Prize advantage).
 
 use crate::cause::{Cause, RuleWhich};
@@ -289,21 +289,6 @@ pub fn take_prizes_chosen(g: &mut Game, p: usize, prizes: &[u8], cause: Cause) -
         }
     }
     g.run_fx_unit(Effect::TakePrizes { p: p as u8, prizes: v, cause })
-}
-
-/// TakePrizes of `count` Prize cards by player `p`: all of them without a choice when there are no more than that left,
-/// otherwise the ChoosePrize prompt (the event follows the answer).
-pub fn take_prizes(g: &mut Game, p: usize, count: i32, cause: Cause) -> R {
-    let left = g.st.players[p].prize_left() as i32;
-    if count <= 0 || left <= 0 {
-        return Ok(());
-    }
-    if count >= left {
-        let ix = first_prizes(g, p, left as usize);
-        return take_prizes_chosen(g, p, ix.as_slice(), cause);
-    }
-    prize_prompt(g, p, count, cause);
-    Ok(())
 }
 
 /// The first `count` Prize cards of `p` that are there (an automatic take).
