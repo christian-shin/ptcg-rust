@@ -168,6 +168,10 @@ fn card_code(g: &Game, c: crate::list::CardId) -> f32 {
             v[base + 7] = pl.used_gx as u8 as f32;
             let slots = pl.all_slots();
             for (i, s) in slots.iter().enumerate().take(SLOTS) {
+                // The opponent's Pokémon put down face down at setup are hidden (batch 10 E12).
+                if p != viewer && st.in_play_face_down() {
+                    continue;
+                }
                 let o = base + 16 + i * SLOT_FEATURES;
                 slot_features(g, &mut facts, p, *s, &mut v[o..o + SLOT_FEATURES]);
             }

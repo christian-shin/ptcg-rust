@@ -5,8 +5,9 @@
 //! an adapter to another observation format reads. It holds no reference to the game: build it, then read it anywhere.
 //!
 //! Seats are player indexes (`players[i]` is player `i`, not "you / opponent"); `viewer` says whose eyes. Hidden
-//! information is absent, not masked: the opponent's hand is `None`, the Prize cards face down are `None`, no deck
-//! content exists at all. Lists keep the order the rules give: the discard pile and the Lost Zone oldest first, the hand
+//! information is absent, not masked: the opponent's hand is `None`, the Prize cards face down are `None`, the
+//! opponent's Pokémon put down face down at setup are `None` (with the spot marked face down), no deck content exists at
+//! all. Lists keep the order the rules give: the discard pile and the Lost Zone oldest first, the hand
 //! in hand order, a Pokémon's attached cards in the order they arrived (`CardInst::arrived`).
 
 use crate::carddb::DefId;
@@ -97,10 +98,17 @@ pub struct SeatView {
     /// The Prize cards left, `Some` only for a card turned face up (the list has `prize_count` entries; a Prize card with
     /// no card yet, none here, counts as face down).
     pub prizes: SVec<Option<CardView>, 6>,
-    /// The Active Pokémon, `None` before one is chosen.
+    /// The Active Pokémon, `None` before one is chosen, and to the other player while it lies face down
+    /// (`active_face_down`).
     pub active: Option<PokemonView>,
-    /// The Bench: one entry per Bench spot, in order, `None` for an empty spot (`bench_max` entries are meaningful).
+    /// The Active Spot holds a card face down (put down at setup, not turned face up yet: `State::in_play_face_down`).
+    /// Its owner sees the card in `active`; the other player sees only that the spot holds one.
+    pub active_face_down: bool,
+    /// The Bench: one entry per Bench spot, in order, `None` for an empty spot and, to the other player, for a spot
+    /// holding a card face down (`bench_face_down`) (`bench_max` entries are meaningful).
     pub bench: [Option<PokemonView>; MAX_BENCH],
+    /// Each Bench spot holding a card face down (as `active_face_down`), in the order of `bench`.
+    pub bench_face_down: [bool; MAX_BENCH],
     /// The number of Bench spots (5 unless a card changes it), filled or not.
     pub bench_max: u8,
     /// A Supporter was played from the hand this turn (this seat's record of the turn).
@@ -221,10 +229,16 @@ fn seat(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize) -> Sea
         }
         prizes.push(if pl.prize_face_up[i] { pl.prizes[i].get(0).map(|c| card(g, c)) } else { None });
     }
+    // A card lying face down is seen by its owner only (`State::in_play_face_down`).
+    let down = |s: SlotId| st.in_play_face_down() && !st.slot(p, s).cards().is_empty();
+    let mut spot = |s: SlotId| if down(s) && p != viewer { None } else { pokemon(g, facts, p, s) };
     let mut bench = [None; MAX_BENCH];
+    let mut bench_face_down = [false; MAX_BENCH];
     for (i, &s) in pl.bench.iter().enumerate().take(MAX_BENCH) {
-        bench[i] = pokemon(g, facts, p, s);
+        bench[i] = spot(s);
+        bench_face_down[i] = down(s);
     }
+    let active = spot(pl.active);
     SeatView {
         deck_count: pl.deck.len() as u8,
         hand_count: pl.hand.len() as u8,
@@ -233,8 +247,10 @@ fn seat(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize) -> Sea
         lost_zone: cards_of(g, &pl.lostzone),
         prize_count: pl.prize_left() as u8,
         prizes,
-        active: pokemon(g, facts, p, pl.active),
+        active,
+        active_face_down: down(pl.active),
         bench,
+        bench_face_down,
         bench_max: pl.bench.len() as u8,
         supporter_played: trainer(TrainerType::Supporter),
         stadium_played: trainer(TrainerType::Stadium),
@@ -330,6 +346,42 @@ mod tests {
         assert_eq!(v.players[0].prizes.iter().filter(|p| p.is_some()).count(), 0);
         assert_eq!(v.players[0].prize_count, 6);
         assert_eq!(v.first_player, g.st.first_player);
+    }
+
+    /// During setup a player's Pokémon lie face down: their owner sees them, the other player sees only which spots hold
+    /// a card (SSP rulebook p. 8 steps 5 and 6). After both are turned face up (step 8) both players see them.
+    #[test]
+    fn face_down_pokemon_are_seen_by_their_owner_only() {
+        let mut g = crate::search::tests::setup_game();
+        let pl = &g.st.players[0];
+        let (active, bench0) = (g.st.active_pokemon(0).unwrap(), g.st.slot_pokemon(0, pl.bench.as_slice()[0]).unwrap());
+        let (mine, theirs) = (TableView::new(&g, 0), TableView::new(&g, 1));
+        for v in [&mine, &theirs] {
+            let s = &v.players[0];
+            assert!(s.active_face_down && s.bench_face_down[0]);
+            assert!(!v.players[1].active_face_down && v.players[1].active.is_none(), "player 1 has put down nothing yet");
+        }
+        assert_eq!(mine.players[0].active.map(|p| p.top.card), Some(active));
+        assert_eq!(mine.players[0].bench[0].map(|p| p.top.card), Some(bench0));
+        assert!(theirs.players[0].active.is_none() && theirs.players[0].bench.iter().all(|b| b.is_none()));
+        let down = mine.players[0].bench_face_down.iter().filter(|d| **d).count();
+        assert_eq!(down, theirs.players[0].bench_face_down.iter().filter(|d| **d).count());
+        assert_eq!(down, mine.players[0].bench.iter().filter(|b| b.is_some()).count());
+        // The observation of the other player has no feature of a face-down Pokémon.
+        let opp = crate::obs::GLOBAL_FEATURES + crate::obs::PLAYER_FEATURES + 16;
+        assert!(crate::obs::observe(&g, 1)[opp..opp + crate::obs::SLOTS * crate::obs::SLOT_FEATURES].iter().all(|x| *x == 0.0));
+        // Setup ends: both players' Pokémon are face up to both.
+        while g.st.phase == crate::types::GamePhase::Setup {
+            crate::search::tests::answer_all(&mut g);
+        }
+        let (mine, theirs) = (TableView::new(&g, 0), TableView::new(&g, 1));
+        for p in 0..2 {
+            assert_eq!(mine.players[p].active, theirs.players[p].active);
+            assert_eq!(mine.players[p].bench, theirs.players[p].bench);
+            assert!(mine.players[p].active.is_some() && !mine.players[p].active_face_down && !theirs.players[p].active_face_down);
+            assert!(theirs.players[p].bench_face_down.iter().all(|d| !*d));
+        }
+        assert_eq!(theirs.players[0].active.map(|p| p.top.card), Some(active));
     }
 
     fn board(seed: u32, energy: &[&str]) -> Game {

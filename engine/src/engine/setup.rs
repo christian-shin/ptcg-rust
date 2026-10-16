@@ -110,7 +110,12 @@ impl Stage2Basic {
 }
 
 fn is_starting_candidate(g: &Game, c: CardId) -> bool {
-    let d = g.st.cdef(c);
+    may_start_active(g.st.cdef(c))
+}
+
+/// Whether a card may be put down face down as the Active Pokémon at setup: a Basic Pokémon, or a card played during
+/// setup (Cinderace's Explosiveness, ruling 1714). Also the rule `search` keeps a face-down Active Spot to.
+pub(crate) fn may_start_active(d: &crate::carddb::CardDef) -> bool {
     d.has_tag(tag::PLAY_DURING_SETUP) || (d.is_pokemon() && d.stage == Stage2Basic::BASIC)
 }
 
@@ -118,7 +123,11 @@ fn is_starting_candidate(g: &Game, c: CardId) -> bool {
 /// Pokémon that only starts face down as the Active Pokémon (Cinderace's Explosiveness, ruling 1714) can't be Benched
 /// (ruling 264; Advanced Rulebook I-G steps 6 and 7).
 fn can_bench_at_setup(g: &Game, c: CardId) -> bool {
-    let d = g.st.cdef(c);
+    may_bench_at_setup(g.st.cdef(c))
+}
+
+/// [`can_bench_at_setup`] of a card definition; also the rule `search` keeps a face-down Bench spot to.
+pub(crate) fn may_bench_at_setup(d: &crate::carddb::CardDef) -> bool {
     if d.is_pokemon() {
         d.stage == Stage2Basic::BASIC
     } else {
@@ -127,10 +136,7 @@ fn can_bench_at_setup(g: &Game, c: CardId) -> bool {
 }
 
 fn hand_has_starting_pokemon(g: &Game, p: usize) -> bool {
-    g.st.players[p].hand.iter().any(|c| {
-        let d = g.st.cdef(c);
-        (d.is_pokemon() && d.stage == Stage2Basic::BASIC) || d.has_tag(tag::PLAY_DURING_SETUP)
-    })
+    g.st.players[p].hand.iter().any(|c| is_starting_candidate(g, c))
 }
 
 /// A hand with no Basic Pokémon whose only starter is a setup card (Cinderace's Explosiveness): the player

@@ -133,7 +133,8 @@ pub fn act(g: &mut Game, action: Action) -> R {
     g.settle()
 }
 
-/// What `seat` may see of the table ([`TableView::new`]): its own hand and the public zones, the opponent's counts.
+/// What `seat` may see of the table ([`TableView::new`]): its own hand and the public zones, the opponent's counts and,
+/// during setup, which of the opponent's spots hold a face-down card.
 pub fn view(g: &Game, seat: usize) -> TableView {
     TableView::new(g, seat)
 }
@@ -193,8 +194,10 @@ pub fn swap_unseen(g: &mut Game, a: CardId, b: CardId) -> R {
 }
 
 /// Trade the places of two cards of one owner that `viewer` cannot see (the other seat's hand, either deck, face-down
-/// Prize cards no effect made public: the rule [`determinize`] re-deals by); anything else is an error
-/// `CARD_NOT_HIDDEN` and changes nothing ([`Game::swap_hidden`]).
+/// Prize cards no effect made public, during setup the other seat's Pokémon put down face down: the rule
+/// [`determinize`] re-deals by); anything else is an error `CARD_NOT_HIDDEN`, a card a face-down spot may not hold
+/// (not one that may be put down there at setup) `FACE_DOWN_SPOT_REFUSES_CARD`, and changes nothing
+/// ([`Game::swap_hidden`]).
 pub fn swap_hidden(g: &mut Game, viewer: usize, a: CardId, b: CardId) -> R {
     g.swap_hidden(viewer, a, b)
 }
@@ -210,7 +213,8 @@ pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
 /// stream, are untouched. A card the viewer saw that the game still refers to (a Trainer card played this turn, the
 /// source of a lasting effect, the last attack's card) keeps its identity and must be listed. Errors change nothing:
 /// `NO_SUCH_PLAYER`, `UNKNOWN_CARD`, `UNSEEN_COUNT_MISMATCH`, `NAMED_CARD_NOT_LISTED`, `RECORD_NOT_TAKEN` (take the
-/// record first) ([`Game::set_unseen`]).
+/// record first), `FACE_DOWN_SPOT_UNFILLABLE` (during setup: the list can't give every face-down spot a card that may
+/// be put down there) ([`Game::set_unseen`]).
 pub fn set_unseen(g: &mut Game, viewer: usize, owner: usize, cards: &[DefId], seed: u32) -> R {
     g.set_unseen(viewer, owner, cards, seed)
 }

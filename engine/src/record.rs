@@ -38,7 +38,7 @@ use crate::list::{CardId, CardList};
 use crate::place::{CardPlace, Zone};
 use crate::spec::event::{CoinPurpose, EventKind, RulesZone, TrainerUse};
 use crate::state::{AttackRef, ListRef, NO_PLAYER};
-use crate::types::{GamePhase, SpecialCondition, Winner};
+use crate::types::{SpecialCondition, Winner};
 
 /// What an entry says beyond its kind, cards, places and amount.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -287,7 +287,7 @@ fn sees(g: &Game, c: CardId, place: Option<CardPlace>, kind: EventKind, by: u8) 
         }
         Zone::Discard | Zone::LostZone | Zone::Stadium | Zone::PlayArea => ALL,
         // Face down while the game is set up (SSP rulebook p. 8, steps 5 and 6).
-        Zone::InPlay { .. } if g.st.phase == GamePhase::Setup => only(place.owner),
+        Zone::InPlay { .. } if g.st.in_play_face_down() => only(place.owner),
         Zone::InPlay { .. } => ALL,
         Zone::Looking { from } if kind == EventKind::Look => look_seen_by(from, by),
         Zone::Looking { from } if public(from) => ALL,

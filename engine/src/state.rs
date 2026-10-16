@@ -880,6 +880,13 @@ impl State {
     pub fn owner(&self, c: CardId) -> usize {
         self.cards[c as usize].owner as usize
     }
+    /// The cards in play lie face down: the Pokémon put down at setup, before both players turn them face up (SSP
+    /// rulebook p. 8 steps 5, 6 and 8; APR G steps 5 to 8). Their owner knows them; the other player sees only which
+    /// spots hold a card. The one rule the game record, the table view and the hidden-card tools (`search`) read.
+    #[inline]
+    pub fn in_play_face_down(&self) -> bool {
+        self.phase == GamePhase::Setup
+    }
     pub fn slot(&self, p: usize, s: SlotId) -> &Slot {
         &self.players[p].slots[s as usize]
     }
