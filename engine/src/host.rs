@@ -188,6 +188,13 @@ pub fn swap_unseen(g: &mut Game, a: CardId, b: CardId) -> R {
     g.swap_unseen(a, b)
 }
 
+/// Trade the places of two cards of one owner that `viewer` cannot see (the other seat's hand, either deck, face-down
+/// Prize cards no effect made public: the rule [`determinize`] re-deals by); anything else is an error
+/// `CARD_NOT_HIDDEN` and changes nothing ([`Game::swap_hidden`]).
+pub fn swap_hidden(g: &mut Game, viewer: usize, a: CardId, b: CardId) -> R {
+    g.swap_hidden(viewer, a, b)
+}
+
 /// Rearrange the cards `viewer` cannot see as one consistent guess ([`crate::search::determinize`]), shuffled with `seed`;
 /// what the viewer can see is untouched.
 pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
@@ -314,6 +321,23 @@ mod tests {
         if let Some(h) = g.st.players[0].hand.get(0) {
             assert!(swap_unseen(&mut g, a, h).is_err());
         }
+    }
+
+    /// Two deck cards of the other seat trade places through the facade; so does a hand card when a hand exists (the
+    /// full hand cases are in search.rs); a card of two owners is refused.
+    #[test]
+    fn a_guess_is_re_identified_through_the_facade() {
+        let d = deck();
+        let mut g = start_game([&d, &d], 3, &StartOptions::default()).unwrap();
+        let (a, b) = (g.st.players[1].deck.get(0).unwrap(), g.st.players[1].deck.get(1).unwrap());
+        swap_hidden(&mut g, 0, a, b).unwrap();
+        assert_eq!(locate_card(&g, a).unwrap().index, 1);
+        if let Some(h) = g.st.players[1].hand.get(0) {
+            swap_hidden(&mut g, 0, h, a).unwrap();
+            assert_eq!(locate_card(&g, a).unwrap().zone, crate::place::Zone::Hand);
+        }
+        let mine = g.st.players[0].deck.get(0).unwrap();
+        assert!(swap_hidden(&mut g, 0, mine, b).is_err());
     }
 
     /// Abilities and card rules are told apart by `power_source`.
