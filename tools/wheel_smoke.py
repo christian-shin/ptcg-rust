@@ -22,8 +22,17 @@ except ValueError:
 env.set_unseen(0, 1, names, 7)
 assert env.unseen_count(0, 1) == n
 steps = 0
+what_ifs = 0
 while not env.done:
+    # The what-if attack query at every turn decision (an error at any other decision, or for an attack the text forbids).
+    try:
+        r = env.attack_what_if(0, 0, 0)
+        assert abs(sum(o["probability"] for o in r["outcomes"]) + r["unexplored"] - 1) < 1e-9, r
+        what_ifs += 1
+    except ValueError:
+        pass
     env.step_random(steps)
     steps += 1
     assert steps < 100000, "game did not end"
-print("ok", sys.version.split()[0], "steps", steps, "winner", env.winner)
+assert what_ifs > 0, "no what-if query answered"
+print("ok", sys.version.split()[0], "steps", steps, "winner", env.winner, "what-ifs", what_ifs)

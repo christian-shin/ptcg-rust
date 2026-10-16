@@ -72,6 +72,9 @@ pub enum Cont {
     DiscardAttackerEnergy { owner: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
     /// The owner chose which survive-on-10 replacement of a group applies first (`damage::survive_order_chosen`).
     SurviveOrder { grp: crate::engine::damage::SurviveGroup },
+    /// A what-if attack is over (`attack::finish_attack`): its Knock Out check (attack step 7, APR D), with no end of the
+    /// turn.
+    WhatIfOver,
 }
 
 /// What happens when a state check completes.
@@ -973,6 +976,7 @@ impl Game {
             Cont::OrderEffects { w } => crate::engine::order::chosen(self, w, first.as_int()),
             Cont::OrderNext { w } => crate::engine::order::next(self, w),
             Cont::SurviveOrder { grp } => crate::engine::damage::survive_order_chosen(self, grp, first.as_int()),
+            Cont::WhatIfOver => crate::engine::knockout::state_check(self, OnComplete::None),
             Cont::DiscardAttackerEnergy { owner, attack, source_card, target } => crate::engine::game_effect::discard_attacker_energy_cont(self, owner, attack, source_card, target, first),
             Cont::ChooseActive { p } => crate::engine::knockout::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => crate::engine::knockout::bench_shrink_cont(self, p, empty, first),

@@ -84,6 +84,11 @@ pub struct Rng {
     /// Record every real outcome ([`take_recorded`]). Only the game's own generator records, so a
     /// policy's picks and legality trials (the fixed generator) stay out of the trace.
     rec: bool,
+    /// A what-if copy's generator ([`Rng::scripted`]): the coins are `forced`'s bits, then tails; shuffles and picks come
+    /// from the seeded stream; the tape and the recording are never touched.
+    scripted: bool,
+    /// The coins a scripted generator has flipped.
+    flipped: u8,
 }
 
 impl Rng {
@@ -97,7 +102,7 @@ impl Rng {
             z = (z ^ (z >> 13)).wrapping_mul(0xc2b2_ae35);
             *v = z ^ (z >> 16);
         }
-        Rng { s, forced: 0, nforced: 0, rec: false }
+        Rng { s, forced: 0, nforced: 0, rec: false, scripted: false, flipped: 0 }
     }
 
     /// This generator with outcome recording on.
@@ -126,12 +131,29 @@ impl Rng {
         }
     }
 
+    /// This generator for a what-if copy of the game (`what_if`): coin `i` is heads when bit `i` of `heads` is set (tails
+    /// from the 33rd coin on), counted by [`Rng::coins_flipped`]; shuffles and random picks come from the seeded stream;
+    /// nothing is read from this thread's tape or recorded, so the copy leaves a host's replay and recording alone.
+    pub fn scripted(mut self, heads: u32) -> Rng {
+        self.forced = heads;
+        self.nforced = 0;
+        self.rec = false;
+        self.scripted = true;
+        self.flipped = 0;
+        self
+    }
+
+    /// The coins a scripted generator has flipped (saturating at 255).
+    pub fn coins_flipped(&self) -> u8 {
+        self.flipped
+    }
+
     /// Fixed outcomes (the all-zero state, which seeding never produces):
     /// every coin is tails, every index 0, every shuffle the identity.
     /// Legality trials use it,
     /// so whether an option is legal never depends on chance.
     pub const fn zero() -> Rng {
-        Rng { s: [0; 4], forced: 0, nforced: 0, rec: false }
+        Rng { s: [0; 4], forced: 0, nforced: 0, rec: false, scripted: false, flipped: 0 }
     }
 
     pub fn next_u32(&mut self) -> u32 {
@@ -167,6 +189,11 @@ impl Rng {
     }
 
     pub fn coin(&mut self) -> bool {
+        if self.scripted {
+            let i = self.flipped as u32;
+            self.flipped = self.flipped.saturating_add(1);
+            return i < 32 && (self.forced >> i) & 1 == 1;
+        }
         if self.is_fixed() {
             return false;
         }
@@ -201,7 +228,8 @@ impl Rng {
         if self.is_fixed() {
             return;
         }
-        if let Some(Draw::Shuffle(v)) = take_from_tape(|d| matches!(d, Draw::Shuffle(v) if v.len() == n)) {
+        let taped = if self.scripted { None } else { take_from_tape(|d| matches!(d, Draw::Shuffle(v) if v.len() == n)) };
+        if let Some(Draw::Shuffle(v)) = taped {
             out[..n].copy_from_slice(&v);
         } else {
             let mut i = n;
@@ -218,7 +246,8 @@ impl Rng {
         if self.is_fixed() {
             return self.below(n as u32) as usize;
         }
-        let v = match take_from_tape(|d| matches!(d, Draw::Index(m, _) if *m == n)) {
+        let taped = if self.scripted { None } else { take_from_tape(|d| matches!(d, Draw::Index(m, _) if *m == n)) };
+        let v = match taped {
             Some(Draw::Index(_, v)) => v,
             _ => self.below(n as u32) as usize,
         };

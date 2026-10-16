@@ -145,6 +145,23 @@ pub fn ability_source(g: &Game, p: usize, target: CardTarget) -> R<Option<CardId
     })
 }
 
+/// Player `p`'s Active Pokémon uses `attack`, one of its available attacks (`copied`: a Benched Pokémon's, used as the
+/// Active Pokémon's own, Mew ex's Memory Helix: `attack.card` is that Benched Pokémon): the UseAttack event, then the
+/// records of the attack used (the last attack, of the player and of the Pokémon). `what_if`: a host's what-if use on a
+/// copy of the game (`what_if::attack`): the event's checks are not made and the attack stops before its Knock Out check.
+pub fn use_attack(g: &mut Game, p: usize, attack: AttackRef, copied: bool, what_if: bool) -> R {
+    let pokemon = g.st.active_pokemon(p);
+    let source = SlotRef::new(p, g.st.players[p].active);
+    let delegate_from = if copied { Some(attack.card) } else { None };
+    g.run_fx_unit(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, second_attack: false, delegate_from, what_if })?;
+    g.st.last_attack = Some(attack);
+    if let Some(pc) = pokemon {
+        g.st.player_last_attack[p] = Some((attack, pc));
+        g.st.player_last_attack_turn[p] = g.st.turn;
+    }
+    Ok(())
+}
+
 pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
     if g.st.phase != GamePhase::PlayerTurn {
         return Ok(());
@@ -164,20 +181,11 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             // ChangeActive's consequences).
         }
         Action::Attack { attack, copied } => {
-            let pokemon = g.st.active_pokemon(p);
             let attacks = available_attacks(g, p)?;
             if !offers(attacks.as_slice(), attack, copied) {
                 crate::bail!("UNKNOWN_ATTACK");
             }
-            let source = SlotRef::new(p, g.st.players[p].active);
-            // An attack copied from a Benched Pokémon (Mew ex Memory Helix) runs as the Active Pokémon's.
-            let delegate_from = if copied { Some(attack.card) } else { None };
-            g.run_fx_unit(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, second_attack: false, delegate_from })?;
-            g.st.last_attack = Some(attack);
-            if let Some(pc) = pokemon {
-                g.st.player_last_attack[p] = Some((attack, pc));
-                g.st.player_last_attack_turn[p] = g.st.turn;
-            }
+            use_attack(g, p, attack, copied, false)?;
         }
         Action::UseAbility { power, target } => {
             let card = ability_source(g, p, target)?;

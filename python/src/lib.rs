@@ -288,6 +288,60 @@ impl Env {
         guarded(|| Ok(ptcg::host::unseen_kept(&self.game, viewer, owner).iter().map(|c| ptcg::host::def_of(&self.game, *c).full_name.to_string()).collect()))
     }
 
+    /// What attack `attack` of one of the turn player's Pokémon would do now to one of the opponent's
+    /// (`ptcg::host::attack_what_if`; the game is not changed). Pokémon are named by spot, as in the table view: 0 the
+    /// Active Spot, 1 + i Bench spot i; a Benched attacker is evaluated as if it were the Active Pokémon. `attack` indexes
+    /// the attacks it has as the Active Pokémon (printed, then granted). At most `max_runs` evaluations (one per class of
+    /// coin sequences). Returns a dict: `attack` (its name), `copied`, `attacker_moved`, `target_defending`, `runs`,
+    /// `unexplored` (the probability not evaluated) and `outcomes`, each a dict: `probability`, `damage` (a list of
+    /// (seat, spot, damage)), `target_damage`, `target_hp_left`, `knocked_out` (a list of (seat, spot)),
+    /// `target_knocked_out`, `prizes` (taken by seat 0, seat 1), `winner` (None while the game goes on), `asked` (the
+    /// questions answered with their first valid answer: (seat, purpose name)).
+    #[pyo3(signature = (attacker, attack, target, max_runs=64))]
+    fn attack_what_if<'py>(&self, py: Python<'py>, attacker: usize, attack: usize, target: usize, max_runs: usize) -> PyResult<Bound<'py, PyDict>> {
+        guarded(|| {
+            let g = &*self.game;
+            let ptcg::Pending::Turn(p) = g.pending() else { return Err(PyValueError::new_err("NOT_A_TURN_DECISION")) };
+            let p = p as usize;
+            let spots = |q: usize| -> Vec<u8> {
+                let pl = &g.st.players[q];
+                std::iter::once(pl.active).chain(pl.bench.iter().copied()).collect()
+            };
+            let at = |q: usize, spot: usize| spots(q).get(spot).and_then(|&s| g.st.slot_pokemon(q, s));
+            let a = at(p, attacker).ok_or_else(|| PyValueError::new_err("INVALID_ATTACKER"))?;
+            let t = at(1 - p, target).ok_or_else(|| PyValueError::new_err("INVALID_TARGET"))?;
+            let w = ptcg::host::attack_what_if(g, a, attack, t, max_runs).map_err(err)?;
+            // Each Pokémon's (seat, spot) when the query was asked.
+            let place = |c: u8| -> Option<(usize, usize)> { (0..2).find_map(|q| spots(q).iter().position(|&s| g.st.slot_pokemon(q, s) == Some(c)).map(|i| (q, i))) };
+            let d = PyDict::new(py);
+            d.set_item("attack", ptcg::host::def_of(g, w.attack.card).attacks[w.attack.idx()].name)?;
+            d.set_item("copied", w.copied)?;
+            d.set_item("attacker_moved", w.attacker_moved)?;
+            d.set_item("target_defending", w.target_defending)?;
+            d.set_item("runs", w.runs)?;
+            d.set_item("unexplored", w.unexplored)?;
+            let outs = PyList::empty(py);
+            for o in &w.outcomes {
+                let od = PyDict::new(py);
+                od.set_item("probability", o.probability)?;
+                let damage: Vec<(usize, usize, i32)> = o.damage.iter().filter_map(|&(c, n)| place(c).map(|(q, s)| (q, s, n))).collect();
+                od.set_item("damage", damage)?;
+                od.set_item("target_damage", o.target_damage)?;
+                od.set_item("target_hp_left", o.target_hp_left)?;
+                let kos: Vec<(usize, usize)> = o.knocked_out.iter().filter_map(|&c| place(c)).collect();
+                od.set_item("knocked_out", kos)?;
+                od.set_item("target_knocked_out", o.target_knocked_out)?;
+                od.set_item("prizes", (o.prizes[0], o.prizes[1]))?;
+                od.set_item("winner", o.winner)?;
+                let asked: Vec<(u8, String)> = o.asked.iter().map(|(q, why)| (*q, format!("{why:?}"))).collect();
+                od.set_item("asked", asked)?;
+                outs.append(od)?;
+            }
+            d.set_item("outcomes", outs)?;
+            Ok(d)
+        })
+    }
+
     fn state_hash(&self) -> PyResult<String> {
         guarded(|| Ok({
             self.game.state_hash()

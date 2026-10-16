@@ -142,7 +142,9 @@ pub enum Effect {
     RetreatStart { p: u8 },
     /// `delegate_from`: the copy-attack source card.
     /// `second_attack`: the second attack of the turn of a Pokémon that may attack again (Festival Lead); no third is offered.
-    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, second_attack: bool, delegate_from: Option<CardId> },
+    /// `what_if`: a host's what-if use on a copy of the game (`what_if::attack`): the event's checks are not made and the
+    /// attack stops before its Knock Out check (`attack::finish_attack`).
+    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, second_attack: bool, delegate_from: Option<CardId>, what_if: bool },
     UseStadium { p: u8, stadium: CardId },
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
     Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },

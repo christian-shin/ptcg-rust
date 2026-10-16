@@ -10,6 +10,9 @@
 //! Threads. A [`Game`] is plain data (`Send + Clone`). The chance tape, the chance recording ([`take_chance`]) and the game
 //! record are per-thread buffers: drive one recording game per thread, and read them on the thread that plays.
 //!
+//! Lookahead. [`attack_what_if`] tells what an attack would do now (damage, Knock Outs, Prize cards) on copies of the
+//! game, without playing the turn out.
+//!
 //! Hidden information. [`view`] shows what a seat may see; [`Decision`] and [`PromptRec`] are the engine's own view of a
 //! decision (a host that serves a seat must not show it to the other seat); [`swap_unseen`] and [`determinize`] change
 //! only cards no seat can see.
@@ -26,6 +29,7 @@ pub use crate::spec::passive::RuleSource;
 pub use crate::state::NO_PLAYER;
 pub use crate::types::WINNER_NONE;
 pub use crate::view::{CardView, EnergyUnit, EnergyUnitKind, EnergyView, PokemonView, SeatView, TableView};
+pub use crate::what_if::{AttackOutcome, AttackWhatIf};
 
 use crate::game::R;
 use std::collections::HashMap;
@@ -222,6 +226,16 @@ pub fn unseen_cards(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
 pub fn unseen_kept(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
     let named = g.named_cards();
     g.unseen_cards(viewer, owner).into_iter().filter(|c| named >> c & 1 != 0).collect()
+}
+
+/// What attack `attack` (an index into the attacks the Pokémon has as the Active Pokémon, granted ones included) of
+/// `attacker` (a Pokémon in play of the player whose turn it is; on the Bench: as if it were the Active Pokémon) would do
+/// now to the opposing Pokémon `target`: per class of coin sequences, the damage to each Pokémon, the Knock Outs, the
+/// Prize cards taken, the questions answered on the way; at most `max_runs` evaluations ([`crate::what_if::attack`]). The
+/// attack is used through the engine's own routine on copies, without the checks of using an attack (Energy, locks, the
+/// first-turn rule, Special Conditions) and without the end of the turn; `g` is not changed.
+pub fn attack_what_if(g: &Game, attacker: CardId, attack: usize, target: CardId, max_runs: usize) -> R<AttackWhatIf> {
+    crate::what_if::attack(g, attacker, attack, target, max_runs)
 }
 
 /// Every card definition of the table, indexed by [`DefId`] ([`crate::carddb::cards`]).

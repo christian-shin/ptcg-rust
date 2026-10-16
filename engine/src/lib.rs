@@ -37,6 +37,7 @@ pub mod selfplay;
 pub mod state;
 pub mod types;
 pub mod view;
+pub mod what_if;
 #[cfg(test)]
 mod api_tests;
 

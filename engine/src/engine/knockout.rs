@@ -495,7 +495,7 @@ pub fn on_complete(g: &mut Game, oc: OnComplete) -> R {
 /// or an effect Knocks it Out (`Slot::ko_pending`). An undamaged Pokémon is at 0 HP only when an effect lowers HP: with
 /// no HP modifier declared in the game (`decl::fam::HP`) its HP isn't read.
 #[allow(clippy::type_complexity)]
-fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>, SVec<bool, { crate::state::MAX_SLOT_REFS }>)> {
+pub(crate) fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>, SVec<bool, { crate::state::MAX_SLOT_REFS }>)> {
     let mut out = SVec::new();
     let mut by_hp = SVec::new();
     let hp_fixed = g.decls.sets[crate::decl::fam::HP] == 0;

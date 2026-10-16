@@ -92,21 +92,26 @@ pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: Slot
 }
 
 pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
-    let (p, attack, ignore_status, delegate_from) = match *g.e(id) {
-        Effect::UseAttack { p, attack, ignore_status_conditions, delegate_from, .. } => (p as usize, attack, ignore_status_conditions, delegate_from),
+    let (p, attack, ignore_status, delegate_from, what_if) = match *g.e(id) {
+        Effect::UseAttack { p, attack, ignore_status_conditions, delegate_from, what_if, .. } => (p as usize, attack, ignore_status_conditions, delegate_from, what_if),
         _ => return Ok(()),
     };
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
-    // The UseAttack event's checks (`engine::turn_action::attack_checks`, the function legality calls).
-    let granted = crate::spec::passive::grants_first_turn_attack(g, p, attack);
-    let attacking = match crate::engine::turn_action::attack_checks(g, p, attack, ignore_status, granted)? {
-        Ok(s) => s,
-        Err(code) => crate::bail!(code),
+    // The UseAttack event's checks (`engine::turn_action::attack_checks`, the function legality calls); a what-if use makes
+    // none (the Energy, the locks on using attacks, the first-turn rule, the Special Conditions: no Confusion flip).
+    let attacking = if what_if {
+        SlotRef::new(p, active)
+    } else {
+        let granted = crate::spec::passive::grants_first_turn_attack(g, p, attack);
+        match crate::engine::turn_action::attack_checks(g, p, attack, ignore_status, granted)? {
+            Ok(s) => s,
+            Err(code) => crate::bail!(code),
+        }
     };
     g.retain_fx(id);
     let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id, delegate_from };
-    if sp.contains(&(SpecialCondition::Confused as u8)) {
+    if sp.contains(&(SpecialCondition::Confused as u8)) && !what_if {
         g.prompt(p, PromptPurpose::ConfusionFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::UseAttack(f));
         return Ok(());
     }
@@ -283,10 +288,19 @@ pub fn attack_twice(g: &mut Game, f: &AttackFrame, now: bool) -> bool {
 }
 
 fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
-    let second_attack = match *g.e(f.origin) {
-        Effect::UseAttack { second_attack, .. } | Effect::Attack { second_attack, .. } => second_attack,
-        _ => false,
+    let (second_attack, what_if) = match *g.e(f.origin) {
+        Effect::UseAttack { second_attack, what_if, .. } => (second_attack, what_if),
+        Effect::Attack { second_attack, .. } => (second_attack, false),
+        _ => (false, false),
     };
+    if what_if {
+        // A what-if attack (`what_if::attack`) is over: its Knock Out check waits for the host, which reads the damage
+        // first (`Cont::WhatIfOver`); no second attack, no end of the turn.
+        g.release_fx(f.atk);
+        g.release_fx(f.origin);
+        g.wait(f.p as usize, Cont::WhatIfOver);
+        return Ok(());
+    }
     if attack_twice(g, &f, false) && !second_attack {
         return attack_again_check(g, f, AtkStage::AfterAttackAgainCheck1);
     }
@@ -374,7 +388,7 @@ fn attack_again_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
     }
     let p = f.p as usize;
     let source = SlotRef::new(p, g.st.players[p].active);
-    let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, second_attack: true, delegate_from: None });
+    let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, second_attack: true, delegate_from: None, what_if: false });
     let r = start_use_attack(g, id);
     g.release_fx(id);
     r
@@ -412,6 +426,13 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
         AtkStage::AfterAttackAgainCheck1 | AtkStage::AfterAttackAgainCheck2 => attack_again_after_check(g, f, f.stage),
         AtkStage::AfterAttackAgainConfirm => attack_again_confirm(g, f, res.as_bool()),
     }
+}
+
+/// Does the prompt at `prompt_index` end a what-if attack (`finish_attack`): the attack is over and its Knock Out check
+/// runs when the prompt is resolved?
+pub fn what_if_over(g: &Game, prompt_index: usize) -> bool {
+    let Some(pr) = g.prompts.as_slice().get(prompt_index) else { return false };
+    g.items.iter().any(|it| it.ids.contains(&pr.id) && matches!(it.cont, Cont::WhatIfOver))
 }
 
 /// Has the Ability lost to a lock (`turn_action::ability_checks`): `derived::has_no_ability`.
