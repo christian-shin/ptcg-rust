@@ -1,0 +1,92 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "48 Fighting Energy MEE 6",
+   "4 Iron Defender PBL 110"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "48 Fighting Energy MEE 6",
+   "4 Iron Defender PBL 110"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "supporter_played": true,
+  "energy_attached": true,
+  "hand": [
+   "Iron Defender PBL 110"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 20,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "energy_attached": true,
+  "retreated": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Iron Defender PBL 110"
+  },
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "expect": [
+  {
+   "at": "tiebreaker",
+   "winner": null,
+   "cite": "rulings 234, 820 (both players take their last Prize card at once: a Tiebreaker game follows)"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "me",
+   "lasting_effects": 0,
+   "cite": "APR I-E (a Tiebreaker game is a new game: nothing the old game put for a time carries over; Iron Defender effect for new Pokemon, put before the tie, ends with the old game)"
+  }
+ ]
+}

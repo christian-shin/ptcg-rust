@@ -47,7 +47,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts", "absent",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts", "absent", "lasting_effects",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -86,9 +86,10 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("legal"),
             o.contains_key("bench_count") || o.contains_key("bench_excludes"),
             o.contains_key("prompts") || o.contains_key("absent"),
+            o.contains_key("lasting_effects"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, legal, bench_count, bench_excludes or prompts)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, legal, bench_count, bench_excludes, prompts or lasting_effects)", i));
         }
         let start = o.get("at").and_then(|v| v.as_str()) == Some("start");
         if start && o.contains_key("n") {
@@ -412,6 +413,13 @@ pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
         };
         if actual != o["winner"] {
             return Err(format!("winner: expected {}, actual {}", o["winner"], actual));
+        }
+        Ok(())
+    } else if let Some(n) = o["lasting_effects"].as_u64() {
+        // The lasting table: every effect put for a time (of attacks, of Trainers, declared, recorded, for new Pokémon).
+        let have = g.st.lasting.len() as u64;
+        if have != n {
+            return Err(format!("lasting_effects: expected {}, actual {}", n, have));
         }
         Ok(())
     } else if o.get("bench_count").is_some() || o.get("bench_excludes").is_some() {

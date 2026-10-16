@@ -1122,11 +1122,12 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         g.prompt(p as usize, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, crate::prompts::Provenance::NONE, Cont::ShuffleApplyNoWait { p });
     }
     crate::record::end(g, gathering);
-    // The records of the old game (usage records, the effects cards put for a time, the records of Pokémon) end with it: the
-    // players are new (they held them before the usage records and the lasting table did).
+    // Everything the old game put for a time ends with it (usage records, every lasting entry: the effects of attacks, the
+    // effects cards declared, the records of Pokémon, the entries for new Pokémon): the Tiebreaker game is a new game with
+    // new players (APR I-E).
     g.st.usage.clear();
     g.st.usage_held = [0; 2];
-    g.st.lasting.retain(|l| !matches!(l.what, crate::state::LastingWhat::Declared { .. } | crate::state::LastingWhat::Recorded));
+    g.st.lasting.clear();
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];
     g.st.player_last_attack_turn = [0, 0];
@@ -1395,6 +1396,20 @@ mod tests {
         assert_eq!(g.st.players[me].prize_left(), left, "the Prize card is chosen next");
         assert!(g.prompts.iter().any(|p| !p.answered && matches!(p.kind, PromptKind::ChoosePrize { count: 1, .. })));
         assert!(g.st.slot_pokemon(o, misty.s).is_some());
+    }
+
+    /// A Tiebreaker game is a new game (APR I-E): every lasting entry ends, the effects of attacks and of Trainers included.
+    #[test]
+    fn tiebreaker_ends_every_lasting_entry() {
+        use crate::state::{LastingEffect, LastingOn, LastingWhat};
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX}}));
+        let a = g.st.players[0].active;
+        for on in [LastingOn::pokemon(0, a), LastingOn::Player(1)] {
+            g.st.lasting.push(LastingEffect { on, source: 0, what: LastingWhat::TakesLessDamage(30) });
+        }
+        g.st.lasting.push(LastingEffect { on: LastingOn::pokemon(1, a), source: 0, what: LastingWhat::NoWeakness { armed: true, pending: false } });
+        initiate_sudden_death(&mut g).unwrap();
+        assert!(g.st.lasting.is_empty());
     }
 
     /// Milotic TWM 50's Mentally Calm refuses the LeavePlay of the opponent's Pokémon to the hand before it happens,
