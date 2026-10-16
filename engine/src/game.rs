@@ -1342,16 +1342,8 @@ impl Game {
                 self.st.cards[c as usize] = CardInst { def: *d, owner: p as u8, ..Default::default() };
                 self.st.players[p].deck.push(c);
                 self.st.put_at(c, ListRef::Deck(p as u8));
-                if cards::spec_for(*d).map_or(false, |s| crate::spec::passive::declares_ability_lock(s.passives)) {
-                    self.lock_cards[(c >> 6) as usize] |= 1u64 << (c & 63);
-                }
             }
             self.st.n_cards += deck.len() as u8;
-            for d in deck.iter() {
-                if let Some(imp) = cards::impl_for(*d) {
-                    self.kinds_present |= imp.mask;
-                }
-            }
             if !setup::deck_is_valid(&self.st, deck) {
                 self.st.players_added = p as u8;
                 self.st.phase = GamePhase::Finished;
@@ -1360,10 +1352,29 @@ impl Game {
             }
         }
         self.st.phase = GamePhase::Setup;
-        self.decls = crate::decl::DeclIndex::build(self);
+        self.index_cards();
         self.st.bump_layout();
         setup::start(self)?;
         self.after_dispatch()
+    }
+
+    /// Build the per-card indexes from the cards' definitions: the effect kinds present (`kinds_present`), the cards
+    /// declaring an Ability lock (`lock_cards`) and the declaration index (`decls`, with a new identity so `copy_from`
+    /// carries it into the game's forks). By `start`, and again when a card's identity is rewritten
+    /// (`Game::set_unseen`).
+    pub(crate) fn index_cards(&mut self) {
+        self.kinds_present = crate::effects::KindMask::EMPTY;
+        self.lock_cards = [0; 4];
+        for c in 0..self.st.n_cards {
+            let d = self.st.cards[c as usize].def;
+            if cards::spec_for(d).map_or(false, |s| crate::spec::passive::declares_ability_lock(s.passives)) {
+                self.lock_cards[(c >> 6) as usize] |= 1u64 << (c & 63);
+            }
+            if let Some(imp) = cards::impl_for(d) {
+                self.kinds_present |= imp.mask;
+            }
+        }
+        self.decls = crate::decl::DeclIndex::build(self);
     }
 
     fn after_dispatch(&mut self) -> R {

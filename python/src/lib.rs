@@ -267,6 +267,27 @@ impl Env {
         })
     }
 
+    /// Give `owner`'s cards that `viewer` cannot see the identities `cards` (full card names, one per card, as many as
+    /// `unseen_count(viewer, owner)`), dealt among their places with `seed`; cards the game still refers to keep their
+    /// identity and must be listed (`unseen_kept`). ValueError on a refused list; the game is then unchanged.
+    fn set_unseen(&mut self, viewer: usize, owner: usize, cards: Vec<String>, seed: u32) -> PyResult<()> {
+        guarded(|| {
+            let defs = parse_deck(&cards)?;
+            ptcg::host::set_unseen(&mut self.game, viewer, owner, &defs, seed).map_err(err)?;
+            self.refresh()
+        })
+    }
+
+    /// How many of `owner`'s cards `viewer` cannot see (the length `set_unseen` takes).
+    fn unseen_count(&self, viewer: usize, owner: usize) -> PyResult<usize> {
+        guarded(|| Ok(ptcg::host::unseen_cards(&self.game, viewer, owner).len()))
+    }
+
+    /// The full names of those unseen cards whose identity the game keeps (`set_unseen` must list them).
+    fn unseen_kept(&self, viewer: usize, owner: usize) -> PyResult<Vec<String>> {
+        guarded(|| Ok(ptcg::host::unseen_kept(&self.game, viewer, owner).iter().map(|c| ptcg::host::def_of(&self.game, *c).full_name.to_string()).collect()))
+    }
+
     fn state_hash(&self) -> PyResult<String> {
         guarded(|| Ok({
             self.game.state_hash()

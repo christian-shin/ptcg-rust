@@ -201,6 +201,29 @@ pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
     crate::search::determinize(g, viewer, seed)
 }
 
+/// Give the cards of `owner` that `viewer` cannot see (the places [`swap_hidden`] trades) the identities `cards`, as many
+/// as there are such cards, dealt among those places at random with `seed`; what the viewer can see, and the chance
+/// stream, are untouched. A card the viewer saw that the game still refers to (a Trainer card played this turn, the
+/// source of a lasting effect, the last attack's card) keeps its identity and must be listed. Errors change nothing:
+/// `NO_SUCH_PLAYER`, `UNKNOWN_CARD`, `UNSEEN_COUNT_MISMATCH`, `NAMED_CARD_NOT_LISTED`, `RECORD_NOT_TAKEN` (take the
+/// record first) ([`Game::set_unseen`]).
+pub fn set_unseen(g: &mut Game, viewer: usize, owner: usize, cards: &[DefId], seed: u32) -> R {
+    g.set_unseen(viewer, owner, cards, seed)
+}
+
+/// The cards of `owner` that `viewer` cannot see, the ones [`set_unseen`] takes identities for ([`Game::unseen_cards`];
+/// empty for a seat that doesn't exist).
+pub fn unseen_cards(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
+    g.unseen_cards(viewer, owner)
+}
+
+/// Those of [`unseen_cards`] the game refers to by identity ([`Game::named_cards`]): [`set_unseen`] keeps their
+/// identities, so its list must hold them.
+pub fn unseen_kept(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
+    let named = g.named_cards();
+    g.unseen_cards(viewer, owner).into_iter().filter(|c| named >> c & 1 != 0).collect()
+}
+
 /// Every card definition of the table, indexed by [`DefId`] ([`crate::carddb::cards`]).
 pub fn cards() -> &'static [CardDef] {
     crate::carddb::cards()
@@ -338,6 +361,85 @@ mod tests {
         }
         let mine = g.st.players[0].deck.get(0).unwrap();
         assert!(swap_hidden(&mut g, 0, mine, b).is_err());
+    }
+
+    /// A deck of the benchmark (`bench/spec.json`, by name).
+    fn bench_deck(name: &str) -> Vec<DefId> {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("bench/spec.json");
+        let v: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+        let d = v["decks"].as_array().unwrap().iter().find(|d| d["name"] == name).unwrap();
+        d["cards"].as_array().unwrap().iter().map(|n| card_by_name(n.as_str().unwrap()).unwrap()).collect()
+    }
+
+    /// Games go on to the end after, at each of the first turn decisions, the other seat's unseen cards are given the
+    /// identities of a third deck (keeping those the game refers to): random play, the invariants checked at every turn
+    /// decision, no error, the game finishes.
+    #[test]
+    fn games_play_on_after_set_unseen() {
+        let (a, b, third) = (bench_deck("meta-alakazam-powerful-hand"), bench_deck("meta-dragapult-ex"), bench_deck("meta-marnie-s-grimmsnarl-ex"));
+        for seed in [4u32, 9, 23] {
+            let mut g = start_game([&a, &b], seed, &StartOptions::default()).unwrap();
+            let mut x = seed as u64 * 0x9E37_79B9_7F4A_7C15 + 1;
+            let mut rnd = |n: usize| {
+                x = x.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                (x >> 33) as usize % n
+            };
+            let mut turns = 0usize;
+            let mut over = false;
+            for _ in 0..20_000 {
+                match next(&mut g).unwrap() {
+                    Decision::Over { .. } => {
+                        over = true;
+                        break;
+                    }
+                    Decision::Turn { player, .. } => {
+                        crate::invariants::check(&g).unwrap();
+                        turns += 1;
+                        let (v, o) = (player as usize, 1 - player as usize);
+                        if turns <= 10 {
+                            let hidden = unseen_cards(&g, v, o);
+                            let kept = unseen_kept(&g, v, o);
+                            let mut list: Vec<DefId> = kept.iter().map(|c| g.st.cards[*c as usize].def).collect();
+                            list.extend(third.iter().cycle().skip(turns).take(hidden.len() - kept.len()));
+                            set_unseen(&mut g, v, o, &list, seed + turns as u32).unwrap();
+                            crate::invariants::check(&g).unwrap();
+                        }
+                        let Decision::Turn { actions, .. } = next(&mut g).unwrap() else { panic!("still the turn") };
+                        let pass = actions.iter().position(|a| matches!(a, Action::Pass)).unwrap();
+                        let k = if actions.len() == 1 || rnd(5) == 0 { pass } else { rnd(actions.len()) };
+                        act(&mut g, actions[k]).unwrap();
+                    }
+                    Decision::Prompt { select, .. } => {
+                        let mut picks = Vec::new();
+                        loop {
+                            let (mask, done) = pick_mask(&g, &select, &picks);
+                            if picks.len() >= select.min_count && (picks.len() >= select.max_count || (done && rnd(3) == 0)) {
+                                break;
+                            }
+                            let valid: Vec<usize> = (0..mask.len()).filter(|i| mask[*i]).collect();
+                            if valid.is_empty() {
+                                break;
+                            }
+                            picks.push(valid[rnd(valid.len())]);
+                        }
+                        answer(&mut g, &select, &picks).unwrap();
+                    }
+                }
+            }
+            assert!(over && turns > 10, "seed {seed}: the game did not finish ({turns} turns)");
+        }
+    }
+
+    /// While the game record holds entries not taken, `set_unseen` is refused (they name card ids whose identity would
+    /// change); once taken, it goes ahead.
+    #[test]
+    fn set_unseen_waits_for_the_record() {
+        let d = deck();
+        let mut g = start_game([&d, &d], 3, &StartOptions { record_events: true, ..Default::default() }).unwrap();
+        let list: Vec<DefId> = unseen_cards(&g, 0, 1).iter().map(|c| g.st.cards[*c as usize].def).collect();
+        assert_eq!(set_unseen(&mut g, 0, 1, &list, 1), Err(GameError("RECORD_NOT_TAKEN")));
+        assert!(!take_record(&mut g).is_empty());
+        set_unseen(&mut g, 0, 1, &list, 1).unwrap();
     }
 
     /// Abilities and card rules are told apart by `power_source`.

@@ -10,6 +10,17 @@ b = ptcg.read_deck(os.path.join(root, "decks", "t1-01.txt"))
 env = ptcg.Env(a, b, seed=1)
 assert env.select() is not None
 assert env.observe(0).shape == (ptcg.OBS_SIZE,)
+# Seat 1's cards unseen by seat 0 take deck a's identities (the kept ones first); a short list is refused.
+n = env.unseen_count(0, 1)
+kept = env.unseen_kept(0, 1)
+names = kept + (a * 2)[: n - len(kept)]
+try:
+    env.set_unseen(0, 1, names[1:], 7)
+    raise AssertionError("a short list was accepted")
+except ValueError:
+    pass
+env.set_unseen(0, 1, names, 7)
+assert env.unseen_count(0, 1) == n
 steps = 0
 while not env.done:
     env.step_random(steps)
