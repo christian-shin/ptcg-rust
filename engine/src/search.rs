@@ -152,29 +152,40 @@ impl Game {
     }
 }
 
-/// Uniformly random determinization for `viewer`, and a fresh chance seed.
+/// Uniformly random determinization for `viewer`, and a fresh chance seed. Only cards the viewer cannot see move
+/// (`Game::unseen_at` with the viewer, the rule `Game::swap_hidden` uses): a face-up or public Prize card, a deck an
+/// open prompt lists and every card outside hand, deck and Prize cards stay where they are; the hidden cards of each
+/// zone are re-dealt among the hidden places, keeping every zone's size.
 pub fn determinize(g: &mut Game, viewer: usize, seed: u32) -> R {
     let mut rng = Rng::new(seed);
     for owner in 0..2 {
         let (hand_hidden, _) = hidden_zones(viewer, owner);
         let pl = &g.st.players[owner];
-        let mut pool: Vec<CardId> = pl.deck.iter().collect();
-        let prize_sizes: Vec<usize> = (0..pl.prize_count as usize).map(|i| pl.prizes[i].len()).collect();
-        for i in 0..pl.prize_count as usize {
-            pool.extend(pl.prizes[i].iter());
+        let mut deck: Vec<CardId> = pl.deck.iter().collect();
+        let mut prizes: Vec<Vec<CardId>> = (0..pl.prize_count as usize).map(|i| pl.prizes[i].iter().collect()).collect();
+        let mut hand: Vec<CardId> = pl.hand.iter().collect();
+        // Places holding a hidden card, in a fixed order, and those cards.
+        let mut places: Vec<Unseen> = vec![];
+        let mut pool: Vec<CardId> = vec![];
+        let all = deck.iter().enumerate().map(|(i, c)| (*c, Unseen::Deck(i)))
+            .chain(prizes.iter().enumerate().flat_map(|(i, v)| v.iter().enumerate().map(move |(k, c)| (*c, Unseen::Prize(i, k)))))
+            .chain(hand.iter().enumerate().map(|(i, c)| (*c, Unseen::Hand(i))));
+        for (c, at) in all {
+            if g.unseen_at(c, Some(viewer)) == Some(at) {
+                places.push(at);
+                pool.push(c);
+            }
         }
-        let hand_len = pl.hand.len();
-        if hand_hidden {
-            pool.extend(pl.hand.iter());
-        }
-        let deck_len = pl.deck.len();
         for i in (1..pool.len()).rev() {
             pool.swap(i, rng.index(i + 1));
         }
-        let mut it = pool.into_iter();
-        let deck: Vec<CardId> = (&mut it).take(deck_len).collect();
-        let prizes: Vec<Vec<CardId>> = prize_sizes.iter().map(|n| (&mut it).take(*n).collect()).collect();
-        let hand: Vec<CardId> = if hand_hidden { (&mut it).take(hand_len).collect() } else { vec![] };
+        for (at, c) in places.into_iter().zip(pool) {
+            match at {
+                Unseen::Deck(i) => deck[i] = c,
+                Unseen::Prize(i, k) => prizes[i][k] = c,
+                Unseen::Hand(i) => hand[i] = c,
+            }
+        }
         set_hidden(g, viewer, owner, &deck, &prizes, if hand_hidden { Some(&hand) } else { None })?;
     }
     g.rng = Rng::new(rng.next_u32());
@@ -283,5 +294,40 @@ mod tests {
         for (i, c) in g.st.players[o].deck.as_slice().to_vec().into_iter().enumerate() {
             assert_eq!(g.locate_card(c).unwrap().index as usize, i);
         }
+    }
+
+    /// A face-up Prize card and a Prize card an effect made public stay where they are; the hidden cards are
+    /// re-dealt among the hidden places and keep their multiset.
+    #[test]
+    fn determinize_keeps_visible_cards() {
+        let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN]}, "opp": {"reset": true, "active": MON, "hand": [POFFIN, MON]}}));
+        let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
+        g.st.players[o].prize_face_up[0] = true;
+        g.st.players[o].prize_public[2] = true;
+        let kept: Vec<(usize, CardId)> = [0usize, 2].iter().map(|i| (*i, g.st.players[o].prizes[*i].as_slice()[0])).collect();
+        let hidden = |g: &Game| {
+            let pl = &g.st.players[o];
+            let mut h: Vec<CardId> = pl.deck.iter().chain(pl.hand.iter()).collect();
+            for i in [1usize, 3, 4, 5] {
+                h.extend(pl.prizes[i].iter());
+            }
+            h
+        };
+        let mut before = hidden(&g);
+        before.sort();
+        let mut moved = false;
+        for seed in 1..20 {
+            let old = hidden(&g);
+            determinize(&mut g, v, seed).unwrap();
+            for (i, c) in &kept {
+                assert_eq!(g.st.players[o].prizes[*i].as_slice()[0], *c);
+                assert_eq!(g.locate_card(*c).unwrap().zone, Zone::Prizes);
+            }
+            let mut after = hidden(&g);
+            moved |= after != old;
+            after.sort();
+            assert_eq!(after, before);
+        }
+        assert!(moved, "hidden cards are still re-dealt");
     }
 }
