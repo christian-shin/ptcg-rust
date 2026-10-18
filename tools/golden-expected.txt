@@ -1,5 +1,5 @@
 # Games of the golden corpus (tools/golden-corpus.txt) that the engine is expected to diverge on,
 # each a rules fix against the recording. Update in the same commit as a rules fix.
-# baseline 43d34af recorded 2026-10-15 after events batch 10 E1-E4, E6, E1fix (retreat in APR A-03's order: the cost, then
-# the Benched Pokémon; the hand-lock scope of Team Rocket's Arbok / Bronzong); the previous baseline 47392f7 (0
-# attributed) is banked in git history.
+# baseline 06d4018 recorded 2026-10-18 after events batch 10 E14 (a Retreat Cost paid with different Energy cards asks
+# which, APR A-03 step 2; a choice of cards a prevention stops entirely isn't asked); the previous baseline 43d34af (297
+# attributed to E14's retreat question) is banked in git history.
