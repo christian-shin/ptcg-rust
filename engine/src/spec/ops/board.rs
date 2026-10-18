@@ -1779,7 +1779,7 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
         }
         // No Pokémon there: the card is put onto the empty spot.
         None => {
-            crate::engine::enter::enter_play(g, chosen, t, super::super::event::EnterMode::Effect, f.cause)?;
+            crate::engine::enter::put_into_play(g, me, &[(chosen, t)], f.cause)?;
         }
     }
     Ok(Flow::Next)

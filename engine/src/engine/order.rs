@@ -15,11 +15,16 @@
 //! - E-04 the effects activated by Knock Outs, step 2 of the Knock Out process: the player whose turn is being played;
 //! - E-21 the effects at the end of a turn: the player whose turn is ending;
 //! - F, Pokémon Checkup step 2: the player whose turn would be next, who also decides for each effect whether it comes
-//!   before or after checking all Special Conditions (a pseudo item of the same prompt).
+//!   before or after checking all Special Conditions (a pseudo item of the same prompt);
+//! - the effects activated by Pokémon an effect puts into play ("whenever a player puts a Pokémon onto their Bench"), after
+//!   that effect is done (JP FAQ Risky Ruins x Call for Family x Solrock / Lunatone with New Moon: the Pokémon are all on the
+//!   Bench first): the player whose turn it is (compendium 1853, 1923: simultaneous effects, the player chooses; as for the
+//!   effects of attaching Energy, APR E-07: "the player whose turn it is currently decides").
 //!
 //! E-03 and E-04 are driven by their callers' loops (the attack's step 7, the state check), which call [`step`] until
-//! [`pending`] is false and wait for the prompts a step opened; E-21 and F are chained ([`next`]: a step, the effect's
-//! prompts answered, the next step; [`crate::engine::phase::window_done`] when nothing is left).
+//! [`pending`] is false and wait for the prompts a step opened; E-21, F and the put-into-play window are chained ([`next`]:
+//! a step, the effect's prompts answered, the next step; [`crate::engine::phase::window_done`] when nothing is left). The
+//! put-into-play window opens when the effect's program ends ([`after_effect`]).
 
 use crate::effects::{AtkBase, EffId, Effect};
 use crate::game::{Cont, Game, OnComplete, R};
@@ -42,6 +47,24 @@ pub enum Item {
     /// The lasting trigger "when this Pokémon is Knocked Out" armed on the Pokémon of the KnockOut `e`
     /// (`knockout::lasting_ko_trigger`).
     LastingKo { e: EffId },
+    /// Trigger `i` of card `c` over the EnterPlay of a Pokémon an effect put into play, recorded when it entered and applied
+    /// after the effect ([`Window::PutIntoPlay`]).
+    Entered(EnteredTrigger),
+}
+
+/// A trigger over the EnterPlay of a Pokémon an effect put into play: the card and its trigger, the program's player, and the
+/// event as it was (the program reads it again when it applies: the EnterPlay event is made once more for it,
+/// `run::fire_entered`).
+#[derive(Clone, Copy, Debug)]
+pub struct EnteredTrigger {
+    pub c: CardId,
+    pub i: u8,
+    pub p: u8,
+    pub card: CardId,
+    pub target: crate::effects::SlotRef,
+    pub from: crate::state::ListRef,
+    pub source: crate::spec::event::RulesZone,
+    pub cause: crate::cause::Cause,
 }
 
 /// A trigger over the Damage an attack did (E-03): the card and its trigger, and the Damage as it was when it was done (the
@@ -61,6 +84,8 @@ pub enum Tag {
     KnockOut,
     EndTurn,
     Checkup,
+    /// The Pokémon the program of the card put into play.
+    PutIntoPlay(CardId),
 }
 
 /// Whether the window asks for the order of its effects, and for a window that does, whether the effect applies.
@@ -96,6 +121,8 @@ pub enum Window {
     /// choice exists only then); the rest of Pokémon Checkup follows (the Special Conditions' amounts per player, the
     /// Checkup events, the continuation).
     Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2], several: bool, sc: bool },
+    /// The effects activated by the Pokémon the program of card `by` put into play, once that program is done.
+    PutIntoPlay { by: CardId },
 }
 
 impl Window {
@@ -105,6 +132,7 @@ impl Window {
             Window::KnockOut => Tag::KnockOut,
             Window::EndTurn { .. } => Tag::EndTurn,
             Window::Checkup { .. } => Tag::Checkup,
+            Window::PutIntoPlay { by } => Tag::PutIntoPlay(by),
         }
     }
 
@@ -112,7 +140,8 @@ impl Window {
     /// the damage gets to choose in which order to apply those effects"); the player whose turn is currently being played
     /// (E-04: "the player whose turn is currently being played gets to decide in which order to apply those effects"; a
     /// Knock Out at Pokémon Checkup, in neither player's turn, is the next player's as everything at Checkup is: F step 2,
-    /// D step 5); the player whose turn is ending (E-21); the player whose turn would be next (F step 2, E-08).
+    /// D step 5); the player whose turn is ending (E-21); the player whose turn would be next (F step 2, E-08); the player
+    /// whose turn it is for the effects of Pokémon put into play (compendium 1853, 1923).
     pub fn chooser(&self, g: &Game) -> usize {
         match *self {
             Window::Damaged { atk } => match *g.e(atk) {
@@ -123,12 +152,13 @@ impl Window {
             Window::KnockOut => g.st.active_player as usize,
             Window::EndTurn { p, .. } => p as usize,
             Window::Checkup { .. } => 1 - g.st.active_player as usize,
+            Window::PutIntoPlay { .. } => g.st.active_player as usize,
         }
     }
 
     /// The windows a step does not continue by itself: the caller's loop waits for the step's prompts and steps again.
     fn chains(&self) -> bool {
-        matches!(self, Window::EndTurn { .. } | Window::Checkup { .. })
+        matches!(self, Window::EndTurn { .. } | Window::Checkup { .. } | Window::PutIntoPlay { .. })
     }
 
     /// The Special Conditions check is an item of the order now (Checkup, an Active Pokémon has a Special Condition).
@@ -163,6 +193,7 @@ fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
         (Item::Damaged(a), Item::Damaged(b)) => a.i == b.i && def_of(g, a.c) == def_of(g, b.c) && a.b.target.p == b.b.target.p,
         (Item::Retaliation(a), Item::Retaliation(b)) => def_of(g, a.lasting.source) == def_of(g, b.lasting.source) && a.target.p == b.target.p,
         (Item::LastingKo { e: a }, Item::LastingKo { e: b }) => matches!((*g.e(*a), *g.e(*b)), (Effect::KnockOut { p: x, .. }, Effect::KnockOut { p: y, .. }) if x == y),
+        (Item::Entered(a), Item::Entered(b)) => a.i == b.i && a.p == b.p && def_of(g, a.c) == def_of(g, b.c),
         _ => false,
     }
 }
@@ -174,6 +205,7 @@ fn source_card(g: &Game, item: &Item) -> Option<CardId> {
         Item::Damaged(t) => Some(t.c),
         Item::Retaliation(t) => Some(t.lasting.source),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e),
+        Item::Entered(t) => Some(t.c),
     }
 }
 
@@ -184,6 +216,7 @@ fn fire(g: &mut Game, item: Item) -> R {
         Item::Damaged(t) => run::fire_damaged(g, &t),
         Item::Retaliation(t) => crate::engine::damage::retaliate(g, &t),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_trigger(g, e),
+        Item::Entered(t) => run::fire_entered(g, &t),
     }
 }
 
@@ -259,15 +292,17 @@ fn indices(g: &Game, tag: Tag) -> SVec<usize, 32> {
     idx
 }
 
-/// A window of step 7 records is decided at its first step: ordered when two or more distinct effects apply now.
+/// A window of records (step 7's, the put-into-play window's) is decided at its first step: ordered when two or more distinct
+/// effects apply now.
 fn decide(g: &mut Game, idx: &[usize]) {
     let mut items: SVec<(Item, bool), 32> = SVec::new();
     for &i in idx {
         let item = g.pending.as_slice()[i].item;
-        // Only a step 7 record is recorded undecided; a single effect is never asked about.
+        // Only a record is undecided; a single effect is never asked about.
         let x = match item {
             Item::Damaged(t) if idx.len() >= 2 => run::damaged_applies(g, &t),
             Item::Retaliation(t) if idx.len() >= 2 => crate::engine::damage::retaliation_applies(g, &t),
+            Item::Entered(t) if idx.len() >= 2 => run::entered_applies(g, &t),
             _ => false,
         };
         items.push((item, x));
@@ -360,6 +395,16 @@ pub fn chosen(g: &mut Game, mut w: Window, choice: i32) -> R {
     Ok(())
 }
 
+/// The program of card `by` is done: the effects activated by the Pokémon it put into play apply now (the put-into-play
+/// window), in the order recorded or, with two or more distinct effects that apply, in the order the turn player picks.
+/// A plain read when no window waits.
+pub fn after_effect(g: &mut Game, by: CardId) -> R {
+    if g.pending.is_empty() || !pending(g, Tag::PutIntoPlay(by)) {
+        return Ok(());
+    }
+    next(g, Window::PutIntoPlay { by })
+}
+
 /// A chained window after an effect: once its prompts are answered, the next step, or what follows the last.
 pub fn next(g: &mut Game, mut w: Window) -> R {
     if g.has_prompts() {
@@ -424,6 +469,105 @@ mod tests {
         assert!(asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 1), true)]));
         assert!(!asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 0), true)]));
         assert!(!asks(&g, &[(t(maractus[0], 0, 0), true), (t(maractus[1], 0, 1), false)]), "an effect that doesn't apply isn't asked about");
+    }
+
+    /// A board with Risky Ruins in play and Duskull in the turn player's deck (Basic [P] Pokémon, 60 HP).
+    fn ruins_game() -> (Game, usize, Vec<CardId>) {
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Duskull PRE 35", "stadium": "Risky Ruins MEG 127"}, "opp": {"reset": true, "active": "Duskull PRE 35"}});
+        // At the turn player's first turn decision, no question open.
+        let g = crate::place::tests::game_of(&[("Duskull PRE 35", 4), ("Risky Ruins MEG 127", 4), ("Buddy-Buddy Poffin TEF 144", 4)], sc);
+        assert!(!g.has_prompts());
+        let me = g.st.active_player as usize;
+        let duskull = crate::carddb::def_by_full_name("Duskull PRE 35").unwrap();
+        let active = g.st.active_pokemon(me);
+        let others: Vec<CardId> = (0..g.st.cards.len() as CardId).filter(|c| g.st.cards[*c as usize].def == duskull && g.st.owner(*c) == me && Some(*c) != active).collect();
+        (g, me, others)
+    }
+
+    fn bench_puts(g: &Game, me: usize, cards: &[CardId]) -> Vec<(CardId, crate::effects::SlotRef)> {
+        let open = crate::prefabs::empty_bench_slots(g, me);
+        cards.iter().zip(open.iter()).map(|(c, s)| (*c, crate::effects::SlotRef::new(me, *s))).collect()
+    }
+
+    /// One effect puts two Pokémon onto the Bench with Risky Ruins in play: the damage counters wait until the effect is done
+    /// and are then placed on each (JP FAQ Risky Ruins MEG 127: Call for Family's two Basic Pokémon get counters each; with
+    /// Solrock and a Lunatone with New Moon put together, New Moon works: the Pokémon are all on the Bench first). A single
+    /// Pokémon put by an effect waits the same way (one rule).
+    #[test]
+    fn the_triggers_of_pokemon_an_effect_puts_onto_the_bench_wait_for_the_effect() {
+        for n in [2usize, 1] {
+            let (mut g, me, deck) = ruins_game();
+            let by = (0..g.st.cards.len() as CardId).find(|c| g.st.cdef(*c).full_name == "Buddy-Buddy Poffin TEF 144" && g.st.owner(*c) == me).unwrap();
+            let ps = bench_puts(&g, me, &deck[..n]);
+            let cause = crate::cause::Cause::new(crate::cause::CauseKind::Trainer, Some(by), me as u8);
+            crate::engine::enter::put_into_play(&mut g, by, &ps, cause).unwrap();
+            for (c, t) in &ps {
+                assert_eq!(g.st.slot_pokemon(me, t.s), Some(*c), "on the Bench");
+                assert_eq!(g.st.slot(me, t.s).damage, 0, "no counters while the effect isn't done");
+            }
+            assert!(pending(&g, Tag::PutIntoPlay(by)));
+            after_effect(&mut g, by).unwrap();
+            assert!(!g.has_prompts(), "identical effects of one card for one player aren't ordered");
+            for (_, t) in &ps {
+                assert_eq!(g.st.slot(me, t.s).damage, 20, "2 damage counters on each once the effect is done");
+            }
+            assert!(g.pending.is_empty());
+        }
+    }
+
+    /// Buddy-Buddy Poffin with Risky Ruins in play: the effect is done after "Then, shuffle your deck" (no rule puts the
+    /// effects between the Bench puts and the shuffle), so the counters go on after the shuffle, on both Pokémon.
+    #[test]
+    fn the_counters_of_a_search_onto_the_bench_go_on_after_its_shuffle() {
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Duskull PRE 35", "stadium": "Risky Ruins MEG 127", "hand": ["Buddy-Buddy Poffin TEF 144"]}, "opp": {"reset": true, "active": "Duskull PRE 35"}});
+        let mut g = crate::place::tests::game_of(&[("Duskull PRE 35", 4), ("Risky Ruins MEG 127", 4), ("Buddy-Buddy Poffin TEF 144", 4)], sc);
+        let me = g.st.active_player as usize;
+        let k = g.st.players[me].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
+        g.act(play).unwrap();
+        let sel = g.select_with(false).unwrap().unwrap();
+        let mut picks = Vec::new();
+        while picks.len() < 2 {
+            let (mask, _) = g.pick_mask(&sel, &picks);
+            picks.push((0..mask.len()).find(|j| mask[*j] && !picks.contains(j)).expect("two Duskull to pick"));
+        }
+        g.answer(&sel, &picks).unwrap();
+        let bench: Vec<u8> = g.st.players[me].bench.iter().copied().filter(|s| g.st.slot_pokemon(me, *s).is_some()).collect();
+        assert_eq!(bench.len(), 2, "both on the Bench");
+        let crate::game::Pending::Chance(i) = g.pending() else { panic!("the shuffle waits") };
+        assert!(matches!(g.prompts.as_slice()[i].kind, PromptKind::ShuffleDeck));
+        assert!(bench.iter().all(|s| g.st.slot(me, *s).damage == 0), "no counters before the shuffle");
+        g.settle().unwrap();
+        assert!(bench.iter().all(|s| g.st.slot(me, *s).damage == 20), "2 damage counters on each after the effect");
+    }
+
+    /// Two distinct effects waiting in the put-into-play window: the turn player picks the order (compendium 1853, 1923). No
+    /// pool card has a second "put onto the Bench" trigger an effect's put reaches (Risky Ruins is the only one; the others
+    /// say "when you play this Pokémon from your hand"), so the second item is made distinct by hand (another player's).
+    #[test]
+    fn two_distinct_effects_of_pokemon_put_into_play_are_ordered_by_the_turn_player() {
+        let (mut g, me, deck) = ruins_game();
+        let by = deck[2];
+        let ruins = g.st.stadium_card().unwrap();
+        let ps = bench_puts(&g, me, &deck[..2]);
+        let cause = crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(by), me as u8);
+        crate::engine::enter::put_into_play(&mut g, by, &ps, cause).unwrap();
+        assert_eq!(g.pending.len(), 2);
+        assert!(g.pending.as_slice().iter().all(|p| matches!(p.item, Item::Entered(e) if e.c == ruins)));
+        if let Item::Entered(e) = &mut g.pending.as_mut_slice()[1].item {
+            e.p = 1 - e.p;
+        }
+        after_effect(&mut g, by).unwrap();
+        let last = g.prompts.len() - 1;
+        let sel = g.prompt_select(last);
+        assert_eq!(sel.context, crate::interface::SelectContext::SkillOrder);
+        assert_eq!(g.prompts.as_slice()[last].player as usize, me, "the turn player orders them");
+        // The second first: each effect applies, the window ends.
+        g.resolve(last, crate::prompts::Res::Int(1)).unwrap();
+        for (_, t) in &ps {
+            assert_eq!(g.st.slot(me, t.s).damage, 20);
+        }
+        assert!(g.pending.is_empty() && !g.has_prompts());
     }
 
     /// The order question's options name the card whose effect each is (`Opt::source`); nothing else of them is set.

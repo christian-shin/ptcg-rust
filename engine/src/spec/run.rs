@@ -536,7 +536,8 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 /// propagation order. The event's
 /// consequences are applied by now (a Pokémon is on the board, so the ordinary in-play locks at its slot decide
 /// whether its Ability triggers; docs/rulings/RULES.md, On-play Abilities, and "Putting onto the Bench": Risky
-/// Ruins after the Pokémon is on the Bench).
+/// Ruins after the Pokémon is on the Bench). The triggers over the Pokémon an effect puts into play wait until that effect
+/// is done (`put_window`).
 pub fn after_event(g: &mut Game, e: EffId) -> R {
     let kind = g.e(e).kind();
     if !crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) || g.prevented(e) {
@@ -628,13 +629,41 @@ fn damaged_window(g: &Game, e: EffId) -> Option<(EffId, AtkBase, i32)> {
     }
 }
 
+/// The put-into-play window of the effect putting Pokémon into play while the EnterPlay `e` is done (`Game::put_by`): the
+/// effects activated by Pokémon an effect puts into play apply once that effect is done, all of them on the Bench (JP FAQ
+/// Risky Ruins x Call for Family x Solrock / Lunatone with New Moon; `order::after_effect`). The trigger `i` of card `c`
+/// for player `p`, as recorded.
+fn put_window(g: &Game, e: EffId, c: CardId, i: u8, p: u8) -> Option<(CardId, order::EnteredTrigger)> {
+    let by = g.put_by?;
+    match *g.e(e) {
+        Effect::EnterPlay { card, target, from, source, cause, .. } => Some((by, order::EnteredTrigger { c, i, p, card, target, from, source, cause })),
+        _ => None,
+    }
+}
+
+/// The EnterPlay event a put-into-play window's trigger was recorded on, made again as it was.
+fn entered_event(t: &order::EnteredTrigger) -> Effect {
+    Effect::EnterPlay { p: t.target.p, card: t.card, target: t.target, from: t.from, source: t.source, mode: super::event::EnterMode::Effect, cause: t.cause }
+}
+
+/// Apply a trigger recorded in the put-into-play window: the EnterPlay event made again as it was, and the trigger re-checked
+/// against the board now (`fires_on`).
+pub(crate) fn fire_entered(g: &mut Game, t: &order::EnteredTrigger) -> R {
+    fire_recorded(g, t.c, t.i, entered_event(t))
+}
+
+/// Fire trigger `i` of card `c` recorded on the event `ev`, made again as it was, if it still fires.
+fn fire_recorded(g: &mut Game, c: CardId, i: u8, ev: Effect) -> R {
+    let e = g.new_fx(ev);
+    let r = fire_trigger(g, c, i, e);
+    g.release_fx(e);
+    r
+}
+
 /// Apply a trigger recorded in the E-03 window: the Damage event made again as it was (`DamagedTrigger`), and the trigger
 /// re-checked against the board now (still attached, not blocked: `fires_on`).
 pub(crate) fn fire_damaged(g: &mut Game, d: &order::DamagedTrigger) -> R {
-    let e = g.new_fx(Effect::Damage { b: d.b, amount: d.amount, survive: false });
-    let r = fire_trigger(g, d.c, d.i, e);
-    g.release_fx(e);
-    r
+    fire_recorded(g, d.c, d.i, Effect::Damage { b: d.b, amount: d.amount, survive: false })
 }
 
 /// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
@@ -683,6 +712,10 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
             if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
                 if let Some((atk, b, amount)) = damaged_window(g, e) {
                     order::record(g, order::Tag::Damaged(atk), order::Item::Damaged(order::DamagedTrigger { c, i: i as u8, b, amount }));
+                    continue;
+                }
+                if let Some((by, entered)) = put_window(g, e, c, i as u8, p as u8) {
+                    order::record(g, order::Tag::PutIntoPlay(by), order::Item::Entered(entered));
                     continue;
                 }
                 let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
@@ -736,15 +769,26 @@ pub(crate) fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
 /// Does a trigger recorded in the E-03 window apply now (APR E-03: "the effects activating when a Pokémon is damaged"): it
 /// fires on the Damage as the board is now and its program can change the game (`applies`).
 pub(crate) fn damaged_applies(g: &mut Game, d: &order::DamagedTrigger) -> bool {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[d.c as usize].def) else { return false };
-    let Some(tr) = spec.triggers.get(d.i as usize) else { return false };
-    let e = g.new_fx(Effect::Damage { b: d.b, amount: d.amount, survive: false });
+    recorded_applies(g, d.c, d.i, Effect::Damage { b: d.b, amount: d.amount, survive: false })
+}
+
+/// Does a trigger recorded in the put-into-play window apply now: it fires on the EnterPlay as the board is now and its
+/// program can change the game (`applies`).
+pub(crate) fn entered_applies(g: &mut Game, t: &order::EnteredTrigger) -> bool {
+    recorded_applies(g, t.c, t.i, entered_event(t))
+}
+
+/// Does trigger `i` of card `c`, recorded on the event `ev` (made again as it was), apply now?
+fn recorded_applies(g: &mut Game, c: CardId, i: u8, ev: Effect) -> bool {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { return false };
+    let Some(tr) = spec.triggers.get(i as usize) else { return false };
+    let e = g.new_fx(ev);
     let mut yes = false;
     if let Some(v) = trigger::event_view(g, e) {
-        if let Ok(Some((p, slot))) = trigger::fires_on(g, d.c, &v, tr) {
-            let mut f = Frame::start(g, d.c, Prog::Trigger(d.i), Phase::Use, e, p, false);
+        if let Ok(Some((p, slot))) = trigger::fires_on(g, c, &v, tr) {
+            let mut f = Frame::start(g, c, Prog::Trigger(i), Phase::Use, e, p, false);
             f.slot = slot;
-            yes = applies(g, d.c, &f, tr.steps);
+            yes = applies(g, c, &f, tr.steps);
         }
     }
     g.release_fx(e);
@@ -1124,7 +1168,8 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
                 _ => {}
             }
-            return Ok(());
+            // The program is done: the effects activated by the Pokémon it put into play apply now.
+            return order::after_effect(g, me);
         }
         let step = &list[i];
         if f.depth == 0 && !runs_in(step.at, f.phase) {

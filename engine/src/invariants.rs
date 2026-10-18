@@ -68,5 +68,9 @@ pub fn check(g: &Game) -> Result<(), String> {
     if matches!(g.pending(), Pending::Turn(_)) && !g.fx.is_empty() {
         return Err(format!("{} effects on the stack at a turn decision", g.fx.len()));
     }
+    // An effect's put-into-play window is applied when the effect is done, before the next turn decision.
+    if matches!(g.pending(), Pending::Turn(_)) && g.pending.as_slice().iter().any(|p| matches!(p.tag, crate::engine::order::Tag::PutIntoPlay(_))) {
+        return Err("effects of Pokémon put into play still waiting at a turn decision".into());
+    }
     Ok(())
 }

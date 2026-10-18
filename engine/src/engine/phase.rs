@@ -305,7 +305,7 @@ pub(crate) fn checkup_conditions(g: &mut Game, w: &mut crate::engine::order::Win
 }
 
 /// What follows a chained window whose effects are all applied: the rest of the end of the turn (the EndTurn event `e`
-/// released), or the rest of Pokémon Checkup.
+/// released), the rest of Pokémon Checkup, or nothing (the put-into-play window).
 pub(crate) fn window_done(g: &mut Game, w: crate::engine::order::Window) -> R {
     match w {
         crate::engine::order::Window::EndTurn { p, e } => {
@@ -317,8 +317,9 @@ pub(crate) fn window_done(g: &mut Game, w: crate::engine::order::Window) -> R {
             g.release_fx(e[1]);
             checkup_finish(g, oc)
         }
-        // The attack's and the state check's windows end in their callers' loops.
-        crate::engine::order::Window::Damaged { .. } | crate::engine::order::Window::KnockOut => Ok(()),
+        // The attack's and the state check's windows end in their callers' loops; the put-into-play window's effect is done
+        // already (what follows it waits for the prompts, `Game::waits`).
+        crate::engine::order::Window::Damaged { .. } | crate::engine::order::Window::KnockOut | crate::engine::order::Window::PutIntoPlay { .. } => Ok(()),
     }
 }
 

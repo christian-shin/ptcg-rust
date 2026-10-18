@@ -304,6 +304,9 @@ pub struct Game {
     pub order_pending: bool,
     /// Pokémon Checkup holds its effects back to order them (two or more apply; `phase`).
     pub checkup_held: bool,
+    /// The card whose program is putting Pokémon into play (`engine::enter::put_into_play`): the triggers over their EnterPlay
+    /// events wait in its put-into-play window until the program is done (`engine::order::after_effect`).
+    pub put_by: Option<CardId>,
     /// Events a prevention stopped so far (`derived::event_prevented`; read by `PTCG_VERIFY_LEGAL=1` only).
     pub prevented_events: u32,
     /// `PTCG_VERIFY_LEGAL=1` only: the cards whose Ability-origin declarations `passive::locate` treats as not in place,
@@ -427,6 +430,7 @@ impl Game {
                 survive_groups,
                 order_pending,
                 checkup_held,
+                put_by,
                 record,
             } = src;
             f!((*d).st).write(*st);
@@ -468,6 +472,7 @@ impl Game {
             f!((*d).survive_groups).write(*survive_groups);
             f!((*d).order_pending).write(*order_pending);
             f!((*d).checkup_held).write(*checkup_held);
+            f!((*d).put_by).write(*put_by);
             // The destination keeps its own recording flag (like the chance recording); a recording game restored from a
             // copy keeps the entries made up to the copy (a rolled back action's go).
             let on = (*d).record.on;
@@ -527,6 +532,7 @@ impl Game {
             survive_groups: SVec::new(),
             order_pending: false,
             checkup_held: false,
+            put_by: None,
             record: crate::record::Recorder::default(),
         }
     }
