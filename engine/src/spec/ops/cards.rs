@@ -525,6 +525,15 @@ fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
         }
 }
 
+/// The cards put onto player `p`'s Bench, each with the empty spot it goes to (as many as there are spots).
+fn bench_puts(p: usize, cards: &[CardId], open: &[SlotId]) -> SVec<(CardId, SlotRef), 8> {
+    let mut out: SVec<(CardId, SlotRef), 8> = SVec::new();
+    for (c, s) in cards.iter().zip(open.iter()) {
+        out.push((*c, SlotRef::new(p, *s)));
+    }
+    out
+}
+
 fn open_shuffle(g: &mut Game, me: CardId, f: &Frame, p: usize, sub: u8) {
     g.prompt(p, PromptPurpose::Shuffle, PromptKind::ShuffleDeck, Provenance::NONE, f.cont(me, sub));
 }
@@ -641,9 +650,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(pz.who);
             let cards: Vec<CardId> = reg_list(g, f, pz.cards).to_vec();
             let open = empty_bench_slots(g, p);
-            for (c, s) in cards.iter().zip(open.iter()) {
-                crate::engine::enter::enter_play(g, *c, SlotRef::new(p, *s), super::super::event::EnterMode::Effect, f.cause)?;
-            }
+            let puts = bench_puts(p, &cards, open.as_slice());
+            crate::engine::enter::put_into_play(g, me, puts.as_slice(), f.cause)?;
             Ok(Flow::Next)
         }
         Op::DiscardEnergy(d) if d.selection.is_moved() => ec_exec(g, me, f, d),
@@ -1123,9 +1131,8 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
         SearchDestination::Bench => {
             let open = empty_bench_slots(g, p);
             // Put onto the Bench by the effect, from whatever zone the search started in (id2233).
-            for (c, slot) in chosen.iter().zip(open.iter()) {
-                crate::engine::enter::enter_play(g, *c, SlotRef::new(p, *slot), super::super::event::EnterMode::Effect, f.cause)?;
-            }
+            let puts = bench_puts(p, chosen, open.as_slice());
+            crate::engine::enter::put_into_play(g, me, puts.as_slice(), f.cause)?;
         }
         SearchDestination::Hand { reveal: r } => {
             reveal(g, r);

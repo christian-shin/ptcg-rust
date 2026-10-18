@@ -3,7 +3,8 @@
 //! An attack's "up to 3" may be 0 (id2219, id2301); an attack that can do nothing (no Duskull in the discard pile, no
 //! empty Bench spot) is still used and opens no prompt (id2313, id361). Each Duskull goes onto the Bench through the
 //! EnterPlay event (mode effect, source the discard pile), so "puts onto the Bench" effects see it: Risky Ruins places its
-//! counters (id2233).
+//! counters (id2233) on each, once all of them are on the Bench (the attack's effect is done; `engine::order`'s put-into-play
+//! window).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

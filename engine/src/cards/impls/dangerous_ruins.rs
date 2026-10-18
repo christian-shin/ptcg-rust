@@ -3,7 +3,9 @@
 //!
 //! A Stadium trigger over the EnterPlay event: a Basic non-[D] Pokémon entering a Bench spot of its owner during the owner's
 //! turn, whatever the source (hand, deck, discard pile: id2233; a Fossil: id2429), after it is on the Bench
-//! (docs/rulings/RULES.md). Retreating or switching isn't putting onto the Bench (id2329), nor is devolving (id2328): neither is
+//! (docs/rulings/RULES.md). Pokémon an effect puts onto the Bench get the counters once that effect is done, all of them on
+//! the Bench and the effect's "Then, shuffle your deck" included (JP FAQ Risky Ruins x Call for Family x Solrock / Lunatone
+//! with New Moon; `engine::order`'s put-into-play window). Retreating or switching isn't putting onto the Bench (id2329), nor is devolving (id2328): neither is
 //! EnterPlay.
 use crate::spec::prelude::*;
 

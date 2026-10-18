@@ -18,7 +18,9 @@ pub enum Event {
     /// the end of an attack's after-attack effects): the steps run once the event is done (after its consequences), in the
     /// propagation order of the declaring cards (`run::after_event`). The program runs for the event's owner when the
     /// declaring card is a Stadium ("that player"), else for the declaring card's owner; the event's spot is the picked
-    /// slot. A trigger over the Damage an attack does applies in the attack's E-03 window (`run::fire_on`).
+    /// slot. A trigger over the Damage an attack does applies in the attack's E-03 window (`run::fire_on`); one over the
+    /// EnterPlay of a Pokémon an effect puts into play, once that effect is done (the put-into-play window,
+    /// `engine::order::after_effect`).
     On(super::event::EventPred),
 }
 

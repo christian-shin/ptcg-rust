@@ -9,7 +9,8 @@
 //!
 //! The routines:
 //! - [`enter_play`]: a Pokémon card goes onto an empty spot (played from the hand by the rule, put there by
-//!   an effect from any zone, set up). [`play_from_hand`] is the turn action of playing a Pokémon card.
+//!   an effect from any zone, set up). [`play_from_hand`] is the turn action of playing a Pokémon card;
+//!   [`put_into_play`] is an effect putting Pokémon into play (their triggers wait until the effect is done).
 //! - [`evolve`]: an Evolution card goes onto a Pokémon (the rule path: from the hand by the rule or Rare
 //!   Candy; the effect path: put onto it by an effect).
 //! - [`devolve`]: Evolution cards leave a Pokémon (an attack's effect, Strange Timepiece).
@@ -424,7 +425,7 @@ pub fn play_from_hand(g: &mut Game, p: usize, card: CardId, target: SlotRef) -> 
 // ---------------------------------------------------------------------------
 // The routines
 
-/// EnterPlay by an effect (or a Fossil played as a Pokémon): `card` goes onto the empty spot `target` (its
+/// EnterPlay by an effect ([`put_into_play`]) or a Fossil played as a Pokémon: `card` goes onto the empty spot `target` (its
 /// owner's) from wherever it is, `mode` saying how. The locks and restrictions are checked first: a refused
 /// event doesn't happen (`Ok(false)`; an effect does as much as it can), nor does it for a card that is
 /// nowhere (already moved away).
@@ -436,6 +437,23 @@ pub fn enter_play(g: &mut Game, card: CardId, target: SlotRef, mode: EnterMode, 
     }
     run_enter(g, card, target, mode, cause)?;
     Ok(true)
+}
+
+/// An effect (the program of card `by`) puts Pokémon into play: each card of `puts` goes onto its empty spot by an EnterPlay
+/// (mode effect), refused ones staying where they are. The triggers over these events wait until the effect is done, all
+/// the Pokémon in play first (JP FAQ Risky Ruins x Call for Family x Solrock / Lunatone with New Moon: no damage counters,
+/// New Moon works), and apply then in the order the turn player chooses (compendium 1853, 1923; `order::after_effect`).
+pub fn put_into_play(g: &mut Game, by: CardId, puts: &[(CardId, SlotRef)], cause: Cause) -> R {
+    let outer = g.put_by.replace(by);
+    let mut r = Ok(());
+    for &(card, target) in puts {
+        r = enter_play(g, card, target, EnterMode::Effect, cause).map(|_| ());
+        if r.is_err() {
+            break;
+        }
+    }
+    g.put_by = outer;
+    r
 }
 
 /// EnterPlay at setup: a starting Pokémon put down from the hand (the setup rules chose it; nothing locks it).
