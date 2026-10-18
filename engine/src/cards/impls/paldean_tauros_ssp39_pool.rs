@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Cond::Slot(OPP_ACTIVE, SlotPred::Top(Pred::StageIs(crate::types::Stage::Stage2))),
                 Cond::Cmp(Num::EnergyOn(SlotSel::One(OPP_ACTIVE), EnergyUnit::ProvidedUnits), CmpOp::Gt, Num::Lit(0)),
             ]),
-            yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::ChooseToHand { count: 2, ty: crate::types::ct::COLORLESS, up_to: true }, ..DiscardEnergySpec::DEFAULT }))],
+            yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: crate::types::ct::COLORLESS, up_to: true }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT }))],
             no: &[],
         }))],
     }],

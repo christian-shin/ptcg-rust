@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Retaliate(80) })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS, up_to: false }, ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE

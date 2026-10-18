@@ -349,8 +349,10 @@ pub enum EnergySelection {
     Special,
     /// "Discard N Energy from this Pokémon": the player pays `count` Energy of type `ty` from the
     /// Energy the Pokémon provides (a ChooseEnergy prompt, no cancel; never more cards than `count`).
-    /// With a type other than [C], nothing happens when no Energy provides it.
-    Choose { count: u8, ty: CardType },
+    /// With a type other than [C], nothing happens when no Energy provides it. The cards go where `to` says
+    /// (the discard pile, or their owner's hand: Ninja Spinner, Upthrusting Horns); with `up_to` the payment is
+    /// at most `count` cards (fewer when the Pokémon provides fewer Energy).
+    Choose { count: u8, ty: CardType, up_to: bool },
     /// "Discard any amount / up to N Energy ...; N damage for each card discarded": a DiscardEnergy
     /// prompt (not cancellable, 0 allowed). The attack's damage becomes `damage_per` times the
     /// number of cards discarded (0 when nothing is discarded).
@@ -358,10 +360,6 @@ pub enum EnergySelection {
     /// "Shuffle all Energy from this Pokémon into your deck": every Energy card of the Pokémon goes
     /// to the deck, which is then shuffled (both after the damage of an attack).
     AllIntoDeck,
-    /// Like `Choose`, but the cards go to the hand of the Pokémon's owner (a LeavePlay of the attached cards
-    /// for that hand); with `up_to` the payment is at most `count` (fewer when the Pokémon
-    /// provides fewer Energy).
-    ChooseToHand { count: u8, ty: CardType, up_to: bool },
     /// "Discard up to `max` Pokémon Tools from your opponent's Pokémon" (`target` is ignored): a
     /// prompt over the Tools in play; each chosen Tool is checked against an effect that prevents
     /// the attack's effects on its Pokémon (Mist Energy) before it is discarded.
@@ -2379,10 +2377,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
         }
         EnergySelection::Among(a) => return among_exec(g, me, f, slot, a),
         EnergySelection::OppTools { max } => return Ok(if opp_tools_prompt(g, me, f, *max) { Flow::Suspend } else { Flow::Next }),
-        EnergySelection::Choose { count, ty } => {
-            return Ok(if discard_choose_prompt(g, me, f, d, slot, *count, *ty, false)? { Flow::Suspend } else { Flow::Next });
-        }
-        EnergySelection::ChooseToHand { count, ty, up_to } => {
+        EnergySelection::Choose { count, ty, up_to } => {
             return Ok(if discard_choose_prompt(g, me, f, d, slot, *count, *ty, *up_to)? { Flow::Suspend } else { Flow::Next });
         }
         EnergySelection::Prompt { .. } | EnergySelection::Chosen { .. } | EnergySelection::FromBench { .. } => {
@@ -2419,7 +2414,8 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
 fn de_carry_out(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec, items: &[u8]) -> R {
     match &d.selection {
         EnergySelection::OppTools { .. } => opp_tools_carry_out(g, me, f, items),
-        EnergySelection::ChooseToHand { .. } => {
+        // The chosen Energy goes to its owner's hand (Ninja Spinner, Upthrusting Horns).
+        _ if d.to == EnergyDest::Hand => {
             if let Some(slot) = de_slot(g, me, f, d) {
                 to_hand_of(g, f, slot, items)?;
             }
@@ -2461,11 +2457,7 @@ fn de_resume(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec, fir
 fn de_choice(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<Flow> {
     let asked = match &d.selection {
         EnergySelection::OppTools { max } => opp_tools_prompt(g, me, f, *max),
-        EnergySelection::Choose { count, ty } => match de_slot(g, me, f, d) {
-            Some(slot) => discard_choose_prompt(g, me, f, d, slot, *count, *ty, false)?,
-            None => return Ok(Flow::Next),
-        },
-        EnergySelection::ChooseToHand { count, ty, up_to } => match de_slot(g, me, f, d) {
+        EnergySelection::Choose { count, ty, up_to } => match de_slot(g, me, f, d) {
             Some(slot) => discard_choose_prompt(g, me, f, d, slot, *count, *ty, *up_to)?,
             None => return Ok(Flow::Next),
         },
@@ -2545,9 +2537,9 @@ impl DiscardEnergySpec {
 pub enum EnergyDest {
     /// The Pokémon owner's discard pile (a LeavePlay for the discard pile).
     Discard,
-    /// The hand of the player the program runs for.
+    /// The cards' owner's hand (a LeavePlay for that hand).
     Hand,
-    /// The deck of the player the program runs for.
+    /// The cards' owner's deck.
     Deck,
     /// Onto a Pokémon.
     Slot(SlotExpr),

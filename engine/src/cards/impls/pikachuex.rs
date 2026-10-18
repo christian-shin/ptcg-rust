@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PikachuEx",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::COLORLESS, up_to: false }, ..DiscardEnergySpec::DEFAULT }))],
     }],
     passives: &[
         Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::IfFullHp }) },

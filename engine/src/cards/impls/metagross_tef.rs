@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MetagrossTEF",
     attacks: &[AttackSpec {
         index: 1,
-        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: crate::types::ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: crate::types::ct::COLORLESS, up_to: false }, ..DiscardEnergySpec::DEFAULT }))],
     }],
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, bonus: 60 }) }],
     ..CardSpec::NONE

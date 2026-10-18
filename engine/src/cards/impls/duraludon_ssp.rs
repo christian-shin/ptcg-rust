@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Duralubeam: discard 2 Energy from this Pokémon.
     attacks: &[AttackSpec {
         index: 1,
-        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS, up_to: false }, ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

@@ -223,6 +223,51 @@ fn a_you_may_asks_about_its_card() {
     assert_eq!(sel.provenance, Provenance::by(kadabra).about(kadabra));
 }
 
+/// Uses the attack `name` of the Active Pokémon of the player whose turn it is; returns that Pokémon.
+fn attack(g: &mut Game, name: &str) -> crate::list::CardId {
+    let p = g.st.active_player as usize;
+    let mon = g.st.active_pokemon(p).unwrap();
+    let action = crate::options::legal_actions(g)
+        .into_iter()
+        .map(|o| o.action)
+        .find(|a| matches!(a, crate::game::Action::Attack { attack, .. } if g.st.cdef(attack.card).attacks[attack.idx()].name == name))
+        .unwrap();
+    g.act(action).unwrap();
+    mon
+}
+
+/// An attack's Energy question is the attacking Pokémon's, and says where the Energy goes: Ember discards it ("discard an
+/// Energy from this Pokémon"), Ninja Spinner puts it into the hand ("you may put a [W] Energy attached to this Pokémon
+/// into your hand").
+#[test]
+fn an_attacks_energy_question_names_the_attacker_and_where_the_energy_goes() {
+    use crate::prompts::Provenance;
+    use crate::purpose::PromptPurpose;
+    const CYNDAQUIL: &str = "Ethan's Cyndaquil DRI 32";
+    let cards = [(CYNDAQUIL, 4), ("Fire Energy MEE 2", 8)];
+    let mut g = crate::place::tests::game_of(&cards, serde_json::json!({"me": {"reset": true, "active": CYNDAQUIL}, "opp": {"reset": true, "active": CYNDAQUIL}}));
+    to_next_own_turn(&mut g);
+    crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": CYNDAQUIL, "active_energy": ["Fire Energy MEE 2", "Fire Energy MEE 2"]}, "opp": {"reset": true, "active": CYNDAQUIL}})).unwrap();
+    let mon = attack(&mut g, "Ember");
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), PromptPurpose::DiscardEnergy);
+    assert_eq!(sel.provenance, Provenance::by(mon));
+
+    const GRENINJA: &str = "Mega Greninja ex CRI 22";
+    let cards = [(GRENINJA, 4), (CYNDAQUIL, 4), ("Water Energy MEE 3", 8)];
+    let mut g = crate::place::tests::game_of(&cards, serde_json::json!({"me": {"reset": true, "active": CYNDAQUIL}, "opp": {"reset": true, "active": CYNDAQUIL}}));
+    to_next_own_turn(&mut g);
+    crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": GRENINJA, "active_energy": ["Water Energy MEE 3", "Water Energy MEE 3", "Water Energy MEE 3"]}, "opp": {"reset": true, "active": GRENINJA}})).unwrap();
+    let mon = attack(&mut g, "Ninja Spinner");
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), PromptPurpose::Activate, "the attack's \"you may\"");
+    let yes = sel.options.iter().position(|o| o.kind == crate::interface::OptionType::Yes as u8).unwrap();
+    g.answer(&sel, &[yes]).unwrap();
+    let sel = g.select().unwrap().unwrap();
+    assert_eq!(asked(&g), PromptPurpose::PutIntoHand);
+    assert_eq!(sel.provenance, Provenance::by(mon));
+}
+
 /// The host facade (`ptcg::host`): its decision and view types move between threads, and a game started through it plays
 /// a few hundred decisions on another thread with no other call.
 #[test]
