@@ -35,6 +35,7 @@ pub mod scenario;
 pub mod search;
 pub mod selfplay;
 pub mod state;
+pub mod table_rules;
 pub mod types;
 pub mod view;
 pub mod what_if;

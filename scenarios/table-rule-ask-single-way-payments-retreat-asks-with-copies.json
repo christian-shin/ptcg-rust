@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"ask_single_way_payments": true},
+ "decks": [
+  ["4 Larvitar JTG 80", "56 Psychic Energy MEE 5"],
+  ["4 Larvitar JTG 80", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Larvitar JTG 80", "active_energy": ["2 Psychic Energy MEE 5"], "bench": [{"card": "Larvitar JTG 80"}]},
+ "opp": {"reset": true, "active": "Larvitar JTG 80"},
+ "answers": [{"a": "retreat"}, [0], [{"player": 2, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "turn_end", "prompts": ["ChooseEnergy", "ChoosePokemon"], "cite": "table rule ask_single_way_payments (on): a Retreat Cost of 1 payable only with copies of one card is asked anyway; off it isn't (RULES.md 'Options that can't do anything', user decision 2)"},
+  {"at": "turn_end", "who": "me", "zone": "discard", "count": 1, "cite": "APR A-03 (the Retreat Cost of 1 is paid with one Energy card)"}
+ ]
+}

@@ -30,6 +30,7 @@ pub use crate::state::NO_PLAYER;
 pub use crate::types::WINNER_NONE;
 pub use crate::view::{CardView, EnergyUnit, EnergyUnitKind, EnergyView, PokemonView, SeatView, TableView};
 pub use crate::what_if::{AttackOutcome, AttackWhatIf};
+pub use crate::table_rules::TableRules;
 
 use crate::game::R;
 use std::collections::HashMap;
@@ -45,6 +46,8 @@ pub struct StartOptions {
     pub record_chance: bool,
     /// Record the game ([`take_record`]) from the first setup step on.
     pub record_events: bool,
+    /// The game's table rules ([`crate::table_rules::TableRules`]; the default is the rulings).
+    pub rules: crate::table_rules::TableRules,
 }
 
 /// What the game waits for ([`next`]).
@@ -78,6 +81,7 @@ impl Decision {
 /// affects the calling thread (see the module note); an earlier tape of the thread is replaced.
 pub fn start_game(decks: [&[DefId]; 2], seed: u32, opts: &StartOptions) -> R<Game> {
     let mut g = Game::new(seed);
+    g.st.rules = opts.rules;
     set_tape(opts.tape.clone());
     if opts.record_chance {
         g.rng = g.rng.record();
@@ -316,7 +320,7 @@ mod tests {
     /// not a pass (a pass at every fourth turn), with the record read on the way.
     fn play(seed: u32, tape: Option<Vec<Draw>>) -> (Game, Vec<Draw>, usize, usize) {
         let d = deck();
-        let opts = StartOptions { tape, record_chance: true, record_events: true };
+        let opts = StartOptions { tape, record_chance: true, record_events: true, ..Default::default() };
         let mut g = start_game([&d, &d], seed, &opts).unwrap();
         let mut entries = 0;
         let mut turns = 0usize;

@@ -256,6 +256,10 @@ pub fn apply(g: &mut Game, sc: &Value) -> Result<(), String> {
     if sc["sudden_death"].as_bool() == Some(true) {
         g.st.is_sudden_death = true;
     }
+    // The table rules the scenario plays under (`table_rules`; none of them changes the setup before the edits).
+    if !sc["rules"].is_null() {
+        g.st.rules = crate::table_rules::TableRules::from_json(&sc["rules"])?;
+    }
     g.rng.force_coins(&coins);
     // The edited board is the position the game starts from: its locks take hold now.
     crate::spec::passive::lock_sync(g);

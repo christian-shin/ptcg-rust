@@ -59,3 +59,16 @@ while not env.done:
     assert steps < 100000, "game did not end"
 assert what_ifs > 0, "no what-if query answered"
 print("ok", sys.version.split()[0], "steps", steps, "winner", env.winner, "what-ifs", what_ifs)
+# Every table rule on: a game plays to the end; an unknown rule name is refused.
+try:
+    ptcg.Env(a, b, seed=1, rules={"no_such_rule": True})
+    raise AssertionError("an unknown table rule was accepted")
+except ValueError:
+    pass
+on = ptcg.Env(a, b, seed=2, rules={n: True for n in ptcg.TABLE_RULES})
+steps = 0
+while not on.done:
+    on.step_random(steps)
+    steps += 1
+    assert steps < 100000, "game with every table rule did not end"
+print("ok table rules", list(ptcg.TABLE_RULES), "steps", steps, "winner", on.winner)
