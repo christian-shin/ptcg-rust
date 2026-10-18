@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Brilliant Blender SSP 164",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "1 Brilliant Blender SSP 164",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Brilliant Blender SSP 164"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Brilliant Blender SSP 164"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "ShowCards"
+   ],
+   "cite": "Brilliant Blender SSP 164 text: search your deck for up to 5 cards and discard them (no reveal printed); id787 reveals only from a public zone to a hidden one"
+  }
+ ]
+}
