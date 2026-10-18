@@ -313,6 +313,24 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
 }
 
+/// Does gaining `sc` (its rule placing `counters`) change the slot's Pokémon? Yes when it isn't affected by `sc`, or is
+/// with another number of counters (id1044: a new single-counter Poison replaces a multi-counter one). A Special
+/// Condition put on a Pokémon that already has it the same way changes nothing (id1045: Hypnotoxic Laser can't be played
+/// on an Asleep and Poisoned Pokémon; id2014, id1778: an already Burned Pokémon isn't Burned again): the game record
+/// keeps no entry for it.
+pub fn gain_changes(slot: &Slot, sc: SpecialCondition, counters: u8) -> bool {
+    if !slot.special_conditions.contains(&(sc as u8)) {
+        return true;
+    }
+    let hp = counters as i32 * 10;
+    match sc {
+        SpecialCondition::Poisoned => slot.poison_damage != hp,
+        SpecialCondition::Burned => slot.burn_damage != hp,
+        SpecialCondition::Confused => slot.confusion_damage != hp,
+        SpecialCondition::Asleep | SpecialCondition::Paralyzed => false,
+    }
+}
+
 /// The slot's Pokémon is now affected by `sc`, whose rule places `counters` damage counters (Poison and Burn at
 /// each Checkup, Confusion when the attack fails). Asleep, Confused and Paralyzed replace one another (the newest
 /// stays); Poisoned and Burned stack with them. Gaining a condition the Pokémon has sets its counters again.

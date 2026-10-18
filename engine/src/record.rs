@@ -481,6 +481,8 @@ pub(crate) fn before_consequences(g: &mut Game, id: EffId) {
         PlayTrainer { card, use_, .. } => out.push((RecordEntry { card: Some(card), detail: Detail::Trainer(use_), ..base }, false)),
         KnockOut { target: t, .. } => out.push((RecordEntry { card: top(g, t), target: top(g, t), ..base }, false)),
         Heal { target: t, damage, .. } => out.push((RecordEntry { card: top(g, t), target: top(g, t), amount: damage, ..base }, false)),
+        // A Special Condition the Pokémon already has, the same way, changes nothing: no entry (`condition::gain_changes`).
+        GainCondition { target: t, condition, counters, .. } if !crate::engine::condition::gain_changes(g.st.slot(t.p as usize, t.s), condition, counters) => {}
         GainCondition { target: t, condition, .. } | RemoveCondition { target: t, condition, .. } => {
             out.push((RecordEntry { card: top(g, t), target: top(g, t), detail: Detail::Condition(condition), ..base }, false))
         }

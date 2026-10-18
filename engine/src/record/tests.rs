@@ -230,3 +230,24 @@ fn off_by_default_trials_never_record_rollback_rewinds() {
     assert_eq!((e[0].kind, e[0].from.unwrap().zone, e[0].seen_by), (EventKind::EnterPlay, Zone::Hand, ALL));
     assert!(matches!(e[0].to.unwrap().zone, Zone::InPlay { spot: crate::place::Spot::Bench(_), role: crate::place::InPlayAs::Pokemon }));
 }
+
+/// A Special Condition put on a Pokémon that already has it the same way changes nothing and is not recorded (id1045,
+/// id2014, id1778); a new one, or the same with another number of counters (id1044), is.
+#[test]
+fn a_condition_already_there_is_not_recorded_again() {
+    use crate::types::SpecialCondition;
+    let mut g = board();
+    let opp = 1 - g.st.active_player as usize;
+    let mine = Cause::new(CauseKind::Trainer, None, 1 - opp as u8);
+    let t = crate::effects::SlotRef::new(opp, g.st.players[opp].active);
+    g.record_on();
+    assert!(crate::engine::condition::gain(&mut g, t, SpecialCondition::Confused, mine).unwrap());
+    assert_eq!(g.take_record().iter().filter(|e| e.kind == EventKind::GainCondition).count(), 1);
+    assert!(crate::engine::condition::gain(&mut g, t, SpecialCondition::Confused, mine).unwrap());
+    assert_eq!(g.take_record().iter().filter(|e| e.kind == EventKind::GainCondition).count(), 0, "already Confused");
+    let slot = g.st.slot(opp, t.s);
+    assert!(crate::engine::condition::gain_changes(slot, SpecialCondition::Poisoned, 1));
+    assert!(!crate::engine::condition::gain_changes(slot, SpecialCondition::Confused, 3));
+    assert!(crate::engine::condition::gain_changes(slot, SpecialCondition::Confused, 4), "another number of counters");
+    assert!(crate::engine::condition::gain_changes(slot, SpecialCondition::Asleep, 0), "Asleep replaces Confused");
+}
