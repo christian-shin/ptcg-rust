@@ -947,7 +947,9 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32), 4>>
             took_last_prize = true;
             continue;
         }
-        if count > 0 && opponent_has_no_pokemon_in_play(g, i) {
+        // The game is decided (the opponent has no Pokémon in play): which Prize cards can't change it, they are taken
+        // without a question, unless the table asks it (`TableRules::prizes_chosen_when_opponent_has_no_pokemon`).
+        if count > 0 && opponent_has_no_pokemon_in_play(g, i) && !g.st.rules.prizes_chosen_when_opponent_has_no_pokemon {
             let ix = first_prizes(g, i, count as usize);
             take_prizes_chosen(g, i, ix.as_slice(), cause)?;
             continue;

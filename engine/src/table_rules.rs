@@ -26,17 +26,26 @@ pub struct TableRules {
     /// nothing and the turn ends (APR A-01: an attack needs its Energy; RULES.md "Options that can't do anything" is about
     /// questions and the uses of Trainers and Abilities, not attacks).
     pub hide_attacks_that_can_do_nothing: bool,
+    /// The Prize cards for a Knock Out that leaves the opponent no Pokémon in play are chosen (the Prize question), as
+    /// for any other Knock Out, before the game ends.
+    ///
+    /// Off (the rulings): once the opponent has no Pokémon in play the game is decided (APR E: the winner is determined
+    /// after every effect; `knockout::check_winner`), so which face-down Prize cards are taken can't change it: they are
+    /// taken without a question (RULES.md "Options that can't do anything", user decision 2). The winner is the same
+    /// either way. Taking every Prize card left is never asked.
+    pub prizes_chosen_when_opponent_has_no_pokemon: bool,
 }
 
 impl TableRules {
     /// Every option's name, in the order of the fields.
-    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing"];
+    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing", "prizes_chosen_when_opponent_has_no_pokemon"];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
     pub fn set(&mut self, name: &str, on: bool) -> Result<(), String> {
         let field = match name {
             "ask_single_way_payments" => &mut self.ask_single_way_payments,
             "hide_attacks_that_can_do_nothing" => &mut self.hide_attacks_that_can_do_nothing,
+            "prizes_chosen_when_opponent_has_no_pokemon" => &mut self.prizes_chosen_when_opponent_has_no_pokemon,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
