@@ -1099,6 +1099,28 @@ pub fn attack_gate<F: crate::derived::Facts>(g: &mut F, me: CardId, attack: crat
     Ok(Gate::Open)
 }
 
+/// Could player `p`'s attack `attack`, used by the Pokémon in `attacking`, do anything: it does damage (its printed
+/// damage), or the rules' walk of `usable_by_rules` over its text finds every choice the text starts with has something
+/// to choose and an effect that would change the game (a text with no effect op can). Read only under the table rule
+/// `TableRules::hide_attacks_that_can_do_nothing` (`engine::turn_action::attack_checks`). The text runs as the card that
+/// prints the attack when it is in `attacking`, else as the Pokémon there (the copycat), in the frame the attack's
+/// program would have (its cause; no effect yet).
+pub(crate) fn attack_can_do_something(g: &Game, p: usize, attacking: crate::effects::SlotRef, attack: crate::state::AttackRef) -> bool {
+    if crate::engine::attack::attack_def(g, attack).damage != 0 {
+        return true;
+    }
+    let Some(spec) = crate::cards::spec_for(g.st.cards[attack.card as usize].def) else { return true };
+    let Some((i, a)) = spec.attacks.iter().enumerate().find(|(_, a)| a.index == attack.idx() as u8) else { return true };
+    let stack = g.st.slot(attacking.p as usize, attacking.s);
+    let me = if stack.cards().contains(attack.card) || stack.tools().contains(attack.card) {
+        attack.card
+    } else {
+        g.st.slot_pokemon(attacking.p as usize, attacking.s).unwrap_or(attack.card)
+    };
+    let f = Frame::for_check(Prog::Attack(i as u8), Phase::BeforeDamage, p, Cause { kind: CauseKind::Attack, card: Some(me), player: p as u8, attack: Some(attack) }, [NO_CARD; 2]);
+    usable_by_rules(g, me, &f, a.steps)
+}
+
 /// `CardImpl::resume` of every spec card.
 pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };

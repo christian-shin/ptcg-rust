@@ -327,6 +327,16 @@ fn arm_each(g: &mut Game, me: CardId, f: &Frame, a: &'static ArmEachSpec) -> R {
     Ok(())
 }
 
+/// Would the op change the game now (`ops::effect_possible`)? A lasting effect put on a Pokémon or a player (`Arm`,
+/// `ArmEach`: an ApplyEffect) and a card's effect declared for a time (`Declare`: "during this turn, your attacks do 30
+/// more damage") do; a usage record, a record of a Pokémon and an attack flag are bookkeeping, no effect by themselves.
+pub(crate) fn effect_possible(op: &Op) -> Option<bool> {
+    match op {
+        Op::Arm(_) | Op::ArmEach(_) | Op::Declare(_) => Some(true),
+        _ => None,
+    }
+}
+
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> R<Flow> {
     match op {
         Op::AttackFlag(a) if a.flag == AttackFlagKind::OptionChosen => {

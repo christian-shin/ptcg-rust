@@ -806,6 +806,9 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         },
         // A lock on moving damage counters (Patrat's Watchful Eye) forbids the move: nothing would change (batch 8 C10).
         Op::MoveCounters(_) => implied_ok(g, me, f, op) && !counters_locked(g, f),
+        // A switch with no Pokémon to switch with changes nothing (whether it is `required`, a gate of the card's use, is
+        // `implied_ok`'s question).
+        Op::Switch(s) => !slots_of(g, me, f, &switch_among(s)).is_empty(),
         _ => implied_ok(g, me, f, op),
     })
 }
