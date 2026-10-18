@@ -130,11 +130,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         pay(g, p, active, &cards, move_to)?;
         return choose(g, p, move_to);
     }
-    // Interchangeable Energy cards (each provides the same) paid in one way only: which of them is discarded can't change
-    // the game, nothing is asked. Paid in two ways, as many cards as the cost or until the units are met (id2127, n1652:
-    // "you could discard either 1 or 2 Double Turbo Energy"; never more cards than the cost), the retreat asks (user
-    // decision 2026-10-13; the cards are counted, not the entries of the Energy map).
-    if let Some(cards) = energy::only_payment(map.as_slice(), cost.as_slice()) {
+    // Interchangeable Energy cards (copies of one card, each providing the same) paid in one way only: which of them is
+    // discarded can't change the game, nothing is asked; different cards are the player's choice (APR A-03 step 2). Paid
+    // in two ways, as many cards as the cost or until the units are met (id2127, n1652: "you could discard either 1 or 2
+    // Double Turbo Energy"; never more cards than the cost), the retreat asks (user decision 2026-10-13; the cards are
+    // counted, not the entries of the Energy map).
+    if let Some(cards) = energy::only_payment(map.as_slice(), cost.as_slice(), |c| g.st.cards[c as usize].def) {
         pay(g, p, active, &cards, move_to)?;
         return choose(g, p, move_to);
     }

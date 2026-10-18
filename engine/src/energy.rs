@@ -135,10 +135,12 @@ pub fn check_energy_payment(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
     })
 }
 
-/// The payment of `cost` from the Energy in `map` when there is only one up to which identical card is chosen: every
-/// card provides the same, and there aren't as many cards as the cost to discard instead of the fewest that cover it
-/// (id2127). `None` when a choice exists.
-pub fn only_payment(map: &[EnergyEntry], cost: &[CardType]) -> Option<Vec<crate::list::CardId>> {
+/// The payment of `cost` from the Energy in `map` when there is only one up to which interchangeable card is chosen:
+/// every card is the same card (`def_of`: its card definition) providing the same, and there aren't as many cards as
+/// the cost to discard instead of the fewest that cover it (id2127). `None` when a choice exists. Different cards that
+/// provide the same (a Basic Psychic Energy and a Telepathic Psychic Energy) are a choice: the player discards the
+/// Energy (APR A-03 step 2), and the cards differ in what later effects can see (name, card text, Basic or Special).
+pub fn only_payment(map: &[EnergyEntry], cost: &[CardType], def_of: impl Fn(crate::list::CardId) -> crate::carddb::DefId) -> Option<Vec<crate::list::CardId>> {
     let mut cards: Vec<crate::list::CardId> = Vec::new();
     for e in map {
         if !cards.contains(&e.card) {
@@ -155,7 +157,8 @@ pub fn only_payment(map: &[EnergyEntry], cost: &[CardType]) -> Option<Vec<crate:
         v
     };
     let first = provides_of(*cards.first()?);
-    if !cards.iter().all(|c| provides_of(*c) == first) {
+    let def = def_of(cards[0]);
+    if !cards.iter().all(|c| def_of(*c) == def && provides_of(*c) == first) {
         return None;
     }
     // The fewest cards that cover the cost.
@@ -411,5 +414,15 @@ mod payment_tests {
         assert!(check_energy_payment(&[ign], &cost(2)));
         assert!(!check_energy_payment(&[water, ign, m1], &cost(2)));
         assert!(!check_energy_payment(&[water, m1, m2], &cost(2)));
+    }
+
+    /// A cost of 1 with two Energy cards providing [P] each: copies of one card are paid without a question (which copy
+    /// can't change the game); two different cards (a Basic Psychic Energy and a Telepathic Psychic Energy) are the
+    /// player's choice (APR A-03 step 2).
+    #[test]
+    fn only_copies_of_one_card_are_paid_without_a_question() {
+        let (a, b) = (entry(1, 1), entry(2, 1));
+        assert_eq!(only_payment(&[a, b], &cost(1), |_| 7), Some(vec![1]));
+        assert_eq!(only_payment(&[a, b], &cost(1), |c| 7 + c as crate::carddb::DefId), None);
     }
 }
