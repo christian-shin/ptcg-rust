@@ -1864,6 +1864,10 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergyS
     if ty != ct::COLORLESS && !energy.iter().any(|m| m.provides.iter().any(|t| *t == ty || *t == ct::ANY)) {
         return Ok(false);
     }
+    let cards: Vec<CardId> = energy.iter().map(|m| m.card).collect();
+    if choice_prevented(g, f, d.to, slot, &cards)? {
+        return Ok(false);
+    }
     let mut cost = SVec::new();
     // An effect discards as many as it can when fewer are attached (id2352: a copied Metallic Hammer with
     // fewer than 3 [M] Energy discards what there is).
@@ -2031,13 +2035,33 @@ fn energy_cards(g: &Game, slot: SlotRef) -> Vec<CardId> {
     g.st.slot(slot.p as usize, slot.s).cards().iter().filter(|c| g.st.cdef(*c).is_energy()).collect()
 }
 
+/// Would every candidate of the choice be refused leaving the Pokémon in `slot` for where `to` sends it (an effect
+/// preventing the effects of attacks done to that Pokémon: Dig, Mist Energy)? Then whichever card is chosen nothing
+/// happens, and the choice isn't asked: the effect is prevented (RULES.md "Options that can't do anything", "Only
+/// effects that can change the game count"). Only for choices whose one result is the move: no selection that keeps
+/// the chosen cards in a register or counts them for damage calls this (the pool's `Num::Last` readers after a
+/// DiscardEnergy are FromBench and CostOne, which don't).
+fn choice_prevented(g: &mut Game, f: &Frame, to: EnergyDest, slot: SlotRef, cards: &[CardId]) -> R<bool> {
+    let zone = match to {
+        EnergyDest::Discard => crate::spec::event::RulesZone::Discard,
+        EnergyDest::Hand => crate::spec::event::RulesZone::Hand,
+        EnergyDest::Deck => crate::spec::event::RulesZone::Deck,
+        EnergyDest::Slot(_) | EnergyDest::Stay => return Ok(false),
+    };
+    crate::engine::knockout::leave_play_refused(g, slot, cards, zone, f.cause)
+}
+
 /// Open the prompt of a choosing selection (resumed at `sub`); false when there is nothing to choose.
 fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub: u8) -> R<bool> {
     let Some(slot) = de_slot(g, me, f, d) else { return Ok(false) };
     let chooser = f.p as usize;
     match &d.selection {
-        EnergySelection::Prompt { ty, min, max, .. } => {
-            let available = energy_cards(g, slot).len() as i32;
+        EnergySelection::Prompt { ty, min, max, into } => {
+            let cards = energy_cards(g, slot);
+            if into.is_none() && choice_prevented(g, f, d.to, slot, &cards)? {
+                return Ok(false);
+            }
+            let available = cards.len() as i32;
             let (prompt_min, prompt_max) = match ty {
                 // An attack's text before the damage: the bounds as written.
                 Some(_) => (*min as i32, *max as i32),
@@ -2070,7 +2094,8 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
         }
         EnergySelection::Chosen { pred: pr } => {
             let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards().iter().collect();
-            if !cards.iter().any(|c| pred(g, *c, pr)) {
+            let eligible: Vec<CardId> = cards.iter().copied().filter(|c| pred(g, *c, pr)).collect();
+            if eligible.is_empty() || choice_prevented(g, f, d.to, slot, &eligible)? {
                 return Ok(false);
             }
             let mut opts = ChooseCardsOpts::new(1, 1, false);
@@ -2632,7 +2657,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
     match &e.selection {
         EnergySelection::Cards { min, max, kind, cancel, energies_only } => {
             let eligible = ec_energy_cards(g, src, *kind)?;
-            if eligible.is_empty() {
+            if eligible.is_empty() || (e.into.is_none() && choice_prevented(g, f, e.to, src, &eligible)?) {
                 return none(g, f);
             }
             let max = num_m(g, me, f, max)?.clamp(0, 255);
@@ -2650,6 +2675,10 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
         EnergySelection::Cost { n, ty } => {
             let n = num_m(g, me, f, n)?.max(0);
             let energy = crate::derived::provided_energy(g, p as usize, src)?;
+            let cards: Vec<CardId> = energy.iter().map(|m| m.card).collect();
+            if e.into.is_none() && choice_prevented(g, f, e.to, src, &cards)? {
+                return none(g, f);
+            }
             let mut cost = SVec::new();
             for _ in 0..n {
                 cost.push(*ty);

@@ -229,6 +229,25 @@ pub fn leave_play_cards(g: &mut Game, target: SlotRef, cards: &[CardId], zone: R
     Ok(Outcome::count(asked, moved, refused))
 }
 
+/// Would every card of `cards` attached to the Pokémon in `target` be refused leaving it for `zone` by `cause` (the
+/// refusals `leave_play_cards` asks: an effect preventing the effects of attacks done to that Pokémon, a lock)? False
+/// when none of them is attached. An effect that would choose among such cards does nothing whatever is chosen, so the
+/// choice isn't asked (RULES.md "Options that can't do anything": the effect is prevented).
+pub fn leave_play_refused(g: &mut Game, target: SlotRef, cards: &[CardId], zone: RulesZone, cause: Cause) -> R<bool> {
+    let mut any = false;
+    for &c in cards {
+        if !attached_to(g, target, c) {
+            continue;
+        }
+        any = true;
+        let v = card_leave_view(g, Some(target), c, LeaveHow::Attached, owner_list(g.st.owner(c) as u8, zone), cause);
+        if crate::engine::condition::refused(g, &v)?.is_none() {
+            return Ok(false);
+        }
+    }
+    Ok(any)
+}
+
 /// LeavePlay of cards attached to the Pokémon in `target` by the rule (the Retreat Cost paid, APR A-03): never refused,
 /// like the rule's other LeavePlays (a cost is paid as a whole).
 pub fn leave_play_cards_by_rule(g: &mut Game, target: SlotRef, cards: &[CardId], zone: RulesZone, cause: Cause) -> R {

@@ -1,0 +1,16 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Dunsparce PRE 79", "4 Larvitar JTG 80", "52 Psychic Energy MEE 5"],
+  ["4 Dunsparce PRE 79", "4 Larvitar JTG 80", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Dunsparce PRE 79", "active_energy": ["2 Psychic Energy MEE 5"], "bench": [{"card": "Dunsparce PRE 79"}]},
+ "opp": {"reset": true, "active": "Larvitar JTG 80", "active_energy": ["2 Psychic Energy MEE 5"], "bench": [{"card": "Larvitar JTG 80"}], "hand_to_deck": true},
+ "coins": [true, true],
+ "answers": [{"a": "attack", "name": "Dig"}, {"a": "attack", "name": "Crunch"}],
+ "expect": [
+  {"at": "next_turn_end", "prompts": ["Coin", "Coin"], "cite": "card text (Dig flips a coin; Crunch flips a coin)"},
+  {"at": "next_turn_end", "absent": ["ChooseCards"], "cite": "RULES.md Options that can't do anything / Only effects that can change the game count (APR B-01): Dig prevents all effects of attacks done to Dunsparce, so whichever Energy Crunch would discard nothing happens and no Energy is asked"},
+  {"at": "next_turn_end", "who": "me", "slot": "active", "energy": 2, "damage": 0, "cite": "card text (Dig: prevent all damage from and effects of attacks done to this Pokemon)"}
+ ]
+}
