@@ -39,6 +39,9 @@ while not env.done:
         r = env.attack_what_if(0, 0, 0)
         assert abs(sum(o["probability"] for o in r["outcomes"]) + r["unexplored"] - 1) < 1e-9, r
         what_ifs += 1
+        # With an extra Energy attached (a card of the player's own; refused when none is left).
+        r = env.attack_what_if(0, 0, 0, extra_energy=["Metal Energy MEE 8"])
+        assert all(z in ("Hand", "Deck", "Discard") for _, z in r["extra_attached"]), r
     except ValueError:
         pass
     env.step_random(steps)
