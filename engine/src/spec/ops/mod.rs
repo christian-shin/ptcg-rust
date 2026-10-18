@@ -93,7 +93,7 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         Family::Cards => cards::effect_possible(g, me, f, op),
         Family::Board => board::effect_possible(g, me, f, op),
         Family::Flow => flow::effect_possible(g, me, f, op),
-        Family::State => None,
+        Family::State => state::effect_possible(op),
     }
 }
 

@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"],
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Dunsparce JTG 120", "active_energy": ["2 Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Dunsparce JTG 120"},
+ "answers": [{"a": "attack", "name": "Trading Places"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Trading Places", "cite": "APR A-01 (an attack can be used when its Energy cost is met; an effect that can't be done doesn't stop it): Trading Places with no Benched Pokemon can be used and does nothing"},
+  {"at": "next_turn", "who": "me", "slot": "active", "card": "Dunsparce JTG 120", "cite": "card text (no Benched Pokemon to switch with: the Active Pokemon stays)"}
+ ]
+}

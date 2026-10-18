@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"],
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Dunsparce JTG 120", "active_energy": ["2 Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Dunsparce JTG 120"},
+ "answers": [{"a": "attack", "name": "Ram"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Trading Places", "is": false, "cite": "table rule hide_attacks_that_can_do_nothing (on): Trading Places (no damage; 'Switch this Pokemon with 1 of your Benched Pokemon') can do nothing with no Benched Pokemon, so it isn't offered; off it is (APR A-01: an attack needs its Energy)"},
+  {"at": "start", "who": "me", "legal": "attack", "name": "Ram", "cite": "card text (Ram does 20 damage: it can always do something)"}
+ ]
+}

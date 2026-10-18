@@ -18,16 +18,25 @@ pub struct TableRules {
     /// choice", APR A-03 step 2: different cards are asked). The engine pays without a question only a Retreat Cost
     /// (`engine::retreat`); every other Energy payment always asks.
     pub ask_single_way_payments: bool,
+    /// An attack that can do nothing (no damage, and no effect of its text could change the game, or a choice its text
+    /// starts with has nothing to choose: the usability walk of Trainers and Abilities, `spec::run::usable_by_rules`)
+    /// can't be used: it isn't offered.
+    ///
+    /// Off (the rulings): an attack whose Energy cost is paid may be declared even when its effect can't be done; it does
+    /// nothing and the turn ends (APR A-01: an attack needs its Energy; RULES.md "Options that can't do anything" is about
+    /// questions and the uses of Trainers and Abilities, not attacks).
+    pub hide_attacks_that_can_do_nothing: bool,
 }
 
 impl TableRules {
     /// Every option's name, in the order of the fields.
-    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments"];
+    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing"];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
     pub fn set(&mut self, name: &str, on: bool) -> Result<(), String> {
         let field = match name {
             "ask_single_way_payments" => &mut self.ask_single_way_payments,
+            "hide_attacks_that_can_do_nothing" => &mut self.hide_attacks_that_can_do_nothing,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

@@ -106,6 +106,10 @@ pub fn attack_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, attack: Atta
     if !c.payable(attack, attacking)? {
         return Ok(Err("NOT_ENOUGH_ENERGY"));
     }
+    // A table that doesn't offer an attack that can do nothing (`TableRules::hide_attacks_that_can_do_nothing`).
+    if c.game().st.rules.hide_attacks_that_can_do_nothing && !crate::spec::run::attack_can_do_something(c.game(), p, attacking, attack) {
+        return Ok(Err("ATTACK_CAN_DO_NOTHING"));
+    }
     Ok(Ok(attacking))
 }
 
