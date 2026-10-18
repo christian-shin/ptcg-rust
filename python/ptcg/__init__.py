@@ -1,6 +1,7 @@
 """Pokémon TCG rules engine: Python interface.
 
     env = ptcg.Env(deck_a, deck_b, seed=0)
+    env = ptcg.Env(deck_a, deck_b, seed=0, rules={"ask_single_way_payments": True})  # named table rules
     sel = env.select()            # cabt-style dict: type, context, minCount, maxCount, option
     env.step([0])                 # answer with option indices
     obs = env.observe(0)          # float32 [OBS_SIZE] from player 0's view
@@ -14,9 +15,9 @@
 """
 import numpy as np
 
-from ._ptcg import Env as _Env, VecEnv as _VecEnv, OBS_SIZE, OPTION_FEATURES
+from ._ptcg import Env as _Env, VecEnv as _VecEnv, OBS_SIZE, OPTION_FEATURES, TABLE_RULES
 
-__all__ = ["Env", "VecEnv", "OBS_SIZE", "OPTION_FEATURES", "read_deck"]
+__all__ = ["Env", "VecEnv", "OBS_SIZE", "OPTION_FEATURES", "TABLE_RULES", "read_deck"]
 
 
 def read_deck(path):
@@ -34,8 +35,10 @@ def read_deck(path):
 class Env:
     """One game. Wraps the Rust engine; attribute access falls through to it."""
 
-    def __init__(self, deck_a=None, deck_b=None, seed=0, manual_chance=False, _inner=None):
-        self._e = _inner if _inner is not None else _Env(deck_a, deck_b, seed, manual_chance)
+    def __init__(self, deck_a=None, deck_b=None, seed=0, manual_chance=False, rules=None, _inner=None):
+        """`rules`: table rules by name to True / False (e.g. {"ask_single_way_payments": True}); every rule left out is
+        off, which is the rulings. An unknown name raises ValueError."""
+        self._e = _inner if _inner is not None else _Env(deck_a, deck_b, seed, manual_chance, rules)
 
     def __getattr__(self, name):
         return getattr(self._e, name)

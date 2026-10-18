@@ -738,6 +738,9 @@ pub struct State {
     /// the record is made, cleared when the card's records are reset (`usage::reset_card`); a bit may stay set after the
     /// record expired with its turn, never the other way (a cache of "scan the records for this card", `engine::usage`).
     pub usage_held: [u64; 2],
+    /// The game's table rules (`table_rules`): set before the game starts, never changed during it; not part of the state
+    /// hash (no search sees two values).
+    pub rules: crate::table_rules::TableRules,
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
@@ -840,6 +843,7 @@ impl State {
             lasting: SVec::new(),
             usage: SVec::new(),
             usage_held: [0; 2],
+            rules: crate::table_rules::TableRules::default(),
         }
     }
 

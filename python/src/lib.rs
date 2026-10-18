@@ -133,6 +133,8 @@ struct Env {
     game: Box<Game>,
     decks: [Vec<DefId>; 2],
     manual_chance: bool,
+    /// The table rules every game of this Env starts with (`reset` keeps them).
+    rules: ptcg::table_rules::TableRules,
     sel: Option<SelectData>,
 }
 
@@ -146,11 +148,17 @@ impl Env {
 #[pymethods]
 impl Env {
     #[new]
-    #[pyo3(signature = (deck_a, deck_b, seed=0, manual_chance=false))]
-    fn new(deck_a: Vec<String>, deck_b: Vec<String>, seed: u32, manual_chance: bool) -> PyResult<Self> {
+    /// `rules`: the table rules by name (`ptcg::table_rules::TableRules::NAMES`) to True / False; every rule left out is
+    /// off, which is the rulings. An unknown name is a `ValueError`.
+    #[pyo3(signature = (deck_a, deck_b, seed=0, manual_chance=false, rules=None))]
+    fn new(deck_a: Vec<String>, deck_b: Vec<String>, seed: u32, manual_chance: bool, rules: Option<std::collections::BTreeMap<String, bool>>) -> PyResult<Self> {
         guarded(|| {
             let decks = [parse_deck(&deck_a)?, parse_deck(&deck_b)?];
-            let mut e = Env { game: Box::new(Game::new(seed)), decks, manual_chance, sel: None };
+            let mut table = ptcg::table_rules::TableRules::default();
+            for (name, on) in rules.unwrap_or_default() {
+                table.set(&name, on).map_err(PyValueError::new_err)?;
+            }
+            let mut e = Env { game: Box::new(Game::new(seed)), decks, manual_chance, rules: table, sel: None };
             e.reset(seed)?;
             Ok(e)
         })
@@ -160,6 +168,7 @@ impl Env {
     fn reset(&mut self, seed: u32) -> PyResult<()> {
         guarded(|| {
             *self.game = Game::new(seed);
+            self.game.st.rules = self.rules;
             self.game.start([&self.decks[0], &self.decks[1]]).map_err(err)?;
             self.refresh()
         })
@@ -552,7 +561,7 @@ impl VecEnv {
         guarded(|| {
             let mut envs = Vec::with_capacity(n);
             for i in 0..n {
-                envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
+                envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false, None)?);
             }
             let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, aborted: 0, invalid_ctx: Default::default() };
             for i in 0..n {
@@ -678,6 +687,7 @@ fn _ptcg(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_class::<VecEnv>()?;
         m.add("OBS_SIZE", OBS_SIZE)?;
         m.add("OPTION_FEATURES", OPTION_FEATURES)?;
+        m.add("TABLE_RULES", ptcg::table_rules::TableRules::NAMES.to_vec())?;
         Ok(())
     })
 }

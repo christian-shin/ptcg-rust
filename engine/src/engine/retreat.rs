@@ -125,7 +125,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     if !energy::check_enough_energy(map.as_slice(), cost.as_slice()) {
         crate::bail!("NOT_ENOUGH_ENERGY");
     }
-    if energy::check_exact_energy(map.as_slice(), cost.as_slice()) {
+    // A table that asks every payment (`TableRules::ask_single_way_payments`) asks also the payments made in one way below.
+    let single_way_paid = !g.st.rules.ask_single_way_payments;
+    if single_way_paid && energy::check_exact_energy(map.as_slice(), cost.as_slice()) {
         let cards = energy_cards(&map);
         pay(g, p, active, &cards, move_to)?;
         return choose(g, p, move_to);
@@ -135,7 +137,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     // in two ways, as many cards as the cost or until the units are met (id2127, n1652: "you could discard either 1 or 2
     // Double Turbo Energy"; never more cards than the cost), the retreat asks (user decision 2026-10-13; the cards are
     // counted, not the entries of the Energy map).
-    if let Some(cards) = energy::only_payment(map.as_slice(), cost.as_slice(), |c| g.st.cards[c as usize].def) {
+    let only = if single_way_paid { energy::only_payment(map.as_slice(), cost.as_slice(), |c| g.st.cards[c as usize].def) } else { None };
+    if let Some(cards) = only {
         pay(g, p, active, &cards, move_to)?;
         return choose(g, p, move_to);
     }
