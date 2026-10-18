@@ -31,6 +31,16 @@ try:
     raise AssertionError("a card the owner can't hide was accepted")
 except ValueError:
     pass
+# Seat 1's hand grows by 2 cards from their deck (the total kept); a different total is refused with the total stated.
+hand, deck = env.hand_and_deck_count(1)
+env.resize_unseen(0, 1, hand + 2, deck - 2, 3)
+assert env.hand_and_deck_count(1) == (hand + 2, deck - 2)
+assert env.unseen_count(0, 1) == n
+try:
+    env.resize_unseen(0, 1, hand + 3, deck - 2, 3)
+    raise AssertionError("a different total was accepted")
+except ValueError as e:
+    assert str(hand + deck) in str(e), e
 steps = 0
 what_ifs = 0
 while not env.done:

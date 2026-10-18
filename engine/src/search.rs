@@ -7,7 +7,8 @@
 //! face-down spot takes only a card that may be put down there at setup), so a
 //! search can roll out a fully specified game. When the viewer doesn't know
 //! which cards those are (the other player's deck list), `Game::set_unseen`
-//! gives them identities from a card multiset first.
+//! gives them identities from a card multiset first; when the hand and deck sizes it follows are wrong,
+//! `Game::resize_unseen` moves hidden cards between the two.
 
 use crate::carddb::{CardDef, DefId};
 use crate::cause::Cause;
@@ -156,15 +157,19 @@ impl Game {
             ListRef::Prize(q, i) if q as usize == p && !pl.prize_face_up[i as usize] && !pl.prize_public[i as usize] => Unseen::Prize(i as usize, pl.prizes[i as usize].index_of(c)?),
             _ => return None,
         };
-        let shown = |r: ListRef| r == ListRef::Deck(p as u8);
-        let listed = self.prompts.iter().filter(|pr| !pr.answered).any(|pr| match pr.kind {
-            crate::prompts::PromptKind::ChooseCards { cards, .. } | crate::prompts::PromptKind::OrderCards { cards, .. } | crate::prompts::PromptKind::AttachEnergy { cards, .. } => shown(cards),
-            _ => false,
-        });
-        if matches!(at, Unseen::Deck(_)) && listed {
+        if matches!(at, Unseen::Deck(_)) && self.deck_shown(p) {
             return None;
         }
         Some(at)
+    }
+
+    /// An open prompt lists `owner`'s deck (a search shows the deck it searches): its cards are seen.
+    fn deck_shown(&self, owner: usize) -> bool {
+        let shown = |r: ListRef| r == ListRef::Deck(owner as u8);
+        self.prompts.iter().filter(|pr| !pr.answered).any(|pr| match pr.kind {
+            crate::prompts::PromptKind::ChooseCards { cards, .. } | crate::prompts::PromptKind::OrderCards { cards, .. } | crate::prompts::PromptKind::AttachEnergy { cards, .. } => shown(cards),
+            _ => false,
+        })
     }
 }
 
@@ -391,6 +396,64 @@ impl Game {
         }
         self.index_cards();
         self.st.bump_layout();
+        Ok(())
+    }
+
+    /// Move cards of `owner` that `viewer` cannot see between the owner's hand and deck so that they hold `hand` and
+    /// `deck` cards: what a host does when the public counts of the real game (the hand size, the deck size) differ from
+    /// the game it follows because it could not follow a hidden move (a card from the other player's hand into their
+    /// deck, a search it inferred wrongly). The cards that move are drawn with `seed` among those of the shrinking zone
+    /// the state doesn't name ([`Game::named_cards`]: those stay where they are); a card put into the deck goes to a
+    /// random position (the deck order is hidden from both players), a card put into the hand after the others. Nothing
+    /// else moves: the cards the viewer sees, the Prize cards, the face-down Pokémon of setup. No event; identities are
+    /// kept; the chance stream is untouched. The location hints and the layout generation follow.
+    ///
+    /// The Prize cards are not re-sized: their count changes only by public actions (Prize cards taken; turning one face
+    /// up), which a following host sees, and every effect of the pool that moves cards into or out of them keeps their
+    /// count (e.g. Redeemable Ticket). A different count of face-down Prize cards is a different public history (the
+    /// Prize cards taken), not a hidden move.
+    ///
+    /// Errors, with nothing changed: `NO_SUCH_PLAYER`; `UNSEEN_COUNT_MISMATCH` (`hand + deck` isn't the owner's hand and
+    /// deck sizes now: the total is kept); `ZONE_NOT_HIDDEN` (the size of a zone the viewer sees would change: the
+    /// viewer's own hand, a deck an open prompt lists); `NAMED_CARD_KEEPS_PLACE` (the shrinking zone has fewer cards the
+    /// state doesn't name than must leave it).
+    pub fn resize_unseen(&mut self, viewer: usize, owner: usize, hand: usize, deck: usize, seed: u32) -> R {
+        if viewer > 1 || owner > 1 {
+            return Err(GameError("NO_SUCH_PLAYER"));
+        }
+        let pl = &self.st.players[owner];
+        let (hand_now, deck_now) = (pl.hand.len(), pl.deck.len());
+        if hand + deck != hand_now + deck_now {
+            return Err(GameError("UNSEEN_COUNT_MISMATCH"));
+        }
+        if hand == hand_now {
+            return Ok(());
+        }
+        if !hand_hidden(viewer, owner) || self.deck_shown(owner) {
+            return Err(GameError("ZONE_NOT_HIDDEN"));
+        }
+        let pu = owner as u8;
+        let (from, to) = if hand > hand_now { (ListRef::Deck(pu), ListRef::Hand(pu)) } else { (ListRef::Hand(pu), ListRef::Deck(pu)) };
+        let named = self.named_cards();
+        let mut moving: Vec<CardId> = self.st.list(from).as_slice().iter().copied().filter(|c| named >> c & 1 == 0).collect();
+        let n = hand.abs_diff(hand_now);
+        if moving.len() < n {
+            return Err(GameError("NAMED_CARD_KEEPS_PLACE"));
+        }
+        let mut rng = Rng::new(seed);
+        shuffle(&mut moving, &mut rng);
+        moving.truncate(n);
+        let left: Vec<CardId> = self.st.list(from).as_slice().iter().copied().filter(|c| !moving.contains(c)).collect();
+        let mut grown: Vec<CardId> = self.st.list(to).as_slice().to_vec();
+        for &c in &moving {
+            let i = if to == ListRef::Hand(pu) { grown.len() } else { rng.index(grown.len() + 1) };
+            grown.insert(i, c);
+        }
+        self.st.list_mut(from).set_from(&left);
+        self.st.list_mut(to).set_from(&grown);
+        for c in moving {
+            self.st.put_at(c, to);
+        }
         Ok(())
     }
 
@@ -776,6 +839,97 @@ pub(crate) mod tests {
             assert_eq!(r, Err(GameError(want)));
             assert_eq!((g.state_hash(), g.st.cards.map(|c| c.def)), (hash.clone(), defs));
         }
+    }
+
+    /// The other player's hand grows from their deck and shrinks back into it: the sizes asked, the same cards with the
+    /// same identities, a named deck card stays in the deck, the Prize cards and every card outside hand and deck in
+    /// place, the viewer's cards untouched, the locations found, the invariants kept; the same seed moves the same cards,
+    /// another seed others.
+    #[test]
+    fn resize_unseen_moves_hidden_cards_between_hand_and_deck() {
+        let mut g = table();
+        let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
+        let named = g.st.players[o].deck.as_slice()[0];
+        g.st.players[o].played_this_turn.push(named);
+        let (h, d) = (g.st.players[o].hand.len(), g.st.players[o].deck.len());
+        let zones = |g: &Game| {
+            let pl = &g.st.players[o];
+            let mut c: Vec<CardId> = pl.hand.iter().chain(pl.deck.iter()).collect();
+            c.sort();
+            c
+        };
+        let in_zones = zones(&g);
+        let outside = |g: &Game| seen(g, o, &[]).into_iter().filter(|x| !in_zones.contains(&x.0)).collect::<Vec<_>>();
+        let (outside0, mine0, defs0, prizes0) = (outside(&g), seen(&g, v, &[]), g.st.cards.map(|c| c.def), g.st.players[o].prizes);
+        let hand0: Vec<CardId> = g.st.players[o].hand.as_slice().to_vec();
+        let mut again = g.fork();
+        let mut other = g.fork();
+        let gen = g.st.layout_gen;
+        g.resize_unseen(v, o, h + 5, d - 5, 3).unwrap();
+        let check = |g: &Game, hand: usize| {
+            let pl = &g.st.players[o];
+            assert_eq!((pl.hand.len(), pl.deck.len()), (hand, h + d - hand));
+            assert_eq!(zones(g), in_zones);
+            assert!(pl.deck.contains(named), "the named card stays in the deck");
+            assert_eq!((outside(g), seen(g, v, &[]), g.st.cards.map(|c| c.def)), (outside0.clone(), mine0.clone(), defs0));
+            assert!((0..6).all(|i| pl.prizes[i].as_slice() == prizes0[i].as_slice()));
+            for (i, c) in pl.hand.iter().enumerate() {
+                assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Hand, index: i as u8 });
+            }
+            for (i, c) in pl.deck.iter().enumerate() {
+                assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Deck, index: i as u8 });
+            }
+            crate::invariants::check(g).unwrap();
+        };
+        check(&g, h + 5);
+        assert_eq!(&g.st.players[o].hand.as_slice()[..h], &hand0[..], "the hand keeps its cards, the new ones after them");
+        assert_ne!(g.st.layout_gen, gen);
+        again.resize_unseen(v, o, h + 5, d - 5, 3).unwrap();
+        assert_eq!(again.state_hash(), g.state_hash());
+        other.resize_unseen(v, o, h + 5, d - 5, 4).unwrap();
+        assert_ne!(other.st.players[o].hand.as_slice(), g.st.players[o].hand.as_slice(), "another seed moves other cards");
+        // Back into the deck, the whole hand; the same sizes change nothing.
+        g.resize_unseen(v, o, 0, h + d, 5).unwrap();
+        check(&g, 0);
+        let hash = g.state_hash();
+        g.resize_unseen(v, o, 0, h + d, 6).unwrap();
+        assert_eq!(g.state_hash(), hash);
+    }
+
+    /// Refused sizes change nothing: a different total, a bad seat, the viewer's own hand, a deck an open prompt lists,
+    /// a hand whose named cards can't leave it.
+    #[test]
+    fn resize_unseen_refuses_with_nothing_changed() {
+        let mut g = table();
+        let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
+        let (h, d) = (g.st.players[o].hand.len(), g.st.players[o].deck.len());
+        for c in g.st.players[o].hand.as_slice().to_vec() {
+            g.st.players[o].played_this_turn.push(c);
+        }
+        let hash = g.state_hash();
+        for (r, want) in [
+            (g.resize_unseen(v, o, h + 1, d, 1), "UNSEEN_COUNT_MISMATCH"),
+            (g.resize_unseen(2, o, h, d, 1), "NO_SUCH_PLAYER"),
+            (g.resize_unseen(v, 2, h, d, 1), "NO_SUCH_PLAYER"),
+            (g.resize_unseen(o, o, h + 1, d - 1, 1), "ZONE_NOT_HIDDEN"),
+            (g.resize_unseen(v, o, h - 1, d + 1, 1), "NAMED_CARD_KEEPS_PLACE"),
+        ] {
+            assert_eq!(r, Err(GameError(want)));
+            assert_eq!(g.state_hash(), hash);
+        }
+        assert_eq!(g.resize_unseen(o, o, h, d, 1), Ok(()), "the viewer's own sizes unchanged: nothing to move");
+        g.resize_unseen(v, o, h + 1, d - 1, 1).unwrap();
+        // While a search's prompt lists the deck, the searching player's deck is seen.
+        let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN, MON]}, "opp": {"reset": true, "active": MON}}));
+        let p = g.st.active_player as usize;
+        let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
+        g.act(play).unwrap();
+        g.select().unwrap().unwrap();
+        let (h, d) = (g.st.players[p].hand.len(), g.st.players[p].deck.len());
+        let hash = g.state_hash();
+        assert_eq!(g.resize_unseen(1 - p, p, h + 1, d - 1, 1), Err(GameError("ZONE_NOT_HIDDEN")));
+        assert_eq!(g.state_hash(), hash);
     }
 
     // -----------------------------------------------------------------------------------------------------------

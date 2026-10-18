@@ -291,6 +291,26 @@ impl Env {
         })
     }
 
+    /// Move `owner`'s cards that `viewer` cannot see between their hand and deck so that they hold `hand` and `deck`
+    /// cards (the real game's sizes when a hidden move couldn't be followed); the cards that move are drawn with `seed`
+    /// among those the game doesn't refer to (`unseen_kept` stay). `hand + deck` must be the total of
+    /// `hand_and_deck_count(owner)` (a refusal's message states it). ValueError on refused sizes; the game is then
+    /// unchanged.
+    fn resize_unseen(&mut self, viewer: usize, owner: usize, hand: usize, deck: usize, seed: u32) -> PyResult<()> {
+        guarded(|| {
+            ptcg::host::resize_unseen(&mut self.game, viewer, owner, hand, deck, seed).map_err(|e| match ptcg::host::hand_and_deck_count(&self.game, owner) {
+                Some((h, d)) => PyValueError::new_err(format!("{} (hand + deck now {})", e.0, h + d)),
+                None => err(e),
+            })?;
+            self.refresh()
+        })
+    }
+
+    /// The number of cards in `seat`'s hand and in their deck (public counts).
+    fn hand_and_deck_count(&self, seat: usize) -> PyResult<(usize, usize)> {
+        guarded(|| ptcg::host::hand_and_deck_count(&self.game, seat).ok_or_else(|| PyValueError::new_err("NO_SUCH_PLAYER")))
+    }
+
     /// The ids (serials) of `owner`'s cards that `viewer` cannot see, in a fixed order (deck, Prize cards, hand,
     /// face-down Pokémon).
     fn unseen_cards(&self, viewer: usize, owner: usize) -> PyResult<Vec<u8>> {

@@ -228,6 +228,22 @@ pub fn set_unseen_assigned(g: &mut Game, viewer: usize, owner: usize, assigned: 
     g.set_unseen_assigned(viewer, owner, assigned)
 }
 
+/// Move cards of `owner` that `viewer` cannot see between the owner's hand and deck so that they hold `hand` and `deck`
+/// cards (the sizes of the real game when a host could not follow a hidden move); the cards that move are drawn with
+/// `seed` among those the game doesn't refer to ([`unseen_kept`] stay), a card put into the deck lands at a random
+/// position. The total is kept (that of [`hand_and_deck_count`]); the Prize cards and everything the viewer sees stay.
+/// Errors change nothing: `NO_SUCH_PLAYER`, `UNSEEN_COUNT_MISMATCH`, `ZONE_NOT_HIDDEN` (the viewer's own hand, a deck an
+/// open prompt lists), `NAMED_CARD_KEEPS_PLACE` ([`Game::resize_unseen`]).
+pub fn resize_unseen(g: &mut Game, viewer: usize, owner: usize, hand: usize, deck: usize, seed: u32) -> R {
+    g.resize_unseen(viewer, owner, hand, deck, seed)
+}
+
+/// The number of cards in `seat`'s hand and in their deck (public counts; `None` for a seat that doesn't exist).
+pub fn hand_and_deck_count(g: &Game, seat: usize) -> Option<(usize, usize)> {
+    let pl = g.st.players.get(seat)?;
+    Some((crate::list::CardList::len(&pl.hand), crate::list::CardList::len(&pl.deck)))
+}
+
 /// The cards of `owner` that `viewer` cannot see, the ones [`set_unseen`] takes identities for ([`Game::unseen_cards`];
 /// empty for a seat that doesn't exist).
 pub fn unseen_cards(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
@@ -462,6 +478,69 @@ mod tests {
                 }
             }
             assert!(over && turns > 10, "seed {seed}: the game did not finish ({turns} turns)");
+        }
+    }
+
+    /// Games go on to the end after, at each of the first turn decisions, the other seat's hand and deck are re-sized
+    /// (random sizes the cards the game refers to allow, the total kept): random play, the invariants checked after each
+    /// resize and at every turn decision, no error, the game finishes.
+    #[test]
+    fn games_play_on_after_resize_unseen() {
+        let (a, b) = (bench_deck("meta-alakazam-powerful-hand"), bench_deck("meta-dragapult-ex"));
+        for seed in [5u32, 11, 31] {
+            let mut g = start_game([&a, &b], seed, &StartOptions::default()).unwrap();
+            let mut x = seed as u64 * 0x9E37_79B9_7F4A_7C15 + 1;
+            let mut rnd = |n: usize| {
+                x = x.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                (x >> 33) as usize % n
+            };
+            let (mut turns, mut resized, mut over) = (0usize, 0usize, false);
+            for _ in 0..20_000 {
+                match next(&mut g).unwrap() {
+                    Decision::Over { .. } => {
+                        over = true;
+                        break;
+                    }
+                    Decision::Turn { player, .. } => {
+                        crate::invariants::check(&g).unwrap();
+                        turns += 1;
+                        let (v, o) = (player as usize, 1 - player as usize);
+                        if turns <= 10 {
+                            let kept = unseen_kept(&g, v, o);
+                            let pl = &g.st.players[o];
+                            let (h, d) = (pl.hand.len(), pl.deck.len());
+                            let (kh, kd) = (kept.iter().filter(|c| pl.hand.contains(**c)).count(), kept.iter().filter(|c| pl.deck.contains(**c)).count());
+                            // The hand grows only while 10 cards stay in the deck (an empty deck ends the game at the draw).
+                            let hi = (h + d).saturating_sub(10).max(h).min(h + d - kd).max(kh);
+                            let hand = kh + rnd(hi - kh + 1);
+                            resize_unseen(&mut g, v, o, hand, h + d - hand, seed + turns as u32).unwrap();
+                            assert_eq!((g.st.players[o].hand.len(), g.st.players[o].deck.len()), (hand, h + d - hand));
+                            resized += (hand != h) as usize;
+                            crate::invariants::check(&g).unwrap();
+                        }
+                        let Decision::Turn { actions, .. } = next(&mut g).unwrap() else { panic!("still the turn") };
+                        let pass = actions.iter().position(|a| matches!(a, Action::Pass)).unwrap();
+                        let k = if actions.len() == 1 || rnd(5) == 0 { pass } else { rnd(actions.len()) };
+                        act(&mut g, actions[k]).unwrap();
+                    }
+                    Decision::Prompt { select, .. } => {
+                        let mut picks = Vec::new();
+                        loop {
+                            let (mask, done) = pick_mask(&g, &select, &picks);
+                            if picks.len() >= select.min_count && (picks.len() >= select.max_count || (done && rnd(3) == 0)) {
+                                break;
+                            }
+                            let valid: Vec<usize> = (0..mask.len()).filter(|i| mask[*i]).collect();
+                            if valid.is_empty() {
+                                break;
+                            }
+                            picks.push(valid[rnd(valid.len())]);
+                        }
+                        answer(&mut g, &select, &picks).unwrap();
+                    }
+                }
+            }
+            assert!(over && turns > 10 && resized > 0, "seed {seed}: the game did not finish ({turns} turns, {resized} resizes)");
         }
     }
 
