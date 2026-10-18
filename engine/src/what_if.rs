@@ -12,11 +12,16 @@
 //!
 //! Chance: a copy's generator is scripted (`Rng::scripted`) and the coin sequences are enumerated (see [`attack`]).
 //! Choices: a question asked inside the evaluation is answered with its first valid answer and listed in the outcome.
+//! Extra Energy: the copies can have Energy cards attached to the attacker before the attack, as if already attached
+//! (see [`attack`]), for the damage an attack would do with more Energy.
 
+use crate::carddb::DefId;
 use crate::game::{Game, GameError, Pending, R};
 use crate::list::CardId;
 use crate::purpose::PromptPurpose;
+use crate::place::Zone;
 use crate::state::{AttackRef, ListRef};
+use crate::types::SuperType;
 use std::collections::VecDeque;
 
 /// One outcome of a what-if attack: what happened on one class of coin sequences.
@@ -63,6 +68,9 @@ pub struct AttackWhatIf {
     pub runs: usize,
     /// The probability of the coin sequences not evaluated (`max_runs` reached, or more than 32 coins flipped).
     pub unexplored: f64,
+    /// The extra Energy cards attached to the attacker on the copies, in the order asked: each card's definition and the
+    /// zone of its owner it was taken from.
+    pub extra_attached: Vec<(DefId, Zone)>,
 }
 
 /// The spot of `c` if it is the Pokémon of a spot in play (its top card).
@@ -82,14 +90,22 @@ fn spot_of(g: &Game, c: CardId) -> Option<crate::effects::SlotRef> {
 /// - `attack`: an index into the attacks the Pokémon has as the Active Pokémon (`turn::available_attacks`: its printed
 ///   attacks, then the derived ones: a Tool's, an Ability's grant, a Benched Pokémon's to copy).
 /// - `target`: an opposing Pokémon in play.
+/// - `extra_energy`: Energy cards attached to the attacker on the copies before the attack, as if already attached: no
+///   Attach event (no "when you attach" trigger, no turn's Energy attachment used up). Each is a card of that
+///   definition of the attacker's player, taken from their hand, else their deck, else their discard pile (the zone is
+///   reported: an attack counting the cards of a zone sees one fewer there). Attached, it provides Energy by the
+///   engine's rules for provided Energy (a Special Energy's own rules), and its other rules apply.
 /// - Chance: coin `i` of a copy is heads when bit `i` of its script is set. The first copy flips all tails; a copy that
 ///   flipped `n` coins on a script of length `L` stands for the sequence "script, then tails" (probability `2^-n`) and
 ///   opens the scripts "the same, heads at coin `j`" for `L <= j < n`, evaluated breadth first, at most `max_runs` copies
 ///   (at least 1). Every coin of the evaluation counts, either player's.
 ///
 /// Errors: `NOT_A_TURN_DECISION` (the game waits for something else), `INVALID_ATTACKER`, `INVALID_TARGET`,
-/// `UNKNOWN_ATTACK`, and any error the attack itself raises (an attack whose text says it can't be used now).
-pub fn attack(g: &Game, attacker: CardId, attack: usize, target: CardId, max_runs: usize) -> R<AttackWhatIf> {
+/// `UNKNOWN_ATTACK`, `UNKNOWN_CARD` / `NOT_AN_ENERGY_CARD` (an `extra_energy` entry), `NO_CARD_TO_ATTACH` (no card of
+/// that definition left in the player's hand, deck or discard pile), `CANNOT_BE_ATTACHED` (the card's own rule says it
+/// can only be attached to other Pokémon), and any error the attack itself raises (an attack whose text says it can't be
+/// used now).
+pub fn attack(g: &Game, attacker: CardId, attack: usize, target: CardId, extra_energy: &[DefId], max_runs: usize) -> R<AttackWhatIf> {
     let Pending::Turn(pu) = g.pending() else { return Err(GameError("NOT_A_TURN_DECISION")) };
     let p = pu as usize;
     let from = spot_of(g, attacker).filter(|s| s.p as usize == p).ok_or(GameError("INVALID_ATTACKER"))?;
@@ -102,6 +118,11 @@ pub fn attack(g: &Game, attacker: CardId, attack: usize, target: CardId, max_run
         pl.bench.as_mut_slice()[bi] = pl.active;
         pl.active = from.s;
         base.st.bump_layout();
+        crate::spec::passive::lock_sync(&mut base);
+    }
+    let to = crate::effects::SlotRef::new(p, base.st.players[p].active);
+    let extra_attached = attach_extra(&mut base, to, extra_energy)?;
+    if !extra_attached.is_empty() {
         crate::spec::passive::lock_sync(&mut base);
     }
     let (atk, copied) = *crate::engine::turn::available_attacks(&mut base, p)?.as_slice().get(attack).ok_or(GameError("UNKNOWN_ATTACK"))?;
@@ -138,7 +159,36 @@ pub fn attack(g: &Game, attacker: CardId, attack: usize, target: CardId, max_run
         }
     }
     let explored: f64 = outcomes.iter().map(|o| o.probability).sum();
-    Ok(AttackWhatIf { attack: atk, copied, attacker_moved, target_defending, outcomes, runs, unexplored: (1.0 - explored).max(0.0) })
+    Ok(AttackWhatIf { attack: atk, copied, attacker_moved, target_defending, outcomes, runs, unexplored: (1.0 - explored).max(0.0), extra_attached })
+}
+
+/// Attaches a card of each definition of `extra` to the Pokémon in `to` on the copy `c`, as if it were already attached:
+/// the card is put into the spot (a layout change, as a scenario attaches Energy), with no Attach event. The card is
+/// one of the player's own, from the hand, else the deck, else the discard pile.
+fn attach_extra(c: &mut Game, to: crate::effects::SlotRef, extra: &[DefId]) -> R<Vec<(DefId, Zone)>> {
+    let p = to.p;
+    let mut out = Vec::with_capacity(extra.len());
+    for &d in extra {
+        if d as usize >= crate::carddb::cards().len() {
+            return Err(GameError("UNKNOWN_CARD"));
+        }
+        if crate::carddb::def(d).super_type != SuperType::Energy as u8 {
+            return Err(GameError("NOT_AN_ENERGY_CARD"));
+        }
+        let found = [(ListRef::Hand(p), Zone::Hand), (ListRef::Deck(p), Zone::Deck), (ListRef::Discard(p), Zone::Discard)]
+            .into_iter()
+            .find_map(|(from, zone)| c.lst(from).iter().copied().find(|&x| c.st.cards[x as usize].def == d).map(|x| (from, zone, x)));
+        let Some((from, zone, card)) = found else { return Err(GameError("NO_CARD_TO_ATTACH")) };
+        // "This card can only be attached to ...": the card's own rule (its `AttachGuard`, the one the Attach routine checks).
+        if crate::spec::passive::attach_guard_refuses(c, card, to)? {
+            return Err(GameError("CANNOT_BE_ATTACHED"));
+        }
+        c.move_card_to(from, card, to.list());
+        // The derived facts (Energy provided, HP, ...) are read anew for the next card and the attack.
+        c.st.bump_layout();
+        out.push((d, zone));
+    }
+    Ok(out)
 }
 
 struct Ctx {
@@ -298,7 +348,7 @@ mod tests {
     fn weakness_doubles_the_damage_to_the_active_pokemon() {
         let g = game(json!({"me": {"reset": true, "active": CHARCADET}, "opp": {"reset": true, "active": DURALUDON}}));
         let (p, hash) = (me(&g), g.state_hash());
-        let w = attack(&g, active(&g, p), 0, active(&g, 1 - p), 64).unwrap();
+        let w = attack(&g, active(&g, p), 0, active(&g, 1 - p), &[], 64).unwrap();
         assert_eq!(g.state_hash(), hash, "the query changed the game");
         assert!(w.target_defending && !w.attacker_moved && !w.copied);
         let o = sure(&w);
@@ -313,11 +363,11 @@ mod tests {
     fn resistance_and_a_benched_attacker() {
         let g = game(json!({"me": {"reset": true, "active": GROOKEY}, "opp": {"reset": true, "active": DURALUDON}}));
         let p = me(&g);
-        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), 64).unwrap()).clone();
+        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), &[], 64).unwrap()).clone();
         assert_eq!((o.target_damage, o.target_hp_left), (10, 120));
         let g = game(json!({"me": {"reset": true, "active": CHARCADET, "bench": [{"card": GROOKEY}]}, "opp": {"reset": true, "active": DURALUDON}}));
         let p = me(&g);
-        let w = attack(&g, bench(&g, p, 0), 0, active(&g, 1 - p), 64).unwrap();
+        let w = attack(&g, bench(&g, p, 0), 0, active(&g, 1 - p), &[], 64).unwrap();
         assert!(w.attacker_moved);
         assert_eq!(sure(&w).target_damage, 10);
         assert_eq!(g.st.cdef(active(&g, p)).full_name, CHARCADET, "the caller's Active Pokémon is unchanged");
@@ -329,7 +379,7 @@ mod tests {
     fn a_benched_target_takes_only_what_the_text_does_to_it() {
         let g = game(json!({"me": {"reset": true, "active": CHARCADET}, "opp": {"reset": true, "active": GROOKEY, "bench": [{"card": DURALUDON}]}}));
         let p = me(&g);
-        let w = attack(&g, active(&g, p), 0, bench(&g, 1 - p, 0), 64).unwrap();
+        let w = attack(&g, active(&g, p), 0, bench(&g, 1 - p, 0), &[], 64).unwrap();
         assert!(!w.target_defending);
         let o = sure(&w);
         assert_eq!((o.target_damage, o.target_hp_left, o.target_knocked_out), (0, 130, false));
@@ -343,7 +393,7 @@ mod tests {
         let g = game(json!({"me": {"reset": true, "active": CHARCADET, "active_tool": BELT}, "opp": {"reset": true, "active": [DURALUDON, ARCHALUDON], "active_damage": 150, "bench": [{"card": DURALUDON}]}}));
         let p = me(&g);
         let target = active(&g, 1 - p);
-        let o = sure(&attack(&g, active(&g, p), 0, target, 64).unwrap()).clone();
+        let o = sure(&attack(&g, active(&g, p), 0, target, &[], 64).unwrap()).clone();
         assert_eq!((o.target_damage, o.target_hp_left), (160, 0));
         assert!(o.target_knocked_out && o.knocked_out == vec![target]);
         let mut pz = [0, 0];
@@ -354,7 +404,7 @@ mod tests {
         // Without the Belt: 30 x 2 = 60, no Knock Out.
         let g = game(json!({"me": {"reset": true, "active": CHARCADET}, "opp": {"reset": true, "active": [DURALUDON, ARCHALUDON], "active_damage": 150}}));
         let p = me(&g);
-        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), 64).unwrap()).clone();
+        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), &[], 64).unwrap()).clone();
         assert_eq!((o.target_damage, o.target_hp_left, o.target_knocked_out, o.prizes), (60, 90, false, [0, 0]));
     }
 
@@ -364,10 +414,10 @@ mod tests {
     fn prevent_all_damage() {
         let g = game(json!({"me": {"reset": true, "active": [DURALUDON, ARCHALUDON], "bench": [{"card": DURALUDON}]}, "opp": {"reset": true, "active": [EEVEE, SYLVEON]}}));
         let p = me(&g);
-        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), 64).unwrap()).clone();
+        let o = sure(&attack(&g, active(&g, p), 0, active(&g, 1 - p), &[], 64).unwrap()).clone();
         assert_eq!((o.target_damage, o.target_hp_left, o.target_knocked_out), (0, 120, false));
         assert!(o.damage.is_empty());
-        let o = sure(&attack(&g, bench(&g, p, 0), 0, active(&g, 1 - p), 64).unwrap()).clone();
+        let o = sure(&attack(&g, bench(&g, p, 0), 0, active(&g, 1 - p), &[], 64).unwrap()).clone();
         assert_eq!((o.target_damage, o.target_hp_left), (60, 60));
     }
 
@@ -379,13 +429,13 @@ mod tests {
         let g = game(json!({"me": {"reset": true, "active": KANGASKHAN}, "opp": {"reset": true, "active": DURALUDON, "active_damage": 30, "bench": [{"card": DURALUDON}]}}));
         let p = me(&g);
         let (a, t) = (active(&g, p), active(&g, 1 - p));
-        let w = attack(&g, a, 0, t, 64).unwrap();
+        let w = attack(&g, a, 0, t, &[], 64).unwrap();
         assert_eq!((w.runs, w.unexplored), (16, 0.0));
         let mut got: Vec<(i32, f64, bool, u8)> = w.outcomes.iter().map(|o| (o.target_damage, o.probability * 16.0, o.target_knocked_out, o.prizes[p])).collect();
         got.sort_by_key(|x| x.0);
         assert_eq!(got, vec![(0, 1.0, false, 0), (30, 4.0, false, 0), (60, 6.0, false, 0), (90, 4.0, false, 0), (120, 1.0, true, 1)]);
         // One evaluation: the all-tails sequence alone, the rest unexplored.
-        let w = attack(&g, a, 0, t, 1).unwrap();
+        let w = attack(&g, a, 0, t, &[], 1).unwrap();
         assert_eq!((w.runs, w.outcomes.len(), w.outcomes[0].target_damage, w.outcomes[0].probability, w.unexplored), (1, 1, 0, 1.0 / 16.0, 15.0 / 16.0));
     }
 
@@ -395,9 +445,77 @@ mod tests {
         let g = game(json!({"me": {"reset": true, "active": CHARCADET}, "opp": {"reset": true, "active": DURALUDON}}));
         let p = me(&g);
         let (a, t) = (active(&g, p), active(&g, 1 - p));
-        assert_eq!(attack(&g, t, 0, a, 8).unwrap_err().0, "INVALID_ATTACKER");
-        assert_eq!(attack(&g, a, 0, a, 8).unwrap_err().0, "INVALID_TARGET");
-        assert_eq!(attack(&g, a, 5, t, 8).unwrap_err().0, "UNKNOWN_ATTACK");
+        assert_eq!(attack(&g, t, 0, a, &[], 8).unwrap_err().0, "INVALID_ATTACKER");
+        assert_eq!(attack(&g, a, 0, a, &[], 8).unwrap_err().0, "INVALID_TARGET");
+        assert_eq!(attack(&g, a, 5, t, &[], 8).unwrap_err().0, "UNKNOWN_ATTACK");
+    }
+
+    const FEZANDIPITI: &str = "Fezandipiti PRE 45"; // Psychic Basic; Energy Feather: 30 damage for each Energy attached.
+    const MORPEKO: &str = "Marnie's Morpeko DRI 137"; // Darkness Basic; Spiky Wheel 20+: 40 more for each [D] Energy attached.
+    const PSYCHIC_ENERGY: &str = "Psychic Energy MEE 5";
+    const DARKNESS_ENERGY: &str = "Darkness Energy MEE 7";
+    const PRISM: &str = "Prism Energy ASC 216"; // On a Basic Pokémon: every type of Energy, 1 at a time.
+    const ROCKET_ENERGY: &str = "Team Rocket's Energy ASC 217"; // Can only be attached to a Team Rocket's Pokémon.
+
+    /// The player's Prize cards are six Metal Energy, so every card listed is in their hand or deck.
+    fn energy_game(mut sc: serde_json::Value) -> Game {
+        sc["me"]["prizes"] = json!(vec!["Metal Energy MEE 8"; 6]);
+        let cards = [(FEZANDIPITI, 1), (MORPEKO, 1), (DURALUDON, 2), (PSYCHIC_ENERGY, 3), (DARKNESS_ENERGY, 2), (PRISM, 1), (ROCKET_ENERGY, 1)];
+        crate::place::tests::game_of(&cards, sc)
+    }
+
+    fn def(name: &str) -> DefId {
+        crate::carddb::def_by_full_name(name).unwrap()
+    }
+
+    /// Damage that scales with the attached Energy: Energy Feather does 30 for each Energy attached (card text), so 0 with
+    /// none, 60 with two extra Psychic Energy. The cards come from the player's hand first, then the deck; the caller's
+    /// game is unchanged. With an empty list the result is the plain query's.
+    #[test]
+    fn extra_energy_scales_the_damage() {
+        let g = energy_game(json!({"me": {"reset": true, "active": FEZANDIPITI, "hand": [PSYCHIC_ENERGY]}, "opp": {"reset": true, "active": DURALUDON}}));
+        let (p, hash) = (me(&g), g.state_hash());
+        let (a, t) = (active(&g, p), active(&g, 1 - p));
+        let base = attack(&g, a, 0, t, &[], 64).unwrap();
+        assert_eq!(sure(&base).target_damage, 0);
+        assert!(base.extra_attached.is_empty());
+        let plain = crate::host::attack_what_if(&g, a, 0, t, 64).unwrap();
+        assert_eq!((plain.outcomes, plain.extra_attached), (base.outcomes.clone(), vec![]));
+        let psy = def(PSYCHIC_ENERGY);
+        let w = attack(&g, a, 0, t, &[psy, psy], 64).unwrap();
+        assert_eq!(w.extra_attached, vec![(psy, Zone::Hand), (psy, Zone::Deck)]);
+        let o = sure(&w);
+        assert_eq!((o.target_damage, o.target_hp_left), (60, 70));
+        assert_eq!(g.state_hash(), hash, "the query changed the game");
+    }
+
+    /// A Special Energy provides by its own rules: Prism Energy on a Basic Pokémon provides every type of Energy, 1 at a
+    /// time (card text), so it counts as one [D] Energy for Spiky Wheel: 20 + 40 = 60, and 20 + 2 x 40 = 100 with a
+    /// Darkness Energy too.
+    #[test]
+    fn a_special_energy_provides_by_its_rules() {
+        let g = energy_game(json!({"me": {"reset": true, "active": MORPEKO}, "opp": {"reset": true, "active": DURALUDON}}));
+        let p = me(&g);
+        let (a, t) = (active(&g, p), active(&g, 1 - p));
+        assert_eq!(sure(&attack(&g, a, 0, t, &[], 64).unwrap()).target_damage, 20);
+        assert_eq!(sure(&attack(&g, a, 0, t, &[def(PRISM)], 64).unwrap()).target_damage, 60);
+        assert_eq!(sure(&attack(&g, a, 0, t, &[def(DARKNESS_ENERGY), def(PRISM)], 64).unwrap()).target_damage, 100);
+    }
+
+    /// The extra Energy are checked: a card the player has none of left (two Darkness Energy in the deck, three asked), a
+    /// card that isn't an Energy card, an unknown definition, and a card whose own rule forbids this Pokémon (Team
+    /// Rocket's Energy "can only be attached to a Team Rocket's Pokémon").
+    #[test]
+    fn extra_energy_is_checked() {
+        let g = energy_game(json!({"me": {"reset": true, "active": MORPEKO}, "opp": {"reset": true, "active": DURALUDON}}));
+        let p = me(&g);
+        let (a, t) = (active(&g, p), active(&g, 1 - p));
+        let dark = def(DARKNESS_ENERGY);
+        assert_eq!(attack(&g, a, 0, t, &[dark, dark], 8).unwrap().extra_attached, vec![(dark, Zone::Deck), (dark, Zone::Deck)]);
+        assert_eq!(attack(&g, a, 0, t, &[dark, dark, dark], 8).unwrap_err().0, "NO_CARD_TO_ATTACH");
+        assert_eq!(attack(&g, a, 0, t, &[def(DURALUDON)], 8).unwrap_err().0, "NOT_AN_ENERGY_CARD");
+        assert_eq!(attack(&g, a, 0, t, &[DefId::MAX], 8).unwrap_err().0, "UNKNOWN_CARD");
+        assert_eq!(attack(&g, a, 0, t, &[def(ROCKET_ENERGY)], 8).unwrap_err().0, "CANNOT_BE_ATTACHED");
     }
 
     /// The cost of one query (no assertion; `cargo test --profile iter what_if -- --nocapture` prints it).
@@ -410,12 +528,12 @@ mod tests {
         let n = 200;
         let s = std::time::Instant::now();
         for _ in 0..n {
-            attack(&g2, a2, 0, t2, 64).unwrap();
+            attack(&g2, a2, 0, t2, &[], 64).unwrap();
         }
         let plain = s.elapsed().as_secs_f64() * 1e6 / n as f64;
         let s = std::time::Instant::now();
         for _ in 0..n {
-            attack(&g, a, 0, t, 64).unwrap();
+            attack(&g, a, 0, t, &[], 64).unwrap();
         }
         let coins = s.elapsed().as_secs_f64() * 1e6 / n as f64;
         eprintln!("what_if::attack: {plain:.1} us without chance (1 run), {coins:.1} us for 4 coins (16 runs)");

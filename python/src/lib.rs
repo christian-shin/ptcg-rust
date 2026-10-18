@@ -296,11 +296,15 @@ impl Env {
     /// `unexplored` (the probability not evaluated) and `outcomes`, each a dict: `probability`, `damage` (a list of
     /// (seat, spot, damage)), `target_damage`, `target_hp_left`, `knocked_out` (a list of (seat, spot)),
     /// `target_knocked_out`, `prizes` (taken by seat 0, seat 1), `winner` (None while the game goes on), `asked` (the
-    /// questions answered with their first valid answer: (seat, purpose name)).
-    #[pyo3(signature = (attacker, attack, target, max_runs=64))]
-    fn attack_what_if<'py>(&self, py: Python<'py>, attacker: usize, attack: usize, target: usize, max_runs: usize) -> PyResult<Bound<'py, PyDict>> {
+    /// questions answered with their first valid answer: (seat, purpose name)). `extra_energy`: full names of Energy cards
+    /// attached to the attacker before the attack, as if already attached (`ptcg::host::attack_what_if_with_energy`: each
+    /// a card of the attacker's player from their hand, else deck, else discard pile); the dict's `extra_attached` lists
+    /// them as (full name, zone name).
+    #[pyo3(signature = (attacker, attack, target, max_runs=64, extra_energy=Vec::new()))]
+    fn attack_what_if<'py>(&self, py: Python<'py>, attacker: usize, attack: usize, target: usize, max_runs: usize, extra_energy: Vec<String>) -> PyResult<Bound<'py, PyDict>> {
         guarded(|| {
             let g = &*self.game;
+            let extra = parse_deck(&extra_energy)?;
             let ptcg::Pending::Turn(p) = g.pending() else { return Err(PyValueError::new_err("NOT_A_TURN_DECISION")) };
             let p = p as usize;
             let spots = |q: usize| -> Vec<u8> {
@@ -310,7 +314,7 @@ impl Env {
             let at = |q: usize, spot: usize| spots(q).get(spot).and_then(|&s| g.st.slot_pokemon(q, s));
             let a = at(p, attacker).ok_or_else(|| PyValueError::new_err("INVALID_ATTACKER"))?;
             let t = at(1 - p, target).ok_or_else(|| PyValueError::new_err("INVALID_TARGET"))?;
-            let w = ptcg::host::attack_what_if(g, a, attack, t, max_runs).map_err(err)?;
+            let w = ptcg::host::attack_what_if_with_energy(g, a, attack, t, &extra, max_runs).map_err(err)?;
             // Each Pokémon's (seat, spot) when the query was asked.
             let place = |c: u8| -> Option<(usize, usize)> { (0..2).find_map(|q| spots(q).iter().position(|&s| g.st.slot_pokemon(q, s) == Some(c)).map(|i| (q, i))) };
             let d = PyDict::new(py);
@@ -320,6 +324,8 @@ impl Env {
             d.set_item("target_defending", w.target_defending)?;
             d.set_item("runs", w.runs)?;
             d.set_item("unexplored", w.unexplored)?;
+            let attached: Vec<(String, String)> = w.extra_attached.iter().map(|(def, zone)| (ptcg::carddb::def(*def).full_name.to_string(), format!("{zone:?}"))).collect();
+            d.set_item("extra_attached", attached)?;
             let outs = PyList::empty(py);
             for o in &w.outcomes {
                 let od = PyDict::new(py);

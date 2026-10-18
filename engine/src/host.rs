@@ -11,7 +11,7 @@
 //! record are per-thread buffers: drive one recording game per thread, and read them on the thread that plays.
 //!
 //! Lookahead. [`attack_what_if`] tells what an attack would do now (damage, Knock Outs, Prize cards) on copies of the
-//! game, without playing the turn out.
+//! game, without playing the turn out; [`attack_what_if_with_energy`] with extra Energy attached to the attacker first.
 //!
 //! Hidden information. [`view`] shows what a seat may see; [`Decision`] and [`PromptRec`] are the engine's own view of a
 //! decision (a host that serves a seat must not show it to the other seat); [`swap_unseen`] and [`determinize`] change
@@ -235,7 +235,15 @@ pub fn unseen_kept(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {
 /// attack is used through the engine's own routine on copies, without the checks of using an attack (Energy, locks, the
 /// first-turn rule, Special Conditions) and without the end of the turn; `g` is not changed.
 pub fn attack_what_if(g: &Game, attacker: CardId, attack: usize, target: CardId, max_runs: usize) -> R<AttackWhatIf> {
-    crate::what_if::attack(g, attacker, attack, target, max_runs)
+    crate::what_if::attack(g, attacker, attack, target, &[], max_runs)
+}
+
+/// [`attack_what_if`] with the Energy cards `extra_energy` attached to the attacker on the copies before the attack, as if
+/// already attached (no Attach event): each a card of that definition of the attacker's player, from their hand, else
+/// their deck, else their discard pile; `AttackWhatIf::extra_attached` lists them with the zone each came from. Errors
+/// as [`attack_what_if`], and `UNKNOWN_CARD`, `NOT_AN_ENERGY_CARD`, `NO_CARD_TO_ATTACH`, `CANNOT_BE_ATTACHED`.
+pub fn attack_what_if_with_energy(g: &Game, attacker: CardId, attack: usize, target: CardId, extra_energy: &[DefId], max_runs: usize) -> R<AttackWhatIf> {
+    crate::what_if::attack(g, attacker, attack, target, extra_energy, max_runs)
 }
 
 /// Every card definition of the table, indexed by [`DefId`] ([`crate::carddb::cards`]).
