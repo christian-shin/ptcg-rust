@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Larvitar JTG 80", "4 Telepathic Psychic Energy POR 88", "52 Psychic Energy MEE 5"],
+  ["4 Larvitar JTG 80", "4 Telepathic Psychic Energy POR 88", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Larvitar JTG 80", "active_energy": ["Psychic Energy MEE 5", "Telepathic Psychic Energy POR 88"], "bench": [{"card": "Larvitar JTG 80"}]},
+ "opp": {"reset": true, "active": "Larvitar JTG 80"},
+ "answers": [{"a": "retreat"}, [1], [{"player": 2, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "turn_end", "prompts": ["ChooseEnergy", "ChoosePokemon"], "cite": "APR A-03 step 2 (the player discards Energy from the Active Pokemon to pay the Retreat Cost): a Psychic Energy and a Telepathic Psychic Energy provide the same but are different cards, so the player chooses which one pays a Retreat Cost of 1"},
+  {"at": "turn_end", "who": "me", "zone": "discard", "count": 1, "cite": "APR A-03 (the Retreat Cost of 1 is paid with one Energy card)"}
+ ]
+}

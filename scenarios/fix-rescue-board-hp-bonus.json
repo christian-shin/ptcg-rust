@@ -34,6 +34,6 @@
     "active": "Rowlet POR 10"
   },
   "answers": [
-    {"a": "retreat"}, [{"player": 2, "slot": 2, "index": 0}]
+    {"a": "retreat"}, [1], [{"player": 2, "slot": 2, "index": 0}]
   ]
 }
