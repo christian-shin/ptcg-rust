@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"],
+  ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Dunsparce JTG 120", "active_energy": ["2 Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Dunsparce JTG 120", "active_damage": 60},
+ "answers": [{"a": "attack", "name": "Ram"}],
+ "expect": [
+  {"at": "game_end", "absent": ["ChoosePrize"], "cite": "RULES.md 'Options that can't do anything' (user decision 2): the opponent has no Pokemon in play, the game is decided, so which face-down Prize card is taken can't change it and isn't asked"},
+  {"at": "game_end", "winner": "me", "cite": "APR E (the opponent has no Pokemon in play: the attacker wins)"}
+ ]
+}
