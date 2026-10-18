@@ -7,6 +7,7 @@
     copy = env.clone()            # cheap full copy (mid-prompt included)
     copy.determinize(0, seed=7)   # re-deal hidden cards for a search rollout
     copy.set_unseen(0, 1, names, seed=7)  # seat 1's cards hidden from seat 0 become `names` (unseen_count of them)
+    copy.resize_unseen(0, 1, hand, deck, seed=7)  # seat 1's hidden cards move between hand and deck to these sizes
 
     venv = ptcg.VecEnv(64, deck_a, deck_b, seed=0)
     obs, opts, counts = venv.observe(k_max=32)
