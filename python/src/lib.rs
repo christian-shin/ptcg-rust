@@ -278,6 +278,25 @@ impl Env {
         })
     }
 
+    /// Give each listed card of `owner` that `viewer` cannot see (`assigned`: (card id, full card name) pairs, the ids
+    /// from `unseen_cards`) that identity, in place; unlisted hidden cards keep theirs, cards the game still refers to
+    /// keep theirs (`unseen_kept`). ValueError on a refused list; the game is then unchanged.
+    fn set_unseen_assigned(&mut self, viewer: usize, owner: usize, assigned: Vec<(u8, String)>) -> PyResult<()> {
+        guarded(|| {
+            let names: Vec<String> = assigned.iter().map(|x| x.1.clone()).collect();
+            let defs = parse_deck(&names)?;
+            let pairs: Vec<(u8, DefId)> = assigned.iter().map(|x| x.0).zip(defs).collect();
+            ptcg::host::set_unseen_assigned(&mut self.game, viewer, owner, &pairs).map_err(err)?;
+            self.refresh()
+        })
+    }
+
+    /// The ids (serials) of `owner`'s cards that `viewer` cannot see, in a fixed order (deck, Prize cards, hand,
+    /// face-down Pokémon).
+    fn unseen_cards(&self, viewer: usize, owner: usize) -> PyResult<Vec<u8>> {
+        guarded(|| Ok(ptcg::host::unseen_cards(&self.game, viewer, owner)))
+    }
+
     /// How many of `owner`'s cards `viewer` cannot see (the length `set_unseen` takes).
     fn unseen_count(&self, viewer: usize, owner: usize) -> PyResult<usize> {
         guarded(|| Ok(ptcg::host::unseen_cards(&self.game, viewer, owner).len()))

@@ -21,6 +21,16 @@ except ValueError:
     pass
 env.set_unseen(0, 1, names, 7)
 assert env.unseen_count(0, 1) == n
+# Named hidden cards take named identities in place; a card that isn't hidden is refused.
+ids = env.unseen_cards(0, 1)
+assert len(ids) == n
+kept_n = len(kept)
+env.set_unseen_assigned(0, 1, [(ids[0], a[0])] if kept_n == 0 else [])
+try:
+    env.set_unseen_assigned(0, 0, [(ids[0], a[0])])
+    raise AssertionError("a card the owner can't hide was accepted")
+except ValueError:
+    pass
 steps = 0
 what_ifs = 0
 while not env.done:

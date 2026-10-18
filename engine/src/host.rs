@@ -219,6 +219,15 @@ pub fn set_unseen(g: &mut Game, viewer: usize, owner: usize, cards: &[DefId], se
     g.set_unseen(viewer, owner, cards, seed)
 }
 
+/// Give each listed card of `owner` that `viewer` cannot see (one of [`unseen_cards`]) the listed identity, in place:
+/// nothing moves, an unlisted hidden card keeps its identity, a card [`unseen_kept`] lists keeps its own. Errors change
+/// nothing: `NO_SUCH_PLAYER`, `UNKNOWN_CARD`, `RECORD_NOT_TAKEN`, `CARD_NOT_HIDDEN`, `DUPLICATE_CARD`,
+/// `NAMED_CARD_KEEPS_IDENTITY`, `FACE_DOWN_SPOT_REFUSES_CARD` (during setup: a face-down spot would hold a card that may
+/// not be put down there) ([`Game::set_unseen_assigned`]).
+pub fn set_unseen_assigned(g: &mut Game, viewer: usize, owner: usize, assigned: &[(CardId, DefId)]) -> R {
+    g.set_unseen_assigned(viewer, owner, assigned)
+}
+
 /// The cards of `owner` that `viewer` cannot see, the ones [`set_unseen`] takes identities for ([`Game::unseen_cards`];
 /// empty for a seat that doesn't exist).
 pub fn unseen_cards(g: &Game, viewer: usize, owner: usize) -> Vec<CardId> {

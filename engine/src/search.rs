@@ -202,14 +202,12 @@ fn hidden_places(g: &Game, viewer: usize, owner: usize) -> (Vec<Unseen>, Vec<Car
     (places, cards)
 }
 
-/// Re-deal `owner`'s cards hidden from `viewer` among their hidden places, shuffled with `rng` (`determinize`,
-/// `Game::set_unseen`): every hidden card lands at a uniformly random hidden place that may hold it (`deal`).
+/// Re-deal `owner`'s cards hidden from `viewer` among their hidden places, shuffled with `rng` (`determinize`): every
+/// hidden card lands at a uniformly random hidden place that may hold it (`deal`).
 fn redeal(g: &mut Game, viewer: usize, owner: usize, rng: &mut Rng) -> R {
     let (places, mut pool) = hidden_places(g, viewer, owner);
-    for i in (1..pool.len()).rev() {
-        pool.swap(i, rng.index(i + 1));
-    }
-    let dealt = deal(g, owner, &places, pool, rng)?;
+    shuffle(&mut pool, rng);
+    let dealt = deal(g, owner, &places, pool, |c| g.st.cdef(c), rng)?;
     for (at, c) in places.into_iter().zip(dealt) {
         put_unseen(g, owner, at, c);
     }
@@ -217,38 +215,70 @@ fn redeal(g: &mut Game, viewer: usize, owner: usize, rng: &mut Rng) -> R {
     Ok(())
 }
 
-/// The shuffled `pool` dealt to `places` (one card each, in the order of `places`). With no face-down spot among them the
-/// pool is the deal (and no chance is drawn). Otherwise each face-down spot, the one fewest cards fit first, takes a card
-/// drawn with `rng` uniformly among the cards that fit it (`fits`) and leave the other spots fillable (`fillable`);
-/// the other places take the remaining cards in their shuffled order. The sets of cards that fit the Active Spot and a
-/// Bench spot are nested (a card that may be Benched at setup may start as the Active Pokémon), so every deal that
-/// respects the spots is equally likely. `FACE_DOWN_SPOT_UNFILLABLE` when no deal respects them.
-fn deal(g: &Game, owner: usize, places: &[Unseen], pool: Vec<CardId>, rng: &mut Rng) -> R<Vec<CardId>> {
+/// Shuffle `v` with `rng` (Fisher-Yates, last position first).
+fn shuffle<T>(v: &mut [T], rng: &mut Rng) {
+    for i in (1..v.len()).rev() {
+        v.swap(i, rng.index(i + 1));
+    }
+}
+
+/// The shuffled `pool` dealt to `places` (one item each, in the order of `places`; `def` says what card an item is). With
+/// no face-down spot among them the pool is the deal (and no chance is drawn). Otherwise each face-down spot, the one
+/// fewest items fit first, takes an item drawn with `rng` uniformly among the items that fit it (`fits`) and leave the
+/// other spots fillable (`fillable`); the other places take the remaining items in their shuffled order. The sets of
+/// cards that fit the Active Spot and a Bench spot are nested (a card that may be Benched at setup may start as the Active
+/// Pokémon), so every deal that respects the spots is equally likely. `FACE_DOWN_SPOT_UNFILLABLE` when no deal respects
+/// them.
+fn deal<T: Copy>(g: &Game, owner: usize, places: &[Unseen], pool: Vec<T>, def: impl Fn(T) -> &'static CardDef, rng: &mut Rng) -> R<Vec<T>> {
     let face_down = |k: &usize| matches!(places[*k], Unseen::FaceDown(..));
     let mut spots: Vec<usize> = (0..places.len()).filter(face_down).collect();
     if spots.is_empty() {
         return Ok(pool);
     }
-    let fit = |k: usize, c: CardId| fits(g, owner, places[k], g.st.cdef(c));
-    spots.sort_by_key(|k| pool.iter().filter(|c| fit(*k, **c)).count());
+    let fit = |k: usize, x: T| fits(g, owner, places[k], def(x));
+    spots.sort_by_key(|k| pool.iter().filter(|x| fit(*k, **x)).count());
     let mut left = pool;
-    let mut out = vec![NO_CARD; places.len()];
+    let mut out: Vec<Option<T>> = vec![None; places.len()];
     for j in 0..spots.len() {
         let (k, rest) = (spots[j], &spots[j + 1..]);
         let ok: Vec<usize> = (0..left.len()).filter(|&i| fit(k, left[i]) && fillable(rest.len(), left.len(), &|a, b| b != i && fit(rest[a], left[b]))).collect();
         if ok.is_empty() {
             return Err(GameError("FACE_DOWN_SPOT_UNFILLABLE"));
         }
-        out[k] = left.remove(ok[rng.index(ok.len())]);
+        out[k] = Some(left.remove(ok[rng.index(ok.len())]));
     }
     let mut rest = left.into_iter();
     for k in (0..places.len()).filter(|k| !face_down(k)) {
-        out[k] = rest.next().expect("as many cards as places");
+        out[k] = rest.next();
     }
-    Ok(out)
+    Ok(out.into_iter().map(|x| x.expect("as many items as places")).collect())
+}
+
+/// What a hidden place gets in [`Game::set_unseen`]'s plan: a card that keeps its identity ([`Game::named_cards`]), or an
+/// identity from the list.
+#[derive(Clone, Copy)]
+enum Planned {
+    Kept(CardId),
+    Def(DefId),
 }
 
 impl Game {
+    /// The checks every identity change of hidden cards starts with: the seats exist, the definitions are in the card
+    /// table, the game record holds no entry not taken yet (it names card ids whose identity would change under them).
+    fn unseen_change_allowed(&self, viewer: usize, owner: usize, defs: impl Iterator<Item = DefId>) -> R {
+        if viewer > 1 || owner > 1 {
+            return Err(GameError("NO_SUCH_PLAYER"));
+        }
+        let n = crate::carddb::cards().len();
+        if defs.into_iter().any(|d| d as usize >= n) {
+            return Err(GameError("UNKNOWN_CARD"));
+        }
+        if self.record.on() && self.record.len > 0 {
+            return Err(GameError("RECORD_NOT_TAKEN"));
+        }
+        Ok(())
+    }
+
     /// Give the cards of `owner` that `viewer` cannot see the identities `cards` (a multiset of card definitions, as many
     /// as there are such cards), dealt among their places at random with `seed`: what a search samples when the viewer
     /// doesn't know the other player's deck list (or, for their own cards, how the list splits between the deck and the
@@ -259,56 +289,106 @@ impl Game {
     /// card that may start as the Active Pokémon), drawn uniformly among the deals that respect the spots. No event;
     /// the chance stream is untouched.
     ///
-    /// A hidden card is a card id whose definition is rewritten. A hidden card the state names and reads the identity of
-    /// at a later decision ([`Game::named_cards`]: a Trainer card played this turn and shuffled back, the source of a
-    /// lasting effect, the card of the last attack) keeps its definition (the viewer saw it), and `cards` must list it.
-    /// The per-card indexes built from the definitions are rebuilt ([`Game::index_cards`]); the derived facts, the
-    /// readers' card lists and the lock sync follow the layout generation.
+    /// A hidden card the state names and reads the identity of at a later decision ([`Game::named_cards`]: a Trainer card
+    /// played this turn and shuffled back, the source of a lasting effect, the card of the last attack) keeps its
+    /// definition (the viewer saw it), and `cards` must list it; it lands at a random hidden place like the others.
+    ///
+    /// The plan (a deal of the kept cards and the listed identities over the hidden places) is made first; then the kept
+    /// cards go to their places, and [`Game::set_unseen_assigned`] gives the other hidden cards, in place, their planned
+    /// identities (the one write path of identities).
     ///
     /// Errors, with nothing changed: `NO_SUCH_PLAYER`; `UNKNOWN_CARD` (a definition the card table doesn't have);
-    /// `UNSEEN_COUNT_MISMATCH`; `NAMED_CARD_NOT_LISTED`; `RECORD_NOT_TAKEN` (the game record holds entries not taken yet:
-    /// they name card ids whose identity would change under them); `FACE_DOWN_SPOT_UNFILLABLE` (no assignment of `cards`
-    /// gives every face-down spot a card that may be put down there).
+    /// `RECORD_NOT_TAKEN` (the game record holds entries not taken yet); `UNSEEN_COUNT_MISMATCH`;
+    /// `NAMED_CARD_NOT_LISTED`; `FACE_DOWN_SPOT_UNFILLABLE` (no deal of `cards` gives every face-down spot a card that
+    /// may be put down there).
     pub fn set_unseen(&mut self, viewer: usize, owner: usize, cards: &[DefId], seed: u32) -> R {
-        if viewer > 1 || owner > 1 {
-            return Err(GameError("NO_SUCH_PLAYER"));
-        }
-        if cards.iter().any(|d| *d as usize >= crate::carddb::cards().len()) {
-            return Err(GameError("UNKNOWN_CARD"));
-        }
-        if self.record.on() && self.record.len > 0 {
-            return Err(GameError("RECORD_NOT_TAKEN"));
-        }
-        let hidden = self.unseen_cards(viewer, owner);
+        self.unseen_change_allowed(viewer, owner, cards.iter().copied())?;
+        let (places, hidden) = hidden_places(self, viewer, owner);
         if cards.len() != hidden.len() {
             return Err(GameError("UNSEEN_COUNT_MISMATCH"));
         }
         let named = self.named_cards();
-        let mut pool: Vec<DefId> = cards.to_vec();
-        let mut free: Vec<CardId> = Vec::with_capacity(hidden.len());
-        for c in hidden {
-            if named >> c & 1 == 0 {
-                free.push(c);
-                continue;
-            }
+        let kept = |c: CardId| named >> c & 1 != 0;
+        let mut pool: Vec<Planned> = cards.iter().map(|d| Planned::Def(*d)).collect();
+        for &c in hidden.iter().filter(|c| kept(**c)) {
             let d = self.st.cards[c as usize].def;
-            let i = pool.iter().position(|x| *x == d).ok_or(GameError("NAMED_CARD_NOT_LISTED"))?;
-            pool.swap_remove(i);
+            let i = pool.iter().position(|x| matches!(x, Planned::Def(y) if *y == d)).ok_or(GameError("NAMED_CARD_NOT_LISTED"))?;
+            pool[i] = Planned::Kept(c);
         }
-        // After the relabelling the hidden cards hold the identities `cards`: each face-down spot needs a distinct one
-        // that may be put down there.
-        let spots: Vec<Unseen> = hidden_places(self, viewer, owner).0.into_iter().filter(|at| matches!(at, Unseen::FaceDown(..))).collect();
-        if !fillable(spots.len(), cards.len(), &|a, b| fits(self, owner, spots[a], crate::carddb::def(cards[b]))) {
-            return Err(GameError("FACE_DOWN_SPOT_UNFILLABLE"));
+        let mut rng = Rng::new(seed);
+        shuffle(&mut pool, &mut rng);
+        let plan = deal(self, owner, &places, pool, |x| match x {
+            Planned::Kept(c) => self.st.cdef(c),
+            Planned::Def(d) => crate::carddb::def(d),
+        }, &mut rng)?;
+        // The kept cards go to their planned places; the other hidden cards fill the rest, in their order, and take the
+        // planned identities there.
+        let mut others = hidden.iter().copied().filter(|c| !kept(*c));
+        let mut assigned: Vec<(CardId, DefId)> = Vec::with_capacity(hidden.len());
+        for (at, x) in places.iter().zip(plan) {
+            let c = match x {
+                Planned::Kept(c) => c,
+                Planned::Def(d) => {
+                    let c = others.next().expect("as many cards as places");
+                    assigned.push((c, d));
+                    c
+                }
+            };
+            put_unseen(self, owner, *at, c);
         }
-        for (c, d) in free.into_iter().zip(pool) {
+        self.st.bump_layout();
+        self.set_unseen_assigned(viewer, owner, &assigned)
+    }
+
+    /// Give each listed card of `owner` that `viewer` cannot see the listed identity, in place: what a host that names
+    /// the hidden cards by its own ids does when it decides which card is which. Nothing moves; no event; the chance
+    /// stream is untouched. The list may cover all of [`Game::unseen_cards`] or a part: an unlisted hidden card keeps
+    /// its identity. A card [`Game::named_cards`] names keeps its identity (it may be listed with that identity). During
+    /// setup a face-down spot must end holding a card that may be put down there (`setup::may_start_active` for the
+    /// Active Spot, `setup::may_bench_at_setup` for the Bench). The per-card indexes are rebuilt
+    /// ([`Game::index_cards`]); the derived facts, the readers' card lists and the lock sync follow the layout generation.
+    ///
+    /// Errors, with nothing changed: `NO_SUCH_PLAYER`; `UNKNOWN_CARD`; `RECORD_NOT_TAKEN`; `CARD_NOT_HIDDEN` (a card
+    /// that isn't one of the owner's cards hidden from the viewer); `DUPLICATE_CARD` (a card listed twice);
+    /// `NAMED_CARD_KEEPS_IDENTITY` (a named card listed with another identity); `FACE_DOWN_SPOT_REFUSES_CARD`.
+    pub fn set_unseen_assigned(&mut self, viewer: usize, owner: usize, assigned: &[(CardId, DefId)]) -> R {
+        self.unseen_change_allowed(viewer, owner, assigned.iter().map(|x| x.1))?;
+        let (places, hidden) = hidden_places(self, viewer, owner);
+        let named = self.named_cards();
+        let mut listed = 0u128;
+        for &(c, d) in assigned {
+            if !hidden.contains(&c) {
+                return Err(GameError("CARD_NOT_HIDDEN"));
+            }
+            if listed >> c & 1 != 0 {
+                return Err(GameError("DUPLICATE_CARD"));
+            }
+            listed |= 1u128 << c;
+            if named >> c & 1 != 0 && self.st.cards[c as usize].def != d {
+                return Err(GameError("NAMED_CARD_KEEPS_IDENTITY"));
+            }
+        }
+        let new_def = |c: CardId| assigned.iter().find(|x| x.0 == c).map_or(self.st.cards[c as usize].def, |x| x.1);
+        for (at, c) in places.iter().zip(&hidden) {
+            if matches!(at, Unseen::FaceDown(..)) && !fits(self, owner, *at, crate::carddb::def(new_def(*c))) {
+                return Err(GameError("FACE_DOWN_SPOT_REFUSES_CARD"));
+            }
+        }
+        for &(c, d) in assigned {
             let inst = &mut self.st.cards[c as usize];
-            inst.def = d;
-            // A card out of play holds no Ability lock (`passive::lock_sync`); a face-down card in play takes hold anew
-            // at the next lock sync, as the card it now is.
-            inst.lock_stamp = 0;
+            if inst.def != d {
+                inst.def = d;
+                // A card out of play holds no Ability lock (`passive::lock_sync`); a face-down card in play takes hold
+                // anew at the next lock sync, as the card it now is.
+                inst.lock_stamp = 0;
+            }
         }
-        redeal(self, viewer, owner, &mut Rng::new(seed))?;
+        // A face-down spot's top Pokémon follows its card's identity (recomputed when the spot's guard drops).
+        for at in places {
+            if let Unseen::FaceDown(s, _) = at {
+                drop(self.st.slot_edit(owner, s));
+            }
+        }
         self.index_cards();
         self.st.bump_layout();
         Ok(())
@@ -647,6 +727,57 @@ pub(crate) mod tests {
         assert!(crate::engine::play_trainer::played_this_turn(&g, o, |d| d.full_name == POFFIN));
     }
 
+    /// Listed hidden cards take the listed identities in place: every card keeps its place, unlisted cards keep their
+    /// identity, the per-card indexes are the new identities'; a named card may be listed with its own identity.
+    #[test]
+    fn set_unseen_assigned_relabels_in_place() {
+        let mut g = table();
+        let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
+        let back = g.st.players[o].deck.iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
+        g.st.players[o].played_this_turn.push(back);
+        let hidden = g.unseen_cards(v, o);
+        let places = |g: &Game| (0..g.st.n_cards).map(|c| g.locate_card(c)).collect::<Vec<_>>();
+        let (before, defs0) = (places(&g), g.st.cards.map(|c| c.def));
+        let hand = g.st.players[o].hand.as_slice()[0];
+        let free: Vec<CardId> = hidden.iter().copied().filter(|c| *c != back && *c != hand).take(2).collect();
+        let assigned = [(free[0], def_of("Hero's Cape TEF 152")), (hand, def_of("Duraludon PRE 69")), (free[1], def_of("Metal Energy MEE 8")), (back, def_of(POFFIN))];
+        g.set_unseen_assigned(v, o, &assigned).unwrap();
+        assert_eq!(places(&g), before, "nothing moves");
+        for c in 0..g.st.n_cards {
+            let want = assigned.iter().find(|x| x.0 == c).map_or(defs0[c as usize], |x| x.1);
+            assert_eq!(g.st.cards[c as usize].def, want);
+        }
+        let fresh = crate::decl::DeclIndex::build(&g);
+        assert_eq!((g.decls.sets, g.decls.kinds, g.decls.attack_passives), (fresh.sets, fresh.kinds, fresh.attack_passives));
+        crate::invariants::check(&g).unwrap();
+        assert!(g.set_unseen_assigned(v, o, &[]).is_ok(), "an empty list changes nothing");
+    }
+
+    /// Refused lists change nothing: a card not hidden from the viewer (in play; the viewer's own hand; another owner's),
+    /// a card listed twice, a named card given another identity, an unknown definition, a seat that doesn't exist.
+    #[test]
+    fn set_unseen_assigned_refuses_with_nothing_changed() {
+        let mut g = table();
+        let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
+        let back = g.st.players[o].deck.iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
+        g.st.players[o].played_this_turn.push(back);
+        let top = g.st.players[o].deck.iter().find(|c| *c != back).unwrap();
+        let mon = def_of(MON);
+        let (hash, defs) = (g.state_hash(), g.st.cards.map(|c| c.def));
+        for (r, want) in [
+            (g.set_unseen_assigned(v, o, &[(g.st.active_pokemon(o).unwrap(), mon)]), "CARD_NOT_HIDDEN"),
+            (g.set_unseen_assigned(o, o, &[(g.st.players[o].hand.as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
+            (g.set_unseen_assigned(v, o, &[(g.st.players[v].deck.as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
+            (g.set_unseen_assigned(v, o, &[(top, mon), (top, mon)]), "DUPLICATE_CARD"),
+            (g.set_unseen_assigned(v, o, &[(back, mon)]), "NAMED_CARD_KEEPS_IDENTITY"),
+            (g.set_unseen_assigned(v, o, &[(top, crate::carddb::cards().len() as DefId)]), "UNKNOWN_CARD"),
+            (g.set_unseen_assigned(2, o, &[(top, mon)]), "NO_SUCH_PLAYER"),
+        ] {
+            assert_eq!(r, Err(GameError(want)));
+            assert_eq!((g.state_hash(), g.st.cards.map(|c| c.def)), (hash.clone(), defs));
+        }
+    }
+
     // -----------------------------------------------------------------------------------------------------------
     // The Pokémon put down face down at setup (SSP rulebook p. 8 steps 5, 6 and 8; APR G steps 5 to 8)
 
@@ -795,6 +926,17 @@ pub(crate) mod tests {
         let mut g = g0.fork();
         let (hash, cards) = (g.state_hash(), g.st.cards.map(|c| c.def));
         assert_eq!(g.set_unseen(1, 0, &list, 1), Err(GameError("FACE_DOWN_SPOT_UNFILLABLE")));
+        assert_eq!((g.state_hash(), g.st.cards.map(|c| c.def)), (hash.clone(), cards));
+        // Assigned in place: a card that may not be put down in the spot is refused; a Basic Pokémon is taken, and the
+        // spot's Pokémon is the card as it now is.
+        let active = g.st.active_pokemon(0).unwrap();
+        assert_eq!(g.set_unseen_assigned(1, 0, &[(active, def_of("Metal Energy MEE 8"))]), Err(GameError("FACE_DOWN_SPOT_REFUSES_CARD")));
+        let benched = face_down(&g, 0)[1];
+        assert_eq!(g.set_unseen_assigned(1, 0, &[(benched, def_of(CINDERACE))]), Err(GameError("FACE_DOWN_SPOT_REFUSES_CARD")));
         assert_eq!((g.state_hash(), g.st.cards.map(|c| c.def)), (hash, cards));
+        g.set_unseen_assigned(1, 0, &[(active, def_of(CINDERACE))]).unwrap();
+        assert_eq!(g.st.active_pokemon(0), Some(active));
+        assert_eq!(g.st.cdef(active).full_name, CINDERACE);
+        crate::invariants::check(&g).unwrap();
     }
 }
