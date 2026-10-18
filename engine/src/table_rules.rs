@@ -34,11 +34,18 @@ pub struct TableRules {
     /// taken without a question (RULES.md "Options that can't do anything", user decision 2). The winner is the same
     /// either way. Taking every Prize card left is never asked.
     pub prizes_chosen_when_opponent_has_no_pokemon: bool,
+    /// A card a player looks at from a hidden zone of the opponent (the top of the opponent's deck) is shown to its owner
+    /// too: the game record's Look entry and `TableView::looking` count the owner among those who see it.
+    ///
+    /// Off (the rulings): the player looking sees the cards; their owner sees them only if they are the one looking
+    /// (RULES.md "Who sees a card set aside while a player looks at it", batch 10 E3 / E7; `record::look_seen_by`). A
+    /// card from a public zone is seen by everyone either way.
+    pub looked_cards_shown_to_owner: bool,
 }
 
 impl TableRules {
     /// Every option's name, in the order of the fields.
-    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing", "prizes_chosen_when_opponent_has_no_pokemon"];
+    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing", "prizes_chosen_when_opponent_has_no_pokemon", "looked_cards_shown_to_owner"];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
     pub fn set(&mut self, name: &str, on: bool) -> Result<(), String> {
@@ -46,6 +53,7 @@ impl TableRules {
             "ask_single_way_payments" => &mut self.ask_single_way_payments,
             "hide_attacks_that_can_do_nothing" => &mut self.hide_attacks_that_can_do_nothing,
             "prizes_chosen_when_opponent_has_no_pokemon" => &mut self.prizes_chosen_when_opponent_has_no_pokemon,
+            "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

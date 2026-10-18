@@ -258,12 +258,15 @@ fn public(z: RulesZone) -> bool {
     matches!(z, RulesZone::Discard | RulesZone::LostZone | RulesZone::InPlay | RulesZone::Stadium)
 }
 
-/// Who sees a card set aside for a look by player `by`, from the zone `from`: the player looking, and everyone when it
-/// came from a public zone; its owner only if they are the one looking. The one rule: the record's Look entry and
+/// Who sees a card of `owner` set aside for a look by player `by`, from the zone `from`: the player looking, and everyone
+/// when it came from a public zone; its owner only if they are the one looking, or when the table shows a look to the
+/// card's owner (`TableRules::looked_cards_shown_to_owner`). The one rule: the record's Look entry and
 /// `TableView::looking` both read it.
-pub fn look_seen_by(from: RulesZone, by: u8) -> [bool; 2] {
+pub fn look_seen_by(rules: &crate::table_rules::TableRules, from: RulesZone, by: u8, owner: u8) -> [bool; 2] {
     if public(from) {
         ALL
+    } else if rules.looked_cards_shown_to_owner {
+        or(only(by), only(owner))
     } else {
         only(by)
     }
@@ -289,7 +292,7 @@ fn sees(g: &Game, c: CardId, place: Option<CardPlace>, kind: EventKind, by: u8) 
         // Face down while the game is set up (SSP rulebook p. 8, steps 5 and 6).
         Zone::InPlay { .. } if g.st.in_play_face_down() => only(place.owner),
         Zone::InPlay { .. } => ALL,
-        Zone::Looking { from } if kind == EventKind::Look => look_seen_by(from, by),
+        Zone::Looking { from } if kind == EventKind::Look => look_seen_by(&g.st.rules, from, by, place.owner),
         Zone::Looking { from } if public(from) => ALL,
         Zone::Looking { .. } => NOBODY,
     }
