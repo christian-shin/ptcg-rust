@@ -320,6 +320,8 @@ pub(crate) fn window_done(g: &mut Game, w: crate::engine::order::Window) -> R {
         // The attack's and the state check's windows end in their callers' loops; the put-into-play window's effect is done
         // already (what follows it waits for the prompts, `Game::waits`).
         crate::engine::order::Window::Damaged { .. } | crate::engine::order::Window::KnockOut | crate::engine::order::Window::PutIntoPlay { .. } => Ok(()),
+        // The Trainer's play is over by then; nothing follows the held triggers.
+        crate::engine::order::Window::TrainerDone { .. } => Ok(()),
     }
 }
 

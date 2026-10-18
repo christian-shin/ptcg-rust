@@ -1011,10 +1011,7 @@ impl Game {
             Cont::Retreat(rc) => retreat::resume(self, rc, first),
             Cont::CoinFlipWait { cb, result } => self.run_coin_cb(cb, result),
             Cont::Reflip(a) => crate::engine::condition::reflip_answer(self, a, first.as_bool()),
-            Cont::TrainerCleanup { p, card } => {
-                crate::engine::play_trainer::trainer_cleanup(self, p as usize, card);
-                Ok(())
-            }
+            Cont::TrainerCleanup { p, card } => crate::engine::play_trainer::trainer_cleanup(self, p as usize, card),
             Cont::ShuffleApplyNoWait { p } => {
                 if let Res::Order(o) = first {
                     apply_order(&mut self.st.players[p as usize].deck, o.as_slice());

@@ -214,7 +214,7 @@ fn resolve_play(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -
         TrainerType::Supporter => {
             g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with: None })?;
             restore_played_trainer(g, p, card);
-            finalize_trainer_cleanup(g, p, card);
+            finalize_trainer_cleanup(g, p, card)?;
             record(g, p, card);
             Ok(())
         }
@@ -248,11 +248,11 @@ fn resolve_play(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -
             }
             g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with })?;
             restore_played_trainer(g, p, card);
-            finalize_trainer_cleanup(g, p, card);
+            finalize_trainer_cleanup(g, p, card)?;
             record(g, p, card);
             if let Some(w) = with {
                 restore_played_trainer(g, p, w);
-                finalize_trainer_cleanup(g, p, w);
+                finalize_trainer_cleanup(g, p, w)?;
                 record(g, p, w);
             }
             Ok(())
@@ -281,14 +281,18 @@ fn cleanup_target(g: &Game, card: CardId) -> fn(u8) -> ListRef {
 }
 
 /// After its use the played card goes from the play area to its owner's discard pile (a Prism Star card to the Lost
-/// Zone): a consequence of the play (user decision D13).
-pub fn trainer_cleanup(g: &mut Game, p: usize, card: CardId) {
-    if !g.st.players[p].supporter.contains(card) {
-        return;
+/// Zone): a consequence of the play (user decision D13). Then the triggers held until the card was done apply (the table
+/// rule `TableRules::evolving_trainer_discarded_before_evolve_triggers`; none otherwise).
+pub fn trainer_cleanup(g: &mut Game, p: usize, card: CardId) -> R {
+    if g.st.players[p].supporter.contains(card) {
+        let t = cleanup_target(g, card)(p as u8);
+        let cause = Cause::rule(RuleWhich::Action, p as u8);
+        crate::record::scope(g, crate::spec::event::EventKind::PlayTrainer, p as u8, Some(cause), |g| g.move_card_to(ListRef::Supporter(p as u8), card, t));
     }
-    let t = cleanup_target(g, card)(p as u8);
-    let cause = Cause::rule(RuleWhich::Action, p as u8);
-    crate::record::scope(g, crate::spec::event::EventKind::PlayTrainer, p as u8, Some(cause), |g| g.move_card_to(ListRef::Supporter(p as u8), card, t));
+    if g.st.rules.evolving_trainer_discarded_before_evolve_triggers && crate::engine::order::pending(g, crate::engine::order::Tag::TrainerDone) {
+        return crate::engine::order::next(g, crate::engine::order::Window::TrainerDone { p: p as u8 });
+    }
+    Ok(())
 }
 
 /// A played card its program discarded while prompts are still open goes back to the play area until the effect ends.
@@ -301,12 +305,12 @@ fn restore_played_trainer(g: &mut Game, p: usize, card: CardId) {
     }
 }
 
-fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId) {
+fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId) -> R {
     if g.has_prompts() {
         g.wait_prompt(Cont::TrainerCleanup { p: p as u8, card });
-        return;
+        return Ok(());
     }
-    trainer_cleanup(g, p, card);
+    trainer_cleanup(g, p, card)
 }
 
 /// The PlayTrainer's consequence the program sees: a played Supporter goes from the hand to the play area (its program
@@ -369,5 +373,58 @@ mod tests {
         let tome = copies(&g, ListRef::Hand(me as u8), TOME)[0];
         let v = play_view(&g, tome, TrainerUse::Played, RulesZone::Hand, Cause::rule(RuleWhich::Action, me as u8));
         assert_eq!(check_with(&mut g, &v, None).unwrap(), Some("CANNOT_PLAY_THIS_CARD"));
+    }
+
+    /// Rare Candy into Alakazam MEG 56 (Psychic Draw: "when you play this Pokémon from your hand to evolve 1 of your
+    /// Pokémon, you may draw 3 cards"): the Ability's "you may" is asked while Rare Candy is still in the play area (the
+    /// rulings), or, under the table rule `evolving_trainer_discarded_before_evolve_triggers`, after Rare Candy is in the
+    /// discard pile.
+    #[test]
+    fn rare_candy_is_discarded_before_psychic_draw_only_under_the_table_rule() {
+        const CANDY: &str = "Rare Candy MEG 125";
+        let mut names: Vec<&str> = Vec::new();
+        for n in [CANDY, "Abra MEG 54", "Alakazam MEG 56"] {
+            names.extend(std::iter::repeat(n).take(4));
+        }
+        while names.len() < 60 {
+            names.push("Psychic Energy MEE 5");
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        for held in [false, true] {
+            let mut g = Game::new(7);
+            g.start([&deck, &deck]).unwrap();
+            // The setup's questions take their first option, up to the first turn.
+            for _ in 0..40 {
+                g.settle().unwrap();
+                if !matches!(g.pending(), crate::game::Pending::Decision(_)) {
+                    break;
+                }
+                let sel = g.select().unwrap().unwrap();
+                g.answer(&sel, &[0]).unwrap();
+            }
+            assert!(matches!(g.pending(), crate::game::Pending::Turn(_)));
+            // A later turn: Rare Candy can't be used during the player's first turn.
+            g.st.turn = 3;
+            let sc = json!({"rules": {"evolving_trainer_discarded_before_evolve_triggers": held}, "me": {"reset": true, "active": "Abra MEG 54", "hand": [CANDY, "Alakazam MEG 56"]}, "opp": {"reset": true, "active": "Abra MEG 54"}});
+            crate::scenario::apply(&mut g, &sc).unwrap();
+            let me = g.st.active_player as usize;
+            let candy = copies(&g, ListRef::Hand(me as u8), CANDY)[0];
+            play_from_hand(&mut g, me, candy, None).unwrap();
+            // Rare Candy's questions (which Pokémon, which Stage 2) take their first option, until Psychic Draw's "you may".
+            let mut asked = false;
+            for _ in 0..8 {
+                let crate::game::Pending::Decision(pi) = g.pending() else { break };
+                if matches!(g.prompts.as_slice()[pi].kind, crate::prompts::PromptKind::Confirm) {
+                    asked = true;
+                    break;
+                }
+                let sel = g.select().unwrap().unwrap();
+                g.answer(&sel, &[0]).unwrap();
+            }
+            assert!(asked, "Psychic Draw is offered (held {held})");
+            let discarded = g.st.players[me].discard.contains(candy);
+            let in_play_area = g.st.players[me].supporter.contains(candy);
+            assert_eq!((discarded, in_play_area), (held, !held), "where Rare Candy is when Psychic Draw is asked (held {held})");
+        }
     }
 }

@@ -714,6 +714,11 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
                     order::record(g, order::Tag::Damaged(atk), order::Item::Damaged(order::DamagedTrigger { c, i: i as u8, b, amount }));
                     continue;
                 }
+                if held_until_trainer_done(g, e, kind) {
+                    g.retain_fx(e);
+                    order::record(g, order::Tag::TrainerDone, order::Item::Held(Timed { c, i: i as u8, p: p as u8, slot, e }));
+                    continue;
+                }
                 if let Some((by, entered)) = put_window(g, e, c, i as u8, p as u8) {
                     order::record(g, order::Tag::PutIntoPlay(by), order::Item::Entered(entered));
                     continue;
@@ -725,6 +730,27 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
         }
     }
     Ok(())
+}
+
+/// Under the table rule `TableRules::evolving_trainer_discarded_before_evolve_triggers`, is the Evolve `e` (of kind `kind`)
+/// caused by an Item or Supporter card still being played (in its player's play area), so its triggers wait until the
+/// card is done and discarded (`engine::play_trainer::trainer_cleanup`)?
+fn held_until_trainer_done(g: &Game, e: EffId, kind: u32) -> bool {
+    if !g.st.rules.evolving_trainer_discarded_before_evolve_triggers || kind != crate::effects::k::EVOLVE {
+        return false;
+    }
+    match g.e(e).cause() {
+        Some(Cause { kind: CauseKind::Trainer, card: Some(t), .. }) => g.st.players[g.st.owner(t)].supporter.contains(t),
+        _ => false,
+    }
+}
+
+/// A trigger held until a Trainer was done (`held_until_trainer_done`), fired now (if it still fires); the event it was
+/// held with is released.
+pub(crate) fn fire_held(g: &mut Game, t: Timed) -> R {
+    let r = fire_timed(g, t);
+    g.release_fx(t.e);
+    r
 }
 
 /// A Trainer, Ability or Stadium can be used when its declared `needs` hold (its printed conditions, and what the rules'

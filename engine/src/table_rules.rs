@@ -41,11 +41,25 @@ pub struct TableRules {
     /// (RULES.md "Who sees a card set aside while a player looks at it", batch 10 E3 / E7; `record::look_seen_by`). A
     /// card from a public zone is seen by everyone either way.
     pub looked_cards_shown_to_owner: bool,
+    /// An Item or Supporter card that evolves a Pokémon (Rare Candy) finishes first: the card goes to the discard pile,
+    /// then the effects the evolution triggers ("when you play this Pokémon from your hand to evolve 1 of your Pokémon",
+    /// Kadabra's Psychic Draw) apply (`engine::order`'s held window, in the order they fired).
+    ///
+    /// Off (the rulings): a triggered effect applies right after the event that triggers it (events design: an `Event::On`
+    /// trigger runs once its event is done; RULES.md "On-play Abilities": it triggers once the card is played and on the
+    /// board), so the Ability is offered while the Trainer resolves, before the card is discarded.
+    pub evolving_trainer_discarded_before_evolve_triggers: bool,
 }
 
 impl TableRules {
     /// Every option's name, in the order of the fields.
-    pub const NAMES: &'static [&'static str] = &["ask_single_way_payments", "hide_attacks_that_can_do_nothing", "prizes_chosen_when_opponent_has_no_pokemon", "looked_cards_shown_to_owner"];
+    pub const NAMES: &'static [&'static str] = &[
+        "ask_single_way_payments",
+        "hide_attacks_that_can_do_nothing",
+        "prizes_chosen_when_opponent_has_no_pokemon",
+        "looked_cards_shown_to_owner",
+        "evolving_trainer_discarded_before_evolve_triggers",
+    ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
     pub fn set(&mut self, name: &str, on: bool) -> Result<(), String> {
@@ -54,6 +68,7 @@ impl TableRules {
             "hide_attacks_that_can_do_nothing" => &mut self.hide_attacks_that_can_do_nothing,
             "prizes_chosen_when_opponent_has_no_pokemon" => &mut self.prizes_chosen_when_opponent_has_no_pokemon,
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
+            "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

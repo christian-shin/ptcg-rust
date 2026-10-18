@@ -50,6 +50,9 @@ pub enum Item {
     /// Trigger `i` of card `c` over the EnterPlay of a Pokémon an effect put into play, recorded when it entered and applied
     /// after the effect ([`Window::PutIntoPlay`]).
     Entered(EnteredTrigger),
+    /// Trigger `i` of card `c` over the event `e`, held until the Trainer card whose effect made the event is done
+    /// (`TableRules::evolving_trainer_discarded_before_evolve_triggers`); the event is retained until it fires.
+    Held(Timed),
 }
 
 /// A trigger over the EnterPlay of a Pokémon an effect put into play: the card and its trigger, the program's player, and the
@@ -86,6 +89,8 @@ pub enum Tag {
     Checkup,
     /// The Pokémon the program of the card put into play.
     PutIntoPlay(CardId),
+    /// The triggers held until a Trainer card was done (a table rule).
+    TrainerDone,
 }
 
 /// Whether the window asks for the order of its effects, and for a window that does, whether the effect applies.
@@ -123,6 +128,9 @@ pub enum Window {
     Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2], several: bool, sc: bool },
     /// The effects activated by the Pokémon the program of card `by` put into play, once that program is done.
     PutIntoPlay { by: CardId },
+    /// The triggers held while player `p`'s Trainer card was played, once the card is done and discarded (a table rule:
+    /// `TableRules::evolving_trainer_discarded_before_evolve_triggers`).
+    TrainerDone { p: u8 },
 }
 
 impl Window {
@@ -133,6 +141,7 @@ impl Window {
             Window::EndTurn { .. } => Tag::EndTurn,
             Window::Checkup { .. } => Tag::Checkup,
             Window::PutIntoPlay { by } => Tag::PutIntoPlay(by),
+            Window::TrainerDone { .. } => Tag::TrainerDone,
         }
     }
 
@@ -153,12 +162,14 @@ impl Window {
             Window::EndTurn { p, .. } => p as usize,
             Window::Checkup { .. } => 1 - g.st.active_player as usize,
             Window::PutIntoPlay { .. } => g.st.active_player as usize,
+            // The player who played the Trainer (it is their turn).
+            Window::TrainerDone { p } => p as usize,
         }
     }
 
     /// The windows a step does not continue by itself: the caller's loop waits for the step's prompts and steps again.
     fn chains(&self) -> bool {
-        matches!(self, Window::EndTurn { .. } | Window::Checkup { .. } | Window::PutIntoPlay { .. })
+        matches!(self, Window::EndTurn { .. } | Window::Checkup { .. } | Window::PutIntoPlay { .. } | Window::TrainerDone { .. })
     }
 
     /// The Special Conditions check is an item of the order now (Checkup, an Active Pokémon has a Special Condition).
@@ -189,7 +200,7 @@ fn def_of(g: &Game, c: CardId) -> u16 {
 /// player (the order between them can't change the game; batch 8 C12b, review 8b Must 4).
 fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
     match (a, b) {
-        (Item::Card(a), Item::Card(b)) => a.i == b.i && a.p == b.p && def_of(g, a.c) == def_of(g, b.c),
+        (Item::Card(a), Item::Card(b)) | (Item::Held(a), Item::Held(b)) => a.i == b.i && a.p == b.p && def_of(g, a.c) == def_of(g, b.c),
         (Item::Damaged(a), Item::Damaged(b)) => a.i == b.i && def_of(g, a.c) == def_of(g, b.c) && a.b.target.p == b.b.target.p,
         (Item::Retaliation(a), Item::Retaliation(b)) => def_of(g, a.lasting.source) == def_of(g, b.lasting.source) && a.target.p == b.target.p,
         (Item::LastingKo { e: a }, Item::LastingKo { e: b }) => matches!((*g.e(*a), *g.e(*b)), (Effect::KnockOut { p: x, .. }, Effect::KnockOut { p: y, .. }) if x == y),
@@ -201,7 +212,7 @@ fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
 /// The card whose effect `item` is (the card the prompt shows for it).
 fn source_card(g: &Game, item: &Item) -> Option<CardId> {
     match *item {
-        Item::Card(t) => Some(t.c),
+        Item::Card(t) | Item::Held(t) => Some(t.c),
         Item::Damaged(t) => Some(t.c),
         Item::Retaliation(t) => Some(t.lasting.source),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e),
@@ -213,6 +224,7 @@ fn source_card(g: &Game, item: &Item) -> Option<CardId> {
 fn fire(g: &mut Game, item: Item) -> R {
     match item {
         Item::Card(t) => run::fire_timed(g, t),
+        Item::Held(t) => run::fire_held(g, t),
         Item::Damaged(t) => run::fire_damaged(g, &t),
         Item::Retaliation(t) => crate::engine::damage::retaliate(g, &t),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_trigger(g, e),
