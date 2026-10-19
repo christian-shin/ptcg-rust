@@ -117,4 +117,52 @@ mod tests {
         assert!(TableRules::from_json(&serde_json::json!({"ask_single_way_payments": 1})).is_err());
         assert_eq!(TableRules::from_json(&serde_json::json!({"ask_single_way_payments": true})).unwrap().ask_single_way_payments, true);
     }
+
+    /// Games with every table rule on play to their end with uniformly random answers (the benchmark's decks): every
+    /// answer the pick mask allows is accepted, no game gets stuck, and the rules stay as set.
+    #[test]
+    fn games_with_every_table_rule_play_through() {
+        let spec: serde_json::Value = serde_json::from_str(include_str!("../bench/spec.json")).unwrap();
+        let decks: Vec<Vec<crate::carddb::DefId>> = spec["decks"].as_array().unwrap().iter().map(|d| crate::selfplay::expand_deck(&d["cards"]).unwrap()).collect();
+        for seed in 0..24u32 {
+            let (a, b) = (&decks[seed as usize % decks.len()], &decks[(seed as usize * 7 + 3) % decks.len()]);
+            let mut g = crate::game::Game::new(seed);
+            g.st.rules = TableRules::all_on();
+            g.start([a, b]).unwrap();
+            let mut rng = crate::rng::Rng::new(seed.wrapping_mul(2654435761));
+            for _ in 0..6000 {
+                let Some(sel) = g.select().unwrap() else { break };
+                let mut picks: Vec<usize> = Vec::new();
+                loop {
+                    let (mask, stop) = g.pick_mask(&sel, &picks);
+                    let allowed: Vec<usize> = (0..sel.options.len()).filter(|j| mask[*j] && !picks.contains(j)).collect();
+                    let choices = allowed.len() + stop as usize;
+                    if choices == 0 {
+                        break;
+                    }
+                    let r = rng.index(choices);
+                    if r == allowed.len() {
+                        break;
+                    }
+                    picks.push(allowed[r]);
+                    if sel.max_count <= 1 {
+                        break;
+                    }
+                }
+                if picks.is_empty() && !g.pick_mask(&sel, &picks).1 {
+                    // No option can be picked and the empty list isn't a full answer: the prompt's null answer (as the
+                    // benchmark's policy does).
+                    let crate::game::Pending::Decision(pi) = g.pending() else { panic!("seed {seed}: no option at a turn decision") };
+                    let pr = g.prompts.as_slice()[pi];
+                    let res = [serde_json::Value::Null, serde_json::json!([])].iter().find_map(|w| g.decode_answer(&pr, w).ok());
+                    let res = res.unwrap_or_else(|| panic!("seed {seed}: no answer to {:?}", g.describe_prompt(&pr)));
+                    g.resolve(pi, res).unwrap();
+                    continue;
+                }
+                g.answer(&sel, &picks).unwrap_or_else(|e| panic!("seed {seed}: answer {picks:?} refused: {e:?}"));
+            }
+            assert!(g.st.phase == crate::types::GamePhase::Finished, "seed {seed}: the game didn't end (turn {})", g.st.turn);
+            assert_eq!(g.st.rules, TableRules::all_on());
+        }
+    }
 }
