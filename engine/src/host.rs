@@ -7,6 +7,11 @@
 //! or [`act`] (a turn action), until [`Decision::Over`]. Between decisions a host reads [`view`], [`locate_card`], the
 //! game record ([`take_record`]) and the chance counters ([`tape_misses`], [`tape_left`]).
 //!
+//! Per decision without allocation. A host that keeps its buffers between decisions calls the `_into` forms: the table
+//! view refreshed in place ([`view_into`]), the turn's legal actions ([`legal_actions_into`], at `Pending::Turn`), the
+//! pick masks ([`pick_mask_into`]), the record ([`take_record_into`]). They give the values of [`view`], [`next`]'s list,
+//! [`pick_mask`] and [`take_record`].
+//!
 //! Threads. A [`Game`] is plain data (`Send + Clone`). The chance tape, the chance recording ([`take_chance`]) and the game
 //! record are per-thread buffers: drive one recording game per thread, and read them on the thread that plays.
 //!
@@ -123,6 +128,19 @@ pub fn pick_mask(g: &Game, select: &SelectData, picks: &[usize]) -> (Vec<bool>, 
     g.pick_mask(select, picks)
 }
 
+/// [`pick_mask`] into a mask the host keeps (cleared first; [`Game::pick_mask_into`]); returns whether the picks so far
+/// already form a complete answer.
+pub fn pick_mask_into(g: &Game, select: &SelectData, picks: &[usize], mask: &mut Vec<bool>) -> bool {
+    g.pick_mask_into(select, picks, mask)
+}
+
+/// The legal actions of the turn decision the game waits for ([`Decision::Turn`]'s list, in its order) into a list the
+/// host keeps (cleared first; [`crate::options::legal_actions_into`]): no list allocated per decision. Call it only at a
+/// turn decision (`Pending::Turn`).
+pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
+    crate::options::legal_actions_into(g, out)
+}
+
 /// Answer a prompt with option indices (as [`Game::answer`]) and settle chance. An answer the prompt does not accept is
 /// an error and leaves the game unchanged.
 pub fn answer(g: &mut Game, select: &SelectData, picks: &[usize]) -> R {
@@ -173,6 +191,11 @@ pub fn record_on(g: &mut Game) {
 /// the record is off ([`Game::take_record`]).
 pub fn take_record(g: &mut Game) -> Vec<RecordEntry> {
     g.take_record()
+}
+
+/// [`take_record`] into a buffer the host keeps (cleared first; [`Game::take_record_into`]): no buffer allocated per call.
+pub fn take_record_into(g: &mut Game, out: &mut Vec<RecordEntry>) {
+    g.take_record_into(out)
 }
 
 /// Replace this thread's chance tape (`None` clears it); the miss count starts at 0 ([`crate::rng::set_tape`]).
@@ -602,6 +625,72 @@ mod tests {
             }
         }
         assert!(checked > 500, "{checked} decisions");
+    }
+
+    /// The `_into` forms give what their allocating forms give: two plays of one game, one through `take_record` /
+    /// `next`'s list / `pick_mask`, the other through `take_record_into` / `legal_actions_into` / `pick_mask_into` with
+    /// buffers kept, see the same entries, actions and masks at every decision. (The record buffer is per thread: the
+    /// two plays run one after the other.)
+    #[test]
+    fn the_into_forms_equal_the_allocating_ones() {
+        #[derive(Debug, PartialEq)]
+        enum Seen {
+            Record(Vec<RecordEntry>),
+            Actions(Vec<Action>),
+            Mask(Vec<bool>, bool),
+        }
+        fn play(into: bool) -> (Vec<Seen>, String) {
+            let d = deck();
+            let opts = StartOptions { record_events: true, ..Default::default() };
+            let mut g = start_game([&d, &d], 8, &opts).unwrap();
+            let (mut entries, mut actions, mut mask) = (Vec::new(), Vec::new(), Vec::new());
+            let mut seen = Vec::new();
+            for n in 0..20_000usize {
+                let dec = next(&mut g).unwrap();
+                if into {
+                    take_record_into(&mut g, &mut entries);
+                    seen.push(Seen::Record(entries.clone()));
+                } else {
+                    seen.push(Seen::Record(take_record(&mut g)));
+                }
+                match dec {
+                    Decision::Over { .. } => break,
+                    Decision::Turn { actions: list, .. } => {
+                        if into {
+                            legal_actions_into(&g, &mut actions);
+                        } else {
+                            actions = list;
+                        }
+                        seen.push(Seen::Actions(actions.clone()));
+                        act(&mut g, actions[n % actions.len()]).unwrap();
+                    }
+                    Decision::Prompt { select, .. } => {
+                        let mut picks = Vec::new();
+                        loop {
+                            let done = if into {
+                                pick_mask_into(&g, &select, &picks, &mut mask)
+                            } else {
+                                let (m, done) = pick_mask(&g, &select, &picks);
+                                mask = m;
+                                done
+                            };
+                            seen.push(Seen::Mask(mask.clone(), done));
+                            if picks.len() >= select.min_count && (done || picks.len() >= select.max_count) {
+                                break;
+                            }
+                            picks.push(mask.iter().position(|x| *x).expect("a valid pick"));
+                        }
+                        answer(&mut g, &select, &picks).unwrap();
+                    }
+                }
+            }
+            (seen, g.state_hash())
+        }
+        let (a, ha) = play(false);
+        let (b, hb) = play(true);
+        assert!(a.len() > 100 && a.iter().any(|s| matches!(s, Seen::Record(e) if !e.is_empty())));
+        assert_eq!(a, b);
+        assert_eq!(ha, hb);
     }
 
     /// While the game record holds entries not taken, `set_unseen` is refused (they name card ids whose identity would

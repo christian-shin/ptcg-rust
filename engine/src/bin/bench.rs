@@ -3,9 +3,10 @@
 //!
 //!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record] [--host]
 //!
-//! `--host` plays the same games the way a host that embeds the engine does (`ptcg::host`): at every decision the table
-//! as the deciding seat sees it (`TableView`), the legal turn actions or the prompt's select, the pick masks, the
-//! all-or-nothing `act` / `answer`, `settle`, the record if on; each call timed. It prints the microseconds per decision
+//! `--host` plays the same games the way a program that embeds the engine does (`ptcg::host`, its buffers kept between
+//! decisions): at every decision the table as the deciding seat sees it (`view_into`), the legal turn actions
+//! (`legal_actions_into`) or the prompt's select and pick masks (`pick_mask_into`), the all-or-nothing `act` / `answer`,
+//! `settle`, the record if on (`take_record_into`); each call timed. It prints the microseconds per decision
 //! of each phase after the single-thread run (the decision count is the same as without `--host`: the same choices).
 //!
 //! `--record` turns the game record on in every game (`Game::record_on`) and takes it after every decision: the cost of
@@ -199,9 +200,10 @@ impl Clock {
 }
 
 /// [`random_game_inner`] the way a host plays it: the same choices from the same random stream (so the same games),
-/// through the host-facing calls, each timed into `clock`.
+/// through `ptcg::host` with the buffers kept between decisions (the views, the action list, the masks, the record),
+/// each call timed into `clock`.
 fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, i8, bool) {
-    use ptcg::host::TableView;
+    use ptcg::host::{self, TableView};
     let record = RECORD.load(std::sync::atomic::Ordering::Relaxed);
     let mut g = Game::new(seed);
     if record {
@@ -213,6 +215,11 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
     }
     // One view per seat, kept and refreshed at its seat's decisions.
     let mut views = [TableView::new(&g, 0), TableView::new(&g, 1)];
+    let mut actions = Vec::new();
+    let mut mask = Vec::new();
+    let mut entries = Vec::new();
+    let mut picks: Vec<usize> = Vec::new();
+    let mut allowed: Vec<usize> = Vec::new();
     let mut decisions = 0u64;
     for _ in 0..MAX_STEPS {
         if clock.time(Phase::Settle, || g.settle()).is_err() {
@@ -227,34 +234,37 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
             Pending::Chance(_) | Pending::Info(_) => return fail(decisions, "settled"),
             Pending::Turn(seat) => {
                 if record {
-                    std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
+                    clock.time(Phase::Record, || host::take_record_into(&mut g, &mut entries));
+                    std::hint::black_box(&entries);
                 }
-                clock.time(Phase::View, || views[seat as usize].refresh(&g, seat as usize));
+                clock.time(Phase::View, || host::view_into(&g, seat as usize, &mut views[seat as usize]));
                 std::hint::black_box(&views);
-                let opts = clock.time(Phase::Legal, || ptcg::options::legal_actions(&g));
-                if opts.is_empty() {
+                clock.time(Phase::Legal, || host::legal_actions_into(&g, &mut actions));
+                if actions.is_empty() {
                     return fail(decisions, "no legal options");
                 }
                 decisions += 1;
-                let k = rng.index(opts.len());
-                if clock.time(Phase::Act, || g.act(opts[k].action)).is_err() {
+                let k = rng.index(actions.len());
+                if clock.time(Phase::Act, || g.act(actions[k])).is_err() {
                     return fail(decisions, "act");
                 }
             }
             Pending::Decision(_) => {
                 if record {
-                    std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
+                    clock.time(Phase::Record, || host::take_record_into(&mut g, &mut entries));
+                    std::hint::black_box(&entries);
                 }
                 let Ok(Some(sel)) = clock.time(Phase::Select, || g.select()) else { return fail(decisions, "select") };
-                clock.time(Phase::View, || views[sel.player as usize].refresh(&g, sel.player as usize));
+                clock.time(Phase::View, || host::view_into(&g, sel.player as usize, &mut views[sel.player as usize]));
                 std::hint::black_box(&views);
                 decisions += 1;
                 let n = sel.options.len();
-                let mut picks: Vec<usize> = Vec::new();
+                picks.clear();
                 let mut ok = true;
                 loop {
-                    let (mask, stop) = clock.time(Phase::PickMask, || g.pick_mask(&sel, &picks));
-                    let allowed: Vec<usize> = (0..n).filter(|j| mask[*j]).collect();
+                    let stop = clock.time(Phase::PickMask, || host::pick_mask_into(&g, &sel, &picks, &mut mask));
+                    allowed.clear();
+                    allowed.extend((0..n).filter(|j| mask[*j]));
                     let choices = allowed.len() + stop as usize;
                     if choices == 0 {
                         ok = false;

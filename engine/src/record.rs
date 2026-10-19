@@ -161,14 +161,23 @@ impl Game {
 
     /// The entries recorded since the last call (between actions and answers: every event is done then).
     pub fn take_record(&mut self) -> Vec<RecordEntry> {
+        let mut out = Vec::new();
+        self.take_record_into(&mut out);
+        out
+    }
+
+    /// [`Game::take_record`] into `out` (cleared first): the entries trade buffers with `out`, so a caller that keeps
+    /// one `out` allocates no buffer per call.
+    pub fn take_record_into(&mut self, out: &mut Vec<RecordEntry>) {
+        out.clear();
         if !self.record.on {
-            return Vec::new();
+            return;
         }
         self.record.len = 0;
         BUF.with(|b| {
             let mut b = b.borrow_mut();
             b.pending.clear();
-            std::mem::take(&mut b.entries)
+            std::mem::swap(&mut b.entries, out);
         })
     }
 
