@@ -1,7 +1,12 @@
 //! Throughput benchmark: uniformly random play from a fuzz spec's decks,
 //! no JSON descriptors, no invariant checks, no recording.
 //!
-//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record]
+//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record] [--host]
+//!
+//! `--host` plays the same games the way a host that embeds the engine does (`ptcg::host`): at every decision the table
+//! as the deciding seat sees it (`TableView`), the legal turn actions or the prompt's select, the pick masks, the
+//! all-or-nothing `act` / `answer`, `settle`, the record if on; each call timed. It prints the microseconds per decision
+//! of each phase after the single-thread run (the decision count is the same as without `--host`: the same choices).
 //!
 //! `--record` turns the game record on in every game (`Game::record_on`) and takes it after every decision: the cost of
 //! the record (its entries are dropped).
@@ -160,6 +165,164 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
     (decisions, false, -1, false)
 }
 
+/// The phases a host's decision is made of (`--host`), in the order of `PHASES`.
+#[derive(Clone, Copy)]
+enum Phase {
+    Settle,
+    View,
+    Legal,
+    Select,
+    PickMask,
+    Act,
+    Answer,
+    Record,
+}
+
+const PHASES: [&str; 8] = ["settle", "view", "legal_actions", "select", "pick_mask", "act", "answer", "take_record"];
+
+/// Nanoseconds and calls per phase of a `--host` run.
+#[derive(Default, Clone, Copy)]
+struct Clock {
+    ns: [u64; 8],
+    calls: [u64; 8],
+}
+
+impl Clock {
+    #[inline]
+    fn time<T>(&mut self, p: Phase, f: impl FnOnce() -> T) -> T {
+        let t = Instant::now();
+        let r = f();
+        self.ns[p as usize] += t.elapsed().as_nanos() as u64;
+        self.calls[p as usize] += 1;
+        r
+    }
+}
+
+/// [`random_game_inner`] the way a host plays it: the same choices from the same random stream (so the same games),
+/// through the host-facing calls, each timed into `clock`.
+fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, i8, bool) {
+    use ptcg::host::TableView;
+    let record = RECORD.load(std::sync::atomic::Ordering::Relaxed);
+    let mut g = Game::new(seed);
+    if record {
+        g.record_on();
+    }
+    let mut rng = Rng::new(seed.wrapping_mul(2654435761));
+    if g.start(decks).is_err() {
+        return fail(0, "start");
+    }
+    let mut decisions = 0u64;
+    for _ in 0..MAX_STEPS {
+        if clock.time(Phase::Settle, || g.settle()).is_err() {
+            return fail(decisions, "settle");
+        }
+        if g.st.turn > MAX_TURNS {
+            break;
+        }
+        match g.pending() {
+            Pending::Finished => return (decisions, true, g.st.winner, false),
+            Pending::Stuck => return fail(decisions, "stuck"),
+            Pending::Chance(_) | Pending::Info(_) => return fail(decisions, "settled"),
+            Pending::Turn(seat) => {
+                if record {
+                    std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
+                }
+                std::hint::black_box(clock.time(Phase::View, || TableView::new(&g, seat as usize)));
+                let opts = clock.time(Phase::Legal, || ptcg::options::legal_actions(&g));
+                if opts.is_empty() {
+                    return fail(decisions, "no legal options");
+                }
+                decisions += 1;
+                let k = rng.index(opts.len());
+                if clock.time(Phase::Act, || g.act(opts[k].action)).is_err() {
+                    return fail(decisions, "act");
+                }
+            }
+            Pending::Decision(_) => {
+                if record {
+                    std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
+                }
+                let Ok(Some(sel)) = clock.time(Phase::Select, || g.select()) else { return fail(decisions, "select") };
+                std::hint::black_box(clock.time(Phase::View, || TableView::new(&g, sel.player as usize)));
+                decisions += 1;
+                let n = sel.options.len();
+                let mut picks: Vec<usize> = Vec::new();
+                let mut ok = true;
+                loop {
+                    let (mask, stop) = clock.time(Phase::PickMask, || g.pick_mask(&sel, &picks));
+                    let allowed: Vec<usize> = (0..n).filter(|j| mask[*j]).collect();
+                    let choices = allowed.len() + stop as usize;
+                    if choices == 0 {
+                        ok = false;
+                        break;
+                    }
+                    let r = rng.index(choices);
+                    if r == allowed.len() {
+                        break;
+                    }
+                    picks.push(allowed[r]);
+                    if sel.max_count <= 1 {
+                        break;
+                    }
+                }
+                if !ok {
+                    let Pending::Decision(pi) = g.pending() else { return fail(decisions, "pending") };
+                    let pr = g.prompts.as_slice()[pi];
+                    let res = [Value::Null, Value::Array(vec![])].iter().find_map(|w| g.decode_answer(&pr, w).ok());
+                    let Some(res) = res else { return fail(decisions, "empty answer") };
+                    if g.resolve(pi, res).is_err() {
+                        return fail(decisions, "empty answer");
+                    }
+                } else if clock.time(Phase::Answer, || g.answer(&sel, &picks)).is_err() {
+                    return fail(decisions, "answer");
+                }
+            }
+        }
+    }
+    (decisions, false, -1, false)
+}
+
+/// `--host`: the single-thread run through [`host_game`], with the phase table.
+fn run_host(decks: &[Vec<DefId>], seed0: u32, games: usize) {
+    let n = decks.len();
+    let mut warm = Clock::default();
+    for i in 0..20.min(games) {
+        let g = seed0.wrapping_add(7777).wrapping_mul(100_000).wrapping_add(i as u32);
+        host_game([&decks[g as usize % n], &decks[(g as usize / n) % n]], g, &mut warm);
+    }
+    let mut clock = Clock::default();
+    let mut t = Tally::default();
+    let t0 = Instant::now();
+    for i in 0..games {
+        let g = seed0.wrapping_mul(100_000).wrapping_add(i as u32);
+        let (a, b) = (g as usize % n, (g as usize / n) % n);
+        let (d, fin, w, failed) = host_game([&decks[a], &decks[b]], g, &mut clock);
+        t.games += 1;
+        t.decisions += d;
+        t.finished += fin as u64;
+        t.wins0 += (w == 0) as u64;
+        t.failed += failed as u64;
+    }
+    let dt = t0.elapsed().as_secs_f64();
+    let per = |ns: u64| ns as f64 * 1e-3 / t.decisions.max(1) as f64;
+    println!(
+        "host, 1 thread: {} games ({} finished, {} failed, p0 won {}) {} decisions in {:.2}s: {:.2} us/decision",
+        t.games, t.finished, t.failed, t.wins0, t.decisions, dt, dt * 1e6 / t.decisions.max(1) as f64
+    );
+    let mut timed = 0;
+    for (i, name) in PHASES.iter().enumerate() {
+        timed += clock.ns[i];
+        println!(
+            "  {:<13} {:>7.2} us/decision ({:.2} calls/decision, {:.2} us/call)",
+            name,
+            per(clock.ns[i]),
+            clock.calls[i] as f64 / t.decisions.max(1) as f64,
+            clock.ns[i] as f64 * 1e-3 / clock.calls[i].max(1) as f64
+        );
+    }
+    println!("  {:<13} {:>7.2} us/decision (the timed calls)", "sum", per(timed));
+}
+
 fn run(decks: &[Vec<DefId>], seed0: u32, range: std::ops::Range<usize>) -> Tally {
     let n = decks.len();
     let mut t = Tally::default();
@@ -185,14 +348,16 @@ fn main() {
     if args.iter().any(|a| a == "--sizes") {
         use std::mem::size_of;
         println!(
-            "sizeof: Game {} B, State {} B, Player {} B, Slot {} B, CardInst {} B, Effect {} B, PromptRec {} B",
+            "sizeof: Game {} B, State {} B, Player {} B, Slot {} B, CardInst {} B, Effect {} B, PromptRec {} B, TableView {} B, Ctx {} B",
             size_of::<Game>(),
             size_of::<ptcg::state::State>(),
             size_of::<ptcg::state::Player>(),
             size_of::<ptcg::state::Slot>(),
             size_of::<ptcg::state::CardInst>(),
             size_of::<ptcg::effects::Effect>(),
-            size_of::<ptcg::prompts::PromptRec>()
+            size_of::<ptcg::prompts::PromptRec>(),
+            size_of::<ptcg::view::TableView>(),
+            size_of::<ptcg::legal::Ctx>()
         );
     }
     RECORD.store(args.iter().any(|a| a == "--record"), std::sync::atomic::Ordering::Relaxed);
@@ -202,6 +367,10 @@ fn main() {
         decks.push(expand_deck(&d["cards"]).unwrap_or_else(|e| panic!("deck {}: {}", d["name"], e)));
     }
 
+    if args.iter().any(|a| a == "--host") {
+        run_host(&decks, seed0, games);
+        return;
+    }
     // Warm up (card tables, caches), then the timed single-thread run.
     run(&decks, seed0.wrapping_add(7777), 0..20.min(games));
     let (t0, c0) = (Instant::now(), thread_cpu());
