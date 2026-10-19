@@ -142,7 +142,14 @@ pub struct SVec<T: Copy, const N: usize> {
 
 impl<T: Copy, const N: usize> Default for SVec<T, N> {
     fn default() -> Self {
-        SVec { len: 0, items: [std::mem::MaybeUninit::uninit(); N] }
+        // Only `len` is written: `SVec { len: 0, items: [MaybeUninit::uninit(); N] }` was compiled to a memset of the
+        // whole vector (14 KB of zeroing per `legal::Ctx::new`).
+        let mut v = std::mem::MaybeUninit::<Self>::uninit();
+        // SAFETY: `len` is the one field that needs a value; `items` is an array of `MaybeUninit`.
+        unsafe {
+            std::ptr::addr_of_mut!((*v.as_mut_ptr()).len).write(0);
+            v.assume_init()
+        }
     }
 }
 
