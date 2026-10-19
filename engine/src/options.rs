@@ -68,7 +68,7 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
     }
 }
 
-/// Structural candidates for the active player's turn, in the rules order (cabt's MAIN order, cabt-format 4.3): the
+/// Structural candidates for the active player's turn, in the rules order (the selection interface's turn order): the
 /// hand cards by hand index (each one's targets: the Active Spot, then the Bench in order), the Abilities of the
 /// Pokémon in play and the Stadium by position, the attacks in list order, the retreat, passing.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
@@ -332,7 +332,7 @@ mod tests {
     use super::*;
     use crate::carddb::{cards, def, def_by_full_name, DefId};
 
-    /// The rank of a turn action in cabt's MAIN order (cabt-format 4.3): the hand cards by hand index and target (the
+    /// The rank of a turn action in the selection interface's turn order: the hand cards by hand index and target (the
     /// Active Spot first), then the Abilities and the Stadium by position (the Active Spot, the Bench, the Stadium),
     /// then the attacks, then the retreat, then passing.
     fn rank(a: Action) -> (u8, u8, u8) {
@@ -351,10 +351,10 @@ mod tests {
         }
     }
 
-    /// The candidates and the legal options come in cabt's MAIN order on a constructed board, with the attacks in
+    /// The candidates and the legal options come in the selection interface's turn order on a constructed board, with the attacks in
     /// printed order although their names sort the other way.
     #[test]
-    fn candidates_come_in_the_cabt_main_order() {
+    fn candidates_come_in_the_turn_action_order() {
         // A Pokémon whose second attack sorts before its first by name, a Stadium, and Pokémon with an Ability.
         let attacker = cards()
             .iter()

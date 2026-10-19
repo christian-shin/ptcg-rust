@@ -1,4 +1,4 @@
-//! Engine-driven selection interface in the shape of the Kaggle cabt engine:
+//! Engine-driven selection interface (the selection interface a host plays through):
 //! every decision is a [`SelectData`] with `type`, `context`, `min_count`,
 //! `max_count` and an explicit `option` list; the agent answers with option
 //! indices.
@@ -111,7 +111,7 @@ pub enum AreaType {
     Looking = 12,
 }
 
-/// One option (cabt `Option`). `card_id` is the card-database index,
+/// One option of a select. `card_id` is the card-database index,
 /// `serial` the card instance.
 #[derive(Clone, Debug, Default)]
 pub struct Opt {
@@ -237,7 +237,7 @@ enum AnswerShape {
     Counters(i32),
 }
 
-/// The cabt select context of a prompt purpose (the outcome the prompt asks for).
+/// The select context of a prompt purpose (the outcome the prompt asks for).
 pub(crate) fn context_for(purpose: PromptPurpose) -> SelectContext {
     use PromptPurpose as P;
     match purpose {
@@ -287,7 +287,7 @@ fn area_of(r: ListRef) -> (u8, u8) {
 }
 
 impl Game {
-    /// The current decision as a cabt-style select, or `None` when the game
+    /// The current decision as a select, or `None` when the game
     /// is over (chance and info prompts are settled internally first).
     pub fn select(&mut self) -> Result<Option<SelectData>, GameError> {
         self.select_with(false)
@@ -509,7 +509,7 @@ impl Game {
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
                 let energy = *self.payload_energy(energy);
-                // The options are the attached cards in the order they arrived (cabt-format 4.3); `index` and the wire
+                // The options are the attached cards in the order they arrived (the selection interface's order); `index` and the wire
                 // value stay the entry's position in the offered map.
                 let mut order: Vec<usize> = (0..energy.len()).collect();
                 order.sort_by_key(|&k| self.st.cards[energy.as_slice()[k].card as usize].arrived);
@@ -597,7 +597,7 @@ impl Game {
                         }
                     }
                 }
-                // Attached cards of every Pokémon in the order they arrived (cabt-format 4.3), the stable sort keeping
+                // Attached cards of every Pokémon in the order they arrived (the selection interface's order), the stable sort keeping
                 // each card's destinations in target order.
                 let mut order: Vec<usize> = (0..options.len()).collect();
                 order.sort_by_key(|&k| self.st.cards[options[k].serial.unwrap() as usize].arrived);

@@ -2,7 +2,7 @@
 
     env = ptcg.Env(deck_a, deck_b, seed=0)
     env = ptcg.Env(deck_a, deck_b, seed=0, rules={"ask_single_way_payments": True})  # named table rules
-    sel = env.select()            # cabt-style dict: type, context, minCount, maxCount, option
+    sel = env.select()            # select dict: type, context, minCount, maxCount, option
     env.step([0])                 # answer with option indices
     obs = env.observe(0)          # float32 [OBS_SIZE] from player 0's view
     copy = env.clone()            # cheap full copy (mid-prompt included)

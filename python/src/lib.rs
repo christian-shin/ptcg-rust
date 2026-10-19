@@ -174,7 +174,7 @@ impl Env {
         })
     }
 
-    /// Current decision as a cabt-style dict, or None when the game is over.
+    /// Current decision as a select dict (type, context, counts, options), or None when the game is over.
     fn select<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyDict>>> {
         guarded(|| {
             match &self.sel {

@@ -178,7 +178,7 @@ mod tests {
         }
     }
 
-    /// Every purpose names one select context, the one of the outcome it asks for (cabt-format.md section 5): the table
+    /// Every purpose names one select context, the one of the outcome it asks for (the selection interface's contexts): the table
     /// lists every purpose (the test fails when a variant is missing from it) and the mapping is checked against it.
     #[test]
     fn every_purpose_names_its_context() {

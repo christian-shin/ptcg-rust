@@ -4,25 +4,22 @@
   tools/jp_faq.py [--dry NAME ...] [--refresh] [--limit N]
                   [--csv-dir DIR] [--cache DIR] [--out-dir DIR]
 
-English pool names -> Japanese names through the two Kaggle playground card-list CSVs
-(same Card ID = same printing). Each distinct Japanese name is searched (full name, then the
+English pool names -> Japanese names through two card-list CSVs, one English and one Japanese, in
+--csv-dir (same Card ID = same printing). Each distinct Japanese name is searched (full name, then the
 name without ex/V/VSTAR/VMAX if the full name gave nothing); at most 1 request/second.
 Writes docs/rulings/jp-faq.json and jp-faq.md. Python 3 stdlib only.
 """
-import argparse, csv, datetime, html, json, os, re, sys, time, unicodedata
+import argparse, csv, datetime, html, json, os, re, sys, tempfile, time, unicodedata
 import urllib.parse, urllib.request, urllib.error
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEF_CSV = os.path.expanduser(
-    "~/Downloads/the-pokemon-company-ptcg-ai-battle-challenge-playground")
-DEF_CACHE = ("/private/tmp/claude-501/-Users-christianshin-Documents-pkmntcg/"
-             "9deb2769-00b0-461c-86c1-8bcbc72e4a7c/scratchpad/jp_faq_html")
+DEF_CACHE = os.path.join(tempfile.gettempdir(), "jp_faq_html")
 URL = ("https://www.pokemon-card.com/rules/faq/search.php?freeword={w}"
        "&regulation_faq_main_item1=all&regulation=all&page={p}")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
       "(KHTML, like Gecko) Version/17.0 Safari/605.1.15")
 
-# cabt's names for type Special Energy / basic Energy -> our pool names
+# the card lists' names for some Special Energy / basic Energy -> our pool names
 HAND = {
     "Grow Grass Energy": "Growing Grass Energy",
     "Telepath Psychic Energy": "Telepathic Psychic Energy",
@@ -176,7 +173,7 @@ def main():
     ap.add_argument("--dry", nargs="+", help="search these Japanese names and print the parse")
     ap.add_argument("--refresh", action="store_true")
     ap.add_argument("--limit", type=int, help="only the first N distinct names")
-    ap.add_argument("--csv-dir", default=DEF_CSV)
+    ap.add_argument("--csv-dir", help="the English and Japanese card-list CSVs (needed unless --dry)")
     ap.add_argument("--cache", default=DEF_CACHE)
     ap.add_argument("--out-dir", default=os.path.join(ROOT, "docs", "rulings"))
     a = ap.parse_args()
@@ -190,6 +187,8 @@ def main():
         return
 
     pool = json.load(open(os.path.join(ROOT, "data", "cards.json"), encoding="utf-8"))
+    if not a.csv_dir:
+        ap.error("--csv-dir is needed")
     table = jp_names(a.csv_dir)
     key_jp, unmatched = {}, []
     for key, c in pool.items():
@@ -238,7 +237,7 @@ def main():
 
 Source: https://www.pokemon-card.com/rules/faq/search.php?freeword=<URL-encoded Japanese name>&regulation_faq_main_item1=all
 (follows `&page=N`, 10 Q&As per page). Fetched {today} by `tools/jp_faq.py`. Japanese names come from the
-Kaggle playground EN/JP card lists (same Card ID = same printing); the full name is searched, and the
+English / Japanese card lists (same Card ID = same printing); the full name is searched, and the
 name without ex/V/VSTAR/VMAX only if the full name returned nothing. Free-word search also matches
 card text, so a Q&A may be about another card that merely mentions this one (see `related`).
 Not translated: read the Japanese.

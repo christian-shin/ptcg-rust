@@ -35,7 +35,7 @@ use crate::spec::event::{EventKind, EventView, KoBy, RulesZone};
 use crate::state::*;
 use crate::types::*;
 
-/// Why the game ended (kept for traces and the cabt adapter).
+/// Why the game ended (kept for traces and for hosts).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum EndReason {
     /// A player took their last Prize card.

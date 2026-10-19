@@ -19,7 +19,7 @@ use crate::types::*;
 /// A card as the viewer names it: its id in this game (the serial) and its definition.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct CardView {
-    /// The card's id in this game (`CardId`, unique per game; cabt's "serial").
+    /// The card's id in this game (`CardId`, unique per game; the selection interface's `serial`).
     pub card: CardId,
     /// The card's definition (`carddb`), what the card is.
     pub def: DefId,
