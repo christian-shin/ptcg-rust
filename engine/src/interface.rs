@@ -971,6 +971,10 @@ impl Game {
             for j in 0..n {
                 self.verify_does_something(sel, j);
             }
+            // Every question asked can be answered (`Game::prompt` doesn't ask one that can't).
+            if let (true, Source::Prompt(i, _, _)) = (picks.is_empty(), &sel.map) {
+                assert!(self.has_an_answer(*i), "a question with no answer it can take is asked: {:?}", self.describe_prompt(&self.prompts.as_slice()[*i]));
+            }
         }
         if sel.max_count <= 1 {
             // Single pick: the options the prompt accepts.
@@ -999,7 +1003,7 @@ impl Game {
             // exactly: their picks are few (at most the cost) and an exhausted
             // budget would offer an Energy that can't complete the payment.
             let mut budget = if exact { usize::MAX } else { 64usize };
-            mask[j] = self.completable(sel, &mut buf, 0, repeats, &mut budget);
+            mask[j] = self.completable(sel, &mut buf, 0, repeats, &mut budget, true);
             buf.pop();
         }
         stop
@@ -1021,8 +1025,9 @@ impl Game {
     }
 
     /// Depth-first search for a valid superset of `buf`; the added options are
-    /// enumerated in index order from `start` (combinations, not permutations).
-    fn completable(&self, sel: &SelectData, buf: &mut Vec<usize>, start: usize, repeats: bool, budget: &mut usize) -> bool {
+    /// enumerated in index order from `start` (combinations, not permutations). `declared`: an answer found is checked as
+    /// [`Game::is_declared_answer`] does (`PTCG_VERIFY_LEGAL` resolves it on a copy); otherwise it is only decoded.
+    fn completable(&self, sel: &SelectData, buf: &mut Vec<usize>, start: usize, repeats: bool, budget: &mut usize, declared: bool) -> bool {
         if *budget == 0 {
             return true;
         }
@@ -1030,7 +1035,8 @@ impl Game {
         if !self.extendable(sel, buf) {
             return false;
         }
-        if buf.len() >= sel.min_count && self.is_declared_answer(sel, buf) {
+        let valid = |g: &Game, buf: &[usize]| if declared { g.is_declared_answer(sel, buf) } else { g.is_valid_answer(sel, buf) };
+        if buf.len() >= sel.min_count && valid(self, buf) {
             return true;
         }
         if buf.len() >= sel.max_count {
@@ -1041,7 +1047,7 @@ impl Game {
                 continue;
             }
             buf.push(k);
-            let ok = self.completable(sel, buf, if repeats { k } else { k + 1 }, repeats, budget);
+            let ok = self.completable(sel, buf, if repeats { k } else { k + 1 }, repeats, budget, declared);
             buf.pop();
             if ok {
                 return true;
@@ -1051,6 +1057,25 @@ impl Game {
             }
         }
         false
+    }
+
+    /// Can the question `i` (a decision prompt) be answered: is some answer valid, a cancel or no choice included? A
+    /// question with no answer it can take isn't asked (`Game::prompt`): e.g. an evolution target when every Pokémon is
+    /// blocked, an attach with no Pokémon to attach to. Answers are only decoded (the program that opens the question is
+    /// still running: nothing is resolved on a copy); the search budget, when hit, counts as an answer.
+    pub(crate) fn has_an_answer(&self, i: usize) -> bool {
+        let pr = self.prompts.as_slice()[i];
+        // A prompt whose null answer is accepted (a cancel; a yes / no or a number with no validation) can be answered.
+        if self.decode_answer(&pr, &Value::Null).is_ok() {
+            return true;
+        }
+        let sel = self.prompt_select(i);
+        if sel.min_count == 0 && self.is_valid_answer(&sel, &[]) {
+            return true;
+        }
+        let mut buf = Vec::new();
+        let mut budget = 256usize;
+        self.completable(&sel, &mut buf, 0, sel.allows_repeats(), &mut budget, false)
     }
 }
 
