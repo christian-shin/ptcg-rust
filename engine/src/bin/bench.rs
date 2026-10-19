@@ -211,6 +211,8 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
     if g.start(decks).is_err() {
         return fail(0, "start");
     }
+    // One view per seat, kept and refreshed at its seat's decisions.
+    let mut views = [TableView::new(&g, 0), TableView::new(&g, 1)];
     let mut decisions = 0u64;
     for _ in 0..MAX_STEPS {
         if clock.time(Phase::Settle, || g.settle()).is_err() {
@@ -227,7 +229,8 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
                 if record {
                     std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
                 }
-                std::hint::black_box(clock.time(Phase::View, || TableView::new(&g, seat as usize)));
+                clock.time(Phase::View, || views[seat as usize].refresh(&g, seat as usize));
+                std::hint::black_box(&views);
                 let opts = clock.time(Phase::Legal, || ptcg::options::legal_actions(&g));
                 if opts.is_empty() {
                     return fail(decisions, "no legal options");
@@ -243,7 +246,8 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
                     std::hint::black_box(clock.time(Phase::Record, || g.take_record()));
                 }
                 let Ok(Some(sel)) = clock.time(Phase::Select, || g.select()) else { return fail(decisions, "select") };
-                std::hint::black_box(clock.time(Phase::View, || TableView::new(&g, sel.player as usize)));
+                clock.time(Phase::View, || views[sel.player as usize].refresh(&g, sel.player as usize));
+                std::hint::black_box(&views);
                 decisions += 1;
                 let n = sel.options.len();
                 let mut picks: Vec<usize> = Vec::new();

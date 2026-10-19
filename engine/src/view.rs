@@ -2,7 +2,8 @@
 //!
 //! A `Copy` struct built from the game for one viewer, with every fact read through the derived layer (HP, the Energy
 //! provided) or from the state's own records. It is the one source of the observation features (`obs.rs`), and the shape
-//! an adapter to another observation format reads. It holds no reference to the game: build it, then read it anywhere.
+//! an adapter to another observation format reads. It holds no reference to the game: build it (or refresh one you keep,
+//! `TableView::refresh`: the same value, written in place), then read it anywhere.
 //!
 //! Seats are player indexes (`players[i]` is player `i`, not "you / opponent"); `viewer` says whose eyes. Hidden
 //! information is absent, not masked: the opponent's hand is `None`, the Prize cards face down are `None`, the
@@ -150,28 +151,53 @@ fn card(g: &Game, c: CardId) -> CardView {
     CardView { card: c, def: g.st.cards[c as usize].def }
 }
 
-fn cards_of<const N: usize, const Z: bool>(g: &Game, l: &List<N, Z>) -> SVec<CardView, 120> {
-    let mut v = SVec::new();
+/// Write `l`'s cards into `out` (cleared first).
+fn cards_into<const N: usize, const Z: bool>(g: &Game, l: &List<N, Z>, out: &mut SVec<CardView, 120>) {
+    out.clear();
     for c in l.iter() {
-        v.push(card(g, c));
+        out.push(card(g, c));
     }
-    v
 }
 
-fn pokemon(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId) -> Option<PokemonView> {
+/// An empty Pokémon entry, to fill.
+fn blank_pokemon() -> PokemonView {
+    let none = CardView { card: NO_CARD, def: 0 };
+    PokemonView {
+        top: none,
+        max_hp: 0,
+        damage: 0,
+        hp: 0,
+        entered_turn: 0,
+        entered_this_turn: false,
+        provided: SVec::new(),
+        energy: SVec::new(),
+        tools: SVec::new(),
+        pre_evolution: SVec::new(),
+        conditions: 0,
+    }
+}
+
+/// The Pokémon in spot `s` of player `p` into `out` (`None` for an empty spot, or when `hidden`), in place: an entry
+/// already there is overwritten field by field, not rebuilt.
+fn pokemon_into(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId, hidden: bool, out: &mut Option<PokemonView>) {
     let st = &g.st;
+    let top = if hidden { None } else { st.slot_pokemon(p, s) };
+    let Some(top) = top else {
+        *out = None;
+        return;
+    };
+    let v = out.get_or_insert_with(blank_pokemon);
     let slot = st.slot(p, s);
-    let top = st.slot_pokemon(p, s)?;
     let d = st.cdef(top);
     // The HP with its modifiers (the derived layer over the game, no memo).
     let max_hp = crate::derived::compute_hp(facts, p, s).unwrap_or(d.hp);
-    let mut provided = SVec::new();
+    v.provided.clear();
     for e in crate::derived::compute_provided_energy(facts, p, crate::effects::SlotRef::new(p, s)).unwrap_or_default().iter() {
         if crate::energy::is_choosable(e.provides.as_slice()) {
-            provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::AnyOf(e.provides) });
+            v.provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::AnyOf(e.provides) });
         } else {
             for t in e.provides.iter() {
-                provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::One(*t) });
+                v.provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::One(*t) });
             }
         }
     }
@@ -180,103 +206,141 @@ fn pokemon(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId) -> Opti
         attached.push(c);
     }
     attached.as_mut_slice().sort_by_key(|c| st.cards[*c as usize].arrived);
-    let mut energy = SVec::new();
+    v.energy.clear();
     for &c in attached.iter() {
-        energy.push(EnergyView { card: card(g, c), first_type: st.cdef(c).provides.first().copied().unwrap_or(ct::COLORLESS) });
+        v.energy.push(EnergyView { card: card(g, c), first_type: st.cdef(c).provides.first().copied().unwrap_or(ct::COLORLESS) });
     }
     let mut tool_cards: SVec<CardId, 4> = SVec::new();
     for c in slot.tools().iter() {
         tool_cards.push(c);
     }
     tool_cards.as_mut_slice().sort_by_key(|c| st.cards[*c as usize].arrived);
-    let mut tools = SVec::new();
+    v.tools.clear();
     for &c in tool_cards.iter() {
-        tools.push(card(g, c));
+        v.tools.push(card(g, c));
     }
-    let mut pre_evolution = SVec::new();
+    v.pre_evolution.clear();
     for c in st.slot_pokemons(p, s).iter() {
         if *c != top {
-            pre_evolution.push(card(g, *c));
+            v.pre_evolution.push(card(g, *c));
         }
     }
     let mut conditions = 0u32;
     for c in slot.special_conditions.iter() {
         conditions |= 1 << c;
     }
-    Some(PokemonView {
-        top: card(g, top),
-        max_hp,
-        damage: slot.damage,
-        hp: max_hp - slot.damage,
-        entered_turn: slot.entered_turn,
-        entered_this_turn: slot.entered_turn == st.turn,
-        provided,
-        energy,
-        tools,
-        pre_evolution,
-        conditions,
-    })
+    v.top = card(g, top);
+    v.max_hp = max_hp;
+    v.damage = slot.damage;
+    v.hp = max_hp - slot.damage;
+    v.entered_turn = slot.entered_turn;
+    v.entered_this_turn = slot.entered_turn == st.turn;
+    v.conditions = conditions;
 }
 
-fn seat(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize) -> SeatView {
+/// An empty seat, to fill.
+fn blank_seat() -> SeatView {
+    SeatView {
+        deck_count: 0,
+        hand_count: 0,
+        hand: None,
+        discard: SVec::new(),
+        lost_zone: SVec::new(),
+        prize_count: 0,
+        prizes: SVec::new(),
+        active: None,
+        active_face_down: false,
+        bench: [None; MAX_BENCH],
+        bench_face_down: [false; MAX_BENCH],
+        bench_max: 0,
+        supporter_played: false,
+        stadium_played: false,
+        energy_attached: false,
+        retreated: false,
+        used_vstar: false,
+        used_gx: false,
+    }
+}
+
+/// Seat `p` as `viewer` sees it into `out`, in place.
+fn seat_into(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize, out: &mut SeatView) {
     let st = &g.st;
     let pl = &st.players[p];
     let trainer = |kind: TrainerType| pl.played_this_turn.iter().any(|c| st.cdef(*c).trainer_type == kind as u8);
-    let mut prizes = SVec::new();
+    out.prizes.clear();
     for i in 0..pl.prize_count as usize {
         if pl.prizes[i].is_empty() {
             continue;
         }
-        prizes.push(if pl.prize_face_up[i] { pl.prizes[i].get(0).map(|c| card(g, c)) } else { None });
+        out.prizes.push(if pl.prize_face_up[i] { pl.prizes[i].get(0).map(|c| card(g, c)) } else { None });
     }
     // A card lying face down is seen by its owner only (`State::in_play_face_down`).
     let down = |s: SlotId| st.in_play_face_down() && !st.slot(p, s).cards().is_empty();
-    let mut spot = |s: SlotId| if down(s) && p != viewer { None } else { pokemon(g, facts, p, s) };
-    let mut bench = [None; MAX_BENCH];
-    let mut bench_face_down = [false; MAX_BENCH];
-    for (i, &s) in pl.bench.iter().enumerate().take(MAX_BENCH) {
-        bench[i] = spot(s);
-        bench_face_down[i] = down(s);
+    for i in 0..MAX_BENCH {
+        match pl.bench.as_slice().get(i) {
+            Some(&s) => {
+                pokemon_into(g, facts, p, s, down(s) && p != viewer, &mut out.bench[i]);
+                out.bench_face_down[i] = down(s);
+            }
+            None => {
+                out.bench[i] = None;
+                out.bench_face_down[i] = false;
+            }
+        }
     }
-    let active = spot(pl.active);
-    SeatView {
-        deck_count: pl.deck.len() as u8,
-        hand_count: pl.hand.len() as u8,
-        hand: if p == viewer { Some(cards_of(g, &pl.hand)) } else { None },
-        discard: cards_of(g, &pl.discard),
-        lost_zone: cards_of(g, &pl.lostzone),
-        prize_count: pl.prize_left() as u8,
-        prizes,
-        active,
-        active_face_down: down(pl.active),
-        bench,
-        bench_face_down,
-        bench_max: pl.bench.len() as u8,
-        supporter_played: trainer(TrainerType::Supporter),
-        stadium_played: trainer(TrainerType::Stadium),
-        energy_attached: pl.energy_played_turn == st.turn,
-        retreated: pl.retreated_turn == st.turn,
-        used_vstar: pl.used_vstar,
-        used_gx: pl.used_gx,
+    pokemon_into(g, facts, p, pl.active, down(pl.active) && p != viewer, &mut out.active);
+    out.active_face_down = down(pl.active);
+    out.deck_count = pl.deck.len() as u8;
+    out.hand_count = pl.hand.len() as u8;
+    if p == viewer {
+        cards_into(g, &pl.hand, out.hand.get_or_insert_with(SVec::new));
+    } else {
+        out.hand = None;
     }
+    cards_into(g, &pl.discard, &mut out.discard);
+    cards_into(g, &pl.lostzone, &mut out.lost_zone);
+    out.prize_count = pl.prize_left() as u8;
+    out.bench_max = pl.bench.len() as u8;
+    out.supporter_played = trainer(TrainerType::Supporter);
+    out.stadium_played = trainer(TrainerType::Stadium);
+    out.energy_attached = pl.energy_played_turn == st.turn;
+    out.retreated = pl.retreated_turn == st.turn;
+    out.used_vstar = pl.used_vstar;
+    out.used_gx = pl.used_gx;
 }
 
 impl TableView {
     /// The table as `viewer` sees it.
     pub fn new(g: &Game, viewer: usize) -> TableView {
+        let mut v = TableView {
+            viewer: 0,
+            turn: 0,
+            phase: 0,
+            active_player: 0,
+            first_player: 0,
+            stadium: None,
+            looking: SVec::new(),
+            players: [blank_seat(), blank_seat()],
+        };
+        v.refresh(g, viewer);
+        v
+    }
+
+    /// Rebuild this view in place as the table `viewer` sees it now: the same value as `TableView::new(g, viewer)`,
+    /// without building a new view and copying it (a host that keeps one view per seat refreshes it per decision).
+    pub fn refresh(&mut self, g: &Game, viewer: usize) {
         let mut facts = crate::legal::Ctx::new(g);
         let st = &g.st;
-        let stadium = (0..2).find_map(|q| st.players[q].stadium.get(0).map(|c| (card(g, c), q as u8)));
-        TableView {
-            viewer: viewer as u8,
-            turn: st.turn,
-            phase: st.phase as u8,
-            active_player: st.active_player,
-            first_player: st.first_player,
-            stadium,
-            looking: looking(g, viewer),
-            players: [seat(g, &mut facts, viewer, 0), seat(g, &mut facts, viewer, 1)],
-        }
+        self.viewer = viewer as u8;
+        self.turn = st.turn;
+        self.phase = st.phase as u8;
+        self.active_player = st.active_player;
+        self.first_player = st.first_player;
+        self.stadium = (0..2).find_map(|q| st.players[q].stadium.get(0).map(|c| (card(g, c), q as u8)));
+        looking_into(g, viewer, &mut self.looking);
+        let [a, b] = &mut self.players;
+        seat_into(g, &mut facts, viewer, 0, a);
+        seat_into(g, &mut facts, viewer, 1, b);
     }
 
     /// The seat of the viewer.
@@ -293,9 +357,9 @@ impl TableView {
 /// The cards set aside for a look or a search (the staging lists in use) that `viewer` may see: the player looking sees
 /// them, everyone sees a card taken from a public zone, and a card's owner sees it only if they are the one looking or
 /// the table shows looks to the owner (`record::look_seen_by`, the game record's rule). A card the viewer may not see keeps its place as `None`.
-fn looking(g: &Game, viewer: usize) -> SVec<Option<CardView>, 120> {
+fn looking_into(g: &Game, viewer: usize, out: &mut SVec<Option<CardView>, 120>) {
     use crate::spec::event::RulesZone;
-    let mut out: SVec<Option<CardView>, 120> = SVec::new();
+    out.clear();
     let mut seen: SVec<CardId, 120> = SVec::new();
     for i in 0..g.temp_hw as usize {
         if !g.temp_used[i] {
@@ -312,7 +376,6 @@ fn looking(g: &Game, viewer: usize) -> SVec<Option<CardView>, 120> {
             out.push(if may { Some(card(g, c)) } else { None });
         }
     }
-    out
 }
 
 #[cfg(test)]

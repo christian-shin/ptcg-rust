@@ -143,6 +143,12 @@ pub fn view(g: &Game, seat: usize) -> TableView {
     TableView::new(g, seat)
 }
 
+/// [`view`] into a view the host keeps ([`TableView::refresh`]): the same value, rebuilt in place (no new view built and
+/// copied per decision).
+pub fn view_into(g: &Game, seat: usize, out: &mut TableView) {
+    out.refresh(g, seat);
+}
+
 /// Where card `c` is ([`Game::locate_card`]); `None` for a number that is no card of this game.
 pub fn locate_card(g: &Game, c: CardId) -> Option<CardPlace> {
     g.locate_card(c)
@@ -546,6 +552,56 @@ mod tests {
             }
             assert!(over && turns > 10 && resized > 0, "seed {seed}: the game did not finish ({turns} turns, {resized} resizes)");
         }
+    }
+
+    /// One view per seat refreshed in place at every decision of random games equals a view built new (for both seats:
+    /// the hand, the face-down spots and the looks differ between them), whatever the view held before.
+    #[test]
+    fn a_refreshed_view_equals_a_new_one() {
+        let decks = [bench_deck("meta-alakazam-powerful-hand"), bench_deck("meta-dragapult-ex"), bench_deck("meta-marnie-s-grimmsnarl-ex")];
+        let mut views = [TableView::new(&start_game([&decks[0], &decks[1]], 1, &StartOptions::default()).unwrap(), 0); 2];
+        let mut checked = 0usize;
+        for seed in 0..6u32 {
+            let (a, b) = (&decks[seed as usize % 3], &decks[(seed as usize + 1) % 3]);
+            let mut g = start_game([a, b], seed, &StartOptions::default()).unwrap();
+            let mut x = seed as u64 * 0x9E37_79B9_7F4A_7C15 + 7;
+            let mut rnd = |n: usize| {
+                x = x.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                (x >> 33) as usize % n
+            };
+            for _ in 0..20_000 {
+                let d = next(&mut g).unwrap();
+                for seat in 0..2 {
+                    view_into(&g, seat, &mut views[seat]);
+                    assert_eq!(views[seat], view(&g, seat), "seed {seed}, seat {seat}, turn {}", g.st.turn);
+                }
+                // A view refreshed for the other seat than it last showed.
+                let mut other = views[0];
+                other.refresh(&g, 1);
+                assert_eq!(other, views[1]);
+                checked += 1;
+                match d {
+                    Decision::Over { .. } => break,
+                    Decision::Turn { actions, .. } => act(&mut g, actions[rnd(actions.len())]).unwrap(),
+                    Decision::Prompt { select, .. } => {
+                        let mut picks = Vec::new();
+                        loop {
+                            let (mask, done) = pick_mask(&g, &select, &picks);
+                            if picks.len() >= select.min_count && (picks.len() >= select.max_count || (done && rnd(3) == 0)) {
+                                break;
+                            }
+                            let valid: Vec<usize> = (0..mask.len()).filter(|i| mask[*i]).collect();
+                            if valid.is_empty() {
+                                break;
+                            }
+                            picks.push(valid[rnd(valid.len())]);
+                        }
+                        answer(&mut g, &select, &picks).unwrap();
+                    }
+                }
+            }
+        }
+        assert!(checked > 500, "{checked} decisions");
     }
 
     /// While the game record holds entries not taken, `set_unseen` is refused (they name card ids whose identity would
