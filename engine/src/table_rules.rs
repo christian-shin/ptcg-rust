@@ -58,6 +58,16 @@ pub struct TableRules {
     /// cannot play a Trainer card for no net effect"; RULES.md "Options that can't do anything", user decision 2, batch 8
     /// C10; the rules' usability walk, user decision D10).
     pub offer_cards_that_can_do_nothing: bool,
+    /// An Ability whose use Knocks Out the Pokémon using it ("If you use this Ability, this Pokémon is Knocked Out": e.g.
+    /// Dusknoir's Cursed Blast) Knocks it Out first: its costs and that consequence are done, then a state check handles
+    /// the Knock Out (the Pokémon and its cards go to the discard pile, the opponent takes Prize cards, a new Active
+    /// Pokémon is promoted), and then the rest of the Ability's effect is done (a program yielding to the state check,
+    /// `spec::run::yield_to_state_check`).
+    ///
+    /// Off (the rulings): every effect of the Ability is done first and the Pokémon is Knocked Out at the next state check
+    /// (id2089: "All effects have to be resolved before resolving KO's"; id2239; RULES.md "'If you use this Ability, this
+    /// Pokémon is Knocked Out' is a consequence of using it").
+    pub self_knockout_before_effect: bool,
 }
 
 impl TableRules {
@@ -69,6 +79,7 @@ impl TableRules {
         "looked_cards_shown_to_owner",
         "evolving_trainer_discarded_before_evolve_triggers",
         "offer_cards_that_can_do_nothing",
+        "self_knockout_before_effect",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -80,6 +91,7 @@ impl TableRules {
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             "offer_cards_that_can_do_nothing" => &mut self.offer_cards_that_can_do_nothing,
+            "self_knockout_before_effect" => &mut self.self_knockout_before_effect,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

@@ -59,6 +59,12 @@ pub(crate) enum Phase {
     /// Deck searches, and choices nested under an `If` the damage can change, a coin or a
     /// loop, are still made after the damage, when their options exist.
     Choices = 3,
+    /// An Ability's costs and the consequences of using it (`Step::cost`, `Step::consequence`), run first when its use
+    /// Knocks the Pokémon using it Out at a table with `TableRules::self_knockout_before_effect`; then the program
+    /// yields to the state check (`yield_to_state_check`) and goes on with `AfterConsequences`.
+    Consequences = 4,
+    /// The rest of such an Ability (its `Step::new` steps), after the state check.
+    AfterConsequences = 5,
 }
 
 /// What the last op that makes events did (events design section 7; APR II.A "do as much as you can", E-20): `Done` it
@@ -241,6 +247,8 @@ impl Frame {
             0 => Phase::BeforeDamage,
             1 => Phase::AfterDamage,
             3 => Phase::Choices,
+            4 => Phase::Consequences,
+            5 => Phase::AfterConsequences,
             _ => Phase::Use,
         };
         let a0 = f.a[0] as u32;
@@ -509,12 +517,17 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 Effect::Power { p, .. } => p as usize,
                 _ => continue,
             };
-            let f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
+            let mut f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
             check_power(g, me, pw, &f)?;
             if let Some((key, by, until)) = power_once(g, me, pw, p) {
                 if !crate::engine::usage::use_once(&mut g.st, key, by, until) {
                     crate::bail!("POWER_ALREADY_USED");
                 }
+            }
+            // At a table where the Pokémon an Ability Knocks Out is Knocked Out first, its costs and consequences run
+            // first and the program yields to the state check before the rest (`TableRules::self_knockout_before_effect`).
+            if g.st.rules.self_knockout_before_effect && program_knocks_out_self(pw) {
+                f.phase = Phase::Consequences;
             }
             run(g, me, f)?;
         }
@@ -1174,6 +1187,22 @@ pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
     proceed(g, me, f, flow)
 }
 
+/// The program of `me` yields to the state check (APR E: Knock Outs are handled at a state check): the check runs now,
+/// with its questions (Prize cards, a new Active Pokémon), and the program goes on at `f` once it completes
+/// (`OnComplete::Program`, `resume_after_state_check`).
+fn yield_to_state_check(g: &mut Game, me: CardId, f: &Frame) -> R {
+    crate::engine::knockout::state_check(g, crate::game::OnComplete::Program { card: me, frame: f.frame_at(0) })
+}
+
+/// A program that yielded to the state check goes on where it was, unless the check decided the game.
+pub fn resume_after_state_check(g: &mut Game, me: CardId, cf: CardFrame) -> R {
+    if g.st.phase == crate::types::GamePhase::Finished {
+        return Ok(());
+    }
+    let Some(f) = Frame::decode(g, me, &cf) else { return Ok(()) };
+    run(g, me, f)
+}
+
 fn proceed(g: &mut Game, me: CardId, mut f: Frame, flow: Flow) -> R {
     match flow {
         Flow::Next => f.advance(),
@@ -1215,6 +1244,13 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                     continue;
                 }
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
+                // The costs and consequences are done: the state check handles the Knock Out, then the rest runs.
+                Phase::Consequences => {
+                    f.phase = Phase::AfterConsequences;
+                    f.path = [0; MAX_DEPTH];
+                    f.sub = 0;
+                    return yield_to_state_check(g, me, &f);
+                }
                 _ => {}
             }
             // The program is done: the effects activated by the Pokémon it put into play apply now.
@@ -1521,6 +1557,9 @@ fn runs_in(at: RuleStep, phase: Phase) -> bool {
             | (RuleStep::Use, Phase::Use)
             | (RuleStep::Cost, Phase::Use)
             | (RuleStep::Consequence, Phase::Use)
+            | (RuleStep::Cost, Phase::Consequences)
+            | (RuleStep::Consequence, Phase::Consequences)
+            | (RuleStep::Use, Phase::AfterConsequences)
     )
 }
 

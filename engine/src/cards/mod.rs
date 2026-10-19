@@ -12,7 +12,7 @@ use crate::prompts::Res;
 use std::sync::OnceLock;
 
 /// Continuation payload for card routines that wait for an answer, and callbacks.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct CardFrame {
     pub stage: u8,
     pub a: [i32; 4],

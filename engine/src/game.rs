@@ -88,6 +88,8 @@ pub enum OnComplete {
     /// The end of player `p`'s attack (attack step 7, Knock Outs checked; `attack::attack_over`): the copied attack ends,
     /// then the end of the turn unless the game is over.
     AfterAttack { p: u8 },
+    /// A card program that yielded to the state check (`spec::run::yield_to_state_check`) resumes at `frame`.
+    Program { card: CardId, frame: CardFrame },
 }
 
 /// What happens when a coin flip is resolved.
