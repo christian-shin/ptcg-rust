@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Spiritomb PBL 35",
+   "4 Shuppet PBL 33",
+   "4 Hop's Phantump ASC 95",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Spiritomb PBL 35",
+   "4 Shuppet PBL 33",
+   "4 Hop's Phantump ASC 95",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Spiritomb PBL 35",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "4 Shuppet PBL 33"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Phantump ASC 95",
+  "active_damage": 10
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Spiritual End",
+   "is": false,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Spiritual End ('If you have 13 or more Pokemon that have the Hide 'n' Sneak Ability in your discard pile, choose 2 of your opponent's Pokemon and quadruple the number of damage counters on each of them') does nothing with 4 such Pokemon: a condition the text reads before it does anything is read as the board is now; off it is (APR A-01: an attack needs its Energy)"
+  }
+ ]
+}

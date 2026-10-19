@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Furfrou POR 67",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Furfrou POR 67",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Furfrou POR 67",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Furfrou POR 67",
+  "hand": [
+   "5 Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Hand Trim",
+   "is": false,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Hand Trim ('Discard random cards from your opponent's hand until they have 5 cards in their hand') discards 0 cards from a hand of 5: 0 cards is nothing to act on; off it is (APR A-01: an attack needs its Energy)"
+  }
+ ]
+}

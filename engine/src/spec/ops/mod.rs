@@ -112,16 +112,16 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, p: &PickSpec) -> bool 
     cards::pick_finds(g, me, f, p)
 }
 
-/// Has a pick or search from a deck something to act on, judged by what can be known of a hidden zone (`None`: not a
-/// pick or search from a deck)? The question of `TableRules::hide_attacks_that_can_do_nothing` (`run::RulesWalk::objects`).
-pub(crate) fn deck_pick_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    cards::deck_pick_has_object(g, me, f, op)
-}
-
-/// Has an effect on a Pokémon the text names something to act on: that Pokémon in play (`None`: not such an effect)? The
-/// question of `TableRules::hide_attacks_that_can_do_nothing` (`run::RulesWalk::objects`).
-pub(crate) fn named_target_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    board::named_target_has_object(g, me, f, op)
+/// Has the effect something to act on, rather than would it change the game (`None`: not judged here; the walk asks
+/// `effect_possible`)? The question of `TableRules::hide_attacks_that_can_do_nothing` (`run::RulesWalk::objects`); with
+/// `now` an effect's own condition is read as the board is now.
+pub(crate) fn has_object(g: &Game, me: CardId, f: &Frame, op: &Op, now: bool) -> Option<bool> {
+    match family(op) {
+        Family::Cards => cards::has_object(g, me, f, op),
+        Family::Board => board::has_object(g, me, f, op, now),
+        Family::Flow => flow::has_object(g, f, op),
+        Family::State => None,
+    }
 }
 
 /// Any op of the list would change the game (`None` when none is an effect).

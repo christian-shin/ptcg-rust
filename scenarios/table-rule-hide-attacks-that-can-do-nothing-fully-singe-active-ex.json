@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Turtonator SSP 137",
+   "4 Terapagos ex SCR 128",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Turtonator SSP 137",
+   "4 Terapagos ex SCR 128",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Turtonator SSP 137",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terapagos ex SCR 128",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Fully Singe",
+   "is": true,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Fully Singe acts on the opponent's Active Pokemon ex (Terapagos ex)"
+  }
+ ]
+}

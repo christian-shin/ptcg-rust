@@ -1038,6 +1038,32 @@ pub fn num_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, n: &Num
 /// hand, discard pile and deck, their own Bench, printed properties of the Active Pokémon and of
 /// this Pokémon, and the cards a step D choice has already picked. Anything else (damage, Special
 /// Conditions, the opponent's cards, a coin) is decided when it is reached.
+/// Does the condition read which cards a zone hidden from the player holds (the kinds of the cards of a deck or of the
+/// opponent's hand: "if your deck has a card that evolves from this Pokémon", the copies of a named card still unseen)?
+/// How many cards it holds is public; what they are isn't.
+pub fn cond_reads_hidden_cards(c: &Cond) -> bool {
+    fn hidden(z: &ZoneRef, p: &Pred) -> bool {
+        (z.1 == Zone::Deck || (z.0 == Who::Opp && z.1 == Zone::Hand)) && !matches!(p, Pred::Any)
+    }
+    fn num_reads(n: &Num) -> bool {
+        match n {
+            Num::CardCount(z, p) | Num::DistinctTypes(z, p) | Num::OthersCount(z, p) => hidden(z, p),
+            Num::KnownCopies(..) => true,
+            Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num_reads(a) || num_reads(b),
+            Num::If(c, a, b) => cond_reads_hidden_cards(c) || num_reads(a) || num_reads(b),
+            _ => false,
+        }
+    }
+    match c {
+        Cond::Printed(c) | Cond::Not(c) => cond_reads_hidden_cards(c),
+        Cond::All(cs) | Cond::Any(cs) => cs.iter().any(cond_reads_hidden_cards),
+        Cond::Cmp(a, _, b) => num_reads(a) || num_reads(b),
+        Cond::Nonempty(z, p) | Cond::NonemptyOther(z, p) => hidden(z, p),
+        Cond::KnownCopies { .. } | Cond::AllNamesKnown { .. } => true,
+        _ => false,
+    }
+}
+
 pub fn cond_stable(c: &Cond) -> bool {
     fn own_zone(z: &ZoneRef) -> bool {
         z.0 == Who::Me && matches!(z.1, Zone::Hand | Zone::Discard | Zone::Deck)

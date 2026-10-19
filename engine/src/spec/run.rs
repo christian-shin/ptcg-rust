@@ -843,12 +843,17 @@ struct RulesWalk {
     /// The program runs now (`applies`): a condition on the board decides its branch; otherwise (a usability walk, a
     /// "you may" asked before the program's earlier ops ran) only the conditions that stay the same through the program do.
     now: bool,
-    /// The question of `TableRules::hide_attacks_that_can_do_nothing` (`attack_can_do_something`): has each effect
-    /// something to act on, rather than would it change the game? An effect on a Pokémon the text names acts on it
-    /// while it is in play, whether or not it would change it ("Heal 10 damage from this Pokémon" at full HP:
-    /// `ops::named_target_has_object`); a deck is hidden, so a pick or search from it has something to act on while it
-    /// holds a card, its cards' kinds and the copies in known areas unread (`ops::deck_pick_has_object`).
+    /// The question of `TableRules::hide_attacks_that_can_do_nothing` (`attack_can_do_something`): has every effect of
+    /// the text something to act on, rather than would one change the game (`ops::has_object`)? An effect on a Pokémon
+    /// the text names acts on it while it is in play, whether or not it would change it ("Heal 10 damage from this
+    /// Pokémon" at full HP); a deck is hidden, so a pick or search from it has something to act on while it holds a
+    /// card, its cards' kinds and the copies in known areas unread. A condition the text reads before it does anything
+    /// ("If you have 13 or more ...", "If your opponent's Active Pokémon has exactly 6 damage counters on it") is read
+    /// as the board is now; the text can do something only when every effect it does has something to act on.
     objects: bool,
+    /// The program did something before the step walked (flipped a coin, chose, moved a card: any op but an "If" and
+    /// the attack's damage), so its conditions aren't read as the board is now (`objects`).
+    acted: bool,
     left_hand: i32,
     gates_ok: bool,
     /// Per card register: whether the op that fills it would find cards (`None`: not filled by the program yet).
@@ -857,17 +862,18 @@ struct RulesWalk {
 
 impl RulesWalk {
     fn new(now: bool) -> Self {
-        RulesWalk { now, objects: false, left_hand: 0, gates_ok: true, regs: [None; 4] }
+        RulesWalk { now, objects: false, acted: false, left_hand: 0, gates_ok: true, regs: [None; 4] }
     }
-    /// The program can be used: every top-level cost and choice can be made and no effect is known to do nothing.
+    /// The program can be used: every top-level cost and choice can be made and no effect is known to do nothing (under
+    /// `objects`: and an effect has something to act on).
     fn usable(&mut self, g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
         let fx = self.walk(g, me, f, steps, true);
-        self.gates_ok && fx != Some(false)
+        self.gates_ok && if self.objects { fx == Some(true) } else { fx != Some(false) }
     }
     /// Can the op's choice or precondition be made (`ops::implied_ok`; under `objects` a pick from a deck can while the
-    /// deck holds a card)?
+    /// deck holds a card: `ops::has_object`)?
     fn implied_ok(&self, g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
-        match self.objects.then(|| ops::deck_pick_has_object(g, me, f, op)).flatten() {
+        match self.objects.then(|| ops::has_object(g, me, f, op, false)).flatten() {
             Some(x) => x,
             None => ops::implied_ok(g, me, f, op),
         }
@@ -892,12 +898,15 @@ impl RulesWalk {
 }
 
 impl RulesWalk {
-    /// Would one effect of `steps` change the game (`None`: no effect op)? Top-level costs and choices are gates.
+    /// Would one effect of `steps` change the game (under `objects`: has every effect something to act on; `None`: no
+    /// effect op)? Top-level costs and choices are gates.
     fn walk(&mut self, g: &Game, me: CardId, f: &Frame, steps: &[Step], top: bool) -> Option<bool> {
         let mut out = None;
+        // One effect that would change the game is enough; under `objects` every effect needs something to act on.
+        let all = self.objects;
         let join = |out: &mut Option<bool>, x: Option<bool>| match x {
-            Some(true) => *out = Some(true),
-            Some(false) if out.is_none() => *out = Some(false),
+            Some(true) if !all || out.is_none() => *out = Some(true),
+            Some(false) if all || out.is_none() => *out = Some(false),
             _ => {}
         };
         for s in steps {
@@ -906,9 +915,9 @@ impl RulesWalk {
                 continue;
             }
             // A choice a nested list (a coin's result, an "If") starts with that has nothing to choose: the rest of that
-            // list can't happen.
+            // list can't happen (under `objects` its effects have nothing to act on).
             if !top && matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) && !self.implied_ok(g, me, f, &s.op) {
-                return if out == Some(true) { Some(true) } else { Some(false) };
+                return if out == Some(true) && !self.objects { Some(true) } else { Some(false) };
             }
             if let Op::Pick(p) = &s.op {
                 if p.from == ZoneRef(Who::Me, Zone::Hand) {
@@ -945,26 +954,30 @@ impl RulesWalk {
                 self.gates_ok &= whole || ops::implied_ok(g, me, f, &s.op);
                 continue;
             }
+            // Under `objects` a condition read before the text does anything (flips a coin, chooses, moves a card) is read
+            // as the board is now, unless it reads what a hidden zone holds.
+            let now = self.now || (self.objects && !self.acted);
+            if self.objects && !matches!(s.op, Op::If(_) | Op::Damage(_)) {
+                self.acted = true;
+            }
+            let hidden = |c: &Cond| self.objects && crate::spec::value::cond_reads_hidden_cards(c);
             let holds_now = match &s.op {
-                Op::If(i) if self.now && !ops::reads_done(&i.cond) => cond_now(g, me, f, &i.cond),
+                Op::If(i) if now && !ops::reads_done(&i.cond) && !hidden(&i.cond) => cond_now(g, me, f, &i.cond),
                 _ => None,
             };
-            // Under `objects`: a search of a deck (a Pick is a choice, judged above), an effect on a Pokémon the text names.
-            let object = match self.objects {
-                true if matches!(s.op, Op::Search(_)) => ops::deck_pick_has_object(g, me, f, &s.op),
-                true => ops::named_target_has_object(g, me, f, &s.op),
-                false => None,
-            };
+            let object = self.objects.then(|| ops::has_object(g, me, f, &s.op, now)).flatten();
             let fx = match &s.op {
                 _ if reg_fx.is_some() => reg_fx,
                 _ if object.is_some() => object,
+                // Under `objects` the attack's damage is an effect when it is above 0 (`ops::has_object`).
+                Op::Damage(_) if self.objects => None,
                 Op::Draw(d) if self.left_hand > 0 => Some(ops::draw_possible_after(g, me, f, d, self.left_hand)),
                 Op::If(i) if ops::reads_done(&i.cond) => None,
                 Op::If(i) if holds_now.is_some() => {
                     let l = if holds_now == Some(true) { i.yes } else { i.no };
                     self.walk(g, me, f, l, false)
                 }
-                Op::If(i) if crate::spec::value::cond_stable(&i.cond) => {
+                Op::If(i) if crate::spec::value::cond_stable(&i.cond) && !hidden(&i.cond) => {
                     let l = if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no };
                     self.walk(g, me, f, l, false)
                 }
@@ -1166,8 +1179,9 @@ pub fn attack_gate<F: crate::derived::Facts>(g: &mut F, me: CardId, attack: crat
 
 /// Could player `p`'s attack `attack`, used by the Pokémon in `attacking`, do anything: it does damage (its printed
 /// damage), or the rules' walk of `usable_by_rules` over its text, asking whether each effect has something to act on
-/// (`RulesWalk::objects`), finds every choice the text starts with has something to choose and an effect with something
-/// to act on (a text with no effect op can). Read only under the table rule
+/// (`RulesWalk::objects`), finds every choice the text starts with has something to choose and an effect, each of the
+/// effects the text does with something to act on (a text with no effect left, its conditions read as the board is
+/// now, can't). Read only under the table rule
 /// `TableRules::hide_attacks_that_can_do_nothing` (`engine::turn_action::attack_checks`). The text runs as the card that
 /// prints the attack when it is in `attacking`, else as the Pokémon there (the copycat), in the frame the attack's
 /// program would have (its cause; no effect yet).

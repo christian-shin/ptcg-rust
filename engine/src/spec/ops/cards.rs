@@ -1343,11 +1343,14 @@ fn attach_targets_exist(g: &Game, me: CardId, f: &Frame, a: &AttachSpec) -> bool
 // ---------------------------------------------------------------------------
 // MoveEnergy (an Energy moves between Pokémon of one player)
 
+/// Has one of player `owner`'s Pokémon an Energy card attached?
+fn energy_attached(g: &Game, owner: usize) -> bool {
+    for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(s, _, _)| g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()))
+}
+
 fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec, sub: u8) -> bool {
     let owner = f.who(m.owner);
-    let pokemon = for_each_pokemon(g, owner, PlayerType::BottomPlayer);
-    let has_energy = pokemon.iter().any(|(s, _, _)| g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()));
-    if !has_energy || pokemon.len() <= 1 {
+    if !energy_attached(g, owner) || for_each_pokemon(g, owner, PlayerType::BottomPlayer).len() <= 1 {
         return false;
     }
     let chooser = f.who(m.chooser);
@@ -1797,19 +1800,28 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, pick: &PickSpec) -> bo
     cards.iter().any(|c| pick_ok(g, f, pick, *c))
 }
 
-/// A pick or search from a deck (`ops::deck_pick_has_object`): the deck is hidden, so it has something to act on while
-/// the deck holds a card, and a search onto the Bench while the Bench has room; the kinds of the deck's cards and the
-/// copies of a named card in known areas (`named_copy_may_be_in_deck`) aren't read.
-pub(crate) fn deck_pick_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    let (pick, room) = match op {
-        Op::Pick(p) => (p, i32::MAX),
-        Op::Search(s) => (&s.pick, search_room(g, f, s)),
-        _ => return None,
-    };
-    if pick.from.1 != Zone::Deck {
-        return None;
+/// Has a card effect something to act on (`ops::has_object`; `None`: not judged here)?
+/// - A pick or search from a deck: the deck is hidden, so it has while the deck holds a card, and a search onto the Bench
+///   while the Bench has room; the kinds of the deck's cards and the copies of a named card in known areas
+///   (`named_copy_may_be_in_deck`) aren't read.
+/// - A number of cards moved from a zone (the top cards, random cards: "discard random cards from your opponent's hand
+///   until they have 5 cards"): a number above 0 and a card in the zone.
+/// - An Energy moved from one of the owner's Pokémon to another: an Energy attached to one of them (the card it moves;
+///   where it goes isn't read).
+pub(crate) fn has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    match op {
+        Op::Pick(p) if p.from.1 == Zone::Deck => Some(!zone_cards(g, me, f, p.from).is_empty()),
+        Op::Search(s) if s.pick.from.1 == Zone::Deck => Some(search_room(g, f, s) > 0 && !zone_cards(g, me, f, s.pick.from).is_empty()),
+        Op::Discard(DiscardSpec { from, cards, .. }) | Op::PutIntoHand(PutIntoHandSpec { from, cards, .. }) | Op::PutIntoDeck(PutIntoDeckSpec { from, cards, .. }) => {
+            let (CardSel::Top(n) | CardSel::Bottom(n) | CardSel::Random(n)) = cards else { return None };
+            if matches!(from.1, Zone::Scratch(_)) || zone_is_unset(f, *from) || num_uses_reg(n) || num_is_checked(n) {
+                return None;
+            }
+            Some(num(g, me, f, n) > 0 && !zone_cards(g, me, f, *from).is_empty())
+        }
+        Op::MoveEnergy(m) if m.mode == MoveEnergyMode::Effect => Some(energy_attached(g, f.who(m.owner))),
+        _ => None,
     }
-    Some(room > 0 && !zone_cards(g, me, f, pick.from).is_empty())
 }
 
 /// The card name a deck search is for ("search your deck for an Ethan's Adventure card"), if its predicate names one.

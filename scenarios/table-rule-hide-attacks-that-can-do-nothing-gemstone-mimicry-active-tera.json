@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Terapagos ex SCR 128",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Terapagos ex SCR 128",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mimikyu ASC 97",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terapagos ex SCR 128"
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Gemstone Mimicry",
+   "is": true,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Gemstone Mimicry has an attack to choose while the opponent's Active Pokemon is a Tera Pokemon with attacks (Terapagos ex)"
+  }
+ ]
+}

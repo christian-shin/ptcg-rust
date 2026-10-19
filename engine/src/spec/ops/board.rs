@@ -813,16 +813,37 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
     })
 }
 
-/// An effect on one Pokémon the text names, not chosen ("this Pokémon", "your opponent's Active Pokémon":
-/// `ops::named_target_has_object`): it has something to act on while that Pokémon is in play, whether or not it would
-/// change it. One an earlier op picks or attaches to waits for that op (`None`), as in `effect_possible`.
-pub(crate) fn named_target_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    let Some(SlotTarget::Slot(e)) = target_of(op) else { return None };
-    if matches!(e, SlotExpr::Picked | SlotExpr::Attached) {
-        return None;
+/// Has an effect on Pokémon something to act on (`ops::has_object`; `None`: not judged here)? With `now` the effect's
+/// own condition ("If your opponent's Active Pokémon has exactly 6 damage counters on it, ...") is read as the board is
+/// now, and an effect whose condition doesn't hold has nothing to act on.
+/// - Damage the attack does by its text ("this attack does 20 damage for each ..."): the attack does damage while the
+///   amount is above 0; no damage ("this attack does no damage") isn't an effect.
+/// - An effect on one Pokémon the text names, not chosen ("this Pokémon", "your opponent's Active Pokémon"): while that
+///   Pokémon is in play, whether or not it would change it. One an earlier op picks or attaches to waits for that op
+///   (`None`), as in `effect_possible`.
+/// - Damage or damage counters on a Pokémon chosen by the effect ("1 of your opponent's Benched Pokémon"), damage
+///   counters moved from a chosen Pokémon: a Pokémon to choose.
+pub(crate) fn has_object(g: &Game, me: CardId, f: &Frame, op: &Op, now: bool) -> Option<bool> {
+    let holds = match when_of(op) {
+        Some(c) if now && !super::flow::reads_done(c) && !crate::spec::value::cond_reads_hidden_cards(c) => crate::spec::value::cond_m(&mut crate::legal::Ctx::new(g), me, f, c).unwrap_or(true),
+        _ => true,
+    };
+    match op {
+        Op::Damage(d) if holds && (num_is_checked(&d.hp) || num(g, me, f, &d.hp) > 0) => return Some(true),
+        Op::Damage(_) => return None,
+        _ if !holds => return Some(false),
+        Op::MoveCounters(MoveCountersSpec { kind: MoveCountersKind::AllFromOne { from, .. } }) => {
+            return Some(!slots_of(g, me, f, &from.among).is_empty() && !counters_locked(g, f));
+        }
+        _ => {}
     }
-    let s = slot_of(g, me, f, *e)?;
-    Some(occupied(g, s))
+    match target_of(op)? {
+        SlotTarget::Slot(SlotExpr::Picked | SlotExpr::Attached) => None,
+        SlotTarget::Slot(e) => Some(occupied(g, slot_of(g, me, f, *e)?)),
+        // A heal needs a Pokémon it would heal (`effect_possible`).
+        SlotTarget::Pick(_) if matches!(op, Op::Heal(_)) => None,
+        SlotTarget::Pick(p) => Some(!slots_of(g, me, f, &p.among).is_empty()),
+    }
 }
 
 /// Does a lock forbid the frame's player's effect moving damage counters from every Pokémon in play (the MoveCounters

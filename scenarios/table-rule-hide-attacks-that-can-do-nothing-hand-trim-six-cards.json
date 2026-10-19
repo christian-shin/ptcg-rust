@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Furfrou POR 67",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Furfrou POR 67",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Furfrou POR 67",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Furfrou POR 67",
+  "hand": [
+   "6 Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Hand Trim",
+   "is": true,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Hand Trim discards 1 card from a hand of 6"
+  }
+ ]
+}

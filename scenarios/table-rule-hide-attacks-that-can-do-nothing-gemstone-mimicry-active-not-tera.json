@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 N's Zekrom ASC 155",
+   "4 Terapagos ex SCR 128",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 N's Zekrom ASC 155",
+   "4 Terapagos ex SCR 128",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mimikyu ASC 97",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "N's Zekrom ASC 155",
+  "bench": [
+   {
+    "card": "Terapagos ex SCR 128"
+   }
+  ]
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Gemstone Mimicry",
+   "is": false,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Gemstone Mimicry ('Choose 1 of your opponent's Active Tera Pokemon's attacks and use it as this attack') has no attack to choose when the opponent's Active Pokemon isn't a Tera Pokemon (a Benched one doesn't count); off it is (APR A-01: an attack needs its Energy)"
+  }
+ ]
+}

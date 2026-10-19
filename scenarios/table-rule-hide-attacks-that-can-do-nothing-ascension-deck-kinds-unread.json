@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Eevee TWM 135",
+   "4 Goldeen PRE 20",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Eevee TWM 135",
+   "4 Goldeen PRE 20",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee TWM 135",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Goldeen PRE 20"
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Ascension",
+   "is": true,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Ascension ('Search your deck for a card that evolves from this Pokemon and put it onto this Pokemon to evolve it') has something to act on while the deck holds a card: the deck is hidden, so which cards it holds isn't read (here no Eevee evolution)"
+  }
+ ]
+}

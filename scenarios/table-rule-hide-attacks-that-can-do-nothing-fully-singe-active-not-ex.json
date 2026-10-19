@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "rules": {
+  "hide_attacks_that_can_do_nothing": true
+ },
+ "decks": [
+  [
+   "4 Turtonator SSP 137",
+   "4 N's Zekrom ASC 155",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Turtonator SSP 137",
+   "4 N's Zekrom ASC 155",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Turtonator SSP 137",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "N's Zekrom ASC 155",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Fully Singe",
+   "is": false,
+   "cite": "table rule hide_attacks_that_can_do_nothing (on): Fully Singe ('Discard an Energy from your opponent's Active Pokemon ex') has nothing to act on when the opponent's Active Pokemon isn't a Pokemon ex, even with an Energy attached; off it is (APR A-01: an attack needs its Energy)"
+  }
+ ]
+}

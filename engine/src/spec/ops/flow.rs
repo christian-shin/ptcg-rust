@@ -206,20 +206,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &cards, false)?;
                 return Ok(Flow::Next);
             }
-            let p = f.who(c.from);
-            if c.scope == CopyScope::Bench {
-                let cards: Vec<CardId> = g.st.players[p].bench.iter().filter_map(|b| g.st.slot_pokemon(p, *b)).filter(|c0| pred(g, *c0, &c.predicate)).collect();
-                if cards.is_empty() {
-                    return Ok(Flow::Next);
-                }
-                crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &cards, false)?;
-                return Ok(Flow::Next);
+            let cards = copy_sources(g, f, c);
+            if !cards.is_empty() {
+                crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, cards.as_slice(), false)?;
             }
-            let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
-            if !(pred(g, card, &Pred::HasAttacks) && pred(g, card, &c.predicate)) {
-                return Ok(Flow::Next);
-            }
-            crate::copy_attack::copy_attack_from_pokemon_list(g, f.eff, &[card], false)?;
             Ok(Flow::Next)
         }
         Op::EndGame(e) => {
@@ -399,6 +389,34 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         // A choice, a precondition, and "your turn ends" (a consequence of the effect) aren't effects by themselves.
         Op::Fail(_) | Op::PickAttack(_) | Op::EndTurn(_) => None,
         _ => Some(true),
+    }
+}
+
+/// The Pokémon whose attacks a `CopyAttack` over the Active Pokémon or the Bench chooses among: the Benched Pokémon
+/// matching its predicate, or the Active Pokémon when it matches and has attacks.
+fn copy_sources(g: &Game, f: &Frame, c: &CopyAttackSpec) -> SVec<CardId, 8> {
+    let p = f.who(c.from);
+    let mut out = SVec::new();
+    if c.scope == CopyScope::Bench {
+        for card in g.st.players[p].bench.iter().filter_map(|b| g.st.slot_pokemon(p, *b)) {
+            if pred(g, card, &c.predicate) {
+                out.push(card);
+            }
+        }
+    } else if let Some(card) = g.st.active_pokemon(p) {
+        if pred(g, card, &Pred::HasAttacks) && pred(g, card, &c.predicate) {
+            out.push(card);
+        }
+    }
+    out
+}
+
+/// Has a flow op something to act on (`ops::has_object`; `None`: not judged here)? An attack used as this attack
+/// ("choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack"): a Pokémon to choose it from.
+pub(crate) fn has_object(g: &Game, f: &Frame, op: &Op) -> Option<bool> {
+    match op {
+        Op::CopyAttack(c) if !matches!(c.scope, CopyScope::Register(_)) => Some(!copy_sources(g, f, c).is_empty()),
+        _ => None,
     }
 }
 
