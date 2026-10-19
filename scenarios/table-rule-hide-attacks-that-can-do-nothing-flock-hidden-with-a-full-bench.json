@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Froakie TWM 56", "4 Dunsparce JTG 120", "52 Water Energy MEE 3"],
+  ["4 Froakie TWM 56", "4 Dunsparce JTG 120", "52 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": "Froakie TWM 56", "active_energy": ["Water Energy MEE 3"], "bench": [{"card": "Dunsparce JTG 120"}, {"card": "Dunsparce JTG 120"}, {"card": "Dunsparce JTG 120"}, {"card": "Dunsparce JTG 120"}, {"card": "Froakie TWM 56"}]},
+ "opp": {"reset": true, "active": "Froakie TWM 56"},
+ "answers": [{"a": "attack", "name": "Flop"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Flock", "is": false, "cite": "table rule hide_attacks_that_can_do_nothing (on): Flock ('Search your deck for up to 2 Froakie and put them onto your Bench') has nowhere to put a card with no room on the Bench, so it isn't offered; off it is (APR A-01: an attack needs its Energy)"}
+ ]
+}

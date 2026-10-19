@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Froakie TWM 56", "56 Water Energy MEE 3"],
+  ["4 Froakie TWM 56", "56 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": "Froakie TWM 56", "active_energy": ["Water Energy MEE 3"], "bench": [{"card": "Froakie TWM 56"}, {"card": "Froakie TWM 56"}], "discard": ["Froakie TWM 56"]},
+ "opp": {"reset": true, "active": "Froakie TWM 56"},
+ "answers": [{"a": "attack", "name": "Flock"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Flock", "cite": "table rule hide_attacks_that_can_do_nothing (on): Flock ('Search your deck for up to 2 Froakie and put them onto your Bench') has something to act on while the deck holds a card and the Bench has room: the deck is hidden, so the copies of Froakie in known areas (all 4 here) aren't read; it is offered and finds nothing"},
+  {"at": "next_turn", "who": "me", "bench": 2, "in_play": false, "cite": "card text (no Froakie left in the deck: nothing is put onto the Bench)"}
+ ]
+}

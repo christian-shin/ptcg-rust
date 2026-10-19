@@ -1797,6 +1797,21 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, pick: &PickSpec) -> bo
     cards.iter().any(|c| pick_ok(g, f, pick, *c))
 }
 
+/// A pick or search from a deck (`ops::deck_pick_has_object`): the deck is hidden, so it has something to act on while
+/// the deck holds a card, and a search onto the Bench while the Bench has room; the kinds of the deck's cards and the
+/// copies of a named card in known areas (`named_copy_may_be_in_deck`) aren't read.
+pub(crate) fn deck_pick_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    let (pick, room) = match op {
+        Op::Pick(p) => (p, i32::MAX),
+        Op::Search(s) => (&s.pick, search_room(g, f, s)),
+        _ => return None,
+    };
+    if pick.from.1 != Zone::Deck {
+        return None;
+    }
+    Some(room > 0 && !zone_cards(g, me, f, pick.from).is_empty())
+}
+
 /// The card name a deck search is for ("search your deck for an Ethan's Adventure card"), if its predicate names one.
 fn searched_name(p: &Pred) -> Option<&'static str> {
     match p {

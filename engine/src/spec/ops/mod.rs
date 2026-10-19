@@ -112,6 +112,18 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, p: &PickSpec) -> bool 
     cards::pick_finds(g, me, f, p)
 }
 
+/// Has a pick or search from a deck something to act on, judged by what can be known of a hidden zone (`None`: not a
+/// pick or search from a deck)? The question of `TableRules::hide_attacks_that_can_do_nothing` (`run::RulesWalk::objects`).
+pub(crate) fn deck_pick_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    cards::deck_pick_has_object(g, me, f, op)
+}
+
+/// Has an effect on a Pokémon the text names something to act on: that Pokémon in play (`None`: not such an effect)? The
+/// question of `TableRules::hide_attacks_that_can_do_nothing` (`run::RulesWalk::objects`).
+pub(crate) fn named_target_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    board::named_target_has_object(g, me, f, op)
+}
+
 /// Any op of the list would change the game (`None` when none is an effect).
 pub(crate) fn any_effect_possible(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> Option<bool> {
     let mut out = None;

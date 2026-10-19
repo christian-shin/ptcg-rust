@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Tynamo BLK 30", "56 Lightning Energy MEE 4"],
+  ["4 Tynamo BLK 30", "56 Lightning Energy MEE 4"]
+ ],
+ "me": {"reset": true, "active": "Tynamo BLK 30", "active_energy": ["Lightning Energy MEE 4"]},
+ "opp": {"reset": true, "active": "Tynamo BLK 30"},
+ "answers": [{"a": "attack", "name": "Hold Still"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Hold Still", "cite": "table rule hide_attacks_that_can_do_nothing (on): Hold Still ('Heal 10 damage from this Pokemon') acts on a Pokemon the text names, which is in play, so it is offered even with no damage on it"},
+  {"at": "next_turn", "who": "me", "slot": "active", "damage": 0, "cite": "card text (nothing to heal: it stays without damage)"}
+ ]
+}

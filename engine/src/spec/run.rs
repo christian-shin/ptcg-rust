@@ -784,9 +784,7 @@ fn usable<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, needs: &[C
 /// (a Pick, a PickSlot: the program's gates), and at least one of its effects would change the game (an op under
 /// `If(Done)` counts only through the op it depends on: E-20's "If you do"). A program with no effect op is usable.
 pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
-    let mut w = RulesWalk::new(false);
-    let fx = w.walk(g, me, f, steps, true);
-    w.gates_ok && fx != Some(false)
+    RulesWalk::new(false).usable(g, me, f, steps)
 }
 
 /// Could the "yes" of a "you may" change the game (APR B-01; id925, id956: the rules' walk of `usable_by_rules` over the
@@ -845,6 +843,12 @@ struct RulesWalk {
     /// The program runs now (`applies`): a condition on the board decides its branch; otherwise (a usability walk, a
     /// "you may" asked before the program's earlier ops ran) only the conditions that stay the same through the program do.
     now: bool,
+    /// The question of `TableRules::hide_attacks_that_can_do_nothing` (`attack_can_do_something`): has each effect
+    /// something to act on, rather than would it change the game? An effect on a Pokémon the text names acts on it
+    /// while it is in play, whether or not it would change it ("Heal 10 damage from this Pokémon" at full HP:
+    /// `ops::named_target_has_object`); a deck is hidden, so a pick or search from it has something to act on while it
+    /// holds a card, its cards' kinds and the copies in known areas unread (`ops::deck_pick_has_object`).
+    objects: bool,
     left_hand: i32,
     gates_ok: bool,
     /// Per card register: whether the op that fills it would find cards (`None`: not filled by the program yet).
@@ -853,7 +857,20 @@ struct RulesWalk {
 
 impl RulesWalk {
     fn new(now: bool) -> Self {
-        RulesWalk { now, left_hand: 0, gates_ok: true, regs: [None; 4] }
+        RulesWalk { now, objects: false, left_hand: 0, gates_ok: true, regs: [None; 4] }
+    }
+    /// The program can be used: every top-level cost and choice can be made and no effect is known to do nothing.
+    fn usable(&mut self, g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
+        let fx = self.walk(g, me, f, steps, true);
+        self.gates_ok && fx != Some(false)
+    }
+    /// Can the op's choice or precondition be made (`ops::implied_ok`; under `objects` a pick from a deck can while the
+    /// deck holds a card)?
+    fn implied_ok(&self, g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
+        match self.objects.then(|| ops::deck_pick_has_object(g, me, f, op)).flatten() {
+            Some(x) => x,
+            None => ops::implied_ok(g, me, f, op),
+        }
     }
     fn reg(&self, r: u8) -> Option<bool> {
         self.regs.get(r as usize).copied().flatten()
@@ -890,7 +907,7 @@ impl RulesWalk {
             }
             // A choice a nested list (a coin's result, an "If") starts with that has nothing to choose: the rest of that
             // list can't happen.
-            if !top && matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) && !ops::implied_ok(g, me, f, &s.op) {
+            if !top && matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) && !self.implied_ok(g, me, f, &s.op) {
                 return if out == Some(true) { Some(true) } else { Some(false) };
             }
             if let Op::Pick(p) = &s.op {
@@ -899,6 +916,7 @@ impl RulesWalk {
                 }
                 let v = match p.from.1 {
                     Zone::Scratch(r) => self.reg(r).unwrap_or(true),
+                    Zone::Deck if self.objects => self.implied_ok(g, me, f, &s.op),
                     _ => ops::pick_finds(g, me, f, p),
                 };
                 self.set_reg(p.into, v);
@@ -931,8 +949,15 @@ impl RulesWalk {
                 Op::If(i) if self.now && !ops::reads_done(&i.cond) => cond_now(g, me, f, &i.cond),
                 _ => None,
             };
+            // Under `objects`: a search of a deck (a Pick is a choice, judged above), an effect on a Pokémon the text names.
+            let object = match self.objects {
+                true if matches!(s.op, Op::Search(_)) => ops::deck_pick_has_object(g, me, f, &s.op),
+                true => ops::named_target_has_object(g, me, f, &s.op),
+                false => None,
+            };
             let fx = match &s.op {
                 _ if reg_fx.is_some() => reg_fx,
+                _ if object.is_some() => object,
                 Op::Draw(d) if self.left_hand > 0 => Some(ops::draw_possible_after(g, me, f, d, self.left_hand)),
                 Op::If(i) if ops::reads_done(&i.cond) => None,
                 Op::If(i) if holds_now.is_some() => {
@@ -963,7 +988,7 @@ impl RulesWalk {
             match fx {
                 None => {
                     if top && !matches!(s.op, Op::If(_) | Op::May(_)) {
-                        self.gates_ok &= ops::implied_ok(g, me, f, &s.op);
+                        self.gates_ok &= self.implied_ok(g, me, f, &s.op);
                     }
                 }
                 x => join(&mut out, x),
@@ -1140,8 +1165,9 @@ pub fn attack_gate<F: crate::derived::Facts>(g: &mut F, me: CardId, attack: crat
 }
 
 /// Could player `p`'s attack `attack`, used by the Pokémon in `attacking`, do anything: it does damage (its printed
-/// damage), or the rules' walk of `usable_by_rules` over its text finds every choice the text starts with has something
-/// to choose and an effect that would change the game (a text with no effect op can). Read only under the table rule
+/// damage), or the rules' walk of `usable_by_rules` over its text, asking whether each effect has something to act on
+/// (`RulesWalk::objects`), finds every choice the text starts with has something to choose and an effect with something
+/// to act on (a text with no effect op can). Read only under the table rule
 /// `TableRules::hide_attacks_that_can_do_nothing` (`engine::turn_action::attack_checks`). The text runs as the card that
 /// prints the attack when it is in `attacking`, else as the Pokémon there (the copycat), in the frame the attack's
 /// program would have (its cause; no effect yet).
@@ -1158,7 +1184,7 @@ pub(crate) fn attack_can_do_something(g: &Game, p: usize, attacking: crate::effe
         g.st.slot_pokemon(attacking.p as usize, attacking.s).unwrap_or(attack.card)
     };
     let f = Frame::for_check(Prog::Attack(i as u8), Phase::BeforeDamage, p, Cause { kind: CauseKind::Attack, card: Some(me), player: p as u8, attack: Some(attack) }, [NO_CARD; 2]);
-    usable_by_rules(g, me, &f, a.steps)
+    RulesWalk { objects: true, ..RulesWalk::new(false) }.usable(g, me, &f, a.steps)
 }
 
 /// `CardImpl::resume` of every spec card.

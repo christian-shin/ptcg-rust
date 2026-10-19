@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Slowpoke SCR 57", "56 Psychic Energy MEE 5"],
+  ["4 Slowpoke SCR 57", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Slowpoke SCR 57", "active_energy": ["2 Psychic Energy MEE 5"], "discard": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Slowpoke SCR 57"},
+ "answers": [{"a": "attack", "name": "Tackle"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Dangle Tail", "is": false, "cite": "table rule hide_attacks_that_can_do_nothing (on): Dangle Tail ('Put a Pokemon from your discard pile into your hand') has nothing to act on with no Pokemon in the discard pile (a known zone), so it isn't offered; off it is (APR A-01: an attack needs its Energy)"},
+  {"at": "start", "who": "me", "legal": "attack", "name": "Tackle", "cite": "card text (Tackle does 30 damage: it can always do something)"}
+ ]
+}

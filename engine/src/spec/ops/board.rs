@@ -813,6 +813,18 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
     })
 }
 
+/// An effect on one Pokémon the text names, not chosen ("this Pokémon", "your opponent's Active Pokémon":
+/// `ops::named_target_has_object`): it has something to act on while that Pokémon is in play, whether or not it would
+/// change it. One an earlier op picks or attaches to waits for that op (`None`), as in `effect_possible`.
+pub(crate) fn named_target_has_object(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    let Some(SlotTarget::Slot(e)) = target_of(op) else { return None };
+    if matches!(e, SlotExpr::Picked | SlotExpr::Attached) {
+        return None;
+    }
+    let s = slot_of(g, me, f, *e)?;
+    Some(occupied(g, s))
+}
+
 /// Does a lock forbid the frame's player's effect moving damage counters from every Pokémon in play (the MoveCounters
 /// event's lock, asked per source as its routine asks it: `engine::damage::move_counters`; since C11 a lock can spare a
 /// Pokémon, Hide 'n' Sneak against an opponent's Patrat)?

@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"hide_attacks_that_can_do_nothing": true},
+ "decks": [
+  ["4 Iron Leaves TWM 19", "56 Grass Energy MEE 1"],
+  ["4 Iron Leaves TWM 19", "56 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Iron Leaves TWM 19", "active_energy": ["3 Grass Energy MEE 1"], "discard": ["Grass Energy MEE 1"]},
+ "opp": {"reset": true, "active": "Iron Leaves TWM 19"},
+ "answers": [{"a": "attack", "name": "Avenging Edge"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Recovery Net", "is": false, "cite": "table rule hide_attacks_that_can_do_nothing (on): Recovery Net ('Put up to 2 Pokemon from your discard pile into your hand') has nothing to act on with no Pokemon in the discard pile (a known zone), 'up to' or not, so it isn't offered; off it is (APR A-01: an attack needs its Energy)"},
+  {"at": "start", "who": "me", "legal": "attack", "name": "Avenging Edge", "cite": "card text (Avenging Edge does 100 damage: it can always do something)"}
+ ]
+}

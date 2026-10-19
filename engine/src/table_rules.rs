@@ -18,9 +18,13 @@ pub struct TableRules {
     /// choice", APR A-03 step 2: different cards are asked). The engine pays without a question only a Retreat Cost
     /// (`engine::retreat`); every other Energy payment always asks.
     pub ask_single_way_payments: bool,
-    /// An attack that can do nothing (no damage, and no effect of its text could change the game, or a choice its text
-    /// starts with has nothing to choose: the usability walk of Trainers and Abilities, `spec::run::usable_by_rules`)
-    /// can't be used: it isn't offered.
+    /// An attack that can do nothing can't be used: it isn't offered. It can do nothing when it has no damage and its text
+    /// has nothing to act on: a choice it starts with has nothing to choose, or no effect has an object (cards to move from
+    /// a known zone, a card in a deck to search or draw, room on the Bench, a Pokémon to choose). "Up to" doesn't change
+    /// it. An effect on a Pokémon the text names has its object while that Pokémon is in play, whether or not the effect
+    /// would change it (Hold Still's "Heal 10 damage from this Pokémon" at full HP is offered); a deck is hidden, so a
+    /// search has something to act on while the deck holds a card (the copies of a named card in known areas aren't
+    /// read). The usability walk of Trainers and Abilities asking for objects (`spec::run::attack_can_do_something`).
     ///
     /// Off (the rulings): an attack whose Energy cost is paid may be declared even when its effect can't be done; it does
     /// nothing and the turn ends (APR A-01: an attack needs its Energy; RULES.md "Options that can't do anything" is about
