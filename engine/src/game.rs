@@ -114,6 +114,9 @@ pub enum CoinCb {
 pub struct PromptItem {
     pub ids: SVec<u32, 4>,
     pub cont: Cont,
+    /// A question with no answer it can take, not asked (`Game::prompt`): it waits as an information prompt in its place
+    /// and its continuation gets no answer (nothing chosen), so the op that asked does nothing.
+    pub unasked: bool,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -856,11 +859,20 @@ impl Game {
         // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
-        crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
         self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, provenance, answered: false, partial: false });
         let mut ids = SVec::new();
         ids.push(id);
-        self.items.push(PromptItem { ids, cont });
+        // A question with no answer it can take isn't asked, and the op that asks it does nothing (batch 10 E19, the
+        // companion of RULES.md "Options that can't do anything": no option offered does nothing). It keeps its place
+        // among the prompts as an information prompt, and its continuation gets no answer.
+        let unasked = kind.class() == PromptClass::Decision && !self.has_an_answer(self.prompts.len() - 1);
+        if unasked {
+            let pr = self.prompts.as_mut_slice().last_mut().expect("just pushed");
+            (pr.purpose, pr.kind, pr.provenance) = (PromptPurpose::Wait, PromptKind::Wait, Provenance::NONE);
+        } else {
+            crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
+        }
+        self.items.push(PromptItem { ids, cont, unasked });
     }
 
     /// Several prompts answered together, then `cont` (the setup's shuffles, a Pokémon's Sleep flips): chance prompts,
@@ -874,7 +886,7 @@ impl Game {
             self.prompts.push(PromptRec { id, player: player as u8, purpose, kind, provenance: Provenance::NONE, answered: false, partial: false });
             ids.push(id);
         }
-        self.items.push(PromptItem { ids, cont });
+        self.items.push(PromptItem { ids, cont, unasked: false });
     }
 
     pub fn wait_prompt(&mut self, cont: Cont) {
@@ -951,7 +963,7 @@ impl Game {
                 self.answers.retain(|(x, _)| !item.ids.contains(x));
                 // The continuation runs while the item is still queued and the item is removed afterwards, at the
                 // index found beforehand (a continuation may queue prompts of its own).
-                self.run_cont(item.cont, results.as_slice())?;
+                self.run_cont(item.cont, if item.unasked { &[] } else { results.as_slice() })?;
                 self.items.remove_at(ii);
             }
             self.resolve_wait_items()
