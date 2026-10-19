@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mew ex 30C 66", "4 Salvatore TEF 160", "52 Psychic Energy MEE 5"],
+  ["4 Mew ex 30C 66", "4 Salvatore TEF 160", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mew ex 30C 66", "hand": ["Salvatore TEF 160"]},
+ "opp": {"reset": true, "active": "Mew ex 30C 66"},
+ "answers": [{"a": "pass"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "play", "name": "Salvatore TEF 160", "is": false, "cite": "id925 (a Trainer can't be played for no net effect; RULES.md 'Options that can't do anything', user decision 2): no card evolves from Mew ex 30C 66 (none in the card pool, Cond::HasEvolutionInPool)"}
+ ]
+}

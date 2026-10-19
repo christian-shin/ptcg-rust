@@ -49,6 +49,15 @@ pub struct TableRules {
     /// trigger runs once its event is done; RULES.md "On-play Abilities": it triggers once the card is played and on the
     /// board), so the Ability is offered while the Trainer resolves, before the card is discarded.
     pub evolving_trainer_discarded_before_evolve_triggers: bool,
+    /// A Trainer card can be played from the hand when its printed conditions hold ("You can use this card only if ..."),
+    /// even if its effect can do nothing (e.g. Salvatore when no card evolves from any of the player's Pokémon):
+    /// played, it does what it can, perhaps nothing, and is discarded. The same conditions as a Trainer whose effect
+    /// another card uses (`spec::run::check_play`, user decision D5).
+    ///
+    /// Off (the rulings): a Trainer card that can't change the game can't be played (APR B-01 / D-02; id925, id956: "you
+    /// cannot play a Trainer card for no net effect"; RULES.md "Options that can't do anything", user decision 2, batch 8
+    /// C10; the rules' usability walk, user decision D10).
+    pub offer_cards_that_can_do_nothing: bool,
 }
 
 impl TableRules {
@@ -59,6 +68,7 @@ impl TableRules {
         "prizes_chosen_when_opponent_has_no_pokemon",
         "looked_cards_shown_to_owner",
         "evolving_trainer_discarded_before_evolve_triggers",
+        "offer_cards_that_can_do_nothing",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -69,6 +79,7 @@ impl TableRules {
             "prizes_chosen_when_opponent_has_no_pokemon" => &mut self.prizes_chosen_when_opponent_has_no_pokemon,
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
+            "offer_cards_that_can_do_nothing" => &mut self.offer_cards_that_can_do_nothing,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
@@ -124,7 +135,7 @@ mod tests {
     fn games_with_every_table_rule_play_through() {
         let spec: serde_json::Value = serde_json::from_str(include_str!("../bench/spec.json")).unwrap();
         let decks: Vec<Vec<crate::carddb::DefId>> = spec["decks"].as_array().unwrap().iter().map(|d| crate::selfplay::expand_deck(&d["cards"]).unwrap()).collect();
-        for seed in 0..24u32 {
+        for seed in 0..96u32 {
             let (a, b) = (&decks[seed as usize % decks.len()], &decks[(seed as usize * 7 + 3) % decks.len()]);
             let mut g = crate::game::Game::new(seed);
             g.st.rules = TableRules::all_on();
@@ -135,7 +146,7 @@ mod tests {
                 let mut picks: Vec<usize> = Vec::new();
                 loop {
                     let (mask, stop) = g.pick_mask(&sel, &picks);
-                    let allowed: Vec<usize> = (0..sel.options.len()).filter(|j| mask[*j] && !picks.contains(j)).collect();
+                    let allowed: Vec<usize> = (0..sel.options.len()).filter(|j| mask[*j] && (sel.allows_repeats() || !picks.contains(j))).collect();
                     let choices = allowed.len() + stop as usize;
                     if choices == 0 {
                         break;

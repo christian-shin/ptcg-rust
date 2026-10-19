@@ -965,8 +965,9 @@ impl RulesWalk {
 /// used Supporter has none of them).
 pub(crate) fn check_play<F: crate::derived::Facts>(g: &mut F, me: CardId, play: &PlaySpec, f: &Frame) -> R {
     // A Trainer whose effect is used by another card (Look-Alike Show) keeps its printed conditions only (user decision
-    // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing.
-    if f.via_attack {
+    // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing. So does a played one at a table that offers cards
+    // that can do nothing (`TableRules::offer_cards_that_can_do_nothing`).
+    if f.via_attack || g.g().st.rules.offer_cards_that_can_do_nothing {
         for c in play.needs.iter().filter(|c| matches!(c, Cond::Printed(_))) {
             if !cond_m(g, me, f, c)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
