@@ -131,9 +131,10 @@ pub enum CmpOp {
 }
 
 pub enum Cond {
-    /// A printed condition of a Trainer ("You can use this card only if ...", "You can't use this card during your first
-    /// turn"): true when the condition is. Unlike the rest of `PlaySpec::needs` (what usability derives), it binds a
-    /// Trainer whose effect another card uses (Look-Alike Show; user decision D5; official JP FAQ, Fire Energy MEE 2 / Mela).
+    /// A printed condition of a card's use (a Trainer's "You can use this card only if ...", "You can't use this card during
+    /// your first turn"; an Ability's "if this Pokémon is in the Active Spot"): true when the condition is. Unlike the rest
+    /// of `needs` (what usability derives), it binds a Trainer whose effect another card uses (Look-Alike Show; user
+    /// decision D5; official JP FAQ, Fire Energy MEE 2 / Mela), and the usability sweep doesn't question it.
     Printed(&'static Cond),
     True,
     False,

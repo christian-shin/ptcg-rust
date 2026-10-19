@@ -15,14 +15,10 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         // One Run Errand per turn for the player, whichever copy used it.
-        once: Once::No,
-        needs: &[
-            Cond::IsActive(SlotExpr::This),
-            Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Player))),
-        ],
+        once: Once::PerTurnShared,
+        needs: &[Cond::IsActive(SlotExpr::This)],
         steps: &[
             Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) })),
-            Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player))),
         ],
     }],
     ..CardSpec::NONE

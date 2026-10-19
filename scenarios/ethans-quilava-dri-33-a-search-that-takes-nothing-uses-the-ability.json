@@ -1,0 +1,19 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Ethan's Adventure DRI 165", "4 Ethan's Cyndaquil DRI 32", "4 Ethan's Quilava DRI 33", "48 Fire Energy MEE 2"],
+  ["4 Ethan's Adventure DRI 165", "4 Ethan's Cyndaquil DRI 32", "4 Ethan's Quilava DRI 33", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"reset": true, "active": ["Ethan's Cyndaquil DRI 32", "Ethan's Quilava DRI 33"]},
+ "opp": {"reset": true, "active": "Ethan's Cyndaquil DRI 32"},
+ "answers": [
+  {"a": "ability", "name": "Bonded by the Journey", "source": {"player": 2, "slot": 1, "index": 0}},
+  [],
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Bonded by the Journey", "cite": "Ethan's Quilava DRI 33 text: once during your turn, you may search your deck for an Ethan's Adventure card"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "ability", "name": "Bonded by the Journey", "is": false, "cite": "id127 (Floral Path to the Sky: a search that finds nothing still uses the Ability up for the turn; id249: an Ability whose effect did nothing is still used): the search took nothing, the Ability is used"},
+  {"at": "turn_end", "who": "me", "zone": "hand", "count": 0, "cite": "id127: the search took nothing"}
+ ]
+}

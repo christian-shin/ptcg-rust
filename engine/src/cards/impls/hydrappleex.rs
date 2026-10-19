@@ -3,8 +3,9 @@
 //! - 30+; 30 more damage for each [G] Energy attached to all of your Pokémon.
 //!
 //! Ripening Charge is an Attach event of the chosen card (the prompt can be cancelled); "If you attached Energy ... in this
-//! way" is `Cond::Done` on it (APR E-20), and then the Ability counts as used (a once-per-turn usage record, ending with
-//! the owner's turn) and the heal is one Heal event on the Pokémon attached to. Cancelling the attach uses nothing. Syrup
+//! way" is `Cond::Done` on it (APR E-20): the heal is one Heal event on the Pokémon attached to. The Ability's once-per-turn
+//! usage record (ending with the owner's turn) is made when it is used, whether or not an Energy is attached (id127,
+//! id249: an Ability that did nothing is still used). Syrup
 //! Storm counts the [G] Energy provided by every Pokémon of yours (an Energy that provides [G] or any type counts).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
@@ -16,11 +17,11 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::No,
-        needs: &[Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy)))],
+        once: Once::PerTurn,
+        needs: &[],
         steps: &[
             Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), slots: AttachSlots::ActiveBench, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, ..AttachSpec::DEFAULT })),
-            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))), Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Attached), hp: Num::Lit(30), clear_conditions: false }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Attached), hp: Num::Lit(30), clear_conditions: false }))], no: &[] })),
         ],
     }],
     ..CardSpec::NONE
