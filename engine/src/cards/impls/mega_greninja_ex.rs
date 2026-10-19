@@ -22,27 +22,21 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     powers: &[PowerSpec {
         index: 0,
-        // The use is only recorded once the target is chosen (cancelling the discard uses nothing).
-        once: Once::No,
+        // The Basic [W] Energy card is the cost of using it (APR E-30; as for N's Zoroark ex's Trade, id2115): chosen with
+        // no cancel once the Ability is used, the usage record made at the use (id127, id249).
+        once: Once::PerTurn,
+        // "If this Pokémon is in the Active Spot" is printed; a Basic [W] Energy card in the hand is the cost's own gate (the
+        // choice below).
         needs: &[
-            Cond::IsActive(SlotExpr::This),
-            Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy))),
-            Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::WATER)])),
+            Cond::Printed(&Cond::IsActive(SlotExpr::This)),
             Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::Any),
         ],
         steps: &[
-            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Water Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, soft: true, into: 0, ..PickSpec::DEFAULT })),
-            Step::new(Op::If(IfSpec {
-                cond: Cond::Chosen(0),
-                yes: &[
-                    Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
-                    Step::new(Op::PlaceCounters(PlaceCountersSpec {
-                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), }),
-                        counters: Num::Lit(6)
-                    })),
-                    Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),
-                ],
-                no: &[],
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Water Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
+            Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
+            Step::new(Op::PlaceCounters(PlaceCountersSpec {
+                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), }),
+                counters: Num::Lit(6)
             })),
         ],
     }],

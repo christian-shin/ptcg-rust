@@ -1,0 +1,18 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Applin PRE 9", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "48 Grass Energy MEE 1"],
+  ["4 Applin PRE 9", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "48 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": ["Applin PRE 9", "Dipplin PRE 10", "Hydrapple ex PRE 11"], "active_damage": 30, "hand": ["2 Grass Energy MEE 1"]},
+ "opp": {"reset": true, "active": "Applin PRE 9"},
+ "answers": [
+  {"a": "ability", "name": "Ripening Charge", "source": {"player": 2, "slot": 1, "index": 0}},
+  null,
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "decision", "n": 1, "who": "me", "legal": "ability", "name": "Ripening Charge", "is": false, "cite": "id249 (an Ability is still used when its effect did nothing; id127: a search that finds nothing uses the Ability up for the turn): Ripening Charge used with nothing attached is used for the turn"},
+  {"at": "turn_end", "who": "me", "zone": "hand", "count": 2, "cite": "Hydrapple ex PRE 11 text: nothing attached"}
+ ]
+}

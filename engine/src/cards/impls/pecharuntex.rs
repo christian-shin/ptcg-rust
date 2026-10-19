@@ -9,9 +9,8 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         // One use per turn for the player, whichever copy used it.
-        once: Once::No,
+        once: Once::PerTurnShared,
         needs: &[
-            Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Player))),
             // A Benched [D] Pokémon that isn't a Pecharunt ex to switch in (the current type is a checked read, which the
             // usability walk of the pick below only assumes possible).
             Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::TypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
@@ -21,7 +20,6 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, required: false })),
             // If you do, the new Active Pokémon is now Poisoned.
             Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), when: Cond::Done })),
-            Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player))),
         ],
     }],
     ..CardSpec::NONE
