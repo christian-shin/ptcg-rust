@@ -720,26 +720,38 @@ impl Game {
     // -----------------------------------------------------------------------
     // Decode + validate
 
-    /// Decode a raw wire answer and validate it (socket-server semantics).
+    /// The answer that declines question `pr` (the null answer): `Res::Null` where the question can be cancelled; a yes /
+    /// no or a number has no validation and takes it too.
+    pub fn decline_answer(&self, pr: &PromptRec) -> Result<Res, GameError> {
+        let can_cancel = match pr.kind {
+            PromptKind::ChooseCards { opts, .. } => opts.allow_cancel,
+            PromptKind::ChoosePokemon { allow_cancel, .. } => allow_cancel,
+            PromptKind::ChoosePrize { allow_cancel, .. } => allow_cancel,
+            PromptKind::ChooseEnergy { allow_cancel, .. } => allow_cancel,
+            PromptKind::AttachEnergy { o, .. } => o.allow_cancel,
+            PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => self.payload_opts(o).allow_cancel,
+            PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => self.payload_opts(o).allow_cancel,
+            PromptKind::PutDamage { allow_cancel, .. } => allow_cancel,
+            PromptKind::OrderCards { allow_cancel, .. } => allow_cancel,
+            PromptKind::ChooseAttack { allow_cancel, .. } => allow_cancel,
+            // Select / Confirm have no validate(): null is accepted.
+            PromptKind::Select { .. } | PromptKind::Confirm => true,
+            _ => true,
+        };
+        if can_cancel {
+            Ok(Res::Null)
+        } else {
+            Err(GameError("INVALID_PROMPT_RESULT"))
+        }
+    }
+
+    /// Decode a wire answer (the form a recorded trace holds, [`crate::interface::SelectData::wire_answer`]) and validate
+    /// it: the JSON is read into the items each prompt kind's decoder takes, the decoders [`Game::answer`] runs on the
+    /// picked options' values.
     pub fn decode_answer(&self, pr: &PromptRec, raw: &Value) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         if raw.is_null() {
-            let can_cancel = match pr.kind {
-                PromptKind::ChooseCards { opts, .. } => opts.allow_cancel,
-                PromptKind::ChoosePokemon { allow_cancel, .. } => allow_cancel,
-                PromptKind::ChoosePrize { allow_cancel, .. } => allow_cancel,
-                PromptKind::ChooseEnergy { allow_cancel, .. } => allow_cancel,
-                PromptKind::AttachEnergy { o, .. } => o.allow_cancel,
-                PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => self.payload_opts(o).allow_cancel,
-                PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => self.payload_opts(o).allow_cancel,
-                PromptKind::PutDamage { allow_cancel, .. } => allow_cancel,
-                PromptKind::OrderCards { allow_cancel, .. } => allow_cancel,
-                PromptKind::ChooseAttack { allow_cancel, .. } => allow_cancel,
-                // Select / Confirm have no validate(): null is accepted.
-                PromptKind::Select { .. } | PromptKind::Confirm => true,
-                _ => true,
-            };
-            return if can_cancel { Ok(Res::Null) } else { Err(invalid) };
+            return self.decline_answer(pr);
         }
         match pr.kind {
             PromptKind::Confirm => Ok(Res::Bool(raw.as_bool().ok_or(invalid)?)),
@@ -769,19 +781,15 @@ impl Game {
             }
             PromptKind::CoinFlip => Ok(Res::Bool(raw.as_bool().ok_or(invalid)?)),
             PromptKind::SelectOption { .. } => Ok(Res::Int(raw.as_i64().ok_or(invalid)? as i32)),
-            PromptKind::ChooseAttack { cards, blocked, .. } => {
+            PromptKind::ChooseAttack { cards, .. } => {
                 let i = raw.get("index").and_then(|x| x.as_i64()).ok_or(invalid)?;
                 let name = raw.get("attack").and_then(|x| x.as_str()).ok_or(invalid)?;
                 if i < 0 || i as usize >= cards.len() {
                     return Err(invalid);
                 }
-                let c = *cards.get(i as usize).unwrap();
-                let ai = self.st.cdef(c).attacks.iter().position(|a| a.name == name).ok_or(invalid)?;
-                // validate: blocked attacks are rejected (matched by object identity).
-                if blocked.iter().any(|(bi, ba)| *bi as usize == i as usize && *ba as usize == ai) {
-                    return Err(invalid);
-                }
-                Ok(Res::Attack(AttackRef { card: c, index: ai as u8 }))
+                // The wire form names the attack: the card's first attack of that name.
+                let ai = self.st.cdef(*cards.get(i as usize).unwrap()).attacks.iter().position(|a| a.name == name).ok_or(invalid)?;
+                self.decode_choose_attack(pr, i as usize, ai)
             }
             PromptKind::AttachEnergy { .. }
             | PromptKind::DiscardEnergy { .. }
@@ -792,6 +800,22 @@ impl Game {
             | PromptKind::OrderCards { .. } => self.decode_extra(pr, raw).unwrap_or(Err(invalid)),
             _ => Ok(Res::True),
         }
+    }
+
+    /// A choose-attack prompt's answer: attack `attack` (its position in the card's attacks) of the card at `index` of
+    /// the offered cards.
+    pub(crate) fn decode_choose_attack(&self, pr: &PromptRec, index: usize, attack: usize) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let PromptKind::ChooseAttack { cards, blocked, .. } = pr.kind else { return Err(invalid) };
+        let c = *cards.get(index).ok_or(invalid)?;
+        if attack >= self.st.cdef(c).attacks.len() {
+            return Err(invalid);
+        }
+        // validate: blocked attacks are rejected (matched by object identity).
+        if blocked.iter().any(|(bi, ba)| *bi as usize == index && *ba as usize == attack) {
+            return Err(invalid);
+        }
+        Ok(Res::Attack(AttackRef { card: c, index: attack as u8 }))
     }
 
     /// A choose-cards prompt's answer from the indices into the offered list (`None`: not an index).

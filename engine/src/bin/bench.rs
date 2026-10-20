@@ -150,10 +150,10 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                     }
                 }
                 if !ok {
-                    // Nothing can be chosen: cancel (null) or answer empty if the prompt takes it.
+                    // Nothing can be chosen: decline (cancel) or answer empty if the prompt takes it.
                     let Pending::Decision(pi) = g.pending() else { return fail(decisions, "pending") };
                     let pr = g.prompts.as_slice()[pi];
-                    let res = [Value::Null, Value::Array(vec![])].iter().find_map(|w| g.decode_answer(&pr, w).ok());
+                    let res = g.decline_answer(&pr).or_else(|_| g.decode_picks(&sel, &[])).ok();
                     let Some(res) = res else { return fail(decisions, "empty answer") };
                     if g.resolve(pi, res).and_then(|_| g.settle()).is_err() {
                         return fail(decisions, "empty answer");
@@ -289,7 +289,7 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock, apart: bool) ->
                 if !ok {
                     let Pending::Decision(pi) = g.pending() else { return fail(decisions, "pending") };
                     let pr = g.prompts.as_slice()[pi];
-                    let res = [Value::Null, Value::Array(vec![])].iter().find_map(|w| g.decode_answer(&pr, w).ok());
+                    let res = g.decline_answer(&pr).or_else(|_| g.decode_picks(&sel, &[])).ok();
                     let Some(res) = res else { return fail(decisions, "empty answer") };
                     if g.resolve(pi, res).is_err() {
                         return fail(decisions, "empty answer");

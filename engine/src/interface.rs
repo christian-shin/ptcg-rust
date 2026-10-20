@@ -168,8 +168,15 @@ impl SelectData {
         }
     }
 
-    /// True when the same option may be picked more than once (each pick is
-    /// one damage counter: Put / Move / Remove damage prompts).
+    /// What option `j` of a prompt select answers, in the engine's own types (`None` for a turn or chance select, or no
+    /// such option): the typed form of the option's part of [`SelectData::wire_answer`].
+    pub fn option_value(&self, j: usize) -> Option<OptionValue> {
+        match &self.map {
+            Source::Prompt(_, vals, _) => vals.get(j).copied(),
+            _ => None,
+        }
+    }
+
     /// The prompt message this select answers (empty for turn / chance selects).
     pub fn prompt_message(&self, g: &Game) -> &'static str {
         match &self.map {
@@ -178,6 +185,8 @@ impl SelectData {
         }
     }
 
+    /// True when the same option may be picked more than once (each pick is
+    /// one damage counter: Put / Move / Remove damage prompts).
     pub fn allows_repeats(&self) -> bool {
         self.context == SelectContext::DamageCounter
     }
@@ -189,16 +198,20 @@ enum Source {
     /// Chance prompt index (manual chance).
     Chance(usize),
     /// Prompt index plus the wire value per option.
-    Prompt(usize, Vec<Wire>, AnswerShape),
+    Prompt(usize, Vec<OptionValue>, AnswerShape),
 }
 
-/// The wire answer of one option. The common kinds are kept typed so a pick can be decoded without
-/// building JSON; [`Wire::json`] makes the value a trace holds.
-#[derive(Clone, Debug)]
-enum Wire {
-    /// An index into the prompt's list.
-    Idx(usize),
+/// What one option of a prompt answers, in the engine's own types: a pick is decoded from it without building JSON
+/// ([`Game::answer`]); `json` makes the value a recorded trace holds (the wire form, [`SelectData::wire_answer`]).
+/// Targets are relative to the deciding player (`BottomPlayer` is that player).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OptionValue {
+    /// An index into the prompt's list (a card of the offered list, a Prize card, an Energy of the payment, a position, a
+    /// number or a label of the choice).
+    Index(usize),
+    /// A Pokémon in play.
     Target(CardTarget),
+    /// Yes / no.
     Bool(bool),
     /// An Energy card (index) attached to a target.
     AttachTo(CardTarget, usize),
@@ -208,20 +221,22 @@ enum Wire {
     FromTo(CardTarget, CardTarget, usize),
     /// A damage counter moved from one target to another.
     Pair(CardTarget, CardTarget),
-    Json(Value),
+    /// An attack: of the card at `index` of the prompt's list, its attack `attack` (the position in the card's attacks),
+    /// named `name` (the wire form names it).
+    Attack { index: usize, attack: u8, name: &'static str },
 }
 
-impl Wire {
+impl OptionValue {
     fn json(&self) -> Value {
         match self {
-            Wire::Idx(i) => json!(i),
-            Wire::Target(t) => target_json(*t),
-            Wire::Bool(b) => json!(b),
-            Wire::AttachTo(t, i) => json!({ "to": target_json(*t), "index": i }),
-            Wire::From(f, i) => json!({ "from": target_json(*f), "index": i }),
-            Wire::FromTo(f, t, i) => json!({ "from": target_json(*f), "to": target_json(*t), "index": i }),
-            Wire::Pair(f, t) => json!({ "from": target_json(*f), "to": target_json(*t) }),
-            Wire::Json(v) => v.clone(),
+            OptionValue::Index(i) => json!(i),
+            OptionValue::Target(t) => target_json(*t),
+            OptionValue::Bool(b) => json!(b),
+            OptionValue::AttachTo(t, i) => json!({ "to": target_json(*t), "index": i }),
+            OptionValue::From(f, i) => json!({ "from": target_json(*f), "index": i }),
+            OptionValue::FromTo(f, t, i) => json!({ "from": target_json(*f), "to": target_json(*t), "index": i }),
+            OptionValue::Pair(f, t) => json!({ "from": target_json(*f), "to": target_json(*t) }),
+            OptionValue::Attack { index, name, .. } => json!({ "index": index, "attack": name }),
         }
     }
 }
@@ -418,7 +433,7 @@ impl Game {
         let player = pr.player;
         let persp = pr.player as usize;
         let ctx = context_for(pr.purpose);
-        let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<Wire>, sh: AnswerShape| SelectData {
+        let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<OptionValue>, sh: AnswerShape| SelectData {
             player,
             select_type: t,
             context: c,
@@ -431,7 +446,7 @@ impl Game {
         match pr.kind {
             PromptKind::Confirm => {
                 let o = |k: OptionType| Opt { kind: k as u8, ..Default::default() };
-                mk(SelectType::YesNo, ctx, 1, 1, vec![o(OptionType::Yes), o(OptionType::No)], vec![Wire::Bool(true), Wire::Bool(false)], AnswerShape::Single)
+                mk(SelectType::YesNo, ctx, 1, 1, vec![o(OptionType::Yes), o(OptionType::No)], vec![OptionValue::Bool(true), OptionValue::Bool(false)], AnswerShape::Single)
             }
             PromptKind::Select { values, .. } => {
                 let n = values.len();
@@ -449,7 +464,7 @@ impl Game {
                         ..Default::default()
                     })
                     .collect();
-                mk(SelectType::Count, ctx, 1, 1, options, (0..n).map(Wire::Idx).collect(), AnswerShape::Single)
+                mk(SelectType::Count, ctx, 1, 1, options, (0..n).map(OptionValue::Index).collect(), AnswerShape::Single)
             }
             PromptKind::ChooseCards { cards, filter, opts } => {
                 let list = self.prompt_list(cards);
@@ -468,7 +483,7 @@ impl Game {
                             serial: Some(c),
                             ..Default::default()
                         });
-                        vals.push(Wire::Idx(k));
+                        vals.push(OptionValue::Index(k));
                     }
                 }
                 let min = opts.min as usize;
@@ -494,7 +509,7 @@ impl Game {
                         }
                     })
                     .collect::<Vec<_>>();
-                let vals = cands.iter().map(|t| Wire::Target(*t)).collect();
+                let vals = cands.iter().map(|t| OptionValue::Target(*t)).collect();
                 let n = options.len();
                 mk(SelectType::Card, ctx, (min as usize).min(n), (max as usize).min(n), options, vals, AnswerShape::Array)
             }
@@ -505,7 +520,7 @@ impl Game {
                     .map(|k| Opt { kind: OptionType::Card as u8, area: Some(AreaType::Prize as u8), index: Some(k as u8), player_index: Some(q as u8), ..Default::default() })
                     .collect();
                 let n = (count as usize).min(left);
-                mk(SelectType::Card, ctx, n, n, options, (0..left).map(Wire::Idx).collect(), AnswerShape::Array)
+                mk(SelectType::Card, ctx, n, n, options, (0..left).map(OptionValue::Index).collect(), AnswerShape::Array)
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
                 let energy = *self.payload_energy(energy);
@@ -533,7 +548,7 @@ impl Game {
                 let max = n.min(cost.len().max(1));
                 // An Energy select that puts the cards into the hand is its own context.
                 let ctx = if ctx == SelectContext::ToHand { SelectContext::ToHandEnergy } else { ctx };
-                mk(SelectType::Energy, ctx, 0, max, options, order.into_iter().map(Wire::Idx).collect(), AnswerShape::Array)
+                mk(SelectType::Energy, ctx, 0, max, options, order.into_iter().map(OptionValue::Index).collect(), AnswerShape::Array)
             }
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
                 // One option per (energy card, target) pair; pick each energy at most once.
@@ -560,7 +575,7 @@ impl Game {
                             serial: Some(c),
                             ..Default::default()
                         });
-                        vals.push(Wire::AttachTo(*t, k));
+                        vals.push(OptionValue::AttachTo(*t, k));
                     }
                 }
                 mk(SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, options, vals, AnswerShape::Array)
@@ -589,11 +604,11 @@ impl Game {
                                 base.in_play_area = Some(if to.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
                                 base.in_play_index = Some(to.index);
                                 options.push(base.clone());
-                                vals.push(Wire::FromTo(from, *to, i as usize));
+                                vals.push(OptionValue::FromTo(from, *to, i as usize));
                             }
                         } else {
                             options.push(base);
-                            vals.push(Wire::From(from, i as usize));
+                            vals.push(OptionValue::From(from, i as usize));
                         }
                     }
                 }
@@ -602,7 +617,7 @@ impl Game {
                 let mut order: Vec<usize> = (0..options.len()).collect();
                 order.sort_by_key(|&k| self.st.cards[options[k].serial.unwrap() as usize].arrived);
                 let options: Vec<Opt> = order.iter().map(|&k| options[k].clone()).collect();
-                let vals: Vec<Wire> = order.iter().map(|&k| vals[k].clone()).collect();
+                let vals: Vec<OptionValue> = order.iter().map(|&k| vals[k].clone()).collect();
                 let max = o.max.map(|m| m as usize).unwrap_or(options.len());
                 let ctx = if is_move { SelectContext::SwitchEnergyCard } else { SelectContext::DiscardEnergyCard };
                 mk(SelectType::AttachedCard, ctx, o.min as usize, max, options, vals, AnswerShape::Array)
@@ -624,7 +639,7 @@ impl Game {
                     })
                     .collect();
                 let n = (damage / damage_multiple.max(1)) as usize;
-                let vals = targets.iter().map(|t| Wire::Target(*t)).collect();
+                let vals = targets.iter().map(|t| OptionValue::Target(*t)).collect();
                 mk(SelectType::Card, SelectContext::DamageCounter, if allow_partial { 0 } else { n }, n, options, vals, AnswerShape::Counters(damage_multiple))
             }
             PromptKind::MoveDamage { player_type, slots, o, .. } | PromptKind::RemoveDamage { player_type, slots, o, .. } => {
@@ -644,7 +659,7 @@ impl Game {
                             to_player: Some(seat(t)),
                             ..Default::default()
                         });
-                        vals.push(Wire::Pair(*f, *t));
+                        vals.push(OptionValue::Pair(*f, *t));
                     }
                 }
                 let max = o.max.map(|m| m as usize).unwrap_or(12);
@@ -658,7 +673,7 @@ impl Game {
                     .map(|(k, c)| Opt { kind: OptionType::Card as u8, index: Some(k as u8), card_id: Some(self.st.cards[*c as usize].def), serial: Some(*c), ..Default::default() })
                     .collect::<Vec<_>>();
                 let n = options.len();
-                mk(SelectType::Card, SelectContext::ToDeck, n, n, options, (0..n).map(Wire::Idx).collect(), AnswerShape::Array)
+                mk(SelectType::Card, SelectContext::ToDeck, n, n, options, (0..n).map(OptionValue::Index).collect(), AnswerShape::Array)
             }
             PromptKind::SelectOption { values, disabled, .. } => {
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
@@ -667,7 +682,7 @@ impl Game {
                         continue;
                     }
                     options.push(Opt { kind: OptionType::Number as u8, number: Some(k as i32), ..Default::default() });
-                    vals.push(Wire::Idx(k));
+                    vals.push(OptionValue::Index(k));
                 }
                 mk(SelectType::Count, ctx, 1, 1, options, vals, AnswerShape::Single)
             }
@@ -686,7 +701,7 @@ impl Game {
                             serial: Some(*c),
                             ..Default::default()
                         });
-                        vals.push(Wire::Json(json!({ "index": i, "attack": at.name })));
+                        vals.push(OptionValue::Attack { index: i, attack: a as u8, name: at.name });
                     }
                 }
                 mk(SelectType::Attack, SelectContext::Attack, 1, 1, options, vals, AnswerShape::Single)
@@ -755,11 +770,11 @@ fn raw_answer(sel: &SelectData, chosen: &[usize]) -> Result<Value, GameError> {
         _ => return Err(GameError("NOT_A_PROMPT")),
     };
     Ok(match shape {
-                    AnswerShape::Single => vals.get(*chosen.first().ok_or(GameError("EMPTY_ANSWER"))?).map(Wire::json).ok_or(GameError("BAD_OPTION"))?,
+                    AnswerShape::Single => vals.get(*chosen.first().ok_or(GameError("EMPTY_ANSWER"))?).map(OptionValue::json).ok_or(GameError("BAD_OPTION"))?,
                     AnswerShape::Array => {
                         let mut v = Vec::new();
                         for &k in chosen {
-                            v.push(vals.get(k).map(Wire::json).ok_or(GameError("BAD_OPTION"))?);
+                            v.push(vals.get(k).map(OptionValue::json).ok_or(GameError("BAD_OPTION"))?);
                         }
                         Value::Array(v)
                     }
@@ -841,8 +856,8 @@ impl Game {
         self.decode_chosen(&pr, sel, chosen)
     }
 
-    /// `raw_answer` then `decode_answer` for option indices `chosen` (same results and errors), without
-    /// building the JSON answer for the common prompt kinds.
+    /// The answer for option indices `chosen`: the picked options' values read by the prompt kind's decoder, no JSON
+    /// built. `PTCG_VERIFY_CACHE=1` asserts the wire form (`raw_answer`) read back (`decode_answer`) gives the same.
     fn decode_chosen(&self, pr: &PromptRec, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
         let r = self.decode_chosen_typed(pr, sel, chosen);
         if crate::game::verify_cache() {
@@ -869,11 +884,11 @@ impl Game {
             }
         }
         let idx = |k: &usize| match &vals[*k] {
-            Wire::Idx(i) => Some(*i),
+            OptionValue::Index(i) => Some(*i),
             _ => None,
         };
         let target = |k: &usize| match &vals[*k] {
-            Wire::Target(t) => Some(*t),
+            OptionValue::Target(t) => Some(*t),
             _ => None,
         };
         match (&pr.kind, shape) {
@@ -884,28 +899,28 @@ impl Game {
             (PromptKind::AttachEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_attach(
                 pr,
                 chosen.iter().map(|k| match &vals[*k] {
-                    Wire::AttachTo(t, i) => Some((*t, *i)),
+                    OptionValue::AttachTo(t, i) => Some((*t, *i)),
                     _ => None,
                 }),
             ),
             (PromptKind::DiscardEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_discard_energy(
                 pr,
                 chosen.iter().map(|k| match &vals[*k] {
-                    Wire::From(f, i) => Some((*f, *i)),
+                    OptionValue::From(f, i) => Some((*f, *i)),
                     _ => None,
                 }),
             ),
             (PromptKind::MoveEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_move_energy(
                 pr,
                 chosen.iter().map(|k| match &vals[*k] {
-                    Wire::FromTo(f, t, i) => Some((*f, *t, *i)),
+                    OptionValue::FromTo(f, t, i) => Some((*f, *t, *i)),
                     _ => None,
                 }),
             ),
             (PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. }, AnswerShape::Array) => self.decode_move_damage(
                 pr,
                 chosen.iter().map(|k| match &vals[*k] {
-                    Wire::Pair(f, t) => Some((*f, *t)),
+                    OptionValue::Pair(f, t) => Some((*f, *t)),
                     _ => None,
                 }),
             ),
@@ -925,23 +940,26 @@ impl Game {
                 self.decode_put_damage(
                     pr,
                     agg.iter().map(|(k, d)| match &vals[*k] {
-                        Wire::Target(t) => Some((*t, *d)),
+                        OptionValue::Target(t) => Some((*t, *d)),
                         _ => None,
                     }),
                 )
             }
             (PromptKind::Confirm, AnswerShape::Single) => match &vals[chosen[0]] {
-                Wire::Bool(b) => Ok(Res::Bool(*b)),
+                OptionValue::Bool(b) => Ok(Res::Bool(*b)),
                 _ => Err(GameError("INVALID_PROMPT_RESULT")),
             },
             (PromptKind::Select { .. } | PromptKind::SelectOption { .. }, AnswerShape::Single) => match &vals[chosen[0]] {
-                Wire::Idx(i) => Ok(Res::Int(*i as i32)),
+                OptionValue::Index(i) => Ok(Res::Int(*i as i32)),
                 _ => Err(GameError("INVALID_PROMPT_RESULT")),
             },
-            _ => {
-                let raw = raw_answer(sel, chosen)?;
-                self.decode_answer(pr, &raw)
-            }
+            (PromptKind::ChooseAttack { .. }, AnswerShape::Single) => match &vals[chosen[0]] {
+                OptionValue::Attack { index, attack, .. } => self.decode_choose_attack(pr, *index, *attack as usize),
+                _ => Err(GameError("INVALID_PROMPT_RESULT")),
+            },
+            // Longer than the prompt kind takes (`extra_cap`); no other pair of a prompt kind and an answer shape is
+            // built (`prompt_select`).
+            _ => Err(GameError("INVALID_PROMPT_RESULT")),
         }
     }
 
@@ -1066,7 +1084,7 @@ impl Game {
     pub(crate) fn has_an_answer(&self, i: usize) -> bool {
         let pr = self.prompts.as_slice()[i];
         // A prompt whose null answer is accepted (a cancel; a yes / no or a number with no validation) can be answered.
-        if self.decode_answer(&pr, &Value::Null).is_ok() {
+        if self.decline_answer(&pr).is_ok() {
             return true;
         }
         let sel = self.prompt_select(i);
@@ -1086,7 +1104,7 @@ impl Game {
     /// choosable: id290; JP FAQ Hariyama MEG 73).
     fn verify_does_something(&self, sel: &SelectData, j: usize) {
         let Source::Prompt(i, vals, _) = &sel.map else { return };
-        if matches!(vals.get(j), Some(Wire::Bool(false))) || !self.is_valid_answer(sel, &[j]) {
+        if matches!(vals.get(j), Some(OptionValue::Bool(false))) || !self.is_valid_answer(sel, &[j]) {
             return;
         }
         let mut trial = self.fork();
@@ -1137,5 +1155,13 @@ mod tests {
         assert!(sel.options.iter().any(|o| pair(o) == (Some(a), Some(0), Some(0), Some(a), Some(0), Some(1))), "to the opponent's Active");
         assert!(sel.options.iter().any(|o| pair(o) == (Some(a), Some(0), Some(1), Some(a), Some(0), Some(0))), "from the opponent's Active");
         assert!(sel.options.iter().all(|o| o.from_player.is_some() && o.to_player.is_some() && o.player_index.is_none()));
+        // Each option's typed value is its part of the wire answer; the question can be declined (a cancel).
+        for j in 0..sel.options.len() {
+            let v = sel.option_value(j).unwrap();
+            assert!(matches!(v, OptionValue::Pair(..)));
+            assert_eq!(sel.wire_answer(&[j]).unwrap(), Value::Array(vec![v.json()]));
+        }
+        assert_eq!(sel.option_value(6), None);
+        assert!(matches!(g.decline_answer(&g.prompts.as_slice()[g.prompts.len() - 1]), Ok(Res::Null)));
     }
 }

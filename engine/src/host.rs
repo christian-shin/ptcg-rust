@@ -25,7 +25,7 @@
 
 pub use crate::carddb::{AttackDef, CardDef, DefId, PowerDef};
 pub use crate::game::{Action, Game, GameError, Pending};
-pub use crate::interface::{AreaType, Opt, OptionType, SelectContext, SelectData, SelectType};
+pub use crate::interface::{AreaType, Opt, OptionType, OptionValue, SelectContext, SelectData, SelectType};
 pub use crate::list::CardId;
 pub use crate::place::{CardPlace, InPlayAs, Spot, Zone};
 pub use crate::prompts::{PromptKind, PromptPurpose, PromptRec, Provenance};
