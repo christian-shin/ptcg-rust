@@ -130,8 +130,13 @@ pub fn check_energy_payment(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
         return true;
     }
     (0..energy.len()).any(|i| {
-        let tmp: Vec<EnergyEntry> = energy.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, e)| *e).collect();
-        !check_enough_energy(&tmp, cost)
+        let mut tmp: SVec<EnergyEntry, 64> = SVec::new();
+        for (j, e) in energy.iter().enumerate() {
+            if j != i {
+                tmp.push(*e);
+            }
+        }
+        !check_enough_energy(tmp.as_slice(), cost)
     })
 }
 
@@ -140,40 +145,41 @@ pub fn check_energy_payment(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
 /// the cost to discard instead of the fewest that cover it (id2127). `None` when a choice exists. Different cards that
 /// provide the same (a Basic Psychic Energy and a Telepathic Psychic Energy) are a choice: the player discards the
 /// Energy (APR A-03 step 2), and the cards differ in what later effects can see (name, card text, Basic or Special).
-pub fn only_payment(map: &[EnergyEntry], cost: &[CardType], def_of: impl Fn(crate::list::CardId) -> crate::carddb::DefId) -> Option<Vec<crate::list::CardId>> {
-    let mut cards: Vec<crate::list::CardId> = Vec::new();
+pub fn only_payment(map: &[EnergyEntry], cost: &[CardType], def_of: impl Fn(crate::list::CardId) -> crate::carddb::DefId) -> Option<SVec<crate::list::CardId, 64>> {
+    let mut cards: SVec<crate::list::CardId, 64> = SVec::new();
     for e in map {
         if !cards.contains(&e.card) {
             cards.push(e.card);
         }
     }
-    let provides_of = |c: crate::list::CardId| -> Vec<Vec<CardType>> {
-        let mut v: Vec<Vec<CardType>> = map.iter().filter(|e| e.card == c).map(|e| {
-            let mut p: Vec<CardType> = e.provides.as_slice().to_vec();
-            p.sort();
-            p
-        }).collect();
-        v.sort();
+    // What a card provides: the types of each of its entries, sorted, in sorted order.
+    let provides_of = |c: crate::list::CardId| -> SVec<SVec<CardType, 4>, 64> {
+        let mut v: SVec<SVec<CardType, 4>, 64> = SVec::new();
+        for e in map.iter().filter(|e| e.card == c) {
+            let mut p = e.provides;
+            p.as_mut_slice().sort();
+            v.push(p);
+        }
+        v.as_mut_slice().sort_by(|a, b| a.as_slice().cmp(b.as_slice()));
         v
     };
-    let first = provides_of(*cards.first()?);
+    let first = provides_of(*cards.get(0)?);
     let def = def_of(cards[0]);
     if !cards.iter().all(|c| def_of(*c) == def && provides_of(*c) == first) {
         return None;
     }
     // The fewest cards that cover the cost.
-    let per: Vec<EnergyEntry> = map.iter().filter(|e| e.card == cards[0]).copied().collect();
     let mut m = 0usize;
-    let mut acc: Vec<EnergyEntry> = Vec::new();
-    while m < cards.len() && !check_enough_energy(&acc, cost) {
-        for e in per.iter() {
+    let mut acc: SVec<EnergyEntry, 64> = SVec::new();
+    while m < cards.len() && !check_enough_energy(acc.as_slice(), cost) {
+        for e in map.iter().filter(|e| e.card == cards[0]) {
             let mut e = *e;
             e.card = cards[m];
             acc.push(e);
         }
         m += 1;
     }
-    if !check_enough_energy(&acc, cost) || m == 0 {
+    if !check_enough_energy(acc.as_slice(), cost) || m == 0 {
         return None;
     }
     // A second way: as many cards as the cost (id2127: "a number of Energy cards equal to the total Retreat Cost, or ...
@@ -181,7 +187,9 @@ pub fn only_payment(map: &[EnergyEntry], cost: &[CardType], def_of: impl Fn(crat
     if m < cost.len() && cards.len() >= cost.len() {
         return None;
     }
-    Some(cards[..m].to_vec())
+    let mut out = SVec::new();
+    out.extend_from_slice(&cards.as_slice()[..m]);
+    Some(out)
 }
 
 
@@ -422,7 +430,7 @@ mod payment_tests {
     #[test]
     fn only_copies_of_one_card_are_paid_without_a_question() {
         let (a, b) = (entry(1, 1), entry(2, 1));
-        assert_eq!(only_payment(&[a, b], &cost(1), |_| 7), Some(vec![1]));
+        assert_eq!(only_payment(&[a, b], &cost(1), |_| 7).map(|v| v.as_slice().to_vec()), Some(vec![1]));
         assert_eq!(only_payment(&[a, b], &cost(1), |c| 7 + c as crate::carddb::DefId), None);
     }
 }

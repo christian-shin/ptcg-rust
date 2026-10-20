@@ -257,6 +257,15 @@ impl<T: Copy, const N: usize> SVec<T, N> {
         }
         self.len = w as u8;
     }
+    /// Append every item of `items` (panics past the capacity, as `push`).
+    pub fn extend_from_slice(&mut self, items: &[T]) {
+        let len = self.len as usize;
+        assert!(len + items.len() <= N, "SVec<{}> overflow", N);
+        for (d, v) in self.items[len..len + items.len()].iter_mut().zip(items) {
+            *d = std::mem::MaybeUninit::new(*v);
+        }
+        self.len = (len + items.len()) as u8;
+    }
     pub fn get(&self, i: usize) -> Option<&T> {
         self.as_slice().get(i)
     }

@@ -139,7 +139,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     // counted, not the entries of the Energy map).
     let only = if single_way_paid { energy::only_payment(map.as_slice(), cost.as_slice(), |c| g.st.cards[c as usize].def) } else { None };
     if let Some(cards) = only {
-        pay(g, p, active, &cards, move_to)?;
+        pay(g, p, active, cards.as_slice(), move_to)?;
         return choose(g, p, move_to);
     }
     let map = g.stash_energy(map);

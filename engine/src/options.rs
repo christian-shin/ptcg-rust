@@ -7,7 +7,7 @@ use crate::game::{Action, Game};
 use crate::state::AttackRef;
 use crate::legal::{legal_fast, Ctx};
 use crate::list::*;
-use crate::prompts::{own_targets, target_json};
+use crate::prompts::{slot_targets, target_json};
 use crate::types::*;
 use serde_json::{json, Value};
 
@@ -82,7 +82,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
     let g = ctx.g;
     out.clear();
     let p = g.st.active_player as usize;
-    let own = own_targets(&g.st, p);
+    let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
     let pl = &g.st.players[p];
     let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards().is_empty());
     for (hi, c) in pl.hand.iter().enumerate() {

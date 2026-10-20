@@ -538,8 +538,8 @@ pub fn get_target(st: &State, p: usize, t: CardTarget) -> Result<SlotRef, GameEr
 }
 
 /// In-play targets for (playerType, slots) relative to `p`, Active first.
-pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<CardTarget> {
-    let mut out = Vec::new();
+pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> SVec<CardTarget, { crate::state::MAX_SLOT_REFS }> {
+    let mut out = SVec::new();
     let sides: &[PlayerType] = match pt {
         PlayerType::Any => &[PlayerType::BottomPlayer, PlayerType::TopPlayer],
         PlayerType::BottomPlayer => &[PlayerType::BottomPlayer],
@@ -562,22 +562,6 @@ pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<C
     out
 }
 
-/// The player's own Active Spot and Bench targets that hold a Pokémon: `slot_targets` for
-/// `BottomPlayer` and `[Active, Bench]`, without the allocation.
-pub fn own_targets(st: &State, p: usize) -> SVec<CardTarget, { crate::state::MAX_SLOTS }> {
-    let mut out = SVec::new();
-    let pl = &st.players[p];
-    if !pl.slots[pl.active as usize].cards().is_empty() {
-        out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0));
-    }
-    for (i, &b) in pl.bench.iter().enumerate() {
-        if !pl.slots[b as usize].cards().is_empty() {
-            out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8));
-        }
-    }
-    out
-}
-
 pub fn target_json(t: CardTarget) -> Value {
     json!({ "player": t.player as u8, "slot": t.slot as u8, "index": t.index })
 }
@@ -590,8 +574,15 @@ pub fn target_from_json(v: &Value) -> Option<CardTarget> {
     ))
 }
 
-fn blocked_slots(st: &State, p: usize, blocked: &[CardTarget]) -> Vec<SlotRef> {
-    blocked.iter().filter_map(|b| get_target(st, p, *b).ok()).collect()
+/// The spots a prompt's blocked targets name now (a blocked list holds at most 18: `TargetList`, `MoveOpts`).
+fn blocked_slots(st: &State, p: usize, blocked: &[CardTarget]) -> SVec<SlotRef, 18> {
+    let mut out = SVec::new();
+    for b in blocked {
+        if let Ok(s) = get_target(st, p, *b) {
+            out.push(s);
+        }
+    }
+    out
 }
 
 // ---------------------------------------------------------------------------
@@ -623,17 +614,15 @@ impl Game {
             .collect()
     }
 
-    pub fn choose_pokemon_candidates(&self, pr: &PromptRec) -> Vec<CardTarget> {
+    pub fn choose_pokemon_candidates(&self, pr: &PromptRec) -> SVec<CardTarget, { crate::state::MAX_SLOT_REFS }> {
+        let mut out = SVec::new();
         if let PromptKind::ChoosePokemon { player_type, slots, blocked, .. } = pr.kind {
             let p = pr.player as usize;
             let bl = blocked_slots(&self.st, p, blocked.as_slice());
-            slot_targets(&self.st, p, player_type, slots.as_slice())
-                .into_iter()
-                .filter(|t| get_target(&self.st, p, *t).map(|s| !bl.contains(&s)).unwrap_or(false))
-                .collect()
-        } else {
-            Vec::new()
+            out = slot_targets(&self.st, p, player_type, slots.as_slice());
+            out.retain(|t| get_target(&self.st, p, *t).map(|s| !bl.contains(&s)).unwrap_or(false));
         }
+        out
     }
 
     /// The prompt's canonical descriptor.
@@ -690,7 +679,7 @@ impl Game {
                     json!({ "min": min, "max": max, "allowCancel": allow_cancel,
                             "blocked": blocked.iter().map(|t| target_json(*t)).collect::<Vec<_>>() }),
                 );
-                base.insert("candidates".into(), Value::Array(self.choose_pokemon_candidates(pr).into_iter().map(target_json).collect()));
+                base.insert("candidates".into(), Value::Array(self.choose_pokemon_candidates(pr).iter().map(|t| target_json(*t)).collect()));
             }
             PromptKind::ChoosePrize { count, blocked, use_opponent_prizes, allow_cancel, is_secret, face_down_only, .. } => {
                 let q = if use_opponent_prizes { 1 - p } else { p };
@@ -1030,7 +1019,7 @@ impl Game {
     /// The slots and Energy card indices offered as sources.
     pub fn energy_sources(&self, p: usize, pt: PlayerType, slots: &[u8], filter: &Filter, o: &MoveOpts) -> Vec<(CardTarget, Vec<u8>)> {
         let mut out = Vec::new();
-        for from in slot_targets(&self.st, p, pt, slots) {
+        for &from in slot_targets(&self.st, p, pt, slots).iter() {
             if in_targets(o.blocked_from.as_slice(), from) {
                 continue;
             }
@@ -1095,7 +1084,7 @@ impl Game {
                 }
                 base.insert("options".into(), Value::Object(m));
                 let targets: Vec<CardTarget> =
-                    slot_targets(&self.st, p, player_type, slots.as_slice()).into_iter().filter(|t| !in_targets(o.blocked_to.as_slice(), *t)).collect();
+                    slot_targets(&self.st, p, player_type, slots.as_slice()).iter().copied().filter(|t| !in_targets(o.blocked_to.as_slice(), *t)).collect();
                 base.insert("targets".into(), targets_json(&targets));
             }
             PromptKind::DiscardEnergy { player_type, slots, filter, o } | PromptKind::MoveEnergy { player_type, slots, filter, o } => {

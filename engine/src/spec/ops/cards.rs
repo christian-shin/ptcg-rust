@@ -482,9 +482,9 @@ fn zone_is_unset(f: &Frame, z: ZoneRef) -> bool {
 }
 
 /// The cards of a zone in list order; the resolving card is never part of a hand.
-fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
+fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> crate::spec::value::ZoneCards {
     if zone_is_unset(f, z) {
-        return Vec::new();
+        return crate::spec::value::ZoneCards::new();
     }
     let mut v = zone_cards_of(g, me, f, z);
     // A Trainer used through an attack stays in the hand it was copied from.
@@ -520,7 +520,7 @@ fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
             None => true,
             Some(w) => {
                 let name = g.st.cdef(c).name;
-                in_play(g, f.who(w), PlayScope::All).iter().any(|(_, top, _)| g.st.cdef(*top).name == name)
+                in_play(g, f.who(w), PlayScope::All).any(|(_, top, _)| g.st.cdef(top).name == name)
             }
         }
 }
@@ -558,16 +558,22 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::PutIntoDeck(d) => verb(g, me, f, d.from, &d.cards, d.into, d.order, d.reveal, Dest::Deck(d.position)),
         Op::Look(l) => verb(g, me, f, l.from, &l.cards, None, DeckOrder::AsIs, None, Dest::Look(l.into)),
         Op::Snapshot(s) => {
-            let cards: Vec<CardId> = zone_cards(g, me, f, s.zone).into_iter().filter(|c| pred(g, *c, &s.predicate)).collect();
-            set_reg(g, f, s.into, &cards);
+            let mut cards = zone_cards(g, me, f, s.zone);
+            cards.retain(|c| pred(g, *c, &s.predicate));
+            set_reg(g, f, s.into, cards.as_slice());
             Ok(Flow::Next)
         }
         Op::Reveal(r) => {
             let cards = match &r.cards {
                 RevealWhat::Zone(z) => zone_cards(g, me, f, *z),
-                RevealWhat::Chosen(reg) => reg_list(g, f, *reg).to_vec(),
+                RevealWhat::Chosen(reg) => {
+                    let mut l = crate::spec::value::ZoneCards::new();
+                    l.extend_from_slice(reg_list(g, f, *reg));
+                    l
+                }
             };
-            crate::record::reveal(g, f.who(r.to), &cards);
+            let cards = cards.as_slice();
+            crate::record::reveal(g, f.who(r.to), cards);
             if !cards.is_empty() || r.when_empty {
                 g.prompt(f.who(r.to), PromptPurpose::Look, PromptKind::ShowCards, Provenance::NONE, Cont::Noop);
             }
@@ -841,7 +847,7 @@ fn select(g: &mut Game, me: CardId, f: &Frame, from: ZoneRef, sel: &CardSel) -> 
             if zone_is_unset(f, from) {
                 return None;
             }
-            let zc = zone_cards(g, me, f, from);
+            let zc = zone_cards(g, me, f, from).as_slice().to_vec();
             let cards = match sel {
                 CardSel::All => zc,
                 CardSel::Top(n) => zc.into_iter().take(num(g, me, f, n).max(0) as usize).collect(),
@@ -1073,7 +1079,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     }
     // A hand's prompt lists it without the resolving card.
     let list = if matches!(pick.from.1, Zone::Tools(_)) || (pick.from.1 == Zone::Hand && !f.via_attack && g.lst(zone_ref(f, pick.from)).contains(&me)) {
-        g.alloc_temp(&cards)
+        g.alloc_temp(cards.as_slice())
     } else {
         match zone_list(g, me, f, pick.from, false) {
             Some(l) => l,
@@ -1331,8 +1337,8 @@ fn attach_targets_exist(g: &Game, me: CardId, f: &Frame, a: &AttachSpec) -> bool
     // A checked read (the type the Pokémon has now) is made over the decision's facts, once for the whole scan; a pure
     // target reads the board.
     let mut facts: Option<crate::legal::Ctx> = None;
-    in_play(g, p, scope).iter().any(|(slot, _, _)| {
-        let s = SlotRef::new(p, *slot);
+    in_play(g, p, scope).any(|(slot, _, _)| {
+        let s = SlotRef::new(p, slot);
         match slot_pred(g, me, s, &a.target) {
             Some(ok) => ok,
             None => slot_pred_m(facts.get_or_insert_with(|| crate::legal::Ctx::new(g)), me, s, &a.target).unwrap_or(true),

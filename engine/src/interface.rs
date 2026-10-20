@@ -539,7 +539,7 @@ impl Game {
                 // One option per (energy card, target) pair; pick each energy at most once.
                 let list = self.prompt_list(cards);
                 let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
-                    .into_iter()
+                    .iter().copied()
                     .filter(|t| !o.blocked_to.iter().any(|b| b.player == t.player && b.slot == t.slot && b.index == t.index))
                     .collect();
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
@@ -610,7 +610,7 @@ impl Game {
             PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, damage_multiple, .. } => {
                 let bl: Vec<CardTarget> = blocked.iter().copied().collect();
                 let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
-                    .into_iter()
+                    .iter().copied()
                     .filter(|t| !bl.iter().any(|b| get_target(&self.st, persp, *b).ok() == get_target(&self.st, persp, *t).ok()))
                     .collect();
                 let options = targets
@@ -632,7 +632,7 @@ impl Game {
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
                 let seat = |t: &CardTarget| if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 };
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
-                for f in &all {
+                for f in all.iter() {
                     for t in all.iter().filter(|t| !(t.player == f.player && t.slot == f.slot && t.index == f.index)) {
                         options.push(Opt {
                             kind: OptionType::Card as u8,

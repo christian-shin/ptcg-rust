@@ -322,17 +322,31 @@ pub fn zone_list(g: &Game, me: CardId, f: &Frame, z: ZoneRef, for_move: bool) ->
     }
 }
 
+/// The cards of one zone, copied out without a heap list (the longest list is a scratch list, `Game::temps`).
+pub type ZoneCards = SVec<CardId, 120>;
+
 /// The cards of a zone (empty when it names no list).
-pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
+pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> ZoneCards {
+    let mut out = ZoneCards::new();
     if let Zone::Tools(e) = z.1 {
-        return slot_of(g, me, f, e).map(|s| g.st.slot(s.p as usize, s.s).tools().iter().collect()).unwrap_or_default();
+        if let Some(s) = slot_of(g, me, f, e) {
+            out.extend_from_slice(g.st.slot(s.p as usize, s.s).tools().as_slice());
+        }
+        return out;
     }
     match zone_list(g, me, f, z, false) {
         // A legality check's played Item and its companion are out of the hand (`Frame::excl`).
-        Some(l @ ListRef::Hand(_)) if f.excl[0] != crate::list::NO_CARD => g.lst(l).iter().copied().filter(|c| !f.out_of_hand(*c)).collect(),
-        Some(l) => g.lst(l).to_vec(),
-        None => Vec::new(),
+        Some(l @ ListRef::Hand(_)) if f.excl[0] != crate::list::NO_CARD => {
+            for &c in g.lst(l) {
+                if !f.out_of_hand(c) {
+                    out.push(c);
+                }
+            }
+        }
+        Some(l) => out.extend_from_slice(g.lst(l)),
+        None => {}
     }
+    out
 }
 
 pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> {
@@ -410,7 +424,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrintedCost => printed_cost(g, f),
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
-        Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
@@ -446,17 +460,10 @@ pub fn reg_list<'a>(g: &'a Game, f: &Frame, r: u8) -> &'a [CardId] {
 }
 
 /// Pokémon in play, Active first: (slot, top card, stack).
-pub fn in_play(g: &Game, p: usize, scope: PlayScope) -> Vec<(SlotId, CardId, Vec<CardId>)> {
+pub fn in_play(g: &Game, p: usize, scope: PlayScope) -> impl Iterator<Item = (SlotId, CardId, &[CardId])> + '_ {
     let pl = &g.st.players[p];
-    let mut slots: Vec<SlotId> = Vec::new();
-    if scope == PlayScope::All {
-        slots.push(pl.active);
-    }
-    slots.extend(pl.bench.iter().copied());
-    slots
-        .into_iter()
-        .filter_map(|s| g.st.slot_pokemon(p, s).map(|top| (s, top, pl.slots[s as usize].cards().iter().collect::<Vec<_>>())))
-        .collect()
+    let active = (scope == PlayScope::All).then_some(pl.active);
+    active.into_iter().chain(pl.bench.iter().copied()).filter_map(move |s| g.st.slot_pokemon(p, s).map(|top| (s, top, pl.slots[s as usize].cards().as_slice())))
 }
 
 pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
@@ -512,8 +519,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             }
             n >= *at_least
         }
-        Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
-        Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).any(|(_, top, _)| pred(g, top, p)),
+        Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
         Cond::Done => f.outcome.did(),
         Cond::DidAll => f.outcome == super::run::Outcome::Done,
@@ -569,7 +576,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                 }
                 n
             };
-            in_play(g, f.who(*names_of), PlayScope::All).iter().all(|(_, top, _)| known(g.st.cdef(*top).name) >= 4)
+            in_play(g, f.who(*names_of), PlayScope::All).all(|(_, top, _)| known(g.st.cdef(top).name) >= 4)
         }
         Cond::HasEvolutionInPool(w) => {
             let p = f.who(*w);
