@@ -9,7 +9,8 @@
 //! attack already being used in the attack can't be chosen again (`Game::copy_chain`; id657: a Watch and Learn that would
 //! copy the Watch and Learn it is a copy of does nothing), so a chain of copies ends: Night Joker copying another N's
 //! Zoroark ex's Night Joker chooses among the other Benched N's Pokémon's attacks, and does nothing more when only that
-//! Night Joker's own is left. The copied attack's lasting effects are lasting-table entries on the copycat
+//! Night Joker's own is left (at a table with `TableRules::copied_copy_attack_does_nothing` a copy attack chosen by a
+//! copy attack does nothing instead: `resume`). The copied attack's lasting effects are lasting-table entries on the copycat
 //! (`engine::lasting`).
 //!
 //! A copied attack runs as a fresh attack on the copycat carrying the source card's attack; after the normal fan-out of
@@ -326,6 +327,15 @@ fn find_pokemon_for_attack(g: &Game, cards: &[CardId], a: AttackRef) -> Option<C
     cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && g.st.cdef(*c).attacks.iter().any(|x| x.name == name))
 }
 
+/// Does attack `index` of `card` print a copy ("choose 1 of ... attacks and use it as this attack", `Op::CopyAttack`,
+/// under any coin, condition or choice of its text)?
+fn is_copy_attack(g: &Game, card: CardId, index: u8) -> bool {
+    fn copies(steps: &[crate::spec::Step]) -> bool {
+        steps.iter().any(|s| matches!(s.op, crate::spec::Op::CopyAttack(_)) || (0..=8).any(|sel| copies(crate::spec::ops::child(&s.op, sel))))
+    }
+    cards::spec_for(g.st.cards[card as usize].def).map_or(false, |sp| sp.attacks.iter().any(|a| a.index == index && copies(a.steps)))
+}
+
 /// The index of attack `a` among the attacks of `source`.
 fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
     if a.card == source && !a.is_clone() {
@@ -494,6 +504,10 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 Some(i) => i,
                 None => return Ok(()),
             };
+            // Table rule: a copy attack chosen by a copy attack does nothing (its choice, and everything else it does).
+            if g.st.rules.copied_copy_attack_does_nothing && is_copy_attack(g, source, index) {
+                return Ok(());
+            }
             start_delegated(g, f, source, index)
         }
         // A wait item fired: continue after the stage that suspended.

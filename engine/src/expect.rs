@@ -47,7 +47,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts", "absent", "lasting_effects",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts", "exact", "absent", "lasting_effects",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -118,6 +118,9 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             if o.get("is").map_or(false, |b| !b.is_boolean()) {
                 return Err(format!("expect[{}]: is must be true or false", i));
             }
+        }
+        if o.contains_key("exact") && (!o.contains_key("prompts") || !o["exact"].is_boolean()) {
+            return Err(format!("expect[{}]: exact (true or false) goes with prompts", i));
         }
         for key in ["prompts", "absent"] {
             let Some(pr) = o.get(key) else { continue };
@@ -369,7 +372,7 @@ pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
     let w = o["who"].as_str().unwrap_or("");
     if o.get("prompts").is_some() || o.get("absent").is_some() {
         // The prompts the engine created since the scenario edits, in order: `prompts` must appear as a
-        // subsequence, and no kind of `absent` may appear at all.
+        // subsequence (with `exact`: be the whole list), and no kind of `absent` may appear at all.
         let seen = PROMPT_LOG.with(|l| l.borrow().clone());
         if let Some(bad) = o.get("absent").and_then(|a| a.as_array()) {
             for b in bad.iter().filter_map(|x| x.as_str()) {
@@ -380,6 +383,12 @@ pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
         }
         let Some(want) = o.get("prompts") else { return Ok(()) };
         let want: Vec<&str> = want.as_array().unwrap().iter().filter_map(|x| x.as_str()).collect();
+        if o.get("exact").and_then(|x| x.as_bool()) == Some(true) {
+            if seen.len() != want.len() || seen.iter().zip(&want).any(|(k, w)| k != w) {
+                return Err(format!("prompts: expected exactly {:?}, actual {:?}", want, seen));
+            }
+            return Ok(());
+        }
         let mut at = 0;
         for k in &seen {
             if at < want.len() && k == want[at] {
@@ -655,6 +664,9 @@ mod tests {
         assert!(p(json!([{"cite":"x","who":"you","slot":"active"}])).is_err(), "who");
         assert!(p(json!([{"cite":"x","who":"me","slot":"active","dmg":1}])).is_err(), "unknown key");
         assert!(p(json!([{"cite":"x","who":"me","slot":"active","at":"later"}])).is_err(), "at");
+        assert!(p(json!([{"cite":"x","absent":["Wait"],"exact":true}])).is_err(), "exact without prompts");
+        assert!(p(json!([{"cite":"x","prompts":["Wait"],"exact":1}])).is_err(), "exact not a boolean");
+        assert!(p(json!([{"cite":"x","prompts":["Wait"],"exact":true}])).is_ok());
         assert!(parse(&json!({})).unwrap().is_empty());
     }
 

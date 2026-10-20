@@ -82,6 +82,16 @@ pub struct TableRules {
     /// (id2089: "All effects have to be resolved before resolving KO's"; id2239; RULES.md "'If you use this Ability, this
     /// Pokémon is Knocked Out' is a consequence of using it").
     pub self_knockout_before_effect: bool,
+    /// A copy attack ("choose 1 of ... attacks and use it as this attack": Night Joker, Foul Play, Metronome, Try to
+    /// Imitate, Seek Inspiration, Gemstone Mimicry) chosen by another copy attack can be chosen, and does nothing: no
+    /// choice of its own, nothing else of its text (e.g. Night Joker choosing another N's Zoroark ex's Night Joker ends
+    /// there). A copy attack used otherwise (one of Mew ex's Memory Helix attacks) is unaffected; the attack it
+    /// chooses is. `copy_attack::resume`.
+    ///
+    /// Off (the rulings): the copied copy attack is used like any other and makes its own choice (compendium id656; JP
+    /// FAQ Slowking SCR 58), among the attacks not already being used in this attack (id657; RULES.md "A copied attack
+    /// is the copycat's only while it is used", `Game::copy_chain`).
+    pub copied_copy_attack_does_nothing: bool,
 }
 
 impl TableRules {
@@ -94,6 +104,7 @@ impl TableRules {
         "evolving_trainer_discarded_before_evolve_triggers",
         "trainer_conditions_on_hidden_cards_unread",
         "self_knockout_before_effect",
+        "copied_copy_attack_does_nothing",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -106,6 +117,7 @@ impl TableRules {
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             "trainer_conditions_on_hidden_cards_unread" => &mut self.trainer_conditions_on_hidden_cards_unread,
             "self_knockout_before_effect" => &mut self.self_knockout_before_effect,
+            "copied_copy_attack_does_nothing" => &mut self.copied_copy_attack_does_nothing,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

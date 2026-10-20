@@ -1,0 +1,104 @@
+{
+ "turn": 2,
+ "rules": {
+  "copied_copy_attack_does_nothing": false
+ },
+ "decks": [
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 Rellor TEF 23",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 Rellor TEF 23",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": "Rellor TEF 23"
+   },
+   {
+    "card": "Rellor TEF 23"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Night Joker"
+  },
+  {
+   "index": 0,
+   "attack": "Night Joker"
+  },
+  {
+   "index": 1,
+   "attack": "Night Joker"
+  },
+  {
+   "index": 2,
+   "attack": "Night Joker"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseAttack",
+    "ChooseAttack",
+    "ChooseAttack",
+    "Wait"
+   ],
+   "exact": true,
+   "cite": "table rule copied_copy_attack_does_nothing (off, the rulings): each copied Night Joker makes its own choice (compendium id656; JP FAQ Slowking SCR 58) among the attacks not already being used in this attack (id657): the three Benched N's Zoroark ex's Night Jokers in turn, then nothing is left"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "compendium id657: the last copied Night Joker has nothing left to choose and does nothing more"
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "turn": 2,
+ "rules": {
+  "copied_copy_attack_does_nothing": true
+ },
+ "decks": [
+  [
+   "4 Mew ex 30C 66",
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Mew ex 30C 66",
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Night Joker",
+   "from": "N's Zoroark ex ASC 137"
+  },
+  {
+   "index": 1,
+   "attack": "Night Joker"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseAttack",
+    "Wait"
+   ],
+   "exact": true,
+   "cite": "table rule copied_copy_attack_does_nothing (on): Mew ex uses a Benched N's Zoroark ex's Night Joker through Memory Helix, an attack it can use, not one chosen by a copy attack: it makes its choice; the other N's Zoroark ex's Night Joker it chooses is a copy attack chosen by a copy attack and does nothing (off it chooses again, the third N's Zoroark ex's Night Joker)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "table rule copied_copy_attack_does_nothing (on): the chosen Night Joker does nothing and the turn ends"
+  }
+ ]
+}

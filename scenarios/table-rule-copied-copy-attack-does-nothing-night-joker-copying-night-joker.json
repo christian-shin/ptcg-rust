@@ -1,0 +1,94 @@
+{
+ "turn": 2,
+ "rules": {
+  "copied_copy_attack_does_nothing": true
+ },
+ "decks": [
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 Rellor TEF 23",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 Rellor TEF 23",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": [
+     "N's Zorua ASC 136",
+     "N's Zoroark ex ASC 137"
+    ]
+   },
+   {
+    "card": "Rellor TEF 23"
+   },
+   {
+    "card": "Rellor TEF 23"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Night Joker"
+  },
+  {
+   "index": 0,
+   "attack": "Night Joker"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseAttack",
+    "Wait"
+   ],
+   "exact": true,
+   "cite": "table rule copied_copy_attack_does_nothing (on): Night Joker may choose a Benched N's Zoroark ex's Night Joker, which, a copy attack chosen by a copy attack, does nothing: no choice of its own though two other N's Zoroark ex are on the Bench; off it chooses again (compendium id656, id657)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "table rule copied_copy_attack_does_nothing (on): the copied Night Joker does nothing and the turn ends"
+  }
+ ]
+}
