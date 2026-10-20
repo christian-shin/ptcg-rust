@@ -70,10 +70,10 @@ pub struct TableRules {
     /// C10; the rules' usability walk, user decision D10).
     pub offer_cards_that_can_do_nothing: bool,
     /// An Ability whose use Knocks Out the Pokémon using it ("If you use this Ability, this Pokémon is Knocked Out": e.g.
-    /// Dusknoir's Cursed Blast) Knocks it Out first: its costs and that consequence are done, then a state check handles
-    /// the Knock Out (the Pokémon and its cards go to the discard pile, the opponent takes Prize cards, a new Active
-    /// Pokémon is promoted), and then the rest of the Ability's effect is done (a program yielding to the state check,
-    /// `spec::run::yield_to_state_check`).
+    /// Dusknoir's Cursed Blast) Knocks it Out first: its costs and that consequence are done (the Pokémon is Knocked Out:
+    /// its Knock Out is pending and the table view shows it with 0 HP left), then the rest of the Ability's effect, and
+    /// the state check after it handles the Knock Out with every other (the Pokémon and its cards go to the discard pile,
+    /// Prize cards are taken, a new Active Pokémon is promoted). `spec::run::Phase::Consequences`.
     ///
     /// Off (the rulings): every effect of the Ability is done first and the Pokémon is Knocked Out at the next state check
     /// (id2089: "All effects have to be resolved before resolving KO's"; id2239; RULES.md "'If you use this Ability, this

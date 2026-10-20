@@ -11,7 +11,7 @@
   {"a": "ability", "name": "Cursed Blast", "source": {"player": 2, "slot": 1, "index": 0}}
  ],
  "expect": [
-  {"at": "game_end", "winner": "opp", "cite": "table rule self_knockout_before_effect (on): Dusknoir, the player's last Pokemon, is Knocked Out before the counters; the player has no Pokemon in play and loses (APR, winning the game), and the rest of Cursed Blast isn't done"},
-  {"at": "game_end", "who": "opp", "slot": "active", "damage": 0, "cite": "the game ended before the 13 damage counters (table rule self_knockout_before_effect)"}
+  {"at": "game_end", "who": "opp", "slot": "active", "damage": 130, "cite": "table rule self_knockout_before_effect (on): Dusknoir, the player's last Pokemon, is Knocked Out first but its Knock Out is handled after the effect, so the 13 damage counters are placed"},
+  {"at": "game_end", "winner": "opp", "cite": "APR (winning the game): after the effect the player has no Pokemon in play and loses"}
  ]
 }

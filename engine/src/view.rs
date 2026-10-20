@@ -62,7 +62,8 @@ pub struct PokemonView {
     pub max_hp: i32,
     /// The damage on it, in HP (damage counters times 10).
     pub damage: i32,
-    /// The HP left: `max_hp - damage`.
+    /// The HP left: `max_hp - damage`; 0 for a Pokémon an effect has Knocked Out whose Knock Out waits for the state check
+    /// (`Slot::ko_pending`: it is Knocked Out, its HP is gone).
     pub hp: i32,
     /// The turn it came into play (put into play, evolved or devolved; `Slot::entered_turn`).
     pub entered_turn: i32,
@@ -232,7 +233,7 @@ fn pokemon_into(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId, hi
     v.top = card(g, top);
     v.max_hp = max_hp;
     v.damage = slot.damage;
-    v.hp = max_hp - slot.damage;
+    v.hp = if slot.ko_pending.is_some() { 0 } else { max_hp - slot.damage };
     v.entered_turn = slot.entered_turn;
     v.entered_this_turn = slot.entered_turn == st.turn;
     v.conditions = conditions;
@@ -531,5 +532,53 @@ mod tests {
         let rules = g.st.rules;
         assert_eq!(crate::record::look_seen_by(&rules, crate::spec::event::RulesZone::Deck, 0, 1), [true, true]);
         assert_eq!(crate::record::look_seen_by(&Default::default(), crate::spec::event::RulesZone::Deck, 0, 1), [true, false]);
+    }
+
+    /// Under the table rule `self_knockout_before_effect` the Pokémon an Ability Knocks Out is Knocked Out before the rest
+    /// of its effect: at Cursed Blast's question (the Pokémon to put the counters on) Dusknoir is still in play, shown with
+    /// 0 HP left, and the state check after the effect handles its Knock Out. Off (the rulings: the Knock Out comes after
+    /// the counters, id2089) its HP is unchanged at that question.
+    #[test]
+    fn a_pokemon_its_own_ability_knocks_out_shows_no_hp_under_the_table_rule() {
+        let names: Vec<&str> = (0..60)
+            .map(|i| match i {
+                0..=1 => "Duskull SFA 18",
+                2..=3 => "Dusclops SFA 19",
+                4..=5 => "Dusknoir SFA 20",
+                6..=7 => "Hop's Snorlax JTG 117",
+                _ => "Psychic Energy MEE 5",
+            })
+            .collect();
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        for on in [false, true] {
+            let mut g = Game::new(3);
+            g.st.rules.self_knockout_before_effect = on;
+            g.start([&deck, &deck]).unwrap();
+            g.settle().unwrap();
+            // To the first turn action.
+            loop {
+                g.settle().unwrap();
+                match g.pending() {
+                    crate::game::Pending::Turn(_) => break,
+                    _ => crate::search::tests::answer_all(&mut g),
+                }
+            }
+            let sc = serde_json::json!({"me": {"reset": true, "active": ["Duskull SFA 18", "Dusclops SFA 19", "Dusknoir SFA 20"], "bench": [{"card": "Hop's Snorlax JTG 117"}]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+            crate::scenario::apply(&mut g, &sc).unwrap();
+            let p = g.st.active_player as usize;
+            let dusknoir = g.st.active_pokemon(p).unwrap();
+            let blast = crate::options::legal_actions(&g)
+                .into_iter()
+                .map(|o| o.action)
+                .find(|a| matches!(a, crate::game::Action::UseAbility { power, .. } if power.card == dusknoir))
+                .expect("Cursed Blast offered");
+            g.act(blast).unwrap();
+            g.settle().unwrap();
+            assert!(matches!(g.pending(), crate::game::Pending::Decision(_)), "the counters' target is asked");
+            let v = TableView::new(&g, p);
+            let shown = v.players[p].active.expect("Dusknoir still in play");
+            assert_eq!(shown.top.card, dusknoir);
+            assert_eq!(shown.hp == 0, on, "rule {on}: hp {}", shown.hp);
+        }
     }
 }

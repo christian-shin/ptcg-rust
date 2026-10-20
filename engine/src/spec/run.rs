@@ -60,10 +60,10 @@ pub(crate) enum Phase {
     /// loop, are still made after the damage, when their options exist.
     Choices = 3,
     /// An Ability's costs and the consequences of using it (`Step::cost`, `Step::consequence`), run first when its use
-    /// Knocks the Pokémon using it Out at a table with `TableRules::self_knockout_before_effect`; then the program
-    /// yields to the state check (`yield_to_state_check`) and goes on with `AfterConsequences`.
+    /// Knocks the Pokémon using it Out at a table with `TableRules::self_knockout_before_effect`; the program goes on
+    /// with `AfterConsequences`.
     Consequences = 4,
-    /// The rest of such an Ability (its `Step::new` steps), after the state check.
+    /// The rest of such an Ability (its `Step::new` steps), after its consequences (the Pokémon's Knock Out pending).
     AfterConsequences = 5,
 }
 
@@ -525,7 +525,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 }
             }
             // At a table where the Pokémon an Ability Knocks Out is Knocked Out first, its costs and consequences run
-            // first and the program yields to the state check before the rest (`TableRules::self_knockout_before_effect`).
+            // before the rest (`TableRules::self_knockout_before_effect`).
             if g.st.rules.self_knockout_before_effect && program_knocks_out_self(pw) {
                 f.phase = Phase::Consequences;
             }
@@ -1227,22 +1227,6 @@ pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
     proceed(g, me, f, flow)
 }
 
-/// The program of `me` yields to the state check (APR E: Knock Outs are handled at a state check): the check runs now,
-/// with its questions (Prize cards, a new Active Pokémon), and the program goes on at `f` once it completes
-/// (`OnComplete::Program`, `resume_after_state_check`).
-fn yield_to_state_check(g: &mut Game, me: CardId, f: &Frame) -> R {
-    crate::engine::knockout::state_check(g, crate::game::OnComplete::Program { card: me, frame: f.frame_at(0) })
-}
-
-/// A program that yielded to the state check goes on where it was, unless the check decided the game.
-pub fn resume_after_state_check(g: &mut Game, me: CardId, cf: CardFrame) -> R {
-    if g.st.phase == crate::types::GamePhase::Finished {
-        return Ok(());
-    }
-    let Some(f) = Frame::decode(g, me, &cf) else { return Ok(()) };
-    run(g, me, f)
-}
-
 fn proceed(g: &mut Game, me: CardId, mut f: Frame, flow: Flow) -> R {
     match flow {
         Flow::Next => f.advance(),
@@ -1284,12 +1268,13 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                     continue;
                 }
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
-                // The costs and consequences are done: the state check handles the Knock Out, then the rest runs.
+                // The costs and consequences are done (the Pokémon's Knock Out is pending): the rest runs; the state check
+                // after the effect handles the Knock Out.
                 Phase::Consequences => {
                     f.phase = Phase::AfterConsequences;
                     f.path = [0; MAX_DEPTH];
                     f.sub = 0;
-                    return yield_to_state_check(g, me, &f);
+                    continue;
                 }
                 _ => {}
             }
