@@ -1059,7 +1059,8 @@ pub fn cond_reads_hidden_cards(c: &Cond) -> bool {
         Cond::All(cs) | Cond::Any(cs) => cs.iter().any(cond_reads_hidden_cards),
         Cond::Cmp(a, _, b) => num_reads(a) || num_reads(b),
         Cond::Nonempty(z, p) | Cond::NonemptyOther(z, p) => hidden(z, p),
-        Cond::KnownCopies { .. } | Cond::AllNamesKnown { .. } => true,
+        // Whether a card that evolves from a Pokémon in play exists stands for whether the deck could hold one.
+        Cond::KnownCopies { .. } | Cond::AllNamesKnown { .. } | Cond::HasEvolutionInPool(_) => true,
         _ => false,
     }
 }

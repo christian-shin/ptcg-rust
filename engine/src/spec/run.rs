@@ -1016,9 +1016,8 @@ impl RulesWalk {
 /// used Supporter has none of them).
 pub(crate) fn check_play<F: crate::derived::Facts>(g: &mut F, me: CardId, play: &PlaySpec, f: &Frame) -> R {
     // A Trainer whose effect is used by another card (Look-Alike Show) keeps its printed conditions only (user decision
-    // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing. So does a played one at a table that offers cards
-    // that can do nothing (`TableRules::offer_cards_that_can_do_nothing`).
-    if f.via_attack || g.g().st.rules.offer_cards_that_can_do_nothing {
+    // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing.
+    if f.via_attack {
         for c in play.needs.iter().filter(|c| matches!(c, Cond::Printed(_))) {
             if !cond_m(g, me, f, c)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
@@ -1026,7 +1025,18 @@ pub(crate) fn check_play<F: crate::derived::Facts>(g: &mut F, me: CardId, play: 
         }
         return Ok(());
     }
-    if !usable(g, me, f, play.needs, play.steps)? {
+    // At a table that judges a Trainer from the known cards only, a condition on what a hidden zone holds isn't read
+    // (`TableRules::trainer_conditions_on_hidden_cards_unread`); its printed conditions are.
+    let hidden_unread = g.g().st.rules.trainer_conditions_on_hidden_cards_unread;
+    for c in play.needs {
+        if hidden_unread && !matches!(c, Cond::Printed(_)) && crate::spec::value::cond_reads_hidden_cards(c) {
+            continue;
+        }
+        if !cond_m(g, me, f, c)? {
+            crate::bail!("CANNOT_PLAY_THIS_CARD");
+        }
+    }
+    if !usable_by_rules(g.g(), me, f, play.steps) {
         crate::bail!("CANNOT_PLAY_THIS_CARD");
     }
     Ok(())
@@ -1608,5 +1618,28 @@ mod power_cause_tests {
         assert_eq!(kind("Antique Root Fossil SCR 130", 0), CauseKind::Rule { which: RuleWhich::CardRule });
         assert_eq!(kind("Antique Cover Fossil SCR 129", 0), CauseKind::Rule { which: RuleWhich::CardRule });
         assert_eq!(kind("Mandibuzz WHT 64", 0), CauseKind::Ability);
+    }
+}
+
+#[cfg(test)]
+mod hidden_needs_tests {
+    use super::*;
+
+    /// The Trainers whose `needs` read what a hidden zone holds (`value::cond_reads_hidden_cards`), not as a printed
+    /// condition: the only ones `TableRules::trainer_conditions_on_hidden_cards_unread` offers where the rulings don't (a
+    /// named deck search in a Trainer's program names only Basic Energy, which no copy limit stops, so the usability walk
+    /// reads nothing hidden for a Trainer).
+    #[test]
+    fn trainers_with_needs_on_hidden_cards() {
+        let mut names: Vec<&str> = Vec::new();
+        for (i, d) in crate::carddb::cards().iter().enumerate() {
+            let Some(play) = crate::cards::spec_for(i as u16).and_then(|s| s.play.as_ref()) else { continue };
+            if play.needs.iter().any(|c| !matches!(c, Cond::Printed(_)) && crate::spec::value::cond_reads_hidden_cards(c)) {
+                names.push(d.name);
+            }
+        }
+        names.sort();
+        names.dedup();
+        assert_eq!(names, vec!["Love Ball", "Salvatore"]);
     }
 }

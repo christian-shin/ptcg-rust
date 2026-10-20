@@ -60,15 +60,18 @@ pub struct TableRules {
     /// trigger runs once its event is done; RULES.md "On-play Abilities": it triggers once the card is played and on the
     /// board), so the Ability is offered while the Trainer resolves, before the card is discarded.
     pub evolving_trainer_discarded_before_evolve_triggers: bool,
-    /// A Trainer card can be played from the hand when its printed conditions hold ("You can use this card only if ..."),
-    /// even if its effect can do nothing (e.g. Salvatore when no card evolves from any of the player's Pokémon):
-    /// played, it does what it can, perhaps nothing, and is discarded. The same conditions as a Trainer whose effect
-    /// another card uses (`spec::run::check_play`, user decision D5).
+    /// Whether a Trainer card can change the game is judged from the cards the player can see: a condition on which cards
+    /// a hidden zone holds or could hold (the kinds of the cards of the deck or of the opponent's hand, the copies of a
+    /// named card not yet seen, a card in the card pool that evolves from one of the player's Pokémon) isn't read, so the
+    /// card is offered unless the known zones rule it out (e.g. Salvatore when no card in the pool evolves from the
+    /// player's Pokémon: its search of the deck may find nothing; Love Ball when every copy of the opponent's Pokémon's
+    /// names is known). Its printed conditions and every condition on a known zone (an empty discard pile, a full Bench,
+    /// no Energy to discard, an empty deck) still keep it from being played (`spec::run::check_play`).
     ///
-    /// Off (the rulings): a Trainer card that can't change the game can't be played (APR B-01 / D-02; id925, id956: "you
-    /// cannot play a Trainer card for no net effect"; RULES.md "Options that can't do anything", user decision 2, batch 8
-    /// C10; the rules' usability walk, user decision D10).
-    pub offer_cards_that_can_do_nothing: bool,
+    /// Off (the rulings): every condition the rules' usability walk reads applies, those on what a deck could hold
+    /// included (APR B-01 / D-02; id925, id956: "you cannot play a Trainer card for no net effect"; RULES.md "Options that
+    /// can't do anything", user decision 2, batch 8 C10; user decision D10).
+    pub trainer_conditions_on_hidden_cards_unread: bool,
     /// An Ability whose use Knocks Out the Pokémon using it ("If you use this Ability, this Pokémon is Knocked Out": e.g.
     /// Dusknoir's Cursed Blast) Knocks it Out first: its costs and that consequence are done (the Pokémon is Knocked Out:
     /// its Knock Out is pending and the table view shows it with 0 HP left), then the rest of the Ability's effect, and
@@ -89,7 +92,7 @@ impl TableRules {
         "prize_cards_always_chosen",
         "looked_cards_shown_to_owner",
         "evolving_trainer_discarded_before_evolve_triggers",
-        "offer_cards_that_can_do_nothing",
+        "trainer_conditions_on_hidden_cards_unread",
         "self_knockout_before_effect",
     ];
 
@@ -101,7 +104,7 @@ impl TableRules {
             "prize_cards_always_chosen" => &mut self.prize_cards_always_chosen,
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
-            "offer_cards_that_can_do_nothing" => &mut self.offer_cards_that_can_do_nothing,
+            "trainer_conditions_on_hidden_cards_unread" => &mut self.trainer_conditions_on_hidden_cards_unread,
             "self_knockout_before_effect" => &mut self.self_knockout_before_effect,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };

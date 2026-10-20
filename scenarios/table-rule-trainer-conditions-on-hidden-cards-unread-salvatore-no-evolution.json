@@ -1,6 +1,6 @@
 {
  "turn": 2,
- "rules": {"offer_cards_that_can_do_nothing": true},
+ "rules": {"trainer_conditions_on_hidden_cards_unread": true},
  "decks": [
   ["4 Mew ex 30C 66", "4 Salvatore TEF 160", "52 Psychic Energy MEE 5"],
   ["4 Mew ex 30C 66", "4 Salvatore TEF 160", "52 Psychic Energy MEE 5"]
@@ -9,7 +9,7 @@
  "opp": {"reset": true, "active": "Mew ex 30C 66"},
  "answers": [{"a": "play", "card": "Salvatore TEF 160"}, {"a": "pass"}],
  "expect": [
-  {"at": "start", "who": "me", "legal": "play", "name": "Salvatore TEF 160", "cite": "table rule offer_cards_that_can_do_nothing (on): Salvatore with no card that evolves from the player's Pokemon is offered (only its printed conditions are checked); off it isn't (id925, RULES.md 'Options that can't do anything')"},
+  {"at": "start", "who": "me", "legal": "play", "name": "Salvatore TEF 160", "cite": "table rule trainer_conditions_on_hidden_cards_unread (on): Salvatore searches the deck, which is hidden, so whether a card that evolves from the player's Pokemon could be there isn't read and Salvatore is offered; off it isn't (id925, Cond::HasEvolutionInPool; RULES.md 'Options that can't do anything')"},
   {"at": "turn_end", "who": "me", "zone": "discard", "contains": ["Salvatore TEF 160"], "cite": "card text / APR B-01 (a played Supporter is discarded; nothing evolves)"},
   {"at": "turn_end", "who": "me", "slot": "active", "card": "Mew ex 30C 66", "cite": "card text (no card evolves from Mew ex 30C 66)"}
  ]

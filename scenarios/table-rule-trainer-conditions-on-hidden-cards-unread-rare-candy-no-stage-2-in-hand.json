@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "rules": {"trainer_conditions_on_hidden_cards_unread": true},
+ "decks": [
+  ["4 Mew ex 30C 66", "4 Rare Candy MEG 125", "52 Psychic Energy MEE 5"],
+  ["4 Mew ex 30C 66", "4 Rare Candy MEG 125", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mew ex 30C 66", "hand": ["Rare Candy MEG 125"]},
+ "opp": {"reset": true, "active": "Mew ex 30C 66"},
+ "answers": [{"a": "pass"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "play", "name": "Rare Candy MEG 125", "is": false, "cite": "table rule trainer_conditions_on_hidden_cards_unread (on): only conditions on hidden zones are unread; the hand is known and holds no Stage 2 card, so Rare Candy can't change the game and isn't offered (id925, APR B-01)"}
+ ]
+}
