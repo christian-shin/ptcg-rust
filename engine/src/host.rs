@@ -10,7 +10,8 @@
 //! Per decision without allocation. A host that keeps its buffers between decisions calls the `_into` forms: the table
 //! view refreshed in place ([`view_into`]), the turn's legal actions ([`legal_actions_into`], at `Pending::Turn`), the
 //! pick masks ([`pick_mask_into`]), the record ([`take_record_into`]). They give the values of [`view`], [`next`]'s list,
-//! [`pick_mask`] and [`take_record`].
+//! [`pick_mask`] and [`take_record`]. At a turn decision [`decision_into`] gives the view and the legal actions together,
+//! reading the decision's derived facts (HP, Energy) once for both.
 //!
 //! Threads. A [`Game`] is plain data (`Send + Clone`). The chance tape, the chance recording ([`take_chance`]) and the game
 //! record are per-thread buffers: drive one recording game per thread, and read them on the thread that plays.
@@ -139,6 +140,15 @@ pub fn pick_mask_into(g: &Game, select: &SelectData, picks: &[usize], mask: &mut
 /// turn decision (`Pending::Turn`).
 pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
     crate::options::legal_actions_into(g, out)
+}
+
+/// A turn decision for a host that shows the table and lists the actions together: [`legal_actions_into`] into `actions`
+/// and [`view_into`] of `seat` into `view` (the same values), with the decision's derived facts (the HP and Energy of the
+/// Pokémon in play, the declaration order lists) read once for both. Call it only at a turn decision (`Pending::Turn`).
+pub fn decision_into(g: &Game, seat: usize, view: &mut TableView, actions: &mut Vec<Action>) {
+    let mut facts = crate::legal::Ctx::new(g);
+    crate::options::legal_actions_with(&mut facts, actions);
+    view.refresh_with(&mut facts, seat);
 }
 
 /// Answer a prompt with option indices (as [`Game::answer`]) and settle chance. An answer the prompt does not accept is
@@ -578,12 +588,13 @@ mod tests {
     }
 
     /// One view per seat refreshed in place at every decision of random games equals a view built new (for both seats:
-    /// the hand, the face-down spots and the looks differ between them), whatever the view held before.
+    /// the hand, the face-down spots and the looks differ between them), whatever the view held before; at a turn decision
+    /// `decision_into` gives that view and the turn's actions.
     #[test]
     fn a_refreshed_view_equals_a_new_one() {
         let decks = [bench_deck("meta-alakazam-powerful-hand"), bench_deck("meta-dragapult-ex"), bench_deck("meta-marnie-s-grimmsnarl-ex")];
         let mut views = [TableView::new(&start_game([&decks[0], &decks[1]], 1, &StartOptions::default()).unwrap(), 0); 2];
-        let mut checked = 0usize;
+        let (mut checked, mut turns_read) = (0usize, 0usize);
         for seed in 0..6u32 {
             let (a, b) = (&decks[seed as usize % 3], &decks[(seed as usize + 1) % 3]);
             let mut g = start_game([a, b], seed, &StartOptions::default()).unwrap();
@@ -602,6 +613,17 @@ mod tests {
                 let mut other = views[0];
                 other.refresh(&g, 1);
                 assert_eq!(other, views[1]);
+                // A turn decision read in one call: the same view (for either seat) and actions as read apart.
+                if let Decision::Turn { player, actions } = &d {
+                    for seat in [*player as usize, 1 - *player as usize] {
+                        let mut acts = vec![Action::Pass; 3];
+                        let mut v = views[1 - seat];
+                        decision_into(&g, seat, &mut v, &mut acts);
+                        assert_eq!(&acts, actions, "seed {seed}, turn {}", g.st.turn);
+                        assert_eq!(v, views[seat], "seed {seed}, seat {seat}, turn {}", g.st.turn);
+                        turns_read += 1;
+                    }
+                }
                 checked += 1;
                 match d {
                     Decision::Over { .. } => break,
@@ -624,7 +646,7 @@ mod tests {
                 }
             }
         }
-        assert!(checked > 500, "{checked} decisions");
+        assert!(checked > 500 && turns_read > 200, "{checked} decisions, {turns_read} turn decisions read in one call");
     }
 
     /// The `_into` forms give what their allocating forms give: two plays of one game, one through `take_record` /

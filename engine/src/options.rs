@@ -168,17 +168,22 @@ thread_local! {
 /// is deduplicated by its identity in `candidates`, an Ability is one per power and spot), so there is no
 /// duplicate scan; `PTCG_VERIFY_LEGAL=1` asserts it.
 pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
+    legal_actions_with(&mut Ctx::new(g), out);
+}
+
+/// [`legal_actions_into`] over the decision's facts `ctx` (a caller that reads more of the decision afterwards, the
+/// table view: `host::decision_into`).
+pub(crate) fn legal_actions_with(ctx: &mut Ctx, out: &mut Vec<Action>) {
     out.clear();
     let mut cands = LEGAL_SCRATCH.with(|s| std::mem::take(&mut *s.borrow_mut()));
-    let mut ctx = Ctx::new(g);
-    candidates(&mut ctx, &mut cands);
+    candidates(ctx, &mut cands);
     if verify_legal() {
         for (i, a) in cands.iter().enumerate() {
             assert!(!cands[..i].contains(a), "duplicate candidate: {:?}", a);
         }
     }
     for &action in cands.iter() {
-        if legal_in(&mut ctx, action) {
+        if legal_in(ctx, action) {
             out.push(action);
         }
     }

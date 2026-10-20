@@ -1,11 +1,12 @@
 //! Throughput benchmark: uniformly random play from a fuzz spec's decks,
 //! no JSON descriptors, no invariant checks, no recording.
 //!
-//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record] [--host]
+//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record] [--host [--apart]]
 //!
 //! `--host` plays the same games the way a program that embeds the engine does (`ptcg::host`, its buffers kept between
-//! decisions): at every decision the table as the deciding seat sees it (`view_into`), the legal turn actions
-//! (`legal_actions_into`) or the prompt's select and pick masks (`pick_mask_into`), the all-or-nothing `act` / `answer`,
+//! decisions): at a turn decision the table as the deciding seat sees it and the legal actions in one call
+//! (`decision_into`; with `--apart` as two, `view_into` and `legal_actions_into`), at a prompt the table (`view_into`), the
+//! prompt's select and pick masks (`pick_mask_into`); the all-or-nothing `act` / `answer`,
 //! `settle`, the record if on (`take_record_into`); each call timed. It prints the microseconds per decision
 //! of each phase after the single-thread run (the decision count is the same as without `--host`: the same choices).
 //!
@@ -177,15 +178,17 @@ enum Phase {
     Act,
     Answer,
     Record,
+    /// The view and the legal actions of a turn decision in one call (`decision_into`).
+    Decision,
 }
 
-const PHASES: [&str; 8] = ["settle", "view", "legal_actions", "select", "pick_mask", "act", "answer", "take_record"];
+const PHASES: [&str; 9] = ["settle", "view", "legal_actions", "select", "pick_mask", "act", "answer", "take_record", "view+legal"];
 
 /// Nanoseconds and calls per phase of a `--host` run.
 #[derive(Default, Clone, Copy)]
 struct Clock {
-    ns: [u64; 8],
-    calls: [u64; 8],
+    ns: [u64; 9],
+    calls: [u64; 9],
 }
 
 impl Clock {
@@ -201,8 +204,8 @@ impl Clock {
 
 /// [`random_game_inner`] the way a host plays it: the same choices from the same random stream (so the same games),
 /// through `ptcg::host` with the buffers kept between decisions (the views, the action list, the masks, the record),
-/// each call timed into `clock`.
-fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, i8, bool) {
+/// each call timed into `clock`; `apart`: a turn decision's view and actions read by two calls instead of one.
+fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock, apart: bool) -> (u64, bool, i8, bool) {
     use ptcg::host::{self, TableView};
     let record = RECORD.load(std::sync::atomic::Ordering::Relaxed);
     let mut g = Game::new(seed);
@@ -237,9 +240,13 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
                     clock.time(Phase::Record, || host::take_record_into(&mut g, &mut entries));
                     std::hint::black_box(&entries);
                 }
-                clock.time(Phase::View, || host::view_into(&g, seat as usize, &mut views[seat as usize]));
+                if apart {
+                    clock.time(Phase::View, || host::view_into(&g, seat as usize, &mut views[seat as usize]));
+                    clock.time(Phase::Legal, || host::legal_actions_into(&g, &mut actions));
+                } else {
+                    clock.time(Phase::Decision, || host::decision_into(&g, seat as usize, &mut views[seat as usize], &mut actions));
+                }
                 std::hint::black_box(&views);
-                clock.time(Phase::Legal, || host::legal_actions_into(&g, &mut actions));
                 if actions.is_empty() {
                     return fail(decisions, "no legal options");
                 }
@@ -297,12 +304,12 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock) -> (u64, bool, 
 }
 
 /// `--host`: the single-thread run through [`host_game`], with the phase table.
-fn run_host(decks: &[Vec<DefId>], seed0: u32, games: usize) {
+fn run_host(decks: &[Vec<DefId>], seed0: u32, games: usize, apart: bool) {
     let n = decks.len();
     let mut warm = Clock::default();
     for i in 0..20.min(games) {
         let g = seed0.wrapping_add(7777).wrapping_mul(100_000).wrapping_add(i as u32);
-        host_game([&decks[g as usize % n], &decks[(g as usize / n) % n]], g, &mut warm);
+        host_game([&decks[g as usize % n], &decks[(g as usize / n) % n]], g, &mut warm, apart);
     }
     let mut clock = Clock::default();
     let mut t = Tally::default();
@@ -310,7 +317,7 @@ fn run_host(decks: &[Vec<DefId>], seed0: u32, games: usize) {
     for i in 0..games {
         let g = seed0.wrapping_mul(100_000).wrapping_add(i as u32);
         let (a, b) = (g as usize % n, (g as usize / n) % n);
-        let (d, fin, w, failed) = host_game([&decks[a], &decks[b]], g, &mut clock);
+        let (d, fin, w, failed) = host_game([&decks[a], &decks[b]], g, &mut clock, apart);
         t.games += 1;
         t.decisions += d;
         t.finished += fin as u64;
@@ -382,7 +389,7 @@ fn main() {
     }
 
     if args.iter().any(|a| a == "--host") {
-        run_host(&decks, seed0, games);
+        run_host(&decks, seed0, games, args.iter().any(|a| a == "--apart"));
         return;
     }
     // Warm up (card tables, caches), then the timed single-thread run.

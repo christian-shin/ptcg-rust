@@ -190,10 +190,11 @@ fn pokemon_into(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId, hi
     let v = out.get_or_insert_with(blank_pokemon);
     let slot = st.slot(p, s);
     let d = st.cdef(top);
-    // The HP with its modifiers (the derived layer over the game, no memo).
-    let max_hp = crate::derived::compute_hp(facts, p, s).unwrap_or(d.hp);
+    // The HP with its modifiers and the Energy provided (the derived layer over the game; the decision's facts when its
+    // legal scan read them).
+    let max_hp = facts.hp_read(p, s).unwrap_or(d.hp);
     v.provided.clear();
-    for e in crate::derived::compute_provided_energy(facts, p, crate::effects::SlotRef::new(p, s)).unwrap_or_default().iter() {
+    for e in facts.provided_read(crate::effects::SlotRef::new(p, s)).unwrap_or_default().iter() {
         if crate::energy::is_choosable(e.provides.as_slice()) {
             v.provided.push(EnergyUnit { card: e.card, kind: EnergyUnitKind::AnyOf(e.provides) });
         } else {
@@ -330,7 +331,12 @@ impl TableView {
     /// Rebuild this view in place as the table `viewer` sees it now: the same value as `TableView::new(g, viewer)`,
     /// without building a new view and copying it (a host that keeps one view per seat refreshes it per decision).
     pub fn refresh(&mut self, g: &Game, viewer: usize) {
-        let mut facts = crate::legal::Ctx::new(g);
+        self.refresh_with(&mut crate::legal::Ctx::new(g), viewer);
+    }
+
+    /// [`TableView::refresh`] over the decision's facts `facts` (the HP and Energy its legal scan read are not read again).
+    pub(crate) fn refresh_with(&mut self, facts: &mut crate::legal::Ctx, viewer: usize) {
+        let g = facts.g;
         let st = &g.st;
         self.viewer = viewer as u8;
         self.turn = st.turn;
@@ -340,8 +346,8 @@ impl TableView {
         self.stadium = (0..2).find_map(|q| st.players[q].stadium.get(0).map(|c| (card(g, c), q as u8)));
         looking_into(g, viewer, &mut self.looking);
         let [a, b] = &mut self.players;
-        seat_into(g, &mut facts, viewer, 0, a);
-        seat_into(g, &mut facts, viewer, 1, b);
+        seat_into(g, facts, viewer, 0, a);
+        seat_into(g, facts, viewer, 1, b);
     }
 
     /// The seat of the viewer.

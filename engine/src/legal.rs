@@ -153,6 +153,29 @@ impl<'a> Ctx<'a> {
         self.attacks.as_ref().unwrap().as_ref().map_err(|_| ())
     }
 
+    /// The HP of the Pokémon in spot `s` of player `p` for a single read (the table view): the decision's value when it
+    /// has been read already (the legal scan of the same decision), else computed and not kept (keeping a fact costs more
+    /// than computing it for one read).
+    pub(crate) fn hp_read(&mut self, p: usize, s: crate::state::SlotId) -> crate::game::R<i32> {
+        let Some(i) = self.hp.iter().position(|(k, _)| *k == (p as u8, s)) else { return crate::derived::compute_hp(self, p, s) };
+        let r = self.hp.as_slice()[i].1;
+        if crate::game::verify_cache() {
+            assert_eq!(r, crate::derived::compute_hp(self, p, s), "the decision's HP of spot ({}, {}) is stale", p, s);
+        }
+        r
+    }
+
+    /// The Energy the Pokémon in `source` provides to its owner for a single read (the table view), as [`Ctx::hp_read`].
+    pub(crate) fn provided_read(&mut self, source: SlotRef) -> crate::game::R<EnergyMap> {
+        let k = (source.p, source.p, source.s);
+        let Some(i) = self.provided.iter().position(|(x, _)| *x == k) else { return crate::derived::compute_provided_energy(self, source.p as usize, source) };
+        if crate::game::verify_cache() {
+            let fresh = crate::derived::compute_provided_energy(self, source.p as usize, source);
+            assert_eq!(self.provided.as_slice()[i].1, fresh, "the decision's Energy of spot {:?} is stale", source);
+        }
+        self.provided.as_slice()[i].1
+    }
+
     /// The Energy the active player's Pokémon in `slot` provides, read once.
     fn provided(&mut self, slot: crate::state::SlotId) -> Result<EnergyMap, ()> {
         let p = self.p;
