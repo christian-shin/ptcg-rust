@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"prize_cards_always_chosen": true},
+ "decks": [
+  ["4 Rellor TEF 23", "56 Psychic Energy MEE 5"],
+  ["4 Rellor TEF 23", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Rellor TEF 23", "active_energy": ["1 Psychic Energy MEE 5"], "active_damage": 40, "prizes_left": 1},
+ "opp": {"reset": true, "active": "Rellor TEF 23", "active_damage": 20},
+ "answers": [{"a": "attack", "name": "Slight Intrusion"}],
+ "expect": [
+  {"at": "game_end", "prompts": ["ChoosePrize", "ChoosePrize"], "cite": "table rule prize_cards_always_chosen (on): both Rellor are Knocked Out (30 damage to the opponent's, 10 to itself); the opponent, who takes Prize cards first (rulings 754, 757), chooses theirs though the player has no Pokemon left, then the player chooses their last one; off both are taken without a question"},
+  {"at": "game_end", "winner": "me", "cite": "APR E: the player took their last Prize card and the opponent has no Pokemon in play (two conditions against one)"}
+ ]
+}

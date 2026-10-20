@@ -928,10 +928,12 @@ fn next_turn_player_order(g: &Game) -> [usize; 2] {
 }
 
 /// The TakePrizes of this round's Knock Outs, the next-turn player first: taken at once when the player takes all that
-/// are left or the opponent has no Pokémon in play, otherwise asked (the returned prompts).
+/// are left or the opponent has no Pokémon in play, otherwise asked (the returned prompts); under the table rule
+/// `prize_cards_always_chosen` every one is asked.
 fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32), 4>> {
     let mut prompts = SVec::new();
     let mut took_last_prize = false;
+    let always = g.st.rules.prize_cards_always_chosen;
     for i in next_turn_player_order(g) {
         let mut count = f.prizes[i];
         if count == 0 {
@@ -942,15 +944,15 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32), 4>>
         // Taking the last Prize cards does not end the game here: every effect
         // resolves and check_winner counts both players' win conditions
         // (R7F-12; rulings 234, 820, 1403, 1584).
-        if count >= left && left > 0 {
+        if count >= left && left > 0 && !always {
             let ix = first_prizes(g, i, left as usize);
             take_prizes_chosen(g, i, ix.as_slice(), cause)?;
             took_last_prize = true;
             continue;
         }
         // The game is decided (the opponent has no Pokémon in play): which Prize cards can't change it, they are taken
-        // without a question, unless the table asks it (`TableRules::prizes_chosen_when_opponent_has_no_pokemon`).
-        if count > 0 && opponent_has_no_pokemon_in_play(g, i) && !g.st.rules.prizes_chosen_when_opponent_has_no_pokemon {
+        // without a question, unless the table asks every one (`TableRules::prize_cards_always_chosen`).
+        if count > 0 && opponent_has_no_pokemon_in_play(g, i) && !always {
             let ix = first_prizes(g, i, count as usize);
             take_prizes_chosen(g, i, ix.as_slice(), cause)?;
             continue;

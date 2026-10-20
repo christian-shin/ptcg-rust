@@ -1,6 +1,6 @@
 {
  "turn": 2,
- "rules": {"prizes_chosen_when_opponent_has_no_pokemon": true},
+ "rules": {"prize_cards_always_chosen": true},
  "decks": [
   ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"],
   ["4 Dunsparce JTG 120", "56 Psychic Energy MEE 5"]
@@ -9,7 +9,7 @@
  "opp": {"reset": true, "active": "Dunsparce JTG 120", "active_damage": 60},
  "answers": [{"a": "attack", "name": "Ram"}],
  "expect": [
-  {"at": "game_end", "prompts": ["ChoosePrize"], "cite": "table rule prizes_chosen_when_opponent_has_no_pokemon (on): the Prize card for the Knock Out of the opponent's last Pokemon is chosen before the game ends; off it is taken without a question"},
+  {"at": "game_end", "prompts": ["ChoosePrize"], "cite": "table rule prize_cards_always_chosen (on): the Prize card for the Knock Out of the opponent's last Pokemon is chosen before the game ends; off it is taken without a question"},
   {"at": "game_end", "winner": "me", "cite": "APR E (the opponent has no Pokemon in play: the attacker wins)"}
  ]
 }

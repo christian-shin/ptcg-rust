@@ -34,14 +34,17 @@ pub struct TableRules {
     /// nothing and the turn ends (APR A-01: an attack needs its Energy; RULES.md "Options that can't do anything" is about
     /// questions and the uses of Trainers and Abilities, not attacks).
     pub hide_attacks_that_can_do_nothing: bool,
-    /// The Prize cards for a Knock Out that leaves the opponent no Pokémon in play are chosen (the Prize question), as
-    /// for any other Knock Out, before the game ends.
+    /// Every Prize card taken is chosen by its taker (the Prize question), even when which card can't matter: taking the
+    /// last Prize cards, the Prize cards for a Knock Out that leaves the opponent no Pokémon in play, a player's Prize
+    /// cards in the same Knock Outs as the opponent's game-winning ones, and an effect's "take a Prize card" with one left.
     ///
-    /// Off (the rulings): once the opponent has no Pokémon in play the game is decided (APR E: the winner is determined
-    /// after every effect; `knockout::check_winner`), so which face-down Prize cards are taken can't change it: they are
-    /// taken without a question (RULES.md "Options that can't do anything", user decision 2). The winner is the same
-    /// either way. Taking every Prize card left is never asked.
-    pub prizes_chosen_when_opponent_has_no_pokemon: bool,
+    /// Off (the rulings): a choice that can't change the game isn't asked (RULES.md "Options that can't do anything", user
+    /// decision 2): taking every Prize card left (all of them are taken), the Prize cards once the opponent has no Pokémon
+    /// in play (the game is decided: APR E, the winner is determined after every effect, `knockout::check_winner`) are
+    /// taken without a question (the first ones), an effect's "take a Prize card" takes the only one left, and when a
+    /// player takes their last Prize cards the other player's Prize cards of the same Knock Outs aren't taken (the game is
+    /// decided). The winner is the same either way.
+    pub prize_cards_always_chosen: bool,
     /// A card a player looks at from a hidden zone of the opponent (the top of the opponent's deck) is shown to its owner
     /// too: the game record's Look entry and `TableView::looking` count the owner among those who see it.
     ///
@@ -83,7 +86,7 @@ impl TableRules {
     pub const NAMES: &'static [&'static str] = &[
         "ask_single_way_payments",
         "hide_attacks_that_can_do_nothing",
-        "prizes_chosen_when_opponent_has_no_pokemon",
+        "prize_cards_always_chosen",
         "looked_cards_shown_to_owner",
         "evolving_trainer_discarded_before_evolve_triggers",
         "offer_cards_that_can_do_nothing",
@@ -95,7 +98,7 @@ impl TableRules {
         let field = match name {
             "ask_single_way_payments" => &mut self.ask_single_way_payments,
             "hide_attacks_that_can_do_nothing" => &mut self.hide_attacks_that_can_do_nothing,
-            "prizes_chosen_when_opponent_has_no_pokemon" => &mut self.prizes_chosen_when_opponent_has_no_pokemon,
+            "prize_cards_always_chosen" => &mut self.prize_cards_always_chosen,
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             "offer_cards_that_can_do_nothing" => &mut self.offer_cards_that_can_do_nothing,

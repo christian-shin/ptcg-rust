@@ -2995,7 +2995,8 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
     Ok(())
 }
 
-/// `TAKE_X_PRIZES(1)`: the only Prize card left is taken at once, otherwise the player chooses.
+/// `TAKE_X_PRIZES(1)`: the only Prize card left is taken at once (asked under the table rule `prize_cards_always_chosen`),
+/// otherwise the player chooses.
 fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: bool) -> R<Flow> {
     let p = f.who(t.who);
     let left = g.st.players[p].prize_left();
@@ -3005,7 +3006,7 @@ fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: 
         }
         return Ok(Flow::Next);
     }
-    if left <= 1 {
+    if left <= 1 && !g.st.rules.prize_cards_always_chosen {
         let pl = &g.st.players[p];
         let first = (0..pl.prize_count).find(|i| !pl.prizes[*i as usize].is_empty());
         if let Some(i) = first {

@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "rules": {"prize_cards_always_chosen": true},
+ "decks": [
+  ["4 Rellor TEF 23", "56 Psychic Energy MEE 5"],
+  ["4 Rellor TEF 23", "56 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Rellor TEF 23", "active_energy": ["1 Psychic Energy MEE 5"], "bench": [{"card": "Rellor TEF 23"}], "prizes_left": 1},
+ "opp": {"reset": true, "active": "Rellor TEF 23", "active_damage": 20, "bench": [{"card": "Rellor TEF 23"}]},
+ "answers": [{"a": "attack", "name": "Slight Intrusion"}],
+ "expect": [
+  {"at": "game_end", "prompts": ["ChoosePrize"], "cite": "table rule prize_cards_always_chosen (on): the last Prize card is chosen, though the opponent still has a Pokemon; off it is taken without a question (RULES.md 'Options that can't do anything')"},
+  {"at": "game_end", "winner": "me", "cite": "APR E (the player took their last Prize card)"}
+ ]
+}
