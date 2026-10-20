@@ -607,11 +607,12 @@ impl Game {
 
     /// Selectable flags for a ChooseCards prompt.
     pub fn choose_cards_selectable(&self, cards: ListRef, filter: &Filter, opts: &ChooseCardsOpts) -> Vec<bool> {
-        self.prompt_list(cards)
-            .iter()
-            .enumerate()
-            .map(|(i, c)| !opts.blocked.contains(&(i as u8)) && filter.matches(self.st.cdef(*c)))
-            .collect()
+        self.prompt_list(cards).iter().enumerate().map(|(i, c)| self.choose_cards_offers(i, *c, filter, opts)).collect()
+    }
+
+    /// Whether a ChooseCards prompt offers card `c`, at position `k` of its list (not blocked, and the filter takes it).
+    pub fn choose_cards_offers(&self, k: usize, c: CardId, filter: &Filter, opts: &ChooseCardsOpts) -> bool {
+        !opts.blocked.contains(&(k as u8)) && filter.matches(self.st.cdef(c))
     }
 
     pub fn choose_pokemon_candidates(&self, pr: &PromptRec) -> SVec<CardTarget, { crate::state::MAX_SLOT_REFS }> {

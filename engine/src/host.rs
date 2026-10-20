@@ -9,8 +9,8 @@
 //!
 //! Per decision without allocation. A host that keeps its buffers between decisions calls the `_into` forms: the table
 //! view refreshed in place ([`view_into`]), the turn's legal actions ([`legal_actions_into`], at `Pending::Turn`), the
-//! pick masks ([`pick_mask_into`]), the record ([`take_record_into`]). They give the values of [`view`], [`next`]'s list,
-//! [`pick_mask`] and [`take_record`]. At a turn decision [`decision_into`] gives the view and the legal actions together,
+//! select of the decision ([`select_into`]), the pick masks ([`pick_mask_into`]), the record ([`take_record_into`]). They
+//! give the values of [`view`], [`next`]'s list and select, [`pick_mask`] and [`take_record`]. At a turn decision [`decision_into`] gives the view and the legal actions together,
 //! reading the decision's derived facts (HP, Energy) once for both.
 //!
 //! Threads. A [`Game`] is plain data (`Send + Clone`). The chance tape, the chance recording ([`take_chance`]) and the game
@@ -121,6 +121,13 @@ pub fn next(g: &mut Game) -> R<Decision> {
         }
         Pending::Chance(_) | Pending::Info(_) => unreachable!("settled"),
     }
+}
+
+/// The select of the decision the game waits for (a question's: [`Decision::Prompt`]'s `select`; at a turn decision one
+/// option per legal action, in [`Decision::Turn`]'s order) into a select the host keeps, its lists reused
+/// ([`Game::select_into`]); chance is settled first, as by [`next`]. `false` when the game is over.
+pub fn select_into(g: &mut Game, out: &mut SelectData) -> R<bool> {
+    g.select_into(out)
 }
 
 /// The valid next picks of a prompt's `select` after `picks` (as [`Game::pick_mask`]): one flag per option, and whether
@@ -650,9 +657,9 @@ mod tests {
     }
 
     /// The `_into` forms give what their allocating forms give: two plays of one game, one through `take_record` /
-    /// `next`'s list / `pick_mask`, the other through `take_record_into` / `legal_actions_into` / `pick_mask_into` with
-    /// buffers kept, see the same entries, actions and masks at every decision. (The record buffer is per thread: the
-    /// two plays run one after the other.)
+    /// `next`'s list and select / `pick_mask`, the other through `take_record_into` / `legal_actions_into` / `select_into`
+    /// / `pick_mask_into` with buffers kept (the kept select is the one answered), see the same entries, actions, selects
+    /// and masks at every decision. (The record buffer is per thread: the two plays run one after the other.)
     #[test]
     fn the_into_forms_equal_the_allocating_ones() {
         #[derive(Debug, PartialEq)]
@@ -660,12 +667,14 @@ mod tests {
             Record(Vec<RecordEntry>),
             Actions(Vec<Action>),
             Mask(Vec<bool>, bool),
+            Select(String),
         }
         fn play(into: bool) -> (Vec<Seen>, String) {
             let d = deck();
             let opts = StartOptions { record_events: true, ..Default::default() };
             let mut g = start_game([&d, &d], 8, &opts).unwrap();
             let (mut entries, mut actions, mut mask) = (Vec::new(), Vec::new(), Vec::new());
+            let mut kept = SelectData::default();
             let mut seen = Vec::new();
             for n in 0..20_000usize {
                 let dec = next(&mut g).unwrap();
@@ -680,19 +689,29 @@ mod tests {
                     Decision::Turn { actions: list, .. } => {
                         if into {
                             legal_actions_into(&g, &mut actions);
+                            assert!(select_into(&mut g, &mut kept).unwrap());
+                            seen.push(Seen::Select(format!("{kept:?}")));
                         } else {
                             actions = list;
+                            seen.push(Seen::Select(format!("{:?}", g.select().unwrap().unwrap())));
                         }
                         seen.push(Seen::Actions(actions.clone()));
                         act(&mut g, actions[n % actions.len()]).unwrap();
                     }
                     Decision::Prompt { select, .. } => {
+                        let select = if into {
+                            assert!(select_into(&mut g, &mut kept).unwrap());
+                            &kept
+                        } else {
+                            &select
+                        };
+                        seen.push(Seen::Select(format!("{select:?}")));
                         let mut picks = Vec::new();
                         loop {
                             let done = if into {
-                                pick_mask_into(&g, &select, &picks, &mut mask)
+                                pick_mask_into(&g, select, &picks, &mut mask)
                             } else {
-                                let (m, done) = pick_mask(&g, &select, &picks);
+                                let (m, done) = pick_mask(&g, select, &picks);
                                 mask = m;
                                 done
                             };
@@ -702,7 +721,7 @@ mod tests {
                             }
                             picks.push(mask.iter().position(|x| *x).expect("a valid pick"));
                         }
-                        answer(&mut g, &select, &picks).unwrap();
+                        answer(&mut g, select, &picks).unwrap();
                     }
                 }
             }

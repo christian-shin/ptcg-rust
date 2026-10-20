@@ -7,11 +7,10 @@
 //! so the interface cannot accept anything the rules engine would reject.
 
 use crate::game::{Action, Game, GameError, Pending, R};
-use crate::options::TurnOption;
 use crate::prompts::*;
 use crate::state::ListRef;
 use crate::types::*;
-use crate::list::{CardList, SVec};
+use crate::list::{CardId, CardList, SVec};
 use serde_json::{json, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -149,6 +148,28 @@ pub struct SelectData {
     pub provenance: Provenance,
     /// Internal: how option indices map back to answers.
     map: Source,
+    /// Per option of a prompt select, the answer it stands for.
+    vals: Vec<OptionValue>,
+    /// Per option of a turn select, its action.
+    actions: Vec<Action>,
+}
+
+impl Default for SelectData {
+    /// A select with no option (answering it is an error): a buffer for [`Game::select_into`].
+    fn default() -> Self {
+        SelectData {
+            player: 0,
+            select_type: SelectType::Main,
+            context: SelectContext::Main,
+            min_count: 0,
+            max_count: 0,
+            options: Vec::new(),
+            provenance: Provenance::NONE,
+            map: Source::Turn,
+            vals: Vec::new(),
+            actions: Vec::new(),
+        }
+    }
 }
 
 impl SelectData {
@@ -162,8 +183,8 @@ impl SelectData {
     /// needs one pick), without building it.
     pub fn picks_ok(&self, chosen: &[usize]) -> bool {
         match &self.map {
-            Source::Prompt(_, vals, AnswerShape::Single) => chosen.first().is_some_and(|k| *k < vals.len()),
-            Source::Prompt(_, vals, _) => chosen.iter().all(|k| *k < vals.len()),
+            Source::Prompt(_, AnswerShape::Single) => chosen.first().is_some_and(|k| *k < self.vals.len()),
+            Source::Prompt(..) => chosen.iter().all(|k| *k < self.vals.len()),
             _ => false,
         }
     }
@@ -172,7 +193,7 @@ impl SelectData {
     /// such option): the typed form of the option's part of [`SelectData::wire_answer`].
     pub fn option_value(&self, j: usize) -> Option<OptionValue> {
         match &self.map {
-            Source::Prompt(_, vals, _) => vals.get(j).copied(),
+            Source::Prompt(..) => self.vals.get(j).copied(),
             _ => None,
         }
     }
@@ -180,7 +201,7 @@ impl SelectData {
     /// The prompt message this select answers (empty for turn / chance selects).
     pub fn prompt_message(&self, g: &Game) -> &'static str {
         match &self.map {
-            Source::Prompt(k, _, _) => g.prompts.as_slice()[*k].purpose.message(),
+            Source::Prompt(k, _) => g.prompts.as_slice()[*k].purpose.message(),
             _ => "",
         }
     }
@@ -192,13 +213,14 @@ impl SelectData {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 enum Source {
-    Turn(Vec<TurnOption>),
+    /// A turn decision (the options' actions: `SelectData::actions`).
+    Turn,
     /// Chance prompt index (manual chance).
     Chance(usize),
-    /// Prompt index plus the wire value per option.
-    Prompt(usize, Vec<OptionValue>, AnswerShape),
+    /// Prompt index and the answer's shape (the options' values: `SelectData::vals`).
+    Prompt(usize, AnswerShape),
 }
 
 /// What one option of a prompt answers, in the engine's own types: a pick is decoded from it without building JSON
@@ -332,6 +354,24 @@ impl Game {
         }
     }
 
+    /// [`Game::select`] into a select the caller keeps: the same value, its lists reused (no allocation per decision
+    /// once they have the room). `false` when the game is over (or stuck), `out` then unchanged.
+    pub fn select_into(&mut self, out: &mut SelectData) -> Result<bool, GameError> {
+        self.settle()?;
+        match self.pending() {
+            Pending::Finished | Pending::Stuck => Ok(false),
+            Pending::Turn(p) => {
+                self.turn_select_into(p, out);
+                Ok(true)
+            }
+            Pending::Decision(i) => {
+                self.prompt_select_into(i, out);
+                Ok(true)
+            }
+            Pending::Chance(_) | Pending::Info(_) => unreachable!("settled"),
+        }
+    }
+
     fn chance_select(&self, i: usize) -> SelectData {
         let pr = self.prompts.as_slice()[i];
         let player = pr.player;
@@ -345,6 +385,8 @@ impl Game {
                 options: vec![Opt { kind: OptionType::Yes as u8, ..Default::default() }, Opt { kind: OptionType::No as u8, ..Default::default() }],
                 provenance: Provenance::NONE,
                 map: Source::Chance(i),
+                vals: Vec::new(),
+                actions: Vec::new(),
             },
             _ => SelectData {
                 player,
@@ -355,6 +397,8 @@ impl Game {
                 options: vec![],
                 provenance: Provenance::NONE,
                 map: Source::Chance(i),
+                vals: Vec::new(),
+                actions: Vec::new(),
             },
         }
     }
@@ -368,112 +412,114 @@ impl Game {
     }
 
     fn turn_select(&self, p: u8) -> SelectData {
-        let opts = crate::options::legal_actions(self);
-        let options = opts
-            .iter()
-            .map(|o| {
-                let mut r = Opt::default();
-                match o.action {
-                    Action::PlayCard { hand_index, target } => {
-                        let c = self.st.players[p as usize].hand.as_slice()[hand_index as usize];
-                        let d = self.st.cdef(c);
-                        r.kind = if d.is_energy() || (d.is_trainer() && d.trainer_type == TrainerType::Tool as u8) {
-                            OptionType::Attach as u8
-                        } else if d.is_pokemon() && target.slot != SlotType::Bench || (d.is_pokemon() && d.stage != Stage::Basic as u8) {
-                            OptionType::Evolve as u8
-                        } else {
-                            OptionType::Play as u8
-                        };
-                        r.area = Some(AreaType::Hand as u8);
-                        r.index = Some(hand_index);
-                        r.serial = Some(c);
-                        r.card_id = Some(self.st.cards[c as usize].def);
-                        if target.slot == SlotType::Active || target.slot == SlotType::Bench {
-                            r.in_play_area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
-                            r.in_play_index = Some(target.index);
-                        }
+        let mut s = SelectData::default();
+        self.turn_select_into(p, &mut s);
+        s
+    }
+
+    /// The turn decision of `p` as a select, into `out` (its lists reused).
+    fn turn_select_into(&self, p: u8, out: &mut SelectData) {
+        out.vals.clear();
+        crate::options::legal_actions_into(self, &mut out.actions);
+        let SelectData { options, actions, .. } = &mut *out;
+        options.clear();
+        options.extend(actions.iter().map(|a| {
+            let mut r = Opt::default();
+            match *a {
+                Action::PlayCard { hand_index, target } => {
+                    let c = self.st.players[p as usize].hand.as_slice()[hand_index as usize];
+                    let d = self.st.cdef(c);
+                    r.kind = if d.is_energy() || (d.is_trainer() && d.trainer_type == TrainerType::Tool as u8) {
+                        OptionType::Attach as u8
+                    } else if d.is_pokemon() && target.slot != SlotType::Bench || (d.is_pokemon() && d.stage != Stage::Basic as u8) {
+                        OptionType::Evolve as u8
+                    } else {
+                        OptionType::Play as u8
+                    };
+                    r.area = Some(AreaType::Hand as u8);
+                    r.index = Some(hand_index);
+                    r.serial = Some(c);
+                    r.card_id = Some(self.st.cards[c as usize].def);
+                    if target.slot == SlotType::Active || target.slot == SlotType::Bench {
+                        r.in_play_area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                        r.in_play_index = Some(target.index);
                     }
-                    Action::Attack { attack, .. } => {
-                        r.kind = OptionType::Attack as u8;
-                        // The attack and the card that prints it (a Benched Pokemon's, when copied by Memory Helix).
-                        r.attack_id = Some(attack.idx() as u8);
-                        r.card_id = Some(self.st.cards[attack.card as usize].def);
-                    }
-                    Action::UseAbility { target, .. } => {
-                        r.kind = OptionType::Ability as u8;
-                        r.area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
-                        r.index = Some(target.index);
-                    }
-                    // The Benched Pokémon is chosen after the cost is paid (a SwitchPokemon prompt, APR A-03).
-                    Action::Retreat => r.kind = OptionType::Retreat as u8,
-                    Action::UseStadium => {
-                        r.kind = OptionType::Skill as u8;
-                        r.area = Some(AreaType::Stadium as u8);
-                    }
-                    Action::Pass => r.kind = OptionType::End as u8,
                 }
-                r.player_index = Some(p);
-                r
-            })
-            .collect();
-        SelectData {
-            player: p,
-            select_type: SelectType::Main,
-            context: SelectContext::Main,
-            min_count: 1,
-            max_count: 1,
-            options,
-            provenance: Provenance::NONE,
-            map: Source::Turn(opts),
-        }
+                Action::Attack { attack, .. } => {
+                    r.kind = OptionType::Attack as u8;
+                    // The attack and the card that prints it (a Benched Pokemon's, when copied by Memory Helix).
+                    r.attack_id = Some(attack.idx() as u8);
+                    r.card_id = Some(self.st.cards[attack.card as usize].def);
+                }
+                Action::UseAbility { target, .. } => {
+                    r.kind = OptionType::Ability as u8;
+                    r.area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                    r.index = Some(target.index);
+                }
+                // The Benched Pokémon is chosen after the cost is paid (a SwitchPokemon prompt, APR A-03).
+                Action::Retreat => r.kind = OptionType::Retreat as u8,
+                Action::UseStadium => {
+                    r.kind = OptionType::Skill as u8;
+                    r.area = Some(AreaType::Stadium as u8);
+                }
+                Action::Pass => r.kind = OptionType::End as u8,
+            }
+            r.player_index = Some(p);
+            r
+        }));
+        out.player = p;
+        out.select_type = SelectType::Main;
+        out.context = SelectContext::Main;
+        out.min_count = 1;
+        out.max_count = 1;
+        out.provenance = Provenance::NONE;
+        out.map = Source::Turn;
     }
 
     pub(crate) fn prompt_select(&self, i: usize) -> SelectData {
+        let mut s = SelectData::default();
+        self.prompt_select_into(i, &mut s);
+        s
+    }
+
+    /// Question `i` (a decision prompt) as a select, into `out` (its lists reused).
+    fn prompt_select_into(&self, i: usize, out: &mut SelectData) {
         let pr = self.prompts.as_slice()[i];
-        let player = pr.player;
         let persp = pr.player as usize;
         let ctx = context_for(pr.purpose);
-        let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<OptionValue>, sh: AnswerShape| SelectData {
-            player,
-            select_type: t,
-            context: c,
-            min_count: min,
-            max_count: max,
-            options,
-            provenance: pr.provenance,
-            map: Source::Prompt(i, vals, sh),
-        };
-        match pr.kind {
+        out.actions.clear();
+        let SelectData { options, vals, .. } = &mut *out;
+        options.clear();
+        vals.clear();
+        let (t, c, min, max, sh) = match pr.kind {
             PromptKind::Confirm => {
                 let o = |k: OptionType| Opt { kind: k as u8, ..Default::default() };
-                mk(SelectType::YesNo, ctx, 1, 1, vec![o(OptionType::Yes), o(OptionType::No)], vec![OptionValue::Bool(true), OptionValue::Bool(false)], AnswerShape::Single)
+                options.extend([o(OptionType::Yes), o(OptionType::No)]);
+                vals.extend([OptionValue::Bool(true), OptionValue::Bool(false)]);
+                (SelectType::YesNo, ctx, 1, 1, AnswerShape::Single)
             }
             PromptKind::Select { values, .. } => {
                 let n = values.len();
-                let options = (0..n)
-                    .map(|k| Opt {
-                        kind: OptionType::Number as u8,
-                        number: Some(match values {
-                            SelectValues::DrawCards(m) => m as i32 - k as i32,
-                            _ => k as i32,
-                        }),
-                        source: match values {
-                            SelectValues::Effects(v) => v.as_slice()[k].1,
-                            _ => None,
-                        },
-                        ..Default::default()
-                    })
-                    .collect();
-                mk(SelectType::Count, ctx, 1, 1, options, (0..n).map(OptionValue::Index).collect(), AnswerShape::Single)
+                options.extend((0..n).map(|k| Opt {
+                    kind: OptionType::Number as u8,
+                    number: Some(match values {
+                        SelectValues::DrawCards(m) => m as i32 - k as i32,
+                        _ => k as i32,
+                    }),
+                    source: match values {
+                        SelectValues::Effects(v) => v.as_slice()[k].1,
+                        _ => None,
+                    },
+                    ..Default::default()
+                }));
+                vals.extend((0..n).map(OptionValue::Index));
+                (SelectType::Count, ctx, 1, 1, AnswerShape::Single)
             }
             PromptKind::ChooseCards { cards, filter, opts } => {
                 let list = self.prompt_list(cards);
-                let sel = self.choose_cards_selectable(cards, &filter, &opts);
                 let (area, owner) = area_of(cards);
-                let mut options = Vec::new();
-                let mut vals = Vec::new();
                 for (k, &c) in list.iter().enumerate() {
-                    if sel[k] {
+                    if self.choose_cards_offers(k, c, &filter, &opts) {
                         options.push(Opt {
                             kind: OptionType::Card as u8,
                             area: Some(area),
@@ -488,82 +534,76 @@ impl Game {
                 }
                 let min = opts.min as usize;
                 let max = (opts.max as usize).min(options.len());
-                mk(SelectType::Card, ctx, if opts.allow_cancel { 0 } else { min }, max, options, vals, AnswerShape::Array)
+                (SelectType::Card, ctx, if opts.allow_cancel { 0 } else { min }, max, AnswerShape::Array)
             }
             PromptKind::ChoosePokemon { min, max, .. } => {
                 let cands = self.choose_pokemon_candidates(&pr);
-                let options = cands
-                    .iter()
-                    .map(|t| {
-                        let owner = if t.player == PlayerType::BottomPlayer { persp } else { 1 - persp };
-                        let s = get_target(&self.st, persp, *t).unwrap();
-                        let c = self.st.slot_pokemon(s.p as usize, s.s);
-                        Opt {
-                            kind: OptionType::Card as u8,
-                            area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
-                            index: Some(t.index),
-                            player_index: Some(owner as u8),
-                            card_id: c.map(|c| self.st.cards[c as usize].def),
-                            serial: c,
-                            ..Default::default()
-                        }
-                    })
-                    .collect::<Vec<_>>();
-                let vals = cands.iter().map(|t| OptionValue::Target(*t)).collect();
+                options.extend(cands.iter().map(|t| {
+                    let owner = if t.player == PlayerType::BottomPlayer { persp } else { 1 - persp };
+                    let s = get_target(&self.st, persp, *t).unwrap();
+                    let c = self.st.slot_pokemon(s.p as usize, s.s);
+                    Opt {
+                        kind: OptionType::Card as u8,
+                        area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                        index: Some(t.index),
+                        player_index: Some(owner as u8),
+                        card_id: c.map(|c| self.st.cards[c as usize].def),
+                        serial: c,
+                        ..Default::default()
+                    }
+                }));
+                vals.extend(cands.iter().map(|t| OptionValue::Target(*t)));
                 let n = options.len();
-                mk(SelectType::Card, ctx, (min as usize).min(n), (max as usize).min(n), options, vals, AnswerShape::Array)
+                (SelectType::Card, ctx, (min as usize).min(n), (max as usize).min(n), AnswerShape::Array)
             }
             PromptKind::ChoosePrize { count, use_opponent_prizes, .. } => {
                 let q = if use_opponent_prizes { 1 - persp } else { persp };
                 let left = self.st.players[q].prizes.iter().filter(|l| !l.is_empty()).count();
-                let options = (0..left)
-                    .map(|k| Opt { kind: OptionType::Card as u8, area: Some(AreaType::Prize as u8), index: Some(k as u8), player_index: Some(q as u8), ..Default::default() })
-                    .collect();
+                options.extend((0..left).map(|k| Opt { kind: OptionType::Card as u8, area: Some(AreaType::Prize as u8), index: Some(k as u8), player_index: Some(q as u8), ..Default::default() }));
+                vals.extend((0..left).map(OptionValue::Index));
                 let n = (count as usize).min(left);
-                mk(SelectType::Card, ctx, n, n, options, (0..left).map(OptionValue::Index).collect(), AnswerShape::Array)
+                (SelectType::Card, ctx, n, n, AnswerShape::Array)
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
-                let energy = *self.payload_energy(energy);
+                let energy = self.payload_energy(energy);
                 // The options are the attached cards in the order they arrived (the selection interface's order); `index` and the wire
                 // value stay the entry's position in the offered map.
-                let mut order: Vec<usize> = (0..energy.len()).collect();
-                order.sort_by_key(|&k| self.st.cards[energy.as_slice()[k].card as usize].arrived);
-                let options = order
-                    .iter()
-                    .map(|&k| {
-                        let e = &energy.as_slice()[k];
-                        Opt {
-                            kind: OptionType::Energy as u8,
-                            area: Some(AreaType::Energy as u8),
-                            index: Some(k as u8),
-                            card_id: Some(self.st.cards[e.card as usize].def),
-                            serial: Some(e.card),
-                            ..Default::default()
-                        }
-                    })
-                    .collect::<Vec<_>>();
+                let mut order: SVec<usize, 64> = SVec::new();
+                for k in 0..energy.len() {
+                    order.push(k);
+                }
+                order.as_mut_slice().sort_by_key(|&k| self.st.cards[energy.as_slice()[k].card as usize].arrived);
+                options.extend(order.iter().map(|&k| {
+                    let e = &energy.as_slice()[k];
+                    Opt {
+                        kind: OptionType::Energy as u8,
+                        area: Some(AreaType::Energy as u8),
+                        index: Some(k as u8),
+                        card_id: Some(self.st.cards[e.card as usize].def),
+                        serial: Some(e.card),
+                        ..Default::default()
+                    }
+                }));
+                vals.extend(order.iter().map(|&k| OptionValue::Index(k)));
                 let n = options.len();
                 // A payment never has more cards than the cost (ruling 1652); a larger bound made the
                 // pick-mask search run out of budget and offer cards that lead to a dead end.
                 let max = n.min(cost.len().max(1));
                 // An Energy select that puts the cards into the hand is its own context.
                 let ctx = if ctx == SelectContext::ToHand { SelectContext::ToHandEnergy } else { ctx };
-                mk(SelectType::Energy, ctx, 0, max, options, order.into_iter().map(OptionValue::Index).collect(), AnswerShape::Array)
+                (SelectType::Energy, ctx, 0, max, AnswerShape::Array)
             }
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
                 // One option per (energy card, target) pair; pick each energy at most once.
                 let list = self.prompt_list(cards);
-                let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
-                    .iter().copied()
-                    .filter(|t| !o.blocked_to.iter().any(|b| b.player == t.player && b.slot == t.slot && b.index == t.index))
-                    .collect();
-                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                let mut targets = slot_targets(&self.st, persp, player_type, slots.as_slice());
+                targets.retain(|t| !o.blocked_to.iter().any(|b| b.player == t.player && b.slot == t.slot && b.index == t.index));
                 for (k, &c) in list.iter().enumerate() {
                     let d = self.st.cdef(c);
                     if !(d.is_energy() && !o.blocked.contains(&(k as u8)) && filter.matches(d)) {
                         continue;
                     }
-                    for t in &targets {
+                    for t in targets.iter() {
                         options.push(Opt {
                             kind: OptionType::EnergyCard as u8,
                             area: Some(area_of(cards).0),
@@ -578,75 +618,69 @@ impl Game {
                         vals.push(OptionValue::AttachTo(*t, k));
                     }
                 }
-                mk(SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, options, vals, AnswerShape::Array)
+                (SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, AnswerShape::Array)
             }
             PromptKind::DiscardEnergy { player_type, slots, filter, o } | PromptKind::MoveEnergy { player_type, slots, filter, o } => {
                 let o = *self.payload_opts(o);
                 let is_move = matches!(pr.kind, PromptKind::MoveEnergy { .. });
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
-                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                // The offered cards (source, index in the source's list, card) of every Pokémon in the order they arrived
+                // (the selection interface's order; a stable sort); each card's destinations follow it in target order.
+                let mut offered: SVec<(CardTarget, u8, CardId), 128> = SVec::new();
                 for (from, idx) in self.energy_sources(persp, player_type, slots.as_slice(), &filter, &o) {
                     let s = get_target(&self.st, persp, from).unwrap();
+                    let slot = self.st.slot(s.p as usize, s.s);
                     for i in idx {
-                        let slot = self.st.slot(s.p as usize, s.s);
                         let c = if crate::prompts::is_tool_filter(&filter) { slot.tools().as_slice()[i as usize] } else { slot.cards().as_slice()[i as usize] };
-                        let mut base = Opt {
-                            kind: OptionType::EnergyCard as u8,
-                            area: Some(if from.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
-                            index: Some(from.index),
-                            player_index: Some(s.p),
-                            card_id: Some(self.st.cards[c as usize].def),
-                            serial: Some(c),
-                            ..Default::default()
-                        };
-                        if is_move {
-                            for to in all.iter().filter(|t| !(t.player == from.player && t.slot == from.slot && t.index == from.index)) {
-                                base.in_play_area = Some(if to.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
-                                base.in_play_index = Some(to.index);
-                                options.push(base.clone());
-                                vals.push(OptionValue::FromTo(from, *to, i as usize));
-                            }
-                        } else {
-                            options.push(base);
-                            vals.push(OptionValue::From(from, i as usize));
-                        }
+                        offered.push((from, i, c));
                     }
                 }
-                // Attached cards of every Pokémon in the order they arrived (the selection interface's order), the stable sort keeping
-                // each card's destinations in target order.
-                let mut order: Vec<usize> = (0..options.len()).collect();
-                order.sort_by_key(|&k| self.st.cards[options[k].serial.unwrap() as usize].arrived);
-                let options: Vec<Opt> = order.iter().map(|&k| options[k].clone()).collect();
-                let vals: Vec<OptionValue> = order.iter().map(|&k| vals[k].clone()).collect();
+                offered.as_mut_slice().sort_by_key(|&(_, _, c)| self.st.cards[c as usize].arrived);
+                for &(from, i, c) in offered.iter() {
+                    let s = get_target(&self.st, persp, from).unwrap();
+                    let mut base = Opt {
+                        kind: OptionType::EnergyCard as u8,
+                        area: Some(if from.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                        index: Some(from.index),
+                        player_index: Some(s.p),
+                        card_id: Some(self.st.cards[c as usize].def),
+                        serial: Some(c),
+                        ..Default::default()
+                    };
+                    if is_move {
+                        for to in all.iter().filter(|t| !(t.player == from.player && t.slot == from.slot && t.index == from.index)) {
+                            base.in_play_area = Some(if to.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                            base.in_play_index = Some(to.index);
+                            options.push(base.clone());
+                            vals.push(OptionValue::FromTo(from, *to, i as usize));
+                        }
+                    } else {
+                        options.push(base);
+                        vals.push(OptionValue::From(from, i as usize));
+                    }
+                }
                 let max = o.max.map(|m| m as usize).unwrap_or(options.len());
                 let ctx = if is_move { SelectContext::SwitchEnergyCard } else { SelectContext::DiscardEnergyCard };
-                mk(SelectType::AttachedCard, ctx, o.min as usize, max, options, vals, AnswerShape::Array)
+                (SelectType::AttachedCard, ctx, o.min as usize, max, AnswerShape::Array)
             }
             PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, damage_multiple, .. } => {
-                let bl: Vec<CardTarget> = blocked.iter().copied().collect();
-                let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
-                    .iter().copied()
-                    .filter(|t| !bl.iter().any(|b| get_target(&self.st, persp, *b).ok() == get_target(&self.st, persp, *t).ok()))
-                    .collect();
-                let options = targets
-                    .iter()
-                    .map(|t| Opt {
-                        kind: OptionType::Card as u8,
-                        area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
-                        index: Some(t.index),
-                        player_index: Some(if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 }),
-                        ..Default::default()
-                    })
-                    .collect();
+                let mut targets = slot_targets(&self.st, persp, player_type, slots.as_slice());
+                targets.retain(|t| !blocked.iter().any(|b| get_target(&self.st, persp, *b).ok() == get_target(&self.st, persp, *t).ok()));
+                options.extend(targets.iter().map(|t| Opt {
+                    kind: OptionType::Card as u8,
+                    area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                    index: Some(t.index),
+                    player_index: Some(if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 }),
+                    ..Default::default()
+                }));
+                vals.extend(targets.iter().map(|t| OptionValue::Target(*t)));
                 let n = (damage / damage_multiple.max(1)) as usize;
-                let vals = targets.iter().map(|t| OptionValue::Target(*t)).collect();
-                mk(SelectType::Card, SelectContext::DamageCounter, if allow_partial { 0 } else { n }, n, options, vals, AnswerShape::Counters(damage_multiple))
+                (SelectType::Card, SelectContext::DamageCounter, if allow_partial { 0 } else { n }, n, AnswerShape::Counters(damage_multiple))
             }
             PromptKind::MoveDamage { player_type, slots, o, .. } | PromptKind::RemoveDamage { player_type, slots, o, .. } => {
                 let o = *self.payload_opts(o);
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
                 let seat = |t: &CardTarget| if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 };
-                let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for f in all.iter() {
                     for t in all.iter().filter(|t| !(t.player == f.player && t.slot == f.slot && t.index == f.index)) {
                         options.push(Opt {
@@ -663,20 +697,16 @@ impl Game {
                     }
                 }
                 let max = o.max.map(|m| m as usize).unwrap_or(12);
-                mk(SelectType::Card, SelectContext::DamageCounter, o.min as usize, max, options, vals, AnswerShape::Array)
+                (SelectType::Card, SelectContext::DamageCounter, o.min as usize, max, AnswerShape::Array)
             }
             PromptKind::OrderCards { cards, .. } => {
                 let list = self.prompt_list(cards);
-                let options = list
-                    .iter()
-                    .enumerate()
-                    .map(|(k, c)| Opt { kind: OptionType::Card as u8, index: Some(k as u8), card_id: Some(self.st.cards[*c as usize].def), serial: Some(*c), ..Default::default() })
-                    .collect::<Vec<_>>();
+                options.extend(list.iter().enumerate().map(|(k, c)| Opt { kind: OptionType::Card as u8, index: Some(k as u8), card_id: Some(self.st.cards[*c as usize].def), serial: Some(*c), ..Default::default() }));
                 let n = options.len();
-                mk(SelectType::Card, SelectContext::ToDeck, n, n, options, (0..n).map(OptionValue::Index).collect(), AnswerShape::Array)
+                vals.extend((0..n).map(OptionValue::Index));
+                (SelectType::Card, SelectContext::ToDeck, n, n, AnswerShape::Array)
             }
             PromptKind::SelectOption { values, disabled, .. } => {
-                let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for k in 0..values.len() {
                     if disabled.map(|d| d & (1 << k) != 0).unwrap_or(false) {
                         continue;
@@ -684,10 +714,9 @@ impl Game {
                     options.push(Opt { kind: OptionType::Number as u8, number: Some(k as i32), ..Default::default() });
                     vals.push(OptionValue::Index(k));
                 }
-                mk(SelectType::Count, ctx, 1, 1, options, vals, AnswerShape::Single)
+                (SelectType::Count, ctx, 1, 1, AnswerShape::Single)
             }
             PromptKind::ChooseAttack { cards, blocked, .. } => {
-                let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for (i, c) in cards.iter().enumerate() {
                     for (a, at) in self.st.cdef(*c).attacks.iter().enumerate() {
                         // A blocked attack is shown in the prompt's `blocked` list and is not an option.
@@ -704,10 +733,17 @@ impl Game {
                         vals.push(OptionValue::Attack { index: i, attack: a as u8, name: at.name });
                     }
                 }
-                mk(SelectType::Attack, SelectContext::Attack, 1, 1, options, vals, AnswerShape::Single)
+                (SelectType::Attack, SelectContext::Attack, 1, 1, AnswerShape::Single)
             }
-            _ => mk(SelectType::YesNo, SelectContext::Look, 0, 0, vec![], vec![], AnswerShape::Single),
-        }
+            _ => (SelectType::YesNo, SelectContext::Look, 0, 0, AnswerShape::Single),
+        };
+        out.player = pr.player;
+        out.select_type = t;
+        out.context = c;
+        out.min_count = min;
+        out.max_count = max;
+        out.provenance = pr.provenance;
+        out.map = Source::Prompt(i, sh);
     }
 
     /// Answer a select with option indices. Invalid combinations (e.g. an
@@ -741,12 +777,12 @@ impl Game {
                     }
                 }
             }
-            Source::Turn(opts) => {
+            Source::Turn => {
                 let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
-                let a = opts.get(k).ok_or(GameError("BAD_OPTION"))?.action;
+                let a = *sel.actions.get(k).ok_or(GameError("BAD_OPTION"))?;
                 self.act(a)
             }
-            Source::Prompt(i, _, _) => {
+            Source::Prompt(i, _) => {
                 let pr = self.prompts.as_slice()[*i];
                 let res = self.decode_chosen(&pr, sel, chosen)?;
                 if !rollback {
@@ -766,7 +802,7 @@ impl Game {
 /// The wire answer (the form a recorded trace holds) for option indices `chosen` of a prompt select.
 fn raw_answer(sel: &SelectData, chosen: &[usize]) -> Result<Value, GameError> {
     let (vals, shape) = match &sel.map {
-        Source::Prompt(_, vals, shape) => (vals, shape),
+        Source::Prompt(_, shape) => (&sel.vals, shape),
         _ => return Err(GameError("NOT_A_PROMPT")),
     };
     Ok(match shape {
@@ -799,11 +835,11 @@ impl Game {
     /// (pure: the game is not modified).
     pub fn is_valid_answer(&self, sel: &SelectData, chosen: &[usize]) -> bool {
         match &sel.map {
-            Source::Prompt(i, _, _) => {
+            Source::Prompt(i, _) => {
                 let pr = self.prompts.as_slice()[*i];
                 self.decode_chosen(&pr, sel, chosen).is_ok()
             }
-            Source::Turn(opts) => chosen.len() == 1 && chosen[0] < opts.len(),
+            Source::Turn => chosen.len() == 1 && chosen[0] < sel.actions.len(),
             Source::Chance(_) => chosen.len() == 1,
         }
     }
@@ -814,7 +850,7 @@ impl Game {
     /// dropped; other kinds are assumed extendable.
     fn extendable(&self, sel: &SelectData, chosen: &[usize]) -> bool {
         let i = match &sel.map {
-            Source::Prompt(i, _, _) => *i,
+            Source::Prompt(i, _) => *i,
             _ => return true,
         };
         let mut pr = self.prompts.as_slice()[i];
@@ -851,7 +887,7 @@ impl Game {
     /// The decoded and validated answer for option indices `chosen` of a prompt select (what
     /// [`Game::answer`] resolves), without resolving it.
     pub fn decode_picks(&self, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
-        let Source::Prompt(i, _, _) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
+        let Source::Prompt(i, _) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
         let pr = self.prompts.as_slice()[*i];
         self.decode_chosen(&pr, sel, chosen)
     }
@@ -868,7 +904,8 @@ impl Game {
     }
 
     fn decode_chosen_typed(&self, pr: &PromptRec, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
-        let Source::Prompt(_, vals, shape) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
+        let Source::Prompt(_, shape) = &sel.map else { return Err(GameError("NOT_A_PROMPT")) };
+        let vals = &sel.vals;
         // The errors `raw_answer` gives.
         match shape {
             AnswerShape::Single => {
@@ -990,7 +1027,7 @@ impl Game {
                 self.verify_does_something(sel, j);
             }
             // Every question asked can be answered (`Game::prompt` doesn't ask one that can't).
-            if let (true, Source::Prompt(i, _, _)) = (picks.is_empty(), &sel.map) {
+            if let (true, Source::Prompt(i, _)) = (picks.is_empty(), &sel.map) {
                 assert!(self.has_an_answer(*i), "a question with no answer it can take is asked: {:?}", self.describe_prompt(&self.prompts.as_slice()[*i]));
             }
         }
@@ -1001,7 +1038,7 @@ impl Game {
         }
         let repeats = sel.allows_repeats();
         let exact = match &sel.map {
-            Source::Prompt(i, _, _) => matches!(self.prompts.as_slice()[*i].kind, PromptKind::ChooseEnergy { .. }),
+            Source::Prompt(i, _) => matches!(self.prompts.as_slice()[*i].kind, PromptKind::ChooseEnergy { .. }),
             _ => false,
         };
         let stop = picks.len() >= sel.min_count && self.is_declared_answer(sel, picks);
@@ -1035,7 +1072,7 @@ impl Game {
             let mut trial = self.fork();
             let accepted = ok && trial.answer_with(sel, chosen, false).is_ok();
             assert_eq!(ok, accepted, "declared validity differs from the continuation for {:?} of {:?}", chosen, self.describe_prompt(&self.prompts.as_slice()[match &sel.map {
-                Source::Prompt(i, _, _) => *i,
+                Source::Prompt(i, _) => *i,
                 _ => 0,
             }]));
         }
@@ -1103,7 +1140,8 @@ impl Game {
     /// flip or a reveal; only an option whose effect a prevention stops may do nothing (a protected Pokémon stays
     /// choosable: id290; JP FAQ Hariyama MEG 73).
     fn verify_does_something(&self, sel: &SelectData, j: usize) {
-        let Source::Prompt(i, vals, _) = &sel.map else { return };
+        let Source::Prompt(i, _) = &sel.map else { return };
+        let vals = &sel.vals;
         if matches!(vals.get(j), Some(OptionValue::Bool(false))) || !self.is_valid_answer(sel, &[j]) {
             return;
         }

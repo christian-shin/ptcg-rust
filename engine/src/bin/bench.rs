@@ -6,7 +6,7 @@
 //! `--host` plays the same games the way a program that embeds the engine does (`ptcg::host`, its buffers kept between
 //! decisions): at a turn decision the table as the deciding seat sees it and the legal actions in one call
 //! (`decision_into`; with `--apart` as two, `view_into` and `legal_actions_into`), at a prompt the table (`view_into`), the
-//! prompt's select and pick masks (`pick_mask_into`); the all-or-nothing `act` / `answer`,
+//! prompt's select (`select_into`) and pick masks (`pick_mask_into`); the all-or-nothing `act` / `answer`,
 //! `settle`, the record if on (`take_record_into`); each call timed. It prints the microseconds per decision
 //! of each phase after the single-thread run (the decision count is the same as without `--host`: the same choices).
 //!
@@ -219,6 +219,7 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock, apart: bool) ->
     // One view per seat, kept and refreshed at its seat's decisions.
     let mut views = [TableView::new(&g, 0), TableView::new(&g, 1)];
     let mut actions = Vec::new();
+    let mut sel = host::SelectData::default();
     let mut mask = Vec::new();
     let mut entries = Vec::new();
     let mut picks: Vec<usize> = Vec::new();
@@ -261,7 +262,7 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock, apart: bool) ->
                     clock.time(Phase::Record, || host::take_record_into(&mut g, &mut entries));
                     std::hint::black_box(&entries);
                 }
-                let Ok(Some(sel)) = clock.time(Phase::Select, || g.select()) else { return fail(decisions, "select") };
+                let Ok(true) = clock.time(Phase::Select, || host::select_into(&mut g, &mut sel)) else { return fail(decisions, "select") };
                 clock.time(Phase::View, || host::view_into(&g, sel.player as usize, &mut views[sel.player as usize]));
                 std::hint::black_box(&views);
                 decisions += 1;
