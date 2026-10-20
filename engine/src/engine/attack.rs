@@ -322,6 +322,7 @@ pub fn attack_over(g: &mut Game, p: usize) -> R {
 /// is over.
 pub fn after_attack_check(g: &mut Game, p: usize) -> R {
     g.copy_sessions.clear();
+    g.copy_chain.clear();
     if g.st.phase == GamePhase::Finished {
         return Ok(());
     }
@@ -386,6 +387,8 @@ fn attack_again_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
         // The Knock Outs were checked (`attack_again_check`).
         return after_attack_check(g, f.p as usize);
     }
+    // The first attack is over: the second one copies afresh.
+    g.copy_chain.clear();
     let p = f.p as usize;
     let source = SlotRef::new(p, g.st.players[p].active);
     let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, second_attack: true, delegate_from: None, what_if: false });

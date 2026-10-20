@@ -1,0 +1,24 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 N's Zorua ASC 136", "4 N's Zoroark ex ASC 137", "4 N's Zekrom ASC 155", "48 Darkness Energy MEE 7"],
+  ["4 N's Zorua ASC 136", "4 N's Zoroark ex ASC 137", "4 N's Zekrom ASC 155", "48 Darkness Energy MEE 7"]
+ ],
+ "me": {
+  "reset": true,
+  "active": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"],
+  "active_energy": ["2 Darkness Energy MEE 7"],
+  "bench": [{"card": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"]}, {"card": "N's Zekrom ASC 155"}]
+ },
+ "opp": {"reset": true, "active": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"]},
+ "answers": [
+  {"a": "attack", "name": "Night Joker"},
+  {"index": 0, "attack": "Night Joker"},
+  {"index": 1, "attack": "Rampaging Thunder"},
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "turn_end", "prompts": ["ChooseAttack", "ChooseAttack"], "cite": "card text: Night Joker chooses 1 of your Benched N's Pokemon's attacks, the Benched N's Zoroark ex's Night Joker included; a copy attack can copy a copy attack, which then makes its own choice (compendium id656; JP FAQ Slowking SCR 58)"},
+  {"at": "turn_end", "who": "opp", "slot": "active", "damage": 250, "cite": "card text: the copied Night Joker used N's Zekrom's Rampaging Thunder as this attack (250)"}
+ ]
+}

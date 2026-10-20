@@ -1,0 +1,23 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 N's Zorua ASC 136", "4 N's Zoroark ex ASC 137", "4 N's Zekrom ASC 155", "48 Darkness Energy MEE 7"],
+  ["4 N's Zorua ASC 136", "4 N's Zoroark ex ASC 137", "4 N's Zekrom ASC 155", "48 Darkness Energy MEE 7"]
+ ],
+ "me": {
+  "reset": true,
+  "active": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"],
+  "active_energy": ["2 Darkness Energy MEE 7"],
+  "bench": [{"card": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"]}]
+ },
+ "opp": {"reset": true, "active": ["N's Zorua ASC 136", "N's Zoroark ex ASC 137"]},
+ "answers": [
+  {"a": "attack", "name": "Night Joker"},
+  {"index": 0, "attack": "Night Joker"},
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "turn_end", "prompts": ["ChooseAttack"], "cite": "card text: Night Joker can choose the Benched N's Zoroark ex's Night Joker (compendium id656: a copy attack can copy a copy attack)"},
+  {"at": "turn_end", "who": "opp", "slot": "active", "damage": 0, "cite": "compendium id657: a copied attack can't choose again the attack it is a copy of (Watch and Learn copying Watch and Learn does nothing); the copied Night Joker has nothing else to choose, does nothing more, and the turn ends"}
+ ]
+}

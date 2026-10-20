@@ -274,6 +274,10 @@ pub struct Game {
     /// The copy-attack sessions open now (an attack that uses another Pokémon's attack as its own).
     pub copy_sessions: SVec<crate::copy_attack::CopySession, 8>,
     pub copy_serial: u8,
+    /// The attacks being used in the attack in progress by copying: the attack of each copy attack that made its choice
+    /// (the copying attack, then each copied attack that copies in turn). None of them can be chosen again in that attack
+    /// (`copy_attack::blocked_attacks`, compendium id657); cleared when the attack is over.
+    pub copy_chain: SVec<AttackRef, { crate::copy_attack::MAX_COPY_CHAIN }>,
     /// Source card code currently running as `.call(copycat)`.
     pub deleg: Option<crate::copy_attack::Deleg>,
     /// Energy removals waiting for the damage of an attack.
@@ -422,7 +426,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, temp_hw, coin_callbacks,
-                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
+                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, copy_chain, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
                 derived: _,
                 decls,
                 order_cache: _,
@@ -461,6 +465,7 @@ impl Game {
             f!((*d).trace_effects).write(*trace_effects);
             copy_sessions.copy_live_to(f!((*d).copy_sessions));
             f!((*d).copy_serial).write(*copy_serial);
+            copy_chain.copy_live_to(f!((*d).copy_chain));
             f!((*d).deleg).write(*deleg);
             after_dmg.copy_live_to(f!((*d).after_dmg));
             pending.copy_live_to(f!((*d).pending));
@@ -518,6 +523,7 @@ impl Game {
             trace_effects: false,
             copy_sessions: SVec::new(),
             copy_serial: 0,
+            copy_chain: SVec::new(),
             deleg: None,
             after_dmg: SVec::new(),
             pending: SVec::new(),

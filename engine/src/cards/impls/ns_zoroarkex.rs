@@ -2,7 +2,9 @@
 //! turn, you may draw 2 cards. Night Joker: choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
 //!
 //! Trade: the discard is a cost (`Step::cost`, APR E-30; id2115: it can't be used when no card can be drawn), the draw is the
-//! effect. Night Joker copies a Benched N's Pokémon's attack.
+//! effect. Night Joker copies a Benched N's Pokémon's attack, another N's Zoroark ex's Night Joker included (a copy attack
+//! can copy a copy attack: compendium id656, JP FAQ Slowking SCR 58); that copied Night Joker chooses again among the
+//! attacks not already being used in this attack (id657; `copy_attack.rs`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -11,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec {
             from: Who::Me,
-            predicate: Pred::All(&[Pred::Tag(crate::types::tag::NS), Pred::Not(&Pred::Name("N's Zoroark ex"))]),
+            predicate: Pred::Tag(crate::types::tag::NS),
             scope: CopyScope::Bench,
         }))],
     }],

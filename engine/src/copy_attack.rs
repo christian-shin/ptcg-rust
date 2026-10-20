@@ -5,8 +5,12 @@
 //! effects and the Knock Outs after it are the copycat's (id2402, id453, id890, id2094), nothing of the source card applies
 //! after the attack, and the copier needs none of the copied attack's Energy (ids 455, 2409). A copied attack that is
 //! itself a copy attack (Seek Inspiration choosing Clefable's Metronome) is chosen and run like any other: it asks its own
-//! choice (JP FAQ Slowking SCR 58, "Yes, you can"). The copied attack's lasting effects are lasting-table entries on the
-//! copycat (`engine::lasting`).
+//! choice (JP FAQ Slowking SCR 58, "Yes, you can"; compendium id656: Watch and Learn using Foul Play copies again). An
+//! attack already being used in the attack can't be chosen again (`Game::copy_chain`; id657: a Watch and Learn that would
+//! copy the Watch and Learn it is a copy of does nothing), so a chain of copies ends: Night Joker copying another N's
+//! Zoroark ex's Night Joker chooses among the other Benched N's Pokémon's attacks, and does nothing more when only that
+//! Night Joker's own is left. The copied attack's lasting effects are lasting-table entries on the copycat
+//! (`engine::lasting`).
 //!
 //! A copied attack runs as a fresh attack on the copycat carrying the source card's attack; after the normal fan-out of
 //! every effect, `resolve_sessions` runs the source card's code with `me` = the copycat for the effects of the copied
@@ -260,6 +264,10 @@ pub const MAX_ATTACKS_PER_CARD: usize = 2;
 /// Pokémon alone, or the one card of a register, are fewer), each printing at most [`MAX_ATTACKS_PER_CARD`].
 pub const MAX_COPY_CHOICE: usize = crate::state::MAX_BENCH * MAX_ATTACKS_PER_CARD;
 
+/// The most attacks one attack can be using by copying (`Game::copy_chain`): the copying attack and, since a chosen attack
+/// can't be chosen again, at most every attack of a choice.
+pub const MAX_COPY_CHAIN: usize = MAX_COPY_CHOICE + 1;
+
 /// Is every attack of every Pokémon of the choice blocked (nothing can be chosen)?
 fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> bool {
     !cards.iter().enumerate().any(|(ci, c)| {
@@ -270,7 +278,8 @@ fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> b
 
 /// The attacks of the choice the copycat could not use now: those whose own printed use restriction is unmet (the attack's
 /// declared preconditions, `spec::run::attack_gate`, the one rule normal attack legality reads: RULES.md "Choose 1 of
-/// [those] attacks and use it as this attack", ids 318, 1930). Energy is not a restriction (APR D-01).
+/// [those] attacks and use it as this attack", ids 318, 1930), and those already being used in this attack
+/// (`Game::copy_chain`, id657). Energy is not a restriction (APR D-01).
 pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]) -> R<SVec<(u8, u8), MAX_COPY_CHOICE>> {
     let mut blocked: SVec<(u8, u8), MAX_COPY_CHOICE> = SVec::new();
     for (ci, c) in cards.iter().enumerate() {
@@ -279,7 +288,7 @@ pub fn blocked_attacks(g: &mut Game, p: usize, copycat: CardId, cards: &[CardId]
         }
         for i in 0..g.st.cdef(*c).attacks.len() {
             let a = AttackRef { card: *c, index: i as u8 };
-            if crate::spec::run::attack_gate(g, copycat, a, p)? == crate::spec::run::Gate::Closed {
+            if g.copy_chain.contains(&a) || crate::spec::run::attack_gate(g, copycat, a, p)? == crate::spec::run::Gate::Closed {
                 blocked.push((ci as u8, i as u8));
             }
         }
@@ -307,10 +316,14 @@ fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     Ok(())
 }
 
-/// The Pokémon card among `cards` that has the attack `a` (the card itself, or one with an attack of the same name).
+/// The Pokémon card among `cards` that has the attack `a`: the card itself, else one with an attack of the same name (two
+/// Pokémon of the choice printing the same attack are different choices: the one chosen is the card that prints it).
 fn find_pokemon_for_attack(g: &Game, cards: &[CardId], a: AttackRef) -> Option<CardId> {
+    if cards.contains(&a.card) && g.st.cdef(a.card).is_pokemon() {
+        return Some(a.card);
+    }
     let name = attack::attack_def(g, a).name;
-    cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && (*c == a.card || g.st.cdef(*c).attacks.iter().any(|x| x.name == name)))
+    cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && g.st.cdef(*c).attacks.iter().any(|x| x.name == name))
 }
 
 /// The index of attack `a` among the attacks of `source`.
@@ -326,12 +339,17 @@ fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
 /// be fully done is still used and ends (RULES.md "A copied attack is the copycat's only while it is used"); an error from its
 /// program is an engine defect, as from any attack.
 pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool) -> R {
-    let (p, source) = match *g.e(atk) {
-        Effect::Attack { p, source, .. } => (p as usize, source),
+    let (p, source, attack) = match *g.e(atk) {
+        Effect::Attack { p, source, attack, .. } => (p as usize, source, attack),
         _ => return Ok(()),
     };
     if cards.is_empty() {
         return Ok(());
+    }
+    // This copy attack is being used: none of the attacks it copies may choose it again (id657).
+    let using = AttackRef { card: attack.card, index: attack.idx() as u8 };
+    if !g.copy_chain.contains(&using) {
+        g.copy_chain.push(using);
     }
     let copycat = match g.st.slot_pokemon(source.p as usize, source.s) {
         Some(c) => c,
