@@ -95,40 +95,150 @@ pub struct Ctx<'a> {
     p: usize,
     /// The checked attack list and the available attacks built from it.
     attacks: Option<Result<(turn::CheckedAttacks, SVec<(AttackRef, bool), 64>), ()>>,
-    /// The decision's facts: per (asking player, spot) the provided Energy, HP and types; per player the Retreat Cost; per
-    /// (player, attack) the cost; per (player, card) the powers; per (player, card, power) "has no Ability".
-    provided: SVec<((u8, u8, u8), crate::game::R<EnergyMap>), { 2 * crate::state::MAX_SLOT_REFS }>,
-    hp: SVec<((u8, u8), crate::game::R<i32>), { crate::state::MAX_SLOT_REFS }>,
-    types: SVec<((u8, u8), crate::game::R<SVec<CardType, 4>>), { crate::state::MAX_SLOT_REFS }>,
-    retreat: [Option<crate::game::R<Cost>>; 2],
-    attack_cost: SVec<((u8, AttackRef), crate::game::R<Cost>), 16>,
-    powers: SVec<(CardId, crate::game::R<SVec<PowerRef, 8>>), 16>,
-    abil: SVec<((CardId, u8), bool), 48>,
+    /// The decision's derived facts and card lists.
+    facts: Kept<'a>,
     /// The answers of the hand-card plays by (card definition, target): copies of one card in the hand share one answer
     /// (see [`legal_fast`]).
     memo: SVec<((DefId, CardTarget), bool), 96>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
-    /// The readers' card lists of the decision (`decl::OrderCache`).
-    order: crate::decl::OrderCache,
 }
 
-impl<'a> Ctx<'a> {
-    pub fn new(g: &'a Game) -> Ctx<'a> {
-        Ctx {
-            g,
-            p: g.st.active_player as usize,
-            attacks: None,
+/// A decision's derived facts and card lists, each computed once (the game's memo and order cache, which a `&Game` can't
+/// fill, are read first): per (asking player, spot) the provided Energy, HP and types; per player the attacks and the
+/// Retreat Cost; per (player, attack) the cost; per card the powers; per (card, power) "has no Ability"; the readers' card
+/// lists in the propagation order (`decl::OrderCache`). The legal scan hands them to the game ([`keep`]).
+pub(crate) struct DecisionFacts {
+    provided: SVec<((u8, u8, u8), crate::game::R<EnergyMap>), { 2 * crate::state::MAX_SLOT_REFS }>,
+    hp: SVec<((u8, u8), crate::game::R<i32>), { crate::state::MAX_SLOT_REFS }>,
+    types: SVec<((u8, u8), crate::game::R<SVec<CardType, 4>>), { crate::state::MAX_SLOT_REFS }>,
+    attacks: [Option<crate::game::R<turn::CheckedAttacks>>; 2],
+    retreat: [Option<crate::game::R<Cost>>; 2],
+    attack_cost: SVec<((u8, AttackRef), crate::game::R<Cost>), 16>,
+    powers: SVec<(CardId, crate::game::R<SVec<PowerRef, 8>>), 16>,
+    abil: SVec<((CardId, u8), bool), 48>,
+    order: crate::decl::OrderCache,
+    /// Per fact (`derived::fact`), its key in the game's memo (`derived::key`; 0: not read yet).
+    keys: [u32; crate::derived::fact::N],
+}
+
+impl DecisionFacts {
+    pub(crate) fn new() -> DecisionFacts {
+        DecisionFacts {
             provided: SVec::new(),
             hp: SVec::new(),
             types: SVec::new(),
+            attacks: [None, None],
             retreat: [None, None],
             attack_cost: SVec::new(),
             powers: SVec::new(),
             abil: SVec::new(),
-            memo: SVec::new(),
-            why: "",
             order: crate::decl::OrderCache::new(),
+            keys: [0; crate::derived::fact::N],
+        }
+    }
+}
+
+/// Hand the facts and card lists a [`Ctx`] of the game's current state computed ([`Ctx::keeping`]) to the game's derived
+/// memo (`derived::keep_*`, at the game's current keys) and order cache (`decl::OrderCache::keep`): the next decisions and
+/// the action taken read them instead of computing them again.
+pub(crate) fn keep(g: &mut Game, f: &DecisionFacts) {
+    g.order_cache.keep(g.st.layout_gen, &f.order);
+    use crate::derived::{self as d, fact};
+    // (A fact's entries are read after its key: `Ctx::key`.)
+    let k = &f.keys;
+    for ((p, s), r) in f.hp.iter() {
+        if let Ok(v) = r {
+            d::keep_hp(g, k[fact::HP], *p as usize, *s, v);
+        }
+    }
+    for ((q, s), r) in f.types.iter() {
+        if let Ok(v) = r {
+            d::keep_types(g, k[fact::TYPES], SlotRef::new(*q as usize, *s), v);
+        }
+    }
+    for ((p, q, s), r) in f.provided.iter() {
+        if let Ok(v) = r {
+            d::keep_provided_energy(g, k[fact::PROVIDES], *p as usize, SlotRef::new(*q as usize, *s), v);
+        }
+    }
+    for p in 0..2 {
+        if let Some(Ok(v)) = &f.attacks[p] {
+            d::keep_attacks(g, k[fact::ATTACKS], p, v);
+        }
+        if let Some(Ok(v)) = &f.retreat[p] {
+            d::keep_retreat_cost(g, k[fact::RETREAT], p, v);
+        }
+    }
+    for ((p, a), r) in f.attack_cost.iter() {
+        if let Ok(v) = r {
+            d::keep_attack_cost(g, k[fact::ATTACK_COST], *p as usize, *a, v);
+        }
+    }
+    for (c, r) in f.powers.iter() {
+        if let Ok(v) = r {
+            d::keep_powers(g, k[fact::ABILITY], *c, v);
+        }
+    }
+    for &((c, i), r) in f.abil.iter() {
+        d::keep_has_no_ability(g, k[fact::ABILITY], c, (i != crate::prefabs::PROBE_GENERIC).then_some(i), r);
+    }
+}
+
+/// Where a [`Ctx`] keeps its [`DecisionFacts`]: its own, or those its caller lends ([`Ctx::keeping`]).
+enum Kept<'a> {
+    Own(DecisionFacts),
+    Lent(&'a mut DecisionFacts),
+}
+
+/// A memo entry of the game at its current key (`derived::peek_*`) instead of a computation; under `PTCG_VERIFY_CACHE=1`
+/// the computation runs and must agree.
+#[inline]
+fn from_memo<'a, T: PartialEq + std::fmt::Debug>(ctx: &mut Ctx<'a>, memo: Option<T>, what: &str, compute: impl FnOnce(&mut Ctx<'a>) -> crate::game::R<T>) -> crate::game::R<T> {
+    match memo {
+        Some(m) => {
+            if crate::game::verify_cache() {
+                assert_eq!(compute(ctx).ok().as_ref(), Some(&m), "legality: the game's memo of {what} differs from a computation");
+            }
+            Ok(m)
+        }
+        None => compute(ctx),
+    }
+}
+
+impl<'a> Ctx<'a> {
+    pub fn new(g: &'a Game) -> Ctx<'a> {
+        Self::with_facts(g, Kept::Own(DecisionFacts::new()))
+    }
+
+    /// A context that keeps the facts and card lists it computes in `fresh` (new): after the context, the caller hands
+    /// them to the game ([`keep`]), for the next decisions and the action taken.
+    pub(crate) fn keeping(g: &'a Game, fresh: &'a mut DecisionFacts) -> Ctx<'a> {
+        Self::with_facts(g, Kept::Lent(fresh))
+    }
+
+    #[inline]
+    fn with_facts(g: &'a Game, facts: Kept<'a>) -> Ctx<'a> {
+        Ctx { g, p: g.st.active_player as usize, attacks: None, facts, memo: SVec::new(), why: "" }
+    }
+
+    /// The key of fact `f` (`derived::fact`) in the game's memo, read once (the game doesn't change during the decision).
+    #[inline]
+    fn key(&mut self, f: usize) -> u32 {
+        let g = self.g;
+        let k = &mut self.f().keys[f];
+        if *k == 0 {
+            *k = crate::derived::key(g, f);
+        }
+        *k
+    }
+
+    /// The decision's facts.
+    #[inline]
+    fn f(&mut self) -> &mut DecisionFacts {
+        match &mut self.facts {
+            Kept::Own(f) => f,
+            Kept::Lent(f) => f,
         }
     }
 
@@ -157,8 +267,12 @@ impl<'a> Ctx<'a> {
     /// has been read already (the legal scan of the same decision), else computed and not kept (keeping a fact costs more
     /// than computing it for one read).
     pub(crate) fn hp_read(&mut self, p: usize, s: crate::state::SlotId) -> crate::game::R<i32> {
-        let Some(i) = self.hp.iter().position(|(k, _)| *k == (p as u8, s)) else { return crate::derived::compute_hp(self, p, s) };
-        let r = self.hp.as_slice()[i].1;
+        let Some(i) = self.f().hp.iter().position(|(k, _)| *k == (p as u8, s)) else {
+            let k = self.key(crate::derived::fact::HP);
+        let m = crate::derived::peek_hp(self.g, k, p, s);
+            return from_memo(self, m, "HP", |c| crate::derived::compute_hp(c, p, s));
+        };
+        let r = self.f().hp.as_slice()[i].1;
         if crate::game::verify_cache() {
             assert_eq!(r, crate::derived::compute_hp(self, p, s), "the decision's HP of spot ({}, {}) is stale", p, s);
         }
@@ -168,12 +282,17 @@ impl<'a> Ctx<'a> {
     /// The Energy the Pokémon in `source` provides to its owner for a single read (the table view), as [`Ctx::hp_read`].
     pub(crate) fn provided_read(&mut self, source: SlotRef) -> crate::game::R<EnergyMap> {
         let k = (source.p, source.p, source.s);
-        let Some(i) = self.provided.iter().position(|(x, _)| *x == k) else { return crate::derived::compute_provided_energy(self, source.p as usize, source) };
+        let Some(i) = self.f().provided.iter().position(|(x, _)| *x == k) else {
+            let k = self.key(crate::derived::fact::PROVIDES);
+        let m = crate::derived::peek_provided_energy(self.g, k, source.p as usize, source);
+            return from_memo(self, m, "the Energy provided", |c| crate::derived::compute_provided_energy(c, source.p as usize, source));
+        };
+        let r = self.f().provided.as_slice()[i].1;
         if crate::game::verify_cache() {
             let fresh = crate::derived::compute_provided_energy(self, source.p as usize, source);
-            assert_eq!(self.provided.as_slice()[i].1, fresh, "the decision's Energy of spot {:?} is stale", source);
+            assert_eq!(r, fresh, "the decision's Energy of spot {:?} is stale", source);
         }
-        self.provided.as_slice()[i].1
+        r
     }
 
     /// The Energy the active player's Pokémon in `slot` provides, read once.
@@ -203,8 +322,9 @@ impl<'a> Ctx<'a> {
     }
 }
 
-/// The decision's facts (`derived::Facts`): each computed once by the derived layer's functions over the game as it is,
-/// read-only (the game's own memo isn't touched: legality reads a `&Game`).
+/// The decision's facts (`derived::Facts`): each read once from the game's memo at its current key or computed by the
+/// derived layer's functions over the game as it is, read-only (legality reads a `&Game`; the legal scan hands what it
+/// computed to the game afterwards, [`keep`]).
 impl crate::derived::Facts for Ctx<'_> {
     #[inline]
     fn g(&self) -> &Game {
@@ -217,69 +337,93 @@ impl crate::derived::Facts for Ctx<'_> {
         f(self)
     }
     fn hp(&mut self, p: usize, s: crate::state::SlotId) -> crate::game::R<i32> {
-        if let Some((_, r)) = self.hp.iter().find(|(k, _)| *k == (p as u8, s)) {
+        if let Some((_, r)) = self.f().hp.iter().find(|(k, _)| *k == (p as u8, s)) {
             return *r;
         }
-        let r = crate::derived::compute_hp(self, p, s);
-        self.hp.push(((p as u8, s), r));
+        let k = self.key(crate::derived::fact::HP);
+        let m = crate::derived::peek_hp(self.g, k, p, s);
+        let r = from_memo(self, m, "HP", |c| crate::derived::compute_hp(c, p, s));
+        self.f().hp.push(((p as u8, s), r));
         r
     }
     fn types(&mut self, target: SlotRef) -> crate::game::R<SVec<CardType, 4>> {
-        if let Some((_, r)) = self.types.iter().find(|(k, _)| *k == (target.p, target.s)) {
+        if let Some((_, r)) = self.f().types.iter().find(|(k, _)| *k == (target.p, target.s)) {
             return *r;
         }
-        let r = crate::derived::compute_types(self, target);
-        self.types.push(((target.p, target.s), r));
+        let k = self.key(crate::derived::fact::TYPES);
+        let m = crate::derived::peek_types(self.g, k, target);
+        let r = from_memo(self, m, "types", |c| crate::derived::compute_types(c, target));
+        self.f().types.push(((target.p, target.s), r));
         r
     }
     fn provided_energy(&mut self, p: usize, source: SlotRef) -> crate::game::R<EnergyMap> {
         let k = (p as u8, source.p, source.s);
-        if let Some((_, r)) = self.provided.iter().find(|(x, _)| *x == k) {
+        if let Some((_, r)) = self.f().provided.iter().find(|(x, _)| *x == k) {
             return *r;
         }
-        let r = crate::derived::compute_provided_energy(self, p, source);
-        self.provided.push((k, r));
+        let mk = self.key(crate::derived::fact::PROVIDES);
+        let m = crate::derived::peek_provided_energy(self.g, mk, p, source);
+        let r = from_memo(self, m, "the Energy provided", |c| crate::derived::compute_provided_energy(c, p, source));
+        self.f().provided.push((k, r));
         r
     }
     fn retreat_cost(&mut self, p: usize) -> crate::game::R<Cost> {
-        if let Some(r) = self.retreat[p] {
+        if let Some(r) = self.f().retreat[p] {
             return r;
         }
-        let r = crate::derived::compute_retreat_cost(self, p);
-        self.retreat[p] = Some(r);
+        let k = self.key(crate::derived::fact::RETREAT);
+        let m = crate::derived::peek_retreat_cost(self.g, k, p);
+        let r = from_memo(self, m, "the Retreat Cost", |c| crate::derived::compute_retreat_cost(c, p));
+        self.f().retreat[p] = Some(r);
         r
     }
     fn attacks(&mut self, p: usize) -> crate::game::R<turn::CheckedAttacks> {
-        crate::derived::compute_attacks(self, p)
+        if let Some(r) = self.f().attacks[p] {
+            return r;
+        }
+        let k = self.key(crate::derived::fact::ATTACKS);
+        let m = crate::derived::peek_attacks(self.g, k, p);
+        let r = from_memo(self, m, "the attacks", |c| crate::derived::compute_attacks(c, p));
+        self.f().attacks[p] = Some(r);
+        r
     }
     fn attack_cost(&mut self, p: usize, attack: AttackRef) -> crate::game::R<Cost> {
-        if let Some((_, r)) = self.attack_cost.iter().find(|(k, _)| *k == (p as u8, attack)) {
+        if let Some((_, r)) = self.f().attack_cost.iter().find(|(k, _)| *k == (p as u8, attack)) {
             return *r;
         }
-        let r = crate::derived::compute_attack_cost(self, p, attack);
-        if self.attack_cost.len() < self.attack_cost.capacity() {
-            self.attack_cost.push(((p as u8, attack), r));
+        let k = self.key(crate::derived::fact::ATTACK_COST);
+        let m = crate::derived::peek_attack_cost(self.g, k, p, attack);
+        let r = from_memo(self, m, "an attack's cost", |c| crate::derived::compute_attack_cost(c, p, attack));
+        let f = self.f();
+        if f.attack_cost.len() < f.attack_cost.capacity() {
+            f.attack_cost.push(((p as u8, attack), r));
         }
         r
     }
     fn powers(&mut self, card: CardId) -> crate::game::R<SVec<PowerRef, 8>> {
-        if let Some((_, r)) = self.powers.iter().find(|(k, _)| *k == card) {
+        if let Some((_, r)) = self.f().powers.iter().find(|(k, _)| *k == card) {
             return *r;
         }
-        let r = crate::derived::compute_powers(self, card);
-        if self.powers.len() < self.powers.capacity() {
-            self.powers.push((card, r));
+        let k = self.key(crate::derived::fact::ABILITY);
+        let m = crate::derived::peek_powers(self.g, k, card);
+        let r = from_memo(self, m, "the powers", |c| crate::derived::compute_powers(c, card));
+        let f = self.f();
+        if f.powers.len() < f.powers.capacity() {
+            f.powers.push((card, r));
         }
         r
     }
     fn has_no_ability(&mut self, card: CardId, power_index: Option<u8>) -> bool {
         let k = (card, power_index.unwrap_or(crate::prefabs::PROBE_GENERIC));
-        if let Some((_, r)) = self.abil.iter().find(|(x, _)| *x == k) {
+        if let Some((_, r)) = self.f().abil.iter().find(|(x, _)| *x == k) {
             return *r;
         }
-        let r = crate::derived::compute_has_no_ability(self, card, power_index);
-        if self.abil.len() < self.abil.capacity() {
-            self.abil.push((k, r));
+        let mk = self.key(crate::derived::fact::ABILITY);
+        let m = crate::derived::peek_has_no_ability(self.g, mk, card, power_index);
+        let r = from_memo(self, m, "\"has no Ability\"", |c| Ok(crate::derived::compute_has_no_ability(c, card, power_index))).unwrap_or(true);
+        let f = self.f();
+        if f.abil.len() < f.abil.capacity() {
+            f.abil.push((k, r));
         }
         r
     }
@@ -288,7 +432,8 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, &mut self.order, Some(&self.g.order_cache), f, class);
+        let g = self.g;
+        let r = crate::decl::in_place_cached(&g.st, &g.decls, &mut self.f().order, Some(&g.order_cache), f, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::in_place(self.g, f, class).as_slice(), "legality's order cache differs (family {f})");
         }
@@ -296,7 +441,8 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::ordered_cached(&self.g.st, &mut self.order, Some(&self.g.order_cache), set, class);
+        let g = self.g;
+        let r = crate::decl::ordered_cached(&g.st, &mut self.f().order, Some(&g.order_cache), set, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::kind_order(self.g, set, class).as_slice(), "legality's order cache differs (class {class})");
         }

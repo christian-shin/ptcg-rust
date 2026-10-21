@@ -123,7 +123,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 if record {
                     std::hint::black_box(g.take_record());
                 }
-                legal_actions_into(&g, &mut opts);
+                legal_actions_into(&mut g, &mut opts);
                 if opts.is_empty() {
                     return fail(decisions, "no legal options");
                 }
@@ -253,9 +253,9 @@ fn host_game(decks: [&[DefId]; 2], seed: u32, clock: &mut Clock, apart: bool) ->
                 }
                 if apart {
                     clock.time(Phase::View, || host::view_into(&g, seat as usize, &mut views[seat as usize]));
-                    clock.time(Phase::Legal, || host::legal_actions_into(&g, &mut actions));
+                    clock.time(Phase::Legal, || host::legal_actions_into(&mut g, &mut actions));
                 } else {
-                    clock.time(Phase::Decision, || host::decision_into(&g, seat as usize, &mut views[seat as usize], &mut actions));
+                    clock.time(Phase::Decision, || host::decision_into(&mut g, seat as usize, &mut views[seat as usize], &mut actions));
                 }
                 std::hint::black_box(&views);
                 if actions.is_empty() {
@@ -506,7 +506,7 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
                 break;
             }
             let Pending::Turn(p) = g.pending() else { break };
-            legal_actions_into(&g, &mut opts);
+            legal_actions_into(&mut g, &mut opts);
             if opts.is_empty() {
                 break;
             }
