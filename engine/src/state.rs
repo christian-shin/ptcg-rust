@@ -430,9 +430,9 @@ impl SlotEdit<'_> {
     pub fn tools(&mut self) -> Tracked<'_, ZoneList<4>> {
         Tracked { list: &mut self.slot.tools, loc: self.tools_loc, places: Places { at: &mut *self.at, pos: &mut *self.pos }, low: &mut self.tools_low }
     }
-    /// The spot after "no Pokemon is on it any more" (`reset_empty_slot`): its cards and Energy stay, its Tools and every
-    /// other field return to a fresh spot's, bar whether it is public.
-    pub fn reset_keeping_cards(&mut self) {
+    /// The spot after "no Pokemon is on it any more" ([`State::reset_spot_keeping_cards`]): its cards and Energy stay, its
+    /// Tools and every other field return to a fresh spot's, bar whether it is public.
+    fn reset_keeping_cards(&mut self) {
         self.tools().clear();
         let keep = Slot { cards: self.slot.cards, energies: self.slot.energies, is_public: self.slot.is_public, ..Slot::default() };
         *self.slot = keep;
@@ -910,9 +910,6 @@ impl Player {
     pub fn prize_left(&self) -> usize {
         self.prizes.iter().map(|p| p.len()).sum()
     }
-    pub fn free_slot(&mut self, s: SlotId) {
-        self.slot_used[s as usize] = false;
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -936,6 +933,32 @@ impl AttackRef {
     pub fn is_clone(self) -> bool {
         self.index & Self::CLONE != 0
     }
+}
+
+/// The classes of what a derived fact can read in the state (speed batch L3): a write of a class bumps its counter
+/// (`State::facts_gen`, through [`State::touch`]); the derived layer keys a fact by the counters of the classes the
+/// declarations of its game read (`spec::reads` classifies them, `derived.rs` keys the memo).
+pub mod reads {
+    /// The cards in play and where they are: each spot's Pokémon, Energy and Tools, the Active Spot and the Bench, the
+    /// Stadium in play.
+    pub const BOARD: u8 = 1 << 0;
+    /// The other zones: the deck, the hand, the discard pile, the Lost Zone, the Prize cards, the Supporter being played.
+    pub const ZONES: u8 = 1 << 1;
+    /// The damage counters on each Pokémon.
+    pub const COUNTERS: u8 = 1 << 2;
+    /// The Special Conditions of each Pokémon.
+    pub const CONDITIONS: u8 = 1 << 3;
+    /// The effects in force: the lasting effects, the usage records, the Ability locks' take-hold stamps.
+    pub const EFFECTS: u8 = 1 << 4;
+    /// The turn number, the turn player and the phase.
+    pub const TURN: u8 = 1 << 5;
+    /// The number of classes.
+    pub const CLASSES: usize = 6;
+    /// Every class.
+    pub const ALL: u8 = (1 << CLASSES) - 1;
+    /// Not a class: a reading of anything else (a "this turn" record, a program's state): the fact is keyed by every
+    /// write (`State::version`).
+    pub const ANY: u8 = 1 << CLASSES;
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -967,12 +990,18 @@ pub struct State {
     pub arrival: u16,
     /// Events batch 8: a counter bumped by every write to the game (the event routines, the physical moves, every
     /// interpreter op step and continuation, every action and answer): a derived fact computed at this version is still
-    /// good (`derived.rs`; `PTCG_VERIFY_CACHE=1` checks a digest of the state against a missed bump).
+    /// good (`derived.rs`: the key of the facts whose reading no class of [`reads`] covers; `PTCG_VERIFY_CACHE=1` checks a
+    /// digest of the state against a missed bump).
     pub version: u32,
     /// Bumped where a card enters or leaves a zone list, a list is reordered, or the Active / Bench layout changes (the
     /// physical moves, `Game::lst_mut`, the Bench edits): what the in-place filter of the declaration sets and the
     /// lock-stamp gate read.
     pub layout_gen: u32,
+    /// Per class of what a derived fact can read ([`reads`]): a counter bumped by every write of the class
+    /// ([`State::touch`], called by the write paths: the list guards, the setters below). A fact whose declarations read
+    /// only these classes is good while their counters are (`derived.rs`; `PTCG_VERIFY_CACHE=1` checks a digest of each
+    /// class against a missed bump).
+    pub facts_gen: [u32; reads::CLASSES],
     /// Per card id: the zone list the card is in ([`Loc`]: a player's zone list, a spot's cards or Tools), `Loc::NONE` for
     /// a card in none (a staging list, an Energy only among a spot's Energy, not in the game). Exact: kept by the write
     /// guards ([`ZoneEdit`], [`SlotEdit`]), the one write path to those lists (`PTCG_VERIFY_CACHE=1` checks every answer
@@ -1092,6 +1121,7 @@ impl State {
             arrival: 0,
             version: 1,
             layout_gen: 0,
+            facts_gen: [0; reads::CLASSES],
             at: [Loc::NONE; MAX_CARDS],
             pos: [0; MAX_CARDS],
             lock_synced: None,
@@ -1114,6 +1144,103 @@ impl State {
     pub fn bump_layout(&mut self) {
         self.layout_gen = self.layout_gen.wrapping_add(1);
         self.version = self.version.wrapping_add(1).max(1);
+    }
+
+    /// A write of the classes `m` ([`reads`]): the facts that read them are stale (`derived.rs`).
+    #[inline]
+    pub fn touch(&mut self, m: u8) {
+        for i in 0..reads::CLASSES {
+            if m & (1 << i) != 0 {
+                self.facts_gen[i] = self.facts_gen[i].wrapping_add(1);
+            }
+        }
+    }
+
+    /// The game's phase changes ([`reads::TURN`]).
+    #[inline]
+    pub fn set_phase(&mut self, phase: GamePhase) {
+        self.touch(reads::TURN);
+        self.phase = phase;
+    }
+
+    /// The turn number changes ([`reads::TURN`]).
+    #[inline]
+    pub fn set_turn(&mut self, turn: i32) {
+        self.touch(reads::TURN);
+        self.turn = turn;
+    }
+
+    /// The turn player changes ([`reads::TURN`]).
+    #[inline]
+    pub fn set_active_player(&mut self, p: u8) {
+        self.touch(reads::TURN);
+        self.active_player = p;
+    }
+
+    /// The damage counters on spot `s` of player `p`, to write ([`reads::COUNTERS`]).
+    #[inline]
+    pub fn damage_mut(&mut self, p: usize, s: SlotId) -> &mut i32 {
+        self.touch(reads::COUNTERS);
+        &mut self.players[p].slots[s as usize].damage
+    }
+
+    /// The Special Conditions of spot `s` of player `p`, to write ([`reads::CONDITIONS`]).
+    #[inline]
+    pub fn conditions_mut(&mut self, p: usize, s: SlotId) -> &mut SVec<u8, 5> {
+        self.touch(reads::CONDITIONS);
+        &mut self.players[p].slots[s as usize].special_conditions
+    }
+
+    /// Player `p`'s Bench spots, to write ([`reads::BOARD`]).
+    #[inline]
+    pub fn bench_mut(&mut self, p: usize) -> &mut SVec<SlotId, MAX_BENCH> {
+        self.touch(reads::BOARD);
+        &mut self.players[p].bench
+    }
+
+    /// Spot `s` becomes player `p`'s Active Spot ([`reads::BOARD`]).
+    #[inline]
+    pub fn set_active(&mut self, p: usize, s: SlotId) {
+        self.touch(reads::BOARD);
+        self.players[p].active = s;
+    }
+
+    /// Spot `s` of player `p` returns to the arena ([`reads::BOARD`]).
+    #[inline]
+    pub fn free_slot(&mut self, p: usize, s: SlotId) {
+        self.touch(reads::BOARD);
+        self.players[p].slot_used[s as usize] = false;
+    }
+
+    /// The lasting effects, to write ([`reads::EFFECTS`]).
+    #[inline]
+    pub fn lasting_mut(&mut self) -> &mut SVec<LastingEffect, 32> {
+        self.touch(reads::EFFECTS);
+        &mut self.lasting
+    }
+
+    /// Spot `s` of player `p` after "no Pokémon is on it any more": its cards and Energy stay, its Tools, damage counters,
+    /// Special Conditions and every other field return to a fresh spot's, bar whether it is public.
+    pub fn reset_spot_keeping_cards(&mut self, p: usize, s: SlotId) {
+        self.touch(reads::COUNTERS | reads::CONDITIONS);
+        self.slot_edit(p, s).reset_keeping_cards();
+    }
+
+    /// Keep the lasting effects `keep` says (a write of [`reads::EFFECTS`] when one ends).
+    #[inline]
+    pub fn retain_lasting(&mut self, keep: impl FnMut(&LastingEffect) -> bool) {
+        let n = self.lasting.len();
+        self.lasting.retain(keep);
+        if self.lasting.len() != n {
+            self.touch(reads::EFFECTS);
+        }
+    }
+
+    /// Card `c`'s Ability-lock take-hold stamp ([`reads::EFFECTS`]).
+    #[inline]
+    pub fn set_lock_stamp(&mut self, c: CardId, stamp: u16) {
+        self.touch(reads::EFFECTS);
+        self.cards[c as usize].lock_stamp = stamp;
     }
 
     /// Is spot `s` of player `p` the Active Spot or a Bench spot?
@@ -1140,9 +1267,6 @@ impl State {
     }
     pub fn slot(&self, p: usize, s: SlotId) -> &Slot {
         &self.players[p].slots[s as usize]
-    }
-    pub fn slot_mut(&mut self, p: usize, s: SlotId) -> &mut Slot {
-        &mut self.players[p].slots[s as usize]
     }
     pub fn opp(p: usize) -> usize {
         1 - p
@@ -1190,6 +1314,8 @@ impl State {
             e.cards().clear();
             e.tools().clear();
         }
+        // The spot's counters and conditions go with it, and the lasting effects a spot of that number had.
+        self.touch(reads::BOARD | reads::COUNTERS | reads::CONDITIONS | reads::EFFECTS);
         let pl = &mut self.players[p];
         pl.slot_used[s as usize] = true;
         pl.slots[s as usize] = Slot::default();
@@ -1439,6 +1565,7 @@ impl State {
     /// The one write path to a spot's card lists (see [`SlotEdit`]).
     #[inline]
     pub fn slot_edit(&mut self, p: usize, s: SlotId) -> SlotEdit<'_> {
+        self.touch(reads::BOARD);
         let pl = &mut self.players[p];
         let slot = &mut pl.slots[s as usize];
         let before = if crate::game::verify_cache() { Some(Box::new((slot.cards, slot.energies, slot.tools))) } else { None };
@@ -1462,6 +1589,8 @@ impl State {
     /// The one write path to a player's zone list `r` (see [`ZoneEdit`]; a spot's lists are written through
     /// [`State::slot_edit`]). Doesn't bump the layout ([`State::list_mut`] does).
     pub fn zone_edit(&mut self, r: ListRef) -> ZoneEdit<'_> {
+        // The Stadium in play is part of the board; the other zones aren't.
+        self.touch(if matches!(r, ListRef::Stadium(_)) { reads::BOARD } else { reads::ZONES });
         let loc = Loc::of(r);
         let list: &mut dyn CardList = match r {
             ListRef::Deck(p) => &mut self.players[p as usize].deck,
@@ -1486,6 +1615,7 @@ impl State {
                 *a = Loc::NONE;
             }
         }
+        self.touch(reads::ALL);
         let pl = &mut self.players[p];
         let deck = pl.deck;
         *pl = Player::new();
@@ -1644,7 +1774,7 @@ mod tests {
         assert_eq!(g.st.slot_pokemon(0, b), None);
         assert_tops(&g);
         // Bench shrink: a spot taken off the Bench keeps a consistent top.
-        g.st.players[0].bench.clear();
+        g.st.bench_mut(0).clear();
         assert_tops(&g);
     }
 
@@ -1672,7 +1802,7 @@ mod tests {
         let b = g.st.players[0].bench.as_slice()[0];
         crate::engine::cards_zone::relocate_spot(&mut g, crate::effects::SlotRef::new(0, b), ListRef::Discard(0));
         g.st.check_places().unwrap();
-        g.st.slot_edit(0, a).reset_keeping_cards();
+        g.st.reset_spot_keeping_cards(0, a);
         assert_eq!(g.st.place(tool).0, Loc::NONE);
         g.st.check_places().unwrap();
 
@@ -1741,7 +1871,7 @@ mod tests {
         assert_occupied(&g);
         assert_eq!(g.st.players[0].in_play().count(), 2);
         // A Bench spot gone from the Bench is no longer visited.
-        g.st.players[0].bench.remove_at(1);
+        g.st.bench_mut(0).remove_at(1);
         assert_occupied(&g);
         assert_eq!(g.st.players[0].in_play().count(), 1);
         // A fresh spot is empty.
@@ -1763,7 +1893,7 @@ mod tests {
         e.tools().push(dura);
         drop(e);
         assert_eq!(g.st.slot_pokemon(0, a), None);
-        g.st.slot_edit(0, a).reset_keeping_cards();
+        g.st.reset_spot_keeping_cards(0, a);
         assert_eq!(g.st.slot_pokemon(0, a), Some(dura));
         assert_tops(&g);
     }
@@ -1801,8 +1931,8 @@ mod tests {
         assert_eq!(before, all.iter().map(|c| at(&g, *c)).collect::<Vec<u16>>());
         // A swap of the spots (a retreat) moves the whole spot: no stamp changes.
         let n = g.st.arrival;
-        g.st.players[0].active = b;
-        g.st.players[0].bench.as_mut_slice()[0] = a;
+        g.st.set_active(0, b);
+        g.st.bench_mut(0).as_mut_slice()[0] = a;
         assert_eq!(g.st.arrival, n);
     }
 

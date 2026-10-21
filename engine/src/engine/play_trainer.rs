@@ -404,7 +404,7 @@ mod tests {
             }
             assert!(matches!(g.pending(), crate::game::Pending::Turn(_)));
             // A later turn: Rare Candy can't be used during the player's first turn.
-            g.st.turn = 3;
+            g.st.set_turn(3);
             let sc = json!({"rules": {"evolving_trainer_discarded_before_evolve_triggers": held}, "me": {"reset": true, "active": "Abra MEG 54", "hand": [CANDY, "Alakazam MEG 56"]}, "opp": {"reset": true, "active": "Abra MEG 54"}});
             crate::scenario::apply(&mut g, &sc).unwrap();
             let me = g.st.active_player as usize;

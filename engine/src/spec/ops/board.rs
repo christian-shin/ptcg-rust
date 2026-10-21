@@ -1844,7 +1844,7 @@ mod effect_evolve_tests {
         g.settle().ok();
         crate::scenario::apply(&mut g, &json!({"me": {"reset": true, "hand_to_deck": true, "active": "Finizen TWM 59", "stadium": "Grand Tree SCR 136"}, "opp": {"reset": true, "active": "Finizen TWM 59"}})).unwrap();
         // Not the first turn: Grand Tree's limits don't apply.
-        g.st.turn = g.st.turn.max(3);
+        g.st.set_turn(g.st.turn.max(3));
         let me = g.st.active_player as usize;
         let t = SlotRef::new(me, g.st.players[me].active);
         let stadium = g.st.stadium_card().unwrap();

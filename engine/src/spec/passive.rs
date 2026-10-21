@@ -2896,7 +2896,7 @@ fn lock_sync_now(g: &mut Game) {
             }
             let stamp = g.st.cards[c as usize].lock_stamp;
             if !holds && stamp != 0 {
-                g.st.cards[c as usize].lock_stamp = 0;
+                g.st.set_lock_stamp(c, 0);
                 // A stamp is a fact the locks read (a write: `State::version`).
                 g.st.bump();
                 changed = true;
@@ -2907,7 +2907,7 @@ fn lock_sync_now(g: &mut Game) {
         taking.sort_by_key(|c| lock_turn_order(g, *c));
         for c in taking {
             g.st.ability_lock_order_counter = g.st.ability_lock_order_counter.saturating_add(1);
-            g.st.cards[c as usize].lock_stamp = g.st.ability_lock_order_counter;
+            g.st.set_lock_stamp(c, g.st.ability_lock_order_counter);
             g.st.bump();
             changed = true;
         }
@@ -3107,7 +3107,7 @@ mod lock_tests {
         let (a, b) = (top(&g, me, None), top(&g, 1 - me, None));
         assert_eq!((stamp(&g, a), stamp(&g, b)), (1, 2), "the turn player's lock took hold first");
         // The turn passes: the order doesn't swap.
-        g.st.active_player = (1 - me) as u8;
+        g.st.set_active_player((1 - me) as u8);
         lock_sync(&mut g);
         assert_eq!((stamp(&g, a), stamp(&g, b)), (1, 2));
         assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
@@ -3142,13 +3142,13 @@ mod lock_tests {
         let me = g.st.active_player as usize;
         let (a, b) = (top(&g, me, None), top(&g, 1 - me, None));
         // Pretend the opponent's lock took hold first, then ours.
-        g.st.cards[a as usize].lock_stamp = 5;
-        g.st.cards[b as usize].lock_stamp = 3;
+        g.st.set_lock_stamp(a, 5);
+        g.st.set_lock_stamp(b, 3);
         assert!(lock_earlier(&g, b, a) && !lock_earlier(&g, a, b));
         // A lock that holds beats one that doesn't yet; with neither, the turn player's card is first.
-        g.st.cards[a as usize].lock_stamp = 0;
+        g.st.set_lock_stamp(a, 0);
         assert!(lock_earlier(&g, b, a) && !lock_earlier(&g, a, b));
-        g.st.cards[b as usize].lock_stamp = 0;
+        g.st.set_lock_stamp(b, 0);
         assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
     }
 }

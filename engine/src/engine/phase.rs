@@ -17,7 +17,7 @@ pub fn end_game(g: &mut Game, winner: Winner) {
     }
     crate::record::game_end(g, winner, g.st.end_reason);
     g.st.winner = winner;
-    g.st.phase = GamePhase::Finished;
+    g.st.set_phase(GamePhase::Finished);
     // The game flow's writes are writes too (the derived facts are stale: `State::version`).
     g.st.bump();
     crate::expect::on_game_end(g);
@@ -32,12 +32,12 @@ pub fn init_next_turn(g: &mut Game) -> R {
         g.st.active_player ^= 1;
     }
     let p = g.st.active_player as usize;
-    g.st.turn += 1;
+    g.st.set_turn(g.st.turn + 1);
     g.st.players[p].moved_to_active_this_turn.clear();
     g.st.players[p].moved_from_active_to_bench_this_turn.clear();
     g.st.bump();
 
-    g.st.phase = GamePhase::Draw;
+    g.st.set_phase(GamePhase::Draw);
     g.st.bump();
     if g.st.players[p].deck().is_empty() {
         let winner = if g.st.active_player != 0 { WINNER_P1 } else { WINNER_P2 };
@@ -66,7 +66,7 @@ fn start_next_turn(g: &mut Game) -> R {
 pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
     let entered = g.st.phase == GamePhase::PlayerTurn || g.st.phase == GamePhase::Attack;
     if entered {
-        g.st.phase = GamePhase::BetweenTurns;
+        g.st.set_phase(GamePhase::BetweenTurns);
         g.st.bump();
         g.wait(g.st.active_player as usize, Cont::BetweenTurnsWait { oc });
         return Ok(());
@@ -182,10 +182,11 @@ pub fn checkup_recovers(g: &mut Game, p: usize, sc: SpecialCondition) -> R {
     Ok(())
 }
 
-/// Scenario setup only (a board edit, not an event): the slot's Pokémon is affected by `sc` with its rule's
-/// counters. Every game path gains a condition through `engine::condition::gain`.
-pub fn add_condition(slot: &mut Slot, sc: SpecialCondition) {
-    crate::engine::condition::put_condition(slot, sc, crate::engine::condition::base_counters(sc));
+/// Scenario setup only (a board edit, not an event): the Pokémon in spot `s` of player `p` is affected by `sc` with its
+/// rule's counters. Every game path gains a condition through `engine::condition::gain`.
+pub fn add_condition(st: &mut crate::state::State, p: usize, s: SlotId, sc: SpecialCondition) {
+    st.touch(crate::state::reads::CONDITIONS);
+    crate::engine::condition::put_condition(&mut st.players[p].slots[s as usize], sc, crate::engine::condition::base_counters(sc));
 }
 
 /// Would making the slot's Pokémon

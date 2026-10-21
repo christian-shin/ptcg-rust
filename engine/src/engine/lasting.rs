@@ -56,14 +56,14 @@ fn set(st: &mut State, on: LastingOn, k: Kind, e: Option<LastingEffect>) {
     let e = e.filter(|e| !e.what.is_spent());
     match st.lasting.iter().position(|l| l.on == on && kind_of(&l.what) == Some(k)) {
         Some(i) => match e {
-            Some(e) => st.lasting.as_mut_slice()[i] = e,
+            Some(e) => st.lasting_mut().as_mut_slice()[i] = e,
             None => {
-                st.lasting.remove_at(i);
+                st.lasting_mut().remove_at(i);
             }
         },
         None => {
             if let Some(e) = e {
-                st.lasting.push(e);
+                st.lasting_mut().push(e);
             }
         }
     }
@@ -232,13 +232,13 @@ pub fn add_pokemon_lock(st: &mut State, p: usize, s: SlotId, decl: &'static crat
         if let LastingWhat::Lock { decl: d, turns: t, attack: a } = l.what {
             n += 1;
             if d.same_as(decl) && a.map(|a| lock_attack_name(st, a)) == name {
-                st.lasting.as_mut_slice()[i].what = LastingWhat::Lock { decl: d, turns: t.max(turns), attack: a };
+                st.lasting_mut().as_mut_slice()[i].what = LastingWhat::Lock { decl: d, turns: t.max(turns), attack: a };
                 return;
             }
         }
     }
     if n < 4 {
-        st.lasting.push(LastingEffect { on, source, what: LastingWhat::Lock { decl, turns, attack } });
+        st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::Lock { decl, turns, attack } });
     }
 }
 
@@ -247,7 +247,7 @@ pub fn add_pokemon_lock(st: &mut State, p: usize, s: SlotId, decl: &'static crat
 pub fn add_player_lock(st: &mut State, q: usize, decl: &'static crate::spec::passive::LockDecl, turns: i8, source: CardId) {
     let turns = turns.max(1);
     let on = LastingOn::Player(q as u8);
-    for l in st.lasting.as_mut_slice().iter_mut() {
+    for l in st.lasting_mut().as_mut_slice().iter_mut() {
         if l.on != on {
             continue;
         }
@@ -265,31 +265,31 @@ pub fn add_player_lock(st: &mut State, q: usize, decl: &'static crate::spec::pas
         }
     }
     let pos = used.iter().position(|u| !u).unwrap_or(5) as u8;
-    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::PlayerLock { pos: x, .. } if x == pos)));
+    st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::PlayerLock { pos: x, .. } if x == pos)));
     // In the order of the places: before the first of the player's with a later place.
     let at = st.lasting.iter().position(|l| l.on == on && matches!(l.what, LastingWhat::PlayerLock { pos: x, .. } if x > pos)).unwrap_or(st.lasting.len());
-    st.lasting.insert(at, LastingEffect { on, source, what: LastingWhat::PlayerLock { decl, turns, pos } });
+    st.lasting_mut().insert(at, LastingEffect { on, source, what: LastingWhat::PlayerLock { decl, turns, pos } });
 }
 
 /// A prevention on the Pokémon, pending until the end of this turn; a newer one of the same declaration replaces the
 /// older (at the end of the list).
 pub fn add_prevent(st: &mut State, p: usize, s: SlotId, spec: u8, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { spec: x, .. } if x == spec)));
-    st.lasting.push(LastingEffect { on, source, what: LastingWhat::Prevent { spec, pending: true } });
+    st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { spec: x, .. } if x == spec)));
+    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::Prevent { spec, pending: true } });
 }
 
 /// "Takes N less damage": one entry per source card (the same card's again replaces it; different ones add up).
 pub fn set_takes_less(st: &mut State, p: usize, s: SlotId, n: i32, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::TakesLessDamage(_))));
-    st.lasting.push(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16) });
+    st.retain_lasting(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::TakesLessDamage(_))));
+    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16) });
 }
 
 /// `Op::ArmEach`'s entry on player `q`: the effect for the Pokémon of theirs that come into play while it lasts.
 pub fn add_spawn(st: &mut State, q: usize, spec: &'static crate::spec::ops::state::ArmEachSpec, source: CardId, cause: crate::cause::Cause, attack: Option<AttackRef>, ends_with: u8) {
     let _ = attack;
-    st.lasting.push(LastingEffect { on: LastingOn::Player(q as u8), source, what: LastingWhat::Spawn { spec, cause: cause.pack(), ends_with } });
+    st.lasting_mut().push(LastingEffect { on: LastingOn::Player(q as u8), source, what: LastingWhat::Spawn { spec, cause: cause.pack(), ends_with } });
 }
 
 /// The `Op::ArmEach` entries on player `q` (the effects a new Pokémon of theirs gets).
@@ -416,7 +416,7 @@ fn clear_effects_keeping(st: &mut State, p: usize, s: SlotId, keep_trainers: boo
         })
         .collect();
     let mut i = 0;
-    st.lasting.retain(|_| {
+    st.retain_lasting(|_| {
         i += 1;
         keep[i - 1]
     });
@@ -427,7 +427,7 @@ pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
     let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer() || matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)).collect();
     let mut i = 0;
-    st.lasting.retain(|_| {
+    st.retain_lasting(|_| {
         i += 1;
         keep[i - 1]
     });
@@ -438,13 +438,13 @@ pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
 /// included).
 pub fn clear_declared(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)));
+    st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::Declared { .. } | LastingWhat::Recorded)));
 }
 
 /// `source` records the Pokémon in spot `s` of player `p` (once).
 pub fn add_record(st: &mut State, p: usize, s: SlotId, source: CardId) {
     if !is_recorded(st, p, s, source) {
-        st.lasting.push(LastingEffect { on: LastingOn::pokemon(p, s), source, what: LastingWhat::Recorded });
+        st.lasting_mut().push(LastingEffect { on: LastingOn::pokemon(p, s), source, what: LastingWhat::Recorded });
     }
 }
 
@@ -457,12 +457,12 @@ pub fn is_recorded(st: &State, p: usize, s: SlotId, source: CardId) -> bool {
 /// `source` forgets the Pokémon in spot `s` of player `p`.
 pub fn remove_record(st: &mut State, p: usize, s: SlotId, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::Recorded)));
+    st.retain_lasting(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::Recorded)));
 }
 
 /// `source` forgets every Pokémon of player `p`.
 pub fn remove_records_of(st: &mut State, p: usize, source: CardId) {
-    st.lasting.retain(|l| !(matches!(l.on, LastingOn::Pokemon(q, _) if q as usize == p) && l.source == source && matches!(l.what, LastingWhat::Recorded)));
+    st.retain_lasting(|l| !(matches!(l.on, LastingOn::Pokemon(q, _) if q as usize == p) && l.source == source && matches!(l.what, LastingWhat::Recorded)));
 }
 
 /// The Pokémon in play that `source` records (the first, Active first; none when it left play).
@@ -482,7 +482,7 @@ pub fn recorded_slot(st: &State, source: CardId) -> Option<(usize, SlotId)> {
 /// holder: it is the same effect).
 pub fn add_declared(st: &mut State, on: LastingOn, source: CardId, index: u8, until: crate::state::Until) {
     if !st.lasting.iter().any(|l| l.on == on && l.source == source && matches!(l.what, LastingWhat::Declared { index: i, .. } if i == index)) {
-        st.lasting.push(LastingEffect { on, source, what: LastingWhat::Declared { index, until } });
+        st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::Declared { index, until } });
     }
 }
 
@@ -495,13 +495,13 @@ pub fn has_declared(st: &State) -> bool {
 /// The declared effects that end with player `p`'s turn, before the end-of-turn effects they might be read by (APR E-21: the
 /// end of a "this turn" effect is not an effect).
 pub fn expire_this_turn(st: &mut State, p: usize) {
-    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::ThisTurn(q), .. } if q as usize == p));
+    st.retain_lasting(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::ThisTurn(q), .. } if q as usize == p));
 }
 
 /// Every lasting effect on spot `s` of player `p` (the spot is emptied).
 pub fn clear_spot(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| l.on != on);
+    st.retain_lasting(|l| l.on != on);
 }
 
 /// The end of player `p`'s turn (`phase::end_turn`): the opponent's Pokémon lose what lasted "during your opponent's next
@@ -516,10 +516,10 @@ pub fn end_turn(st: &mut State, p: usize) {
     }
     let o = 1 - p;
     // The "(This includes new Pokémon)" entries that last through player `p`'s turn end.
-    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));
+    st.retain_lasting(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));
     for s in in_play(st, o) {
         let on = LastingOn::pokemon(o, s);
-        st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(_))));
+        st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(_))));
         if let Some(LastingEffect { what: LastingWhat::NoWeakness { .. }, .. }) = find(st, on, Kind::NoWeakness) {
             modify(st, on, Kind::NoWeakness, |e| {
                 if let LastingWhat::NoWeakness { armed, .. } = &mut e.what {
@@ -528,12 +528,12 @@ pub fn end_turn(st: &mut State, p: usize) {
             });
         }
         set(st, on, Kind::RetaliateArmed, None);
-        st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { .. })));
+        st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { .. })));
     }
     for s in in_play(st, p) {
         let on = LastingOn::pokemon(p, s);
         // The locks on the Pokémon count this turn of its owner (events batch 7, D14).
-        st.lasting.retain_mut(|l| {
+        st.lasting_mut().retain_mut(|l| {
             if l.on == on {
                 if let LastingWhat::Lock { turns, .. } = &mut l.what {
                     if *turns != LastingWhat::UNTIL_REMOVED {
@@ -545,7 +545,7 @@ pub fn end_turn(st: &mut State, p: usize) {
             true
         });
         // A prevention put during this turn is in force during the opponent's next turn.
-        for l in st.lasting.as_mut_slice().iter_mut() {
+        for l in st.lasting_mut().as_mut_slice().iter_mut() {
             if l.on == on {
                 if let LastingWhat::Prevent { pending, .. } = &mut l.what {
                     *pending = false;
@@ -622,7 +622,7 @@ pub fn end_turn(st: &mut State, p: usize) {
     cost_increase_end_of_turn(st, p);
     // The locks on player `p` count this turn.
     let on = LastingOn::Player(p as u8);
-    st.lasting.retain_mut(|l| {
+    st.lasting_mut().retain_mut(|l| {
         if l.on == on {
             if let LastingWhat::PlayerLock { turns, .. } = &mut l.what {
                 *turns -= 1;

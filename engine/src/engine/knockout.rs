@@ -1020,7 +1020,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         while g.st.players[p].bench.len() < size {
             let s = g.st.alloc_slot(p);
             g.st.players[p].slots[s as usize].is_public = true;
-            g.st.players[p].bench.push(s);
+            g.st.bench_mut(p).push(s);
             g.st.bump_layout();
         }
         if g.st.players[p].bench.len() == size {
@@ -1037,12 +1037,11 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
             }
         }
         if len - empty.len() <= size {
-            let pl = &mut g.st.players[p];
-            for i in (0..pl.bench.len()).rev() {
-                let s = pl.bench.as_slice()[i];
+            for i in (0..g.st.players[p].bench.len()).rev() {
+                let s = g.st.players[p].bench.as_slice()[i];
                 if empty.contains(&s) {
-                    pl.bench.remove_at(i);
-                    pl.free_slot(s);
+                    g.st.bench_mut(p).remove_at(i);
+                    g.st.free_slot(p, s);
                 }
             }
             g.st.bump_layout();
@@ -1085,11 +1084,10 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
             continue;
         }
         leave_play_by_rule(g, SlotRef::new(pu, s), ListRef::Discard(p), Cause::rule(RuleWhich::StateCheck, p), LeaveHow::BenchShrink)?;
-        let pl = &mut g.st.players[pu];
-        if let Some(j) = pl.bench.position(&s) {
-            pl.bench.remove_at(j);
+        if let Some(j) = g.st.players[pu].bench.position(&s) {
+            g.st.bench_mut(pu).remove_at(j);
         }
-        pl.free_slot(s);
+        g.st.free_slot(pu, s);
         g.st.bump_layout();
     }
     Ok(())
@@ -1145,9 +1143,10 @@ fn initiate_sudden_death(g: &mut Game) -> R {
     // Everything the old game put for a time ends with it (usage records, every lasting entry: the effects of attacks, the
     // effects cards declared, the records of Pokémon, the entries for new Pokémon): the Tiebreaker game is a new game with
     // new players (APR I-E).
+    g.st.touch(crate::state::reads::EFFECTS);
     g.st.usage.clear();
     g.st.usage_held = [0; 2];
-    g.st.lasting.clear();
+    g.st.lasting_mut().clear();
     g.st.last_attack = None;
     g.st.player_last_attack = [None, None];
     g.st.player_last_attack_turn = [0, 0];
@@ -1157,10 +1156,10 @@ fn initiate_sudden_death(g: &mut Game) -> R {
 
 /// Sets up the Tiebreaker game: `first` takes the first turn.
 pub fn setup_sudden_death_game(g: &mut Game, first: u8) -> R {
-    g.st.active_player = first;
+    g.st.set_active_player(first);
     g.st.first_player = first;
-    g.st.turn = 0;
-    g.st.phase = GamePhase::Setup;
+    g.st.set_turn(0);
+    g.st.set_phase(GamePhase::Setup);
     g.st.is_sudden_death = true;
     g.st.bump();
     crate::engine::setup::start(g)
@@ -1330,7 +1329,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
                 g.move_card_to(target.list(), t, dest);
             }
             crate::engine::game_effect::clear_effects(&mut g.st, tp, ts);
-            g.st.players[tp].slots[ts as usize].special_conditions.clear();
+            g.st.conditions_mut(tp, ts).clear();
             crate::engine::cards_zone::relocate_spot(g, target, dest);
             crate::engine::cards_zone::settle(g);
         }
@@ -1408,7 +1407,7 @@ mod tests {
         assert!(by_effect(&mut g, t, attack).unwrap());
         assert!(g.st.slot_pokemon(o, t.s).is_some(), "still in play until the state check");
         assert!(!by_effect(&mut g, misty, attack).unwrap(), "Mist Energy prevents it");
-        g.st.phase = GamePhase::PlayerTurn;
+        g.st.set_phase(GamePhase::PlayerTurn);
         g.items.clear();
         let left = g.st.players[me].prize_left();
         state_check(&mut g, OnComplete::None).unwrap();
@@ -1425,9 +1424,9 @@ mod tests {
         let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX}}));
         let a = g.st.players[0].active;
         for on in [LastingOn::pokemon(0, a), LastingOn::Player(1)] {
-            g.st.lasting.push(LastingEffect { on, source: 0, what: LastingWhat::TakesLessDamage(30) });
+            g.st.lasting_mut().push(LastingEffect { on, source: 0, what: LastingWhat::TakesLessDamage(30) });
         }
-        g.st.lasting.push(LastingEffect { on: LastingOn::pokemon(1, a), source: 0, what: LastingWhat::NoWeakness { armed: true, pending: false } });
+        g.st.lasting_mut().push(LastingEffect { on: LastingOn::pokemon(1, a), source: 0, what: LastingWhat::NoWeakness { armed: true, pending: false } });
         initiate_sudden_death(&mut g).unwrap();
         assert!(g.st.lasting.is_empty());
     }

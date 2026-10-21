@@ -369,12 +369,11 @@ impl Game {
             }
         }
         for &(c, d) in assigned {
-            let inst = &mut self.st.cards[c as usize];
-            if inst.def != d {
-                inst.def = d;
+            if self.st.cards[c as usize].def != d {
+                self.st.cards[c as usize].def = d;
                 // A card out of play holds no Ability lock (`passive::lock_sync`); a face-down card in play takes hold
                 // anew at the next lock sync, as the card it now is.
-                inst.lock_stamp = 0;
+                self.st.set_lock_stamp(c, 0);
             }
         }
         // A face-down spot's top Pokémon follows its card's identity (recomputed when the spot's guard drops).

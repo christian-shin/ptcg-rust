@@ -994,7 +994,7 @@ mod tests {
             assert!(!ev(&EventPred::Turn(t), &mut g, mine, &checkup), "{t:?} at Checkup");
         }
         assert!(ev(&EventPred::Turn(TurnOf::NotEventOwner), &mut g, mine, &checkup));
-        g.st.phase = crate::types::GamePhase::BetweenTurns;
+        g.st.set_phase(crate::types::GamePhase::BetweenTurns);
         assert_eq!(whose_turn(&g), NO_TURN);
     }
 

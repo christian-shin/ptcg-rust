@@ -216,9 +216,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         crate::engine::game_effect::remove_attack_effects(&mut g.st, p, from);
         crate::engine::game_effect::clear_effects(&mut g.st, p, from);
     }
-    let pl = &mut g.st.players[p];
-    pl.active = to;
-    pl.bench.as_mut_slice()[bi] = from;
+    g.st.set_active(p, to);
+    g.st.bench_mut(p).as_mut_slice()[bi] = from;
     g.st.bump_layout();
     if let Some(c) = g.st.slot_pokemon(p, to) {
         if !g.st.players[p].moved_to_active_this_turn.contains(&c) {

@@ -147,6 +147,9 @@ pub struct DeclIndex {
     /// The cards declaring an attacker-side modifier at the Attack stage, the next-turn bonus or Shred: what an `Attack`
     /// effect reaches besides the attacking card's program.
     pub attack_passives: u128,
+    /// Per derived fact (`derived::fact`), the state classes its reading depends on in this game (`derived::fact_reads`;
+    /// `state::reads::ANY`: anything): what its memo is keyed by.
+    pub reads: [u8; crate::derived::fact::N],
     /// The index's identity (a number per build, 0 for none): `Game::copy_from` copies the index only into a game holding
     /// another one (the index is fixed per game; a fork of the same game has it already).
     pub id: u64,
@@ -157,7 +160,7 @@ static NEXT_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new
 
 impl DeclIndex {
     pub const fn new() -> DeclIndex {
-        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0, id: 0 }
+        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0, reads: [crate::state::reads::ANY; crate::derived::fact::N], id: 0 }
     }
 
     /// The index of the game's cards (`Game::start`, after the decks are in).
@@ -195,6 +198,7 @@ impl DeclIndex {
                 }
             }
         }
+        ix.reads = crate::derived::fact_reads(g, &ix.sets);
         ix
     }
 

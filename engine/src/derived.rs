@@ -7,24 +7,50 @@
 //! ([`powers`]), "has no Ability" ([`has_no_ability`]), the Special Conditions kept by evolving
 //! ([`preserved_conditions`]), and the lock / prevention queries ([`event_locked`], [`event_prevented`]). The facts are
 //! computed by `compute_*` (direct code over the declarations in place; the check effects they replaced went in the
-//! batch 8 closeout) and memoized against `State::version`.
+//! batch 8 closeout) and memoized.
 //!
-//! **Invalidation.** A fact is fresh while its stamp equals `State::version`, which every write bumps (the event routines
-//! at their start and end and before their reducers, the physical moves, every interpreter op step and continuation, every
-//! action and answer, the lock stamps' changes; `state.rs`). The memo lives in the `Game` next to the state, so a copy
-//! made by assignment carries consistent pairs; `Game::copy_from` (forks, the rollback) clears it, since another line of
-//! play may reach the same version numbers. `PTCG_VERIFY_CACHE=1` recomputes every memo hit and compares, and checks a digest of the state taken at the first store of each version against a missed bump.
+//! **Invalidation (speed batch L3: keyed by what the fact reads).** Each memo entry carries the key it was computed at:
+//! for a fact whose reading in this game stays within the classes of [`crate::state::reads`] (the board, the other
+//! zones, the damage counters, the Special Conditions, the effects in force, the turn), the sum of those classes' counters
+//! (`State::facts_gen`, bumped by every write of a class: `State::touch`); otherwise `State::version`, which every write
+//! bumps (the event routines at their start and end and before their reducers, the physical moves, every interpreter op
+//! step and continuation, every action and answer, the lock stamps' changes; `state.rs`). Which classes a fact reads is
+//! fixed per game ([`fact_reads`], over the declarations of the game's cards: `spec::reads`, into `DeclIndex::reads`). A
+//! sum of counters that only grow changes whenever one of them does. The memo lives in the `Game` next to the state, so a
+//! copy made by assignment carries consistent pairs; `Game::copy_from` (forks, the rollback) clears it, since another
+//! line of play may reach the same counters, and so does a rewrite of the cards' identities (`Game::index_cards`).
+//! `PTCG_VERIFY_CACHE=1` recomputes every memo hit and compares, checks a digest of the state taken at the first store of
+//! each version against a missed version bump, and a digest of each class taken at the first read of each of its
+//! counters against a missed class bump.
 
 use crate::effects::{Cost, EnergyMap, PowerRef, ResistanceV, SlotRef, WeaknessV};
 use crate::game::{Game, R};
 use crate::list::*;
+use crate::state::reads;
 use crate::state::{AttackRef, MAX_CARDS, MAX_SLOTS};
 use crate::types::CardType;
 
-/// Entries of the attack-cost memo (the attacks of the Active Pokémon asked within one version).
+/// The memoized facts, and the facts a declaration's reading can ask (`spec::reads`): what [`fact_reads`] classifies.
+pub mod fact {
+    pub const HP: usize = 0;
+    pub const TYPES: usize = 1;
+    pub const PROVIDES: usize = 2;
+    pub const RETREAT: usize = 3;
+    pub const ATTACKS: usize = 4;
+    pub const ATTACK_COST: usize = 5;
+    /// The powers a Pokémon card has and "has no Ability" (the lock pass).
+    pub const ABILITY: usize = 6;
+    /// "Pokémon Tools have no effect" (read by the Tools' declarations; not memoized).
+    pub const TOOLS_OFF: usize = 7;
+    /// Whether an Ability's continuous effect reaches a Pokémon (the kind-free `Prevent` view; not memoized).
+    pub const REACH: usize = 8;
+    pub const N: usize = 9;
+}
+
+/// Entries of the attack-cost memo (the attacks of the Active Pokémon asked at one key).
 const COST_MEMO: usize = 4;
 
-/// Per game: the memo of the derived facts, each with the `State::version` it was computed at (0: none).
+/// Per game: the memo of the derived facts, each with the key it was computed at ([`key`]; 0: none).
 #[derive(Clone, Copy)]
 pub struct Derived {
     hp_v: [[u32; MAX_SLOTS]; 2],
@@ -54,6 +80,11 @@ pub struct Derived {
     /// `PTCG_VERIFY_CACHE=1`: the digest of the state at the first store of version `dig_v`.
     dig_v: u32,
     dig: u64,
+    /// `PTCG_VERIFY_CACHE=1`: per class of `state::reads`, the digest of the class (`cls_dig`) at its counter `cls_gen`,
+    /// for the classes whose bit is in `cls_ok`.
+    cls_ok: u8,
+    cls_gen: [u32; reads::CLASSES],
+    cls_dig: [u64; reads::CLASSES],
 }
 
 impl Derived {
@@ -81,6 +112,9 @@ impl Derived {
             abil_off: [0; MAX_CARDS],
             dig_v: 0,
             dig: 0,
+            cls_ok: 0,
+            cls_gen: [0; reads::CLASSES],
+            cls_dig: [0; reads::CLASSES],
         }
     }
 
@@ -96,6 +130,7 @@ impl Derived {
         self.powers_v = [0; MAX_CARDS];
         self.abil_v = [0; MAX_CARDS];
         self.dig_v = 0;
+        self.cls_ok = 0;
     }
 
     /// The bytes [`clear`](Self::clear) writes (`Game::copy_bytes`).
@@ -103,7 +138,7 @@ impl Derived {
     pub fn clear_bytes(&self) -> usize {
         use std::mem::size_of_val as s;
         s(&self.hp_v) + s(&self.types_v) + s(&self.pe_v) + s(&self.retreat_v) + s(&self.attacks_v) + s(&self.cost_v)
-            + s(&self.powers_v) + s(&self.abil_v) + s(&self.dig_v)
+            + s(&self.powers_v) + s(&self.abil_v) + s(&self.dig_v) + s(&self.cls_ok)
     }
 }
 
@@ -114,36 +149,278 @@ impl Default for Derived {
 }
 
 // ---------------------------------------------------------------------------
-// VERIFY: the memo against a recompute, the state against a missed version bump
+// The keys
 
-/// A store at the game's version: under VERIFY, the digest of the state at the first store of the version.
+/// The key fact `f`'s memo entries are good at: the sum of the counters of the classes it reads, or the version when it
+/// reads anything (`DeclIndex::reads`). Never 0 (an empty entry).
 #[inline]
-fn stored(g: &mut Game) {
-    if crate::game::verify_cache() && g.derived.dig_v != g.st.version {
-        g.derived.dig_v = g.st.version;
-        g.derived.dig = state_digest(&g.st);
+fn key(g: &Game, f: usize) -> u32 {
+    let m = g.decls.reads[f];
+    if m & reads::ANY != 0 {
+        return g.st.version;
+    }
+    let mut k = 1u32;
+    for i in 0..reads::CLASSES {
+        if m & (1 << i) != 0 {
+            k = k.wrapping_add(g.st.facts_gen[i]);
+        }
+    }
+    if k == 0 {
+        1
+    } else {
+        k
     }
 }
 
-/// `PTCG_VERIFY_CACHE=1`: no write since the last store at this version (checked where routines that write outside an
-/// event hand over to readers: the entry of the state check).
-#[inline]
-pub fn verify_version(g: &Game, at: &str) {
-    if crate::game::verify_cache() && g.derived.dig_v == g.st.version {
-        assert_eq!(g.derived.dig, state_digest(&g.st), "{at}: the state was written without a version bump (version {})", g.st.version);
+/// The declaration families (`decl::fam`) whose modifiers the facts' computations read, with the fact.
+pub const FACT_FAMILIES: [(usize, usize); 7] = [
+    (crate::decl::fam::HP, fact::HP),
+    (crate::decl::fam::TYPE, fact::TYPES),
+    (crate::decl::fam::PROVIDES, fact::PROVIDES),
+    (crate::decl::fam::RETREAT_COST, fact::RETREAT),
+    (crate::decl::fam::GRANT_ATTACKS, fact::ATTACKS),
+    (crate::decl::fam::ATTACK_COST, fact::ATTACK_COST),
+    (crate::decl::fam::TOOLS_OFF, fact::TOOLS_OFF),
+];
+
+/// The state classes each fact reads in this game (`reads::ANY`: something else): what the computations read themselves,
+/// with what the declarations of their reader families read (`spec::reads::fact_modifier`, over the game's cards), closed
+/// over the facts they ask in turn. Built with the declaration index (`DeclIndex::build`, after `Game::lock_cards` and
+/// `Game::kinds_present`).
+pub fn fact_reads(g: &Game, sets: &[u128; crate::decl::fam::N]) -> [u8; fact::N] {
+    use crate::spec::reads::{fact_modifier, ReadSet};
+    use reads::{ANY, BOARD, EFFECTS};
+    let st = |m: u8| ReadSet { state: m, facts: 0 };
+    let asks = |f: usize| ReadSet { state: 0, facts: 1 << f };
+    let mut r = [ReadSet::NONE; fact::N];
+    // What each computation reads itself: the Pokémon in the spot and what is attached (`compute_*`); the costs, the
+    // lasting cost increases and, for "1 Energy less of any type", the Energy provided (`check::finish_cost`).
+    r[fact::HP] = st(BOARD);
+    r[fact::TYPES] = st(BOARD);
+    r[fact::PROVIDES] = st(BOARD);
+    r[fact::RETREAT] = st(BOARD | EFFECTS).or(asks(fact::PROVIDES));
+    r[fact::ATTACKS] = st(BOARD);
+    r[fact::ATTACK_COST] = st(BOARD | EFFECTS).or(asks(fact::PROVIDES));
+    // The kind-free `Prevent` declarations are read through their event predicates (not classified).
+    if g.kinds_present.has(crate::effects::k::DECLARES_CONTINUOUS_PREVENT) {
+        r[fact::REACH] = st(ANY);
     }
+    for (fm, f) in FACT_FAMILIES {
+        let mut b = sets[fm];
+        while b != 0 {
+            let c = b.trailing_zeros() as CardId;
+            b &= b - 1;
+            for ps in crate::decl::passives(g, c) {
+                if crate::decl::modifier_family(&ps.modifier) == Some(fm) {
+                    r[f] = r[f].or(fact_modifier(ps).unwrap_or(st(ANY)));
+                }
+            }
+        }
+    }
+    // The lock pass: the Ability-lock declarations of the game (`Game::lock_cards`); none: the printed powers.
+    for (w, bits) in g.lock_cards.iter().enumerate() {
+        let mut b = *bits;
+        while b != 0 {
+            let c = (w * 64 + b.trailing_zeros() as usize) as CardId;
+            b &= b - 1;
+            for ps in crate::decl::passives(g, c) {
+                if matches!(ps.modifier, crate::spec::passive::Modifier::ActiveLock(_) | crate::spec::passive::Modifier::AbilityLock(_)) {
+                    r[fact::ABILITY] = r[fact::ABILITY].or(fact_modifier(ps).unwrap_or(st(ANY)));
+                }
+            }
+        }
+    }
+    // Close over the facts asked: a fact reads what the facts it asks read.
+    loop {
+        let mut changed = false;
+        for f in 0..fact::N {
+            let mut x = r[f];
+            for e in 0..fact::N {
+                if x.facts & (1 << e) != 0 {
+                    x = x.or(r[e]);
+                }
+            }
+            if x != r[f] {
+                r[f] = x;
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    let mut out = [0u8; fact::N];
+    for f in 0..fact::N {
+        out[f] = if r[f].state & ANY != 0 { ANY } else { r[f].state };
+    }
+    out
 }
 
-/// A memo hit: under VERIFY, the state is the one the fact was computed in (same digest) and the recompute agrees.
+// ---------------------------------------------------------------------------
+// VERIFY: the memo against a recompute, the state against a missed version or class bump
+
+/// A store at key `k` of fact `f`: under VERIFY, the digest of the state at the first store of the version, or of the
+/// classes the fact reads at their counters.
 #[inline]
-fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, memo: T, again: impl FnOnce(&mut Game) -> T) -> T {
+fn stored(g: &mut Game, f: usize) {
     if crate::game::verify_cache() {
-        assert_eq!(g.derived.dig_v, g.st.version, "derived::{what}: a memo hit with no digest of its version");
-        assert_eq!(g.derived.dig, state_digest(&g.st), "derived::{what}: the state was written without a version bump (version {})", g.st.version);
+        if g.decls.reads[f] & reads::ANY != 0 {
+            if g.derived.dig_v != g.st.version {
+                g.derived.dig_v = g.st.version;
+                g.derived.dig = state_digest(&g.st);
+            }
+        } else {
+            verify_classes(g, "a store");
+        }
+    }
+}
+
+/// `PTCG_VERIFY_CACHE=1`: no write since the last store at this version, no write of a class without a bump of its
+/// counter (checked where routines that write outside an event hand over to readers: the entry of the state check).
+#[inline]
+pub fn verify_version(g: &mut Game, at: &str) {
+    if crate::game::verify_cache() {
+        if g.derived.dig_v == g.st.version {
+            assert_eq!(g.derived.dig, state_digest(&g.st), "{at}: the state was written without a version bump (version {})", g.st.version);
+        }
+        verify_classes(g, at);
+    }
+}
+
+/// `PTCG_VERIFY_CACHE=1`: each class of `state::reads` has the digest it had when its counter last had this value.
+fn verify_classes(g: &mut Game, at: &str) {
+    for i in 0..reads::CLASSES {
+        let d = class_digest(&g.st, 1 << i);
+        if g.derived.cls_ok & (1 << i) != 0 && g.derived.cls_gen[i] == g.st.facts_gen[i] {
+            assert_eq!(g.derived.cls_dig[i], d, "{at}: class {:#x} of the state was written without a bump of its counter (State::touch)", 1 << i);
+        } else {
+            g.derived.cls_ok |= 1 << i;
+            g.derived.cls_gen[i] = g.st.facts_gen[i];
+            g.derived.cls_dig[i] = d;
+        }
+    }
+}
+
+/// A memo hit of fact `f`: under VERIFY, the state is the one the fact was computed in (same digest of the version or of
+/// the classes) and the recompute agrees.
+#[inline]
+fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, f: usize, what: &str, memo: T, again: impl FnOnce(&mut Game) -> T) -> T {
+    if crate::game::verify_cache() {
+        if g.decls.reads[f] & reads::ANY != 0 {
+            assert_eq!(g.derived.dig_v, g.st.version, "derived::{what}: a memo hit with no digest of its version");
+            assert_eq!(g.derived.dig, state_digest(&g.st), "derived::{what}: the state was written without a version bump (version {})", g.st.version);
+        } else {
+            verify_classes(g, what);
+        }
         let fresh = again(g);
         assert_eq!(memo, fresh, "derived::{what}: the memo differs from a recompute");
     }
     memo
+}
+
+/// The hasher of the VERIFY digests.
+struct Digest(u64);
+
+impl std::hash::Hasher for Digest {
+    fn finish(&self) -> u64 {
+        self.0
+    }
+    fn write(&mut self, bytes: &[u8]) {
+        for b in bytes {
+            self.write_u64(*b as u64);
+        }
+    }
+    fn write_u64(&mut self, x: u64) {
+        self.0 = (self.0.rotate_left(5) ^ x).wrapping_mul(0x517c_c1b7_2722_0a95);
+    }
+    fn write_u8(&mut self, x: u8) {
+        self.write_u64(x as u64);
+    }
+    fn write_u16(&mut self, x: u16) {
+        self.write_u64(x as u64);
+    }
+    fn write_u32(&mut self, x: u32) {
+        self.write_u64(x as u64);
+    }
+    fn write_i32(&mut self, x: i32) {
+        self.write_u64(x as u32 as u64);
+    }
+    fn write_usize(&mut self, x: usize) {
+        self.write_u64(x as u64);
+    }
+}
+
+fn digest_list(h: &mut Digest, s: &[CardId]) {
+    use std::hash::Hasher;
+    h.write_usize(s.len());
+    for c in s {
+        h.write_u8(*c);
+    }
+}
+
+/// A digest of one class of `state::reads` (`PTCG_VERIFY_CACHE=1` only): exactly what the class names.
+pub fn class_digest(st: &crate::state::State, class: u8) -> u64 {
+    use std::hash::{Hash, Hasher};
+    let mut h = Digest(class as u64);
+    for pl in st.players.iter() {
+        match class {
+            reads::BOARD => {
+                h.write_u8(pl.active);
+                digest_list(&mut h, pl.bench.as_slice());
+                digest_list(&mut h, pl.stadium().as_slice());
+                for s in 0..MAX_SLOTS {
+                    h.write_u8(pl.slot_used[s] as u8);
+                    let sl = &pl.slots[s];
+                    digest_list(&mut h, sl.cards().as_slice());
+                    digest_list(&mut h, sl.energies().as_slice());
+                    digest_list(&mut h, sl.tools().as_slice());
+                }
+            }
+            reads::ZONES => {
+                for z in [pl.deck(), pl.hand(), pl.discard(), pl.lostzone()] {
+                    digest_list(&mut h, z.as_slice());
+                }
+                digest_list(&mut h, pl.supporter().as_slice());
+                h.write_u8(pl.prize_count);
+                for i in 0..6 {
+                    digest_list(&mut h, pl.prizes()[i].as_slice());
+                }
+            }
+            reads::COUNTERS => {
+                for s in 0..MAX_SLOTS {
+                    h.write_i32(pl.slots[s].damage);
+                }
+            }
+            reads::CONDITIONS => {
+                for s in 0..MAX_SLOTS {
+                    digest_list(&mut h, pl.slots[s].special_conditions.as_slice());
+                }
+            }
+            _ => {}
+        }
+    }
+    match class {
+        reads::EFFECTS => {
+            for l in st.lasting.iter() {
+                l.on.hash(&mut h);
+                h.write_u8(l.source);
+                format!("{:?}", l.what).hash(&mut h);
+            }
+            for u in st.usage.iter() {
+                u.hash(&mut h);
+            }
+            for c in 0..st.n_cards as usize {
+                h.write_u16(st.cards[c].lock_stamp);
+            }
+        }
+        reads::TURN => {
+            h.write_i32(st.turn);
+            h.write_u8(st.active_player);
+            h.write_u8(st.phase as u8);
+        }
+        _ => {}
+    }
+    h.finish()
 }
 
 /// A digest of everything a fact can read in the state (`PTCG_VERIFY_CACHE=1` only): the zones, the spots and their
@@ -151,43 +428,9 @@ fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, memo: T, again:
 /// records (`State::at`, `State::pos`: what the zones say already).
 pub fn state_digest(st: &crate::state::State) -> u64 {
     use std::hash::{Hash, Hasher};
-    struct H(u64);
-    impl Hasher for H {
-        fn finish(&self) -> u64 {
-            self.0
-        }
-        fn write(&mut self, bytes: &[u8]) {
-            for b in bytes {
-                self.write_u64(*b as u64);
-            }
-        }
-        fn write_u64(&mut self, x: u64) {
-            self.0 = (self.0.rotate_left(5) ^ x).wrapping_mul(0x517c_c1b7_2722_0a95);
-        }
-        fn write_u8(&mut self, x: u8) {
-            self.write_u64(x as u64);
-        }
-        fn write_u16(&mut self, x: u16) {
-            self.write_u64(x as u64);
-        }
-        fn write_u32(&mut self, x: u32) {
-            self.write_u64(x as u64);
-        }
-        fn write_i32(&mut self, x: i32) {
-            self.write_u64(x as u32 as u64);
-        }
-        fn write_usize(&mut self, x: usize) {
-            self.write_u64(x as u64);
-        }
-    }
-    let mut h = H(0);
-    let l = |h: &mut H, s: &[CardId]| {
-        h.write_usize(s.len());
-        for c in s {
-            h.write_u8(*c);
-        }
-    };
-    let ar = |h: &mut H, a: Option<AttackRef>| match a {
+    let mut h = Digest(0);
+    let l = digest_list;
+    let ar = |h: &mut Digest, a: Option<AttackRef>| match a {
         Some(a) => {
             h.write_u8(1);
             h.write_u8(a.card);
@@ -195,7 +438,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         }
         None => h.write_u8(0),
     };
-    let cause = |h: &mut H, c: &crate::cause::Cause| {
+    let cause = |h: &mut Digest, c: &crate::cause::Cause| {
         c.kind.hash(h);
         c.card.hash(h);
         h.write_u8(c.player);
@@ -302,21 +545,22 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
     h.finish()
 }
 
+
 // ---------------------------------------------------------------------------
 // The reads
 
 /// The HP of the Pokémon in slot `s` of player `p` (every HP modifier applied).
 #[inline]
 pub fn hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    let v = g.st.version;
-    if g.derived.hp_v[p][s as usize] == v {
+    let (k, v) = (key(g, fact::HP), g.st.version);
+    if g.derived.hp_v[p][s as usize] == k {
         let m = g.derived.hp[p][s as usize];
-        return Ok(hit(g, "hp", m, |g| game_hp(g, p, s).unwrap_or(i32::MIN)));
+        return Ok(hit(g, fact::HP, "hp", m, |g| game_hp(g, p, s).unwrap_or(i32::MIN)));
     }
     let r = game_hp(g, p, s)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.hp_v[p][s as usize] = v;
+        stored(g, fact::HP);
+        g.derived.hp_v[p][s as usize] = k;
         g.derived.hp[p][s as usize] = r;
     }
     Ok(r)
@@ -325,16 +569,16 @@ pub fn hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
 /// The Energy the Pokémon in `source` provides, per attached card (asked by `p`; APR C-01).
 #[inline]
 pub fn provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    let v = g.st.version;
+    let (k, v) = (key(g, fact::PROVIDES), g.st.version);
     let (q, s) = (source.p as usize, source.s as usize);
-    if g.derived.pe_v[q][s] == v && g.derived.pe_p[q][s] == p as u8 {
+    if g.derived.pe_v[q][s] == k && g.derived.pe_p[q][s] == p as u8 {
         let m = g.derived.pe[q][s];
-        return Ok(hit(g, "provided_energy", m, |g| game_provided_energy(g, p, source).unwrap_or_default()));
+        return Ok(hit(g, fact::PROVIDES, "provided_energy", m, |g| game_provided_energy(g, p, source).unwrap_or_default()));
     }
     let r = game_provided_energy(g, p, source)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.pe_v[q][s] = v;
+        stored(g, fact::PROVIDES);
+        g.derived.pe_v[q][s] = k;
         g.derived.pe_p[q][s] = p as u8;
         g.derived.pe[q][s] = r;
     }
@@ -344,16 +588,16 @@ pub fn provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> 
 /// The types of the Pokémon in `target`, as the game checks them (`TypeOverride` and the like applied).
 #[inline]
 pub fn types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    let v = g.st.version;
+    let (k, v) = (key(g, fact::TYPES), g.st.version);
     let (q, s) = (target.p as usize, target.s as usize);
-    if g.derived.types_v[q][s] == v {
+    if g.derived.types_v[q][s] == k {
         let m = g.derived.types[q][s];
-        return Ok(hit(g, "types", m, |g| game_types(g, target).unwrap_or_default()));
+        return Ok(hit(g, fact::TYPES, "types", m, |g| game_types(g, target).unwrap_or_default()));
     }
     let r = game_types(g, target)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.types_v[q][s] = v;
+        stored(g, fact::TYPES);
+        g.derived.types_v[q][s] = k;
         g.derived.types[q][s] = r;
     }
     Ok(r)
@@ -367,15 +611,15 @@ pub fn weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 
 /// Player `p`'s Active Pokémon's Retreat Cost.
 #[inline]
 pub fn retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    let v = g.st.version;
-    if g.derived.retreat_v[p] == v {
+    let (k, v) = (key(g, fact::RETREAT), g.st.version);
+    if g.derived.retreat_v[p] == k {
         let m = g.derived.retreat[p];
-        return Ok(hit(g, "retreat_cost", m, |g| game_retreat_cost(g, p).unwrap_or_default()));
+        return Ok(hit(g, fact::RETREAT, "retreat_cost", m, |g| game_retreat_cost(g, p).unwrap_or_default()));
     }
     let r = game_retreat_cost(g, p)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.retreat_v[p] = v;
+        stored(g, fact::RETREAT);
+        g.derived.retreat_v[p] = k;
         g.derived.retreat[p] = r;
     }
     Ok(r)
@@ -384,15 +628,15 @@ pub fn retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
 /// The attacks player `p`'s Active Pokémon may use, and those copied from the Bench.
 #[inline]
 pub fn attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
-    let v = g.st.version;
-    if g.derived.attacks_v[p] == v {
+    let (k, v) = (key(g, fact::ATTACKS), g.st.version);
+    if g.derived.attacks_v[p] == k {
         let m = g.derived.attacks[p];
-        return Ok(hit(g, "attacks", m, |g| game_attacks(g, p).unwrap_or_default()));
+        return Ok(hit(g, fact::ATTACKS, "attacks", m, |g| game_attacks(g, p).unwrap_or_default()));
     }
     let r = game_attacks(g, p)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.attacks_v[p] = v;
+        stored(g, fact::ATTACKS);
+        g.derived.attacks_v[p] = k;
         g.derived.attacks[p] = r;
     }
     Ok(r)
@@ -401,19 +645,19 @@ pub fn attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks>
 /// The current cost of `attack` (asked by `p`, the attacking player).
 #[inline]
 pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    let v = g.st.version;
+    let (k, v) = (key(g, fact::ATTACK_COST), g.st.version);
     for i in 0..COST_MEMO {
-        if g.derived.cost_v[i] == v && g.derived.cost_key[i] == (p as u8, attack) {
+        if g.derived.cost_v[i] == k && g.derived.cost_key[i] == (p as u8, attack) {
             let m = g.derived.cost[i];
-            return Ok(hit(g, "attack_cost", m, |g| game_attack_cost(g, p, attack).unwrap_or_default()));
+            return Ok(hit(g, fact::ATTACK_COST, "attack_cost", m, |g| game_attack_cost(g, p, attack).unwrap_or_default()));
         }
     }
     let r = game_attack_cost(g, p, attack)?;
     if g.st.version == v {
-        stored(g);
+        stored(g, fact::ATTACK_COST);
         let i = g.derived.cost_next as usize % COST_MEMO;
         g.derived.cost_next = g.derived.cost_next.wrapping_add(1);
-        g.derived.cost_v[i] = v;
+        g.derived.cost_v[i] = k;
         g.derived.cost_key[i] = (p as u8, attack);
         g.derived.cost[i] = r;
     }
@@ -423,16 +667,16 @@ pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
 /// The powers the Pokémon card `card` has now: its printed ones, less those an Ability lock removes.
 #[inline]
 pub fn powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
-    let v = g.st.version;
+    let (k, v) = (key(g, fact::ABILITY), g.st.version);
     let c = card as usize;
-    if g.derived.powers_v[c] == v {
+    if g.derived.powers_v[c] == k {
         let m = g.derived.powers[c];
-        return Ok(hit(g, "powers", m, |g| game_powers(g, card).unwrap_or_default()));
+        return Ok(hit(g, fact::ABILITY, "powers", m, |g| game_powers(g, card).unwrap_or_default()));
     }
     let r = game_powers(g, card)?;
     if g.st.version == v {
-        stored(g);
-        g.derived.powers_v[c] = v;
+        stored(g, fact::ABILITY);
+        g.derived.powers_v[c] = k;
         g.derived.powers[c] = r;
     }
     Ok(r)
@@ -440,7 +684,7 @@ pub fn powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
 
 /// Does `card` have no Ability (power `power_index`, or the generic probe) now? (The lock pass with
 /// take-hold stamps; RULES.md "Ability locks".) Not memoized while a copied attack's source code runs (its copycat has
-/// no Ability of its own); a stamp changed by `lock_sync` is a write (a version bump).
+/// no Ability of its own); a stamp changed by `lock_sync` is a write (a version bump, an `EFFECTS` bump).
 #[inline]
 pub fn has_no_ability(g: &mut Game, card: CardId, power_index: Option<u8>) -> bool {
     if g.deleg.is_some() || card as usize >= MAX_CARDS {
@@ -451,26 +695,26 @@ pub fn has_no_ability(g: &mut Game, card: CardId, power_index: Option<u8>) -> bo
         Some(_) => return game_has_no_ability(g, card, power_index),
         None => 1u8 << 7,
     };
-    let v = g.st.version;
+    let (k, v) = (key(g, fact::ABILITY), g.st.version);
     let c = card as usize;
-    if g.derived.abil_v[c] == v {
+    if g.derived.abil_v[c] == k {
         if g.derived.abil_known[c] & bit != 0 {
             let m = g.derived.abil_off[c] & bit != 0;
-            return hit(g, "has_no_ability", m, |g| game_has_no_ability(g, card, power_index));
+            return hit(g, fact::ABILITY, "has_no_ability", m, |g| game_has_no_ability(g, card, power_index));
         }
     } else {
-        // A new version: start this card's entry afresh.
+        // A new key: start this card's entry afresh.
         g.derived.abil_known[c] = 0;
         g.derived.abil_off[c] = 0;
     }
     let r = game_has_no_ability(g, card, power_index);
     if g.st.version == v {
-        stored(g);
-        if g.derived.abil_v[c] != v {
+        stored(g, fact::ABILITY);
+        if g.derived.abil_v[c] != k {
             g.derived.abil_known[c] = 0;
             g.derived.abil_off[c] = 0;
         }
-        g.derived.abil_v[c] = v;
+        g.derived.abil_v[c] = k;
         g.derived.abil_known[c] |= bit;
         if r {
             g.derived.abil_off[c] |= bit;

@@ -293,15 +293,17 @@ pub fn coin_flipped(g: &mut Game, p: usize, purpose: CoinPurpose, heads: bool, c
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::GainCondition { target, condition, counters, .. } => {
+            g.st.touch(crate::state::reads::CONDITIONS);
             put_condition(&mut g.st.players[target.p as usize].slots[target.s as usize], condition, counters);
             Ok(())
         }
         Effect::RemoveCondition { target, condition, .. } => {
             let v = condition as u8;
-            g.st.players[target.p as usize].slots[target.s as usize].special_conditions.retain(|x| *x != v);
+            g.st.conditions_mut(target.p as usize, target.s).retain(|x| *x != v);
             Ok(())
         }
         Effect::Heal { target, damage, .. } => {
+            g.st.touch(crate::state::reads::COUNTERS);
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             if damage > 0 && slot.damage > 0 {
                 slot.healed_this_turn = true;
@@ -438,7 +440,8 @@ mod tests {
         assert!(g.st.slot(o, b.s).healed_this_turn);
         assert!(!heal(&mut g, b, 10, trainer(o)).unwrap(), "no damage counters left");
         // Yveltal's own side heals.
-        g.st.players[me].slots[g.st.players[me].active as usize].damage = 20;
+        let a = g.st.players[me].active;
+        *g.st.damage_mut(me, a) = 20;
         let mine = active(&g, me);
         assert!(heal(&mut g, mine, 10, trainer(me)).unwrap());
     }
