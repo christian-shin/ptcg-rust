@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
                 into: 0,
                 ..PickSpec::DEFAULT
             })),
-            Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), op: DamageOp::Set, per: 60 })),
+            Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), by: ChoiceDamageBy::Each(DamageOp::Set, 60) })),
             Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
         ],
     }],

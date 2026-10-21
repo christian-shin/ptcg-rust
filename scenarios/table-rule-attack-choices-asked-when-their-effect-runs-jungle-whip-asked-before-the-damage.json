@@ -1,0 +1,19 @@
+{
+ "turn": 2,
+ "rules": {"attack_choices_asked_when_their_effect_runs": true},
+ "decks": [
+  ["4 Zarude SSP 11", "4 Mega Kangaskhan ex MEG 104", "52 Grass Energy MEE 1"],
+  ["4 Zarude SSP 11", "4 Mega Kangaskhan ex MEG 104", "52 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Zarude SSP 11", "active_energy": ["3 Grass Energy MEE 1"], "hand": []},
+ "opp": {"reset": true, "active": "Mega Kangaskhan ex MEG 104"},
+ "answers": [
+  {"a": "attack", "name": "Jungle Whip"},
+  true
+ ],
+ "expect": [
+  {"at": "turn_end", "prompts": ["Confirm", "Wait", "ShowCards"], "exact": true, "cite": "table rule attack_choices_asked_when_their_effect_runs (on): the damage reads this choice ('to have this attack do 80 more damage'), so it is asked before the damage (the attack animation Wait), as off (RULES.md Attacks / Order step D; compendium id2385)"},
+  {"at": "turn_end", "who": "opp", "slot": "active", "damage": 160, "cite": "Jungle Whip: 80 + 80 more"},
+  {"at": "turn_end", "who": "me", "zone": "hand", "count": 3, "cite": "Jungle Whip: the 3 Energy are put into the hand (after the damage, id2385)"}
+ ]
+}

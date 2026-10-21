@@ -95,11 +95,12 @@ pub struct TableRules {
     /// the Ability if going through the effects of Step 2 below would not change the game state in any way"; id925,
     /// id2362; RULES.md "Using Trainers, Abilities and attacks"): an attach with no Pokémon to attach to does nothing.
     pub ability_attach_targets_unread: bool,
-    /// An attack's choices are asked when the effect they belong to runs, after the damage: the attack has no step of
-    /// choices before its damage (e.g. Team Rocket's Murkrow's Torment: the damage is done, then the attack to lock is
-    /// chosen). Text the attack does "before doing
-    /// damage" and the damage calculation are unchanged; every choice of the effects after the damage is made as the
-    /// effect is carried out. `spec::run::run` (no `Phase::Choices`).
+    /// An attack's choices that its damage doesn't read are asked when the effect they belong to runs, after the damage
+    /// (e.g. Team Rocket's Murkrow's Torment: the damage is done, then the attack to lock is chosen). A choice the damage
+    /// reads (`spec::run::damage_reads`: an `Op::ChoiceDamage` counts the cards it chooses or follows its answer, e.g.
+    /// Team Rocket's Honchkrow's Rocket Feathers, Zarude's Jungle Whip, Ceruledge's Infernal Slash) is still made before
+    /// the damage, as off. Text the attack does "before doing damage" and the damage calculation are unchanged.
+    /// `spec::run::run` (step D makes only the choices the damage reads).
     ///
     /// Off (the rulings): every choice the attack's effects require is made before the damage and carried out after it
     /// (RULES.md "Attacks / Order", step D: the Rules Team's forum answer of 2026-04-18 on Tricky Steps vs
