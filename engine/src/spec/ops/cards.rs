@@ -1078,7 +1078,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
         }
     }
     // A hand's prompt lists it without the resolving card.
-    let list = if matches!(pick.from.1, Zone::Tools(_)) || (pick.from.1 == Zone::Hand && !f.via_attack && g.lst(zone_ref(f, pick.from)).contains(&me)) {
+    let list = if matches!(pick.from.1, Zone::Tools(_)) || (pick.from.1 == Zone::Hand && !f.via_attack && g.holds(zone_ref(f, pick.from), me)) {
         g.alloc_temp(cards.as_slice())
     } else {
         match zone_list(g, me, f, pick.from, false) {
@@ -1309,7 +1309,7 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
     let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
     let (mut done, mut refused) = (0, 0);
     for (target, c) in ts.iter().copied() {
-        if !g.lst(from).contains(&c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
+        if !g.holds(from, c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
             continue;
         }
         // One Attach event per card, from the zone the card is in (a card attached to a Pokémon is moved:
@@ -1427,7 +1427,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 let cards: Vec<CardId> = reg_list(g, f, s.pick.into).to_vec();
                 let from = zone_ref(f, s.pick.from);
                 for c in cards {
-                    if g.lst(from).contains(&c) {
+                    if g.holds(from, c) {
                         crate::engine::attach::attach(g, c, t, f.cause)?;
                     }
                 }
@@ -1506,7 +1506,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     }
                     done.push(src);
                     for (_, _, card) in ts.iter() {
-                        if g.lst(src.list()).contains(card) {
+                        if g.holds(src.list(), *card) {
                             crate::engine::attach::move_attached(g, *card, src, dst, f.cause)?;
                         }
                     }
@@ -2950,7 +2950,7 @@ fn ec_resume(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, res
 /// Carry out the chosen moves.
 fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: &[Ec]) -> R {
     let tools = matches!(e.selection, EnergySelection::Tools { .. });
-    let ts: Vec<Ec> = ts.iter().copied().filter(|(src, _, c)| tools || g.lst(src.list()).contains(c)).collect();
+    let ts: Vec<Ec> = ts.iter().copied().filter(|(src, _, c)| tools || g.holds(src.list(), *c)).collect();
     if let Some(r) = e.into {
         let cards: Vec<CardId> = ts.iter().map(|t| t.2).collect();
         set_reg(g, f, r, &cards);

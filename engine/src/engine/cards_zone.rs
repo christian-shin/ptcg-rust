@@ -258,7 +258,7 @@ fn allowed(g: &mut Game, kind: EventKind, from: ListRef, cards: &[CardId], posit
     let mut refused = 0;
     let lockable = crate::spec::passive::may_lock_event(g, cause.player as usize, kind);
     for &c in cards {
-        if !g.lst(from).contains(&c) || out.contains(&c) {
+        if !g.holds(from, c) || out.contains(&c) {
             continue;
         }
         if lockable {

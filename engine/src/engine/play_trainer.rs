@@ -189,7 +189,7 @@ pub fn gate_coin(g: &mut Game, p: u8, card: CardId, target: Option<SlotRef>, hea
     for from in [ListRef::Hand(p), ListRef::Supporter(p)] {
         let mut here: SVec<CardId, 2> = SVec::new();
         for &c in play.iter() {
-            if g.lst(from).contains(&c) {
+            if g.holds(from, c) {
                 here.push(c);
             }
         }
