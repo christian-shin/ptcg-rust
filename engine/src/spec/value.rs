@@ -597,18 +597,25 @@ fn fossil_in_play(g: &Game, c: CardId) -> bool {
     g.st.players[p].in_play().any(|s| g.st.slot_pokemon(p, s) == Some(c))
 }
 
+/// Does the card satisfy the predicate? Pure: it reads the card's definition and, for a Fossil and the in-play variants,
+/// the board.
 pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
-    let d = g.st.cdef(c);
-    // A Fossil in play is a Basic Pokémon (its card data carries the stage, type and HP).
-    let mon = d.is_pokemon() || (crate::carddb::pokemon_flags(g.st.cards[c as usize].def) & crate::carddb::PF_FOSSIL != 0 && fossil_in_play(g, c));
+    pred_def(g, c, g.st.cdef(c), p)
+}
+
+/// `pred` with the card's definition `d` read once for the whole tree.
+fn pred_def(g: &Game, c: CardId, d: &'static crate::carddb::CardDef, p: &Pred) -> bool {
+    // A Fossil in play is a Basic Pokémon (its card data carries the stage, type and HP); asked only by the variants that
+    // read it.
+    let mon = || d.is_pokemon() || (crate::carddb::pokemon_flags(g.st.cards[c as usize].def) & crate::carddb::PF_FOSSIL != 0 && fossil_in_play(g, c));
     match p {
         Pred::Any => true,
         Pred::False => false,
-        Pred::Not(p) => !pred(g, c, p),
-        Pred::All(ps) => ps.iter().all(|p| pred(g, c, p)),
-        Pred::OneOf(ps) => ps.iter().any(|p| pred(g, c, p)),
-        Pred::Pokemon => mon,
-        Pred::Basic => mon && d.stage == Stage::Basic as u8,
+        Pred::Not(p) => !pred_def(g, c, d, p),
+        Pred::All(ps) => ps.iter().all(|p| pred_def(g, c, d, p)),
+        Pred::OneOf(ps) => ps.iter().any(|p| pred_def(g, c, d, p)),
+        Pred::Pokemon => mon(),
+        Pred::Basic => mon() && d.stage == Stage::Basic as u8,
         Pred::Energy => d.is_energy(),
         Pred::BasicEnergy => d.is_energy() && d.energy_type == EnergyType::Basic as u8,
         Pred::Trainer => d.is_trainer(),
@@ -617,30 +624,30 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Tool => d.is_trainer() && d.trainer_type == TrainerType::Tool as u8,
         Pred::Stadium => d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8,
         Pred::Name(n) => d.name == *n,
-        Pred::HpAtMost(n) => mon && d.hp <= *n,
+        Pred::HpAtMost(n) => mon() && d.hp <= *n,
         Pred::Tag(t) => d.has_tag(*t),
-        Pred::HasAttacks => mon && !d.attacks.is_empty(),
-        Pred::Stage(st) => mon && d.stage == *st,
+        Pred::HasAttacks => mon() && !d.attacks.is_empty(),
+        Pred::Stage(st) => mon() && d.stage == *st,
         Pred::NameContains(n) => d.name.contains(*n),
-        Pred::HasAbilityNamed(n) => mon && d.powers.iter().any(|p| p.source() == crate::spec::passive::RuleSource::Ability && p.name == *n),
+        Pred::HasAbilityNamed(n) => mon() && d.powers.iter().any(|p| p.source() == crate::spec::passive::RuleSource::Ability && p.name == *n),
         Pred::HasAttackNamed(n) => d.attacks.iter().any(|a| a.name == *n),
         Pred::ProvidesType(t) => d.provides.contains(t),
-        Pred::StageIs(st) => mon && d.stage == *st as u8,
-        Pred::PokemonType(t) => mon && d.card_type.contains(t),
+        Pred::StageIs(st) => mon() && d.stage == *st as u8,
+        Pred::PokemonType(t) => mon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::RuleBox => d.has_rule_box(),
         Pred::PokemonEx => d.is_pokemon_ex(),
         Pred::PokemonV => d.is_pokemon_v(),
-        Pred::EvolvesFrom(n) => mon && d.evolves_from == *n,
+        Pred::EvolvesFrom(n) => mon() && d.evolves_from == *n,
         Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
         Pred::EvolvesFromOwnInPlay => {
-            mon && {
+            mon() && {
                 let owner = g.st.owner(c);
                 for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
             }
         }
         Pred::EvolvesFromActive => {
-            mon && {
+            mon() && {
                 let owner = g.st.owner(c);
                 let active = g.st.players[owner].active;
                 g.st.slot_pokemon(owner, active).is_some_and(|top| g.st.cdef(top).name == d.evolves_from)
