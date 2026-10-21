@@ -1,6 +1,5 @@
 {
  "turn": 2,
- "rules": {"self_knockout_before_effect": true},
  "decks": [
   ["2 Duskull SFA 18", "2 Dusclops SFA 19", "2 Dusknoir SFA 20", "2 Walking Wake TWM 63", "2 Hop's Zacian ex JTG 111", "2 Hop's Snorlax JTG 117", "48 Psychic Energy MEE 5"],
   ["2 Duskull SFA 18", "2 Dusclops SFA 19", "2 Dusknoir SFA 20", "2 Walking Wake TWM 63", "2 Hop's Zacian ex JTG 111", "2 Hop's Snorlax JTG 117", "48 Psychic Energy MEE 5"]
@@ -11,7 +10,7 @@
   {"a": "ability", "name": "Cursed Blast", "source": {"player": 2, "slot": 1, "index": 0}}
  ],
  "expect": [
-  {"at": "turn_end", "prompts": ["ChoosePokemon", "ChoosePrize", "ChoosePokemon"], "cite": "table rule self_knockout_before_effect (on): Dusknoir is Knocked Out first (its Knock Out pending, shown with 0 HP left: view unit test), the Pokemon to put the 13 counters on is chosen, then the state check after the effect handles the Knock Out (the opponent chooses a Prize card, the player promotes a new Active Pokemon)"},
+  {"at": "turn_end", "prompts": ["ChoosePokemon", "ChoosePrize", "ChoosePokemon"], "cite": "id2264 (using Cursed Blast Knocks Dusknoir Out), id2089 (all effects are resolved before the Knock Outs): Dusknoir is Knocked Out when the Ability is used (pending, shown with 0 HP left: view unit test), the Pokemon to put the 13 counters on is chosen, then the state check after the effect handles the Knock Out (the opponent chooses a Prize card, the player promotes a new Active Pokemon)"},
   {"at": "turn_end", "who": "opp", "slot": "active", "damage": 130, "cite": "Cursed Blast text: 13 damage counters on 1 of the opponent's Pokemon"},
   {"at": "turn_end", "who": "me", "zone": "discard", "contains": ["Dusknoir SFA 20"], "cite": "Cursed Blast text: this Pokemon is Knocked Out"},
   {"at": "turn_end", "who": "opp", "prizes_taken": 1, "cite": "APR D: the opponent takes a Prize card for the Knocked Out Dusknoir"}

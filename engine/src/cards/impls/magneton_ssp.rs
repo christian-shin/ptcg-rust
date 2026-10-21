@@ -4,8 +4,9 @@
 //! Electric Ball — 40.
 //!
 //! "Up to 3" in an Ability takes at least 1 (id2399, id2301); only [L] Pokémon are offered. Each card is an Attach
-//! event by the Ability. Using the Ability Knocks this Pokémon Out whatever was attached: `Op::KnockOut` on it is a
-//! KnockOut by an effect that waits for the state check with every other Knock Out (D1), the opponent taking the Prize.
+//! event by the Ability. Using the Ability Knocks this Pokémon Out whatever is attached: `Op::KnockOut` on it is a
+//! consequence of the use, done first, a KnockOut by an effect that waits for the state check after the effect with every
+//! other Knock Out (D1), the opponent taking the Prize; Magneton stays in play while the cards are attached.
 //! No once-per-turn usage record: the card leaves play.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {

@@ -59,11 +59,11 @@ pub(crate) enum Phase {
     /// Deck searches, and choices nested under an `If` the damage can change, a coin or a
     /// loop, are still made after the damage, when their options exist.
     Choices = 3,
-    /// An Ability's costs and the consequences of using it (`Step::cost`, `Step::consequence`), run first when its use
-    /// Knocks the Pokémon using it Out at a table with `TableRules::self_knockout_before_effect`; the program goes on
-    /// with `AfterConsequences`.
+    /// The consequences of using an Ability (`Step::consequence`: "If you use this Ability, this Pokémon is Knocked
+    /// Out"), done when it is used, before the rest of its text; the program goes on with `AfterConsequences`.
     Consequences = 4,
-    /// The rest of such an Ability (its `Step::new` steps), after its consequences (the Pokémon's Knock Out pending).
+    /// The rest of such an Ability (its costs and `Step::new` steps, in printed order), after its consequences (the
+    /// Pokémon's Knock Out pending; the state check after the effect handles it).
     AfterConsequences = 5,
 }
 
@@ -392,6 +392,11 @@ pub fn program_knocks_out_self(pw: &PowerSpec) -> bool {
     pw.steps.iter().any(|s| s.at == RuleStep::Consequence && matches!(&s.op, Op::KnockOut(k) if k.target == SlotExpr::This))
 }
 
+/// Does the program have a consequence of using it (`Step::consequence`), done when it is used?
+fn program_has_consequence(pw: &PowerSpec) -> bool {
+    pw.steps.iter().any(|s| s.at == RuleStep::Consequence)
+}
+
 /// Does the power have a program (a `PowerSpec`): would a `Power` effect for it run anything?
 pub fn power_has_program(g: &Game, power: crate::effects::PowerRef) -> bool {
     if power.card as usize >= crate::state::MAX_CARDS {
@@ -517,17 +522,14 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 Effect::Power { p, .. } => p as usize,
                 _ => continue,
             };
-            let mut f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
+            // The consequences of using it come first (`Phase::Consequences`), then the rest of the Ability.
+            let phase = if program_has_consequence(pw) { Phase::Consequences } else { Phase::Use };
+            let f = Frame::start(g, me, Prog::Power(i as u8), phase, e, p, false);
             check_power(g, me, pw, &f)?;
             if let Some((key, by, until)) = power_once(g, me, pw, p) {
                 if !crate::engine::usage::use_once(&mut g.st, key, by, until) {
                     crate::bail!("POWER_ALREADY_USED");
                 }
-            }
-            // At a table where the Pokémon an Ability Knocks Out is Knocked Out first, its costs and consequences run
-            // before the rest (`TableRules::self_knockout_before_effect`).
-            if g.st.rules.self_knockout_before_effect && program_knocks_out_self(pw) {
-                f.phase = Phase::Consequences;
             }
             run(g, me, f)?;
         }
@@ -1278,8 +1280,8 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                     continue;
                 }
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
-                // The costs and consequences are done (the Pokémon's Knock Out is pending): the rest runs; the state check
-                // after the effect handles the Knock Out.
+                // The consequences of using the Ability are done (the Pokémon's Knock Out is pending): the rest runs; the
+                // state check after the effect handles the Knock Out.
                 Phase::Consequences => {
                     f.phase = Phase::AfterConsequences;
                     f.path = [0; MAX_DEPTH];
@@ -1591,9 +1593,8 @@ fn runs_in(at: RuleStep, phase: Phase) -> bool {
             | (RuleStep::AfterDamage, Phase::Choices)
             | (RuleStep::Use, Phase::Use)
             | (RuleStep::Cost, Phase::Use)
-            | (RuleStep::Consequence, Phase::Use)
-            | (RuleStep::Cost, Phase::Consequences)
             | (RuleStep::Consequence, Phase::Consequences)
+            | (RuleStep::Cost, Phase::AfterConsequences)
             | (RuleStep::Use, Phase::AfterConsequences)
     )
 }

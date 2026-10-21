@@ -1,6 +1,5 @@
 {
  "turn": 2,
- "rules": {"self_knockout_before_effect": true},
  "decks": [
   ["2 Duskull SFA 18", "2 Dusclops SFA 19", "2 Dusknoir SFA 20", "2 Walking Wake TWM 63", "2 Hop's Zacian ex JTG 111", "2 Hop's Snorlax JTG 117", "48 Psychic Energy MEE 5"],
   ["2 Duskull SFA 18", "2 Dusclops SFA 19", "2 Dusknoir SFA 20", "2 Walking Wake TWM 63", "2 Hop's Zacian ex JTG 111", "2 Hop's Snorlax JTG 117", "48 Psychic Energy MEE 5"]
@@ -11,7 +10,7 @@
   {"a": "ability", "name": "Cursed Blast", "source": {"player": 2, "slot": 1, "index": 0}}
  ],
  "expect": [
-  {"at": "game_end", "who": "opp", "slot": "active", "damage": 130, "cite": "table rule self_knockout_before_effect (on): Dusknoir, the player's last Pokemon, is Knocked Out first but its Knock Out is handled after the effect, so the 13 damage counters are placed"},
+  {"at": "game_end", "who": "opp", "slot": "active", "damage": 130, "cite": "id2089 (all effects are resolved before the Knock Outs): Dusknoir, the player's last Pokemon, is Knocked Out when Cursed Blast is used but its Knock Out is handled after the effect, so the 13 damage counters are placed"},
   {"at": "game_end", "winner": "opp", "cite": "APR (winning the game): after the effect the player has no Pokemon in play and loses"}
  ]
 }

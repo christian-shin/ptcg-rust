@@ -235,7 +235,9 @@ impl Step {
         Step { at: RuleStep::Cost, op }
     }
     /// A consequence of using an Ability ("If you use this Ability, this Pokémon is Knocked Out": Magneton SSP 59, Dusclops
-    /// / Dusknoir PRE 36 / 37): it runs where `new` steps run, always, whatever the Ability's effect did, and it never
+    /// / Dusknoir PRE 36 / 37): it is done when the Ability is used, before the rest of its text (`run::Phase::Consequences`:
+    /// the Pokémon is Knocked Out, its Knock Out pending until the state check after the effect, id2089, id2239; id2264:
+    /// "It still used the Ability ... So Dusknoir is Knocked Out"), always, whatever the Ability's effect does, and it never
     /// counts toward whether the Ability can be used (official JP FAQ レアコイル: with no Basic Energy in the discard pile
     /// Overvolt Discharge can't be used; id2264, id2425 and JP FAQ ヨノワール / バトルコロシアム: the Knock Out happens even
     /// when the counters are prevented; Psyduck ASC 39's Damp names these Abilities: "requires the Pokémon using it to

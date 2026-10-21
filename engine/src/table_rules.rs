@@ -72,16 +72,6 @@ pub struct TableRules {
     /// included (APR B-01 / D-02; id925, id956: "you cannot play a Trainer card for no net effect"; RULES.md "Options that
     /// can't do anything", user decision 2, batch 8 C10; user decision D10).
     pub trainer_conditions_on_hidden_cards_unread: bool,
-    /// An Ability whose use Knocks Out the Pokémon using it ("If you use this Ability, this Pokémon is Knocked Out": e.g.
-    /// Dusknoir's Cursed Blast) Knocks it Out first: its costs and that consequence are done (the Pokémon is Knocked Out:
-    /// its Knock Out is pending and the table view shows it with 0 HP left), then the rest of the Ability's effect, and
-    /// the state check after it handles the Knock Out with every other (the Pokémon and its cards go to the discard pile,
-    /// Prize cards are taken, a new Active Pokémon is promoted). `spec::run::Phase::Consequences`.
-    ///
-    /// Off (the rulings): every effect of the Ability is done first and the Pokémon is Knocked Out at the next state check
-    /// (id2089: "All effects have to be resolved before resolving KO's"; id2239; RULES.md "'If you use this Ability, this
-    /// Pokémon is Knocked Out' is a consequence of using it").
-    pub self_knockout_before_effect: bool,
     /// A copy attack ("choose 1 of ... attacks and use it as this attack": Night Joker, Foul Play, Metronome, Try to
     /// Imitate, Seek Inspiration, Gemstone Mimicry) chosen by another copy attack can be chosen, and does nothing: no
     /// choice of its own, nothing else of its text (e.g. Night Joker choosing another N's Zoroark ex's Night Joker ends
@@ -103,7 +93,6 @@ impl TableRules {
         "looked_cards_shown_to_owner",
         "evolving_trainer_discarded_before_evolve_triggers",
         "trainer_conditions_on_hidden_cards_unread",
-        "self_knockout_before_effect",
         "copied_copy_attack_does_nothing",
     ];
 
@@ -116,7 +105,6 @@ impl TableRules {
             "looked_cards_shown_to_owner" => &mut self.looked_cards_shown_to_owner,
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             "trainer_conditions_on_hidden_cards_unread" => &mut self.trainer_conditions_on_hidden_cards_unread,
-            "self_knockout_before_effect" => &mut self.self_knockout_before_effect,
             "copied_copy_attack_does_nothing" => &mut self.copied_copy_attack_does_nothing,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };

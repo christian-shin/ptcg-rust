@@ -540,12 +540,11 @@ mod tests {
         assert_eq!(crate::record::look_seen_by(&Default::default(), crate::spec::event::RulesZone::Deck, 0, 1), [true, false]);
     }
 
-    /// Under the table rule `self_knockout_before_effect` the Pokémon an Ability Knocks Out is Knocked Out before the rest
-    /// of its effect: at Cursed Blast's question (the Pokémon to put the counters on) Dusknoir is still in play, shown with
-    /// 0 HP left, and the state check after the effect handles its Knock Out. Off (the rulings: the Knock Out comes after
-    /// the counters, id2089) its HP is unchanged at that question.
+    /// A Pokémon its own Ability Knocks Out ("If you use this Ability, this Pokémon is Knocked Out") is Knocked Out when
+    /// the Ability is used: at Cursed Blast's question (the Pokémon to put the counters on) Dusknoir is still in play,
+    /// shown with 0 HP left, and the state check after the effect handles its Knock Out (id2089, id2264).
     #[test]
-    fn a_pokemon_its_own_ability_knocks_out_shows_no_hp_under_the_table_rule() {
+    fn a_pokemon_its_own_ability_knocks_out_shows_no_hp_during_the_ability() {
         let names: Vec<&str> = (0..60)
             .map(|i| match i {
                 0..=1 => "Duskull SFA 18",
@@ -556,35 +555,32 @@ mod tests {
             })
             .collect();
         let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
-        for on in [false, true] {
-            let mut g = Game::new(3);
-            g.st.rules.self_knockout_before_effect = on;
-            g.start([&deck, &deck]).unwrap();
+        let mut g = Game::new(3);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().unwrap();
+        // To the first turn action.
+        loop {
             g.settle().unwrap();
-            // To the first turn action.
-            loop {
-                g.settle().unwrap();
-                match g.pending() {
-                    crate::game::Pending::Turn(_) => break,
-                    _ => crate::search::tests::answer_all(&mut g),
-                }
+            match g.pending() {
+                crate::game::Pending::Turn(_) => break,
+                _ => crate::search::tests::answer_all(&mut g),
             }
-            let sc = serde_json::json!({"me": {"reset": true, "active": ["Duskull SFA 18", "Dusclops SFA 19", "Dusknoir SFA 20"], "bench": [{"card": "Hop's Snorlax JTG 117"}]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
-            crate::scenario::apply(&mut g, &sc).unwrap();
-            let p = g.st.active_player as usize;
-            let dusknoir = g.st.active_pokemon(p).unwrap();
-            let blast = crate::options::legal_actions(&g)
-                .into_iter()
-                .map(|o| o.action)
-                .find(|a| matches!(a, crate::game::Action::UseAbility { power, .. } if power.card == dusknoir))
-                .expect("Cursed Blast offered");
-            g.act(blast).unwrap();
-            g.settle().unwrap();
-            assert!(matches!(g.pending(), crate::game::Pending::Decision(_)), "the counters' target is asked");
-            let v = TableView::new(&g, p);
-            let shown = v.players[p].active.expect("Dusknoir still in play");
-            assert_eq!(shown.top.card, dusknoir);
-            assert_eq!(shown.hp == 0, on, "rule {on}: hp {}", shown.hp);
         }
+        let sc = serde_json::json!({"me": {"reset": true, "active": ["Duskull SFA 18", "Dusclops SFA 19", "Dusknoir SFA 20"], "bench": [{"card": "Hop's Snorlax JTG 117"}]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let p = g.st.active_player as usize;
+        let dusknoir = g.st.active_pokemon(p).unwrap();
+        let blast = crate::options::legal_actions(&g)
+            .into_iter()
+            .map(|o| o.action)
+            .find(|a| matches!(a, crate::game::Action::UseAbility { power, .. } if power.card == dusknoir))
+            .expect("Cursed Blast offered");
+        g.act(blast).unwrap();
+        g.settle().unwrap();
+        assert!(matches!(g.pending(), crate::game::Pending::Decision(_)), "the counters' target is asked");
+        let v = TableView::new(&g, p);
+        let shown = v.players[p].active.expect("Dusknoir still in play");
+        assert_eq!(shown.top.card, dusknoir);
+        assert_eq!(shown.hp, 0, "Dusknoir is Knocked Out (pending) at the counters' question");
     }
 }
