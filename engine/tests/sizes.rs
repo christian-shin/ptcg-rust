@@ -19,3 +19,19 @@ fn sizes() {
     // C8c: the MoveOpts and the offered Energy in `Game::prompt_payloads` (584 -> 232 B).
     assert!(size_of::<ptcg::prompts::PromptRec>() <= 256, "PromptRec grew: {} B", size_of::<ptcg::prompts::PromptRec>());
 }
+
+/// What a search's restore moves (speed batch S0): the whole `Game` (what `clone()` / `*dst = *src` copies while `Game`
+/// is `Copy`) and the fixed part of a snapshot, `Game::copy_bytes` of a game with empty stacks: the state and the fixed
+/// fields `copy_from` always copies, plus the derived stamps it clears. A game in progress adds its live stack entries
+/// (`bench --search` prints the mean and the maximum over the bench's games).
+#[test]
+fn snapshot_sizes() {
+    use std::mem::size_of;
+    let b = ptcg::game::Game::new(1).copy_bytes();
+    println!("Game {} State {} snapshot fixed part {} B copied + {} B cleared", size_of::<ptcg::game::Game>(),
+        size_of::<ptcg::state::State>(), b.copied, b.cleared);
+    // Speed batch S0 (events-10 530d6c8c): Game 64,032 B, State 7,944 B, snapshot 8,238 B copied + 1,212 B cleared.
+    assert!(size_of::<ptcg::game::Game>() <= 65_536, "Game grew: {} B", size_of::<ptcg::game::Game>());
+    assert!(b.copied <= 8_448, "the fixed part of a snapshot grew: {} B", b.copied);
+    assert!(b.cleared <= 1_280, "the derived stamps grew: {} B", b.cleared);
+}

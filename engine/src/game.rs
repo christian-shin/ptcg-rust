@@ -499,6 +499,54 @@ impl Game {
             (*d).order_cache.invalidate();
         }
     }
+
+    /// What [`copy_from`](Self::copy_from) moves when `self` is the source (a measurement: `bench --search`,
+    /// tests/sizes.rs). Lists the fields as `copy_from` does, so a new field of `Game` must be counted here too.
+    /// `#[inline]` (as its helpers `live_bytes` / `clear_bytes`): compiled only where it is called, so the library's code
+    /// units stay as they were (a non-inline copy moved the bench's instruction count by +0.5%).
+    #[inline]
+    pub fn copy_bytes(&self) -> CopyBytes {
+        use std::mem::size_of_val as s;
+        let Game {
+            st, rng, prompts, last_prompt_id, items, waits, fx, temps: _, temp_used, temp_hw, coin_callbacks,
+            trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, copy_chain, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
+            derived,
+            // Copied only into a game holding another game's index (a fork of the same game has it already).
+            decls: _,
+            order_cache: _,
+            fxp,
+            answers,
+            prompt_payloads,
+            payload_serial,
+            prevented_events,
+            reach_skip,
+            survive_groups,
+            order_pending,
+            checkup_held,
+            put_by,
+            record,
+        } = self;
+        let copied = s(st) + s(rng) + prompts.live_bytes() + s(last_prompt_id) + items.live_bytes() + waits.live_bytes()
+            + fx.live_bytes()
+            + *temp_hw as usize * std::mem::size_of::<List<120>>()
+            + s(temp_used) + s(temp_hw) + coin_callbacks.live_bytes() + s(trial) + s(kinds_present) + s(lock_cards)
+            + s(trace_effects) + copy_sessions.live_bytes() + s(copy_serial) + copy_chain.live_bytes() + s(deleg)
+            + after_dmg.live_bytes() + pending.live_bytes() + ten_hp.live_bytes() + ten_hp_coin.live_bytes()
+            + spec_choices.live_bytes() + s(last_attack) + fxp.live_bytes() + answers.live_bytes()
+            + prompt_payloads.live_bytes() + s(payload_serial) + s(prevented_events) + s(reach_skip) + s(survive_groups)
+            + s(order_pending) + s(checkup_held) + s(put_by) + s(record);
+        CopyBytes { copied, cleared: derived.clear_bytes() }
+    }
+}
+
+/// What [`Game::copy_from`] moves: a restore's memory traffic besides the work after it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct CopyBytes {
+    /// Copied from the source: the state, the live part of the stacks, the staging lists ever allocated, the fixed
+    /// fields (not the declaration index: a restore into a game of the same deal holds it already).
+    pub copied: usize,
+    /// Written in the destination to forget its derived facts (the memo's stamps).
+    pub cleared: usize,
 }
 
 impl Game {

@@ -8,14 +8,16 @@ build, `cargo test` (job `test`), the golden-corpus replay (job `golden`), every
 runners (default 4 x 25,000 games). With --games/--shards it dispatches the
 workflow on that branch instead of relying on the push (dispatch needs the
 workflow file on the default branch). Then it waits for the
-run, prints each job's result and, on failure, downloads the failing games'
+run, prints each job's result and the bench's instructions per decision (job
+`instructions`, tools/instructions.py; with the parent commit's when a run of
+it kept them: a rise is for the reviewer, not a failure) and, on failure, downloads the failing games'
 traces to corpus/ci/<run id>/ (replay them with engine/target/release/diff)
 and prints the failed steps' log tail. Exit status 0 only when the run passed.
 
 Commit first: only committed work is pushed. The ci/ branches are scratch
 branches; each push replaces the previous one of the same name.
 """
-import argparse, json, os, subprocess, sys, time
+import argparse, json, os, subprocess, sys, tempfile, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REMOTE = os.environ.get('PTCG_CI_REMOTE', 'upstream')
@@ -39,6 +41,46 @@ def find_run(branch, sha, since):
                 return run['databaseId']
         time.sleep(5)
     sys.exit('no %s run appeared for %s on %s' % (WORKFLOW, sha[:9], branch))
+
+
+def instructions(run):
+    """The `instructions` artifact of run `run` ({mode: {per_decision, ...}}), or None."""
+    with tempfile.TemporaryDirectory() as d:
+        sh('gh', 'run', 'download', str(run), '-n', 'instructions', '--dir', d, check=False)
+        p = os.path.join(d, 'instructions.json')
+        if not os.path.exists(p):
+            return None
+        with open(p) as f:
+            return json.load(f)
+
+
+def parent_instructions(sha):
+    """The instructions of the newest `rust` run of the parent commit that kept them, as (run, numbers), or None."""
+    r = sh('git', 'rev-parse', '--verify', '--quiet', sha + '^', check=False)
+    parent = r.stdout.strip()
+    if not parent:
+        return None
+    r = sh('gh', 'run', 'list', '--commit', parent, '--limit', '10', '--json', 'databaseId,workflowName,status', check=False)
+    for run in json.loads(r.stdout or '[]'):
+        if run['workflowName'] == 'rust' and run['status'] == 'completed':
+            n = instructions(run['databaseId'])
+            if n:
+                return parent, n
+    return None
+
+
+def print_instructions(run, sha):
+    now = instructions(run)
+    if not now:
+        print('instructions per decision: none (job `instructions` kept no numbers)')
+        return
+    before = parent_instructions(sha)
+    for mode, v in now.items():
+        line = '  instructions/decision %-5s %s' % (mode, format(v['per_decision'], ','))
+        if before and mode in before[1]:
+            b = before[1][mode]['per_decision']
+            line += '  (parent %s: %s, %+.2f%%)' % (before[0][:9], format(b, ','), 100.0 * (v['per_decision'] - b) / max(1, b))
+        print(line)
 
 
 def main():
@@ -84,6 +126,7 @@ def main():
         time.sleep(30)
     for j in view['jobs']:
         print('  %-12s %s' % (j['name'], j['conclusion']))
+    print_instructions(run, sha)
     if view['conclusion'] == 'success':
         print('PASSED')
         return

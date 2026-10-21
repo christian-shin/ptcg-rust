@@ -2,6 +2,14 @@
 //! no JSON descriptors, no invariant checks, no recording.
 //!
 //!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes] [--record] [--host [--apart]]
+//!         [--search [--restores N] [--depth D] [--branch B]]
+//!
+//! `--search` measures what a search over copies of the game costs: the bench's games played at random, and at every turn
+//! decision (a root) `N` restores (default 100: `copy_from` of the live game into a pooled game) timed alone, as many
+//! whole-`Game` copies (`*dst = *src`), then a depth-limited DFS over the deciding player's own turn below the root
+//! (default depth 3, up to `B` = 4 random actions of each node expanded): each node is a restore of its parent, one
+//! step (the action, then random answers to the prompts up to the next turn decision) and the node's legal actions.
+//! Prints restores/s, copies/s, the bytes a restore moves (`Game::copy_bytes`), DFS nodes/s.
 //!
 //! `--host` plays the same games the way a program that embeds the engine does (`ptcg::host`, its buffers kept between
 //! decisions): at a turn decision the table as the deciding seat sees it and the legal actions in one call
@@ -17,12 +25,12 @@
 //! options come from the declared-checks fast path (`legal_actions`), prompt
 //! answers pick uniformly from the select interface's pick masks. Prints
 //! games/s, decisions/s and microseconds per decision on one thread, then the
-//! same on 1, 2, 4, ... T threads (default: the cores) with the scaling factor.
+//! same on 1, 2, 4, ... T threads (default: the cores) with the scaling factor (not with `--threads 1`).
 //! The decision and winner counts are a determinism checksum: they must not
 //! change between behavior-preserving commits.
 
 use ptcg::carddb::DefId;
-use ptcg::game::{Game, Pending};
+use ptcg::game::{Action, Game, Pending};
 use ptcg::options::legal_actions_into;
 use ptcg::rng::Rng;
 use ptcg::selfplay::{expand_deck, MAX_STEPS, MAX_TURNS};
@@ -345,6 +353,221 @@ fn run_host(decks: &[Vec<DefId>], seed0: u32, games: usize, apart: bool) {
     println!("  {:<13} {:>7.2} us/decision (the timed calls)", "sum", per(timed));
 }
 
+/// Buffers of the random play in `--search` (kept between decisions: no allocation per step).
+#[derive(Default)]
+struct Scratch {
+    sel: ptcg::host::SelectData,
+    mask: Vec<bool>,
+    picks: Vec<usize>,
+    allowed: Vec<usize>,
+}
+
+/// Plays on until the next turn decision or the end of the game: the chance prompts settled, every decision prompt
+/// (either player's) answered by uniformly random picks from its pick masks, as the plain bench does.
+fn play_to_turn(g: &mut Game, rng: &mut Rng, s: &mut Scratch) -> Result<(), &'static str> {
+    for _ in 0..MAX_STEPS {
+        match g.pending() {
+            Pending::Finished | Pending::Turn(_) => return Ok(()),
+            Pending::Stuck => return Err("stuck"),
+            Pending::Chance(_) | Pending::Info(_) => g.settle().map_err(|_| "settle")?,
+            Pending::Decision(pi) => {
+                if !matches!(g.select_into(&mut s.sel), Ok(true)) {
+                    return Err("select");
+                }
+                let n = s.sel.options.len();
+                s.picks.clear();
+                let mut ok = true;
+                loop {
+                    let stop = g.pick_mask_into(&s.sel, &s.picks, &mut s.mask);
+                    s.allowed.clear();
+                    s.allowed.extend((0..n).filter(|j| s.mask[*j]));
+                    let choices = s.allowed.len() + stop as usize;
+                    if choices == 0 {
+                        ok = false;
+                        break;
+                    }
+                    let r = rng.index(choices);
+                    if r == s.allowed.len() {
+                        break;
+                    }
+                    s.picks.push(s.allowed[r]);
+                    if s.sel.max_count <= 1 {
+                        break;
+                    }
+                }
+                if !ok {
+                    let pr = g.prompts.as_slice()[pi];
+                    let res = g.decline_answer(&pr).or_else(|_| g.decode_picks(&s.sel, &[])).map_err(|_| "empty answer")?;
+                    g.resolve(pi, res).map_err(|_| "empty answer")?;
+                } else {
+                    g.answer_no_rollback(&s.sel, &s.picks).map_err(|_| "answer")?;
+                }
+                g.settle().map_err(|_| "settle")?;
+            }
+        }
+    }
+    Err("steps")
+}
+
+/// One step of the search: the action, then the play to the next turn decision.
+fn step(g: &mut Game, a: Action, rng: &mut Rng, s: &mut Scratch) -> Result<(), &'static str> {
+    g.act_no_rollback(a).and_then(|_| g.settle()).map_err(|_| "act")?;
+    play_to_turn(g, rng, s)
+}
+
+/// `--search` settings and counts.
+#[derive(Default)]
+struct Search {
+    restores: usize,
+    depth: usize,
+    branch: usize,
+    roots: u64,
+    /// Restores timed alone (`copy_from` of the root into a pooled game), and their time.
+    restored: u64,
+    restore_ns: u64,
+    /// The same number of whole-`Game` assignments (`*dst = *src`: `Game` is `Copy`), and their time.
+    copy_ns: u64,
+    /// Bytes per restore (`Game::copy_bytes`), summed over the roots.
+    copied: u64,
+    cleared: u64,
+    copied_max: usize,
+    /// DFS nodes (restore + step + legal actions), steps that failed, nodes at the own turn still (their legal actions
+    /// listed) and the actions listed, and the DFS time.
+    nodes: u64,
+    failed: u64,
+    own: u64,
+    listed: u64,
+    dfs_ns: u64,
+}
+
+/// The depth-limited DFS over the own turn of `p` below `pool[0]` (the node, whose legal actions are `acts[0]`): each
+/// child is a restore of the node into `pool[1]`, one step, and the legal actions if it is `p`'s turn decision still
+/// (expanded while `depth` remains). Up to `branch` actions of a node, chosen at random, are expanded.
+fn dfs(pool: &mut [Box<Game>], p: u8, depth: usize, se: &mut Search, rng: &mut Rng, s: &mut Scratch, acts: &mut [Vec<Action>]) {
+    let (node, below) = pool.split_first_mut().unwrap();
+    let (opts, acts_below) = acts.split_first_mut().unwrap();
+    let k = opts.len().min(se.branch);
+    // A random `k` of the node's actions (a partial shuffle).
+    for i in 0..k {
+        let j = i + rng.index(opts.len() - i);
+        opts.swap(i, j);
+    }
+    for i in 0..k {
+        let child = &mut below[0];
+        child.copy_from(node);
+        se.nodes += 1;
+        if step(child, opts[i], rng, s).is_err() {
+            se.failed += 1;
+            continue;
+        }
+        if child.pending() != Pending::Turn(p) {
+            continue;
+        }
+        legal_actions_into(child, &mut acts_below[0]);
+        se.own += 1;
+        se.listed += acts_below[0].len() as u64;
+        if depth > 1 && !acts_below[0].is_empty() {
+            dfs(below, p, depth - 1, se, rng, s, acts_below);
+        }
+    }
+}
+
+/// `--search`: the bench's games played at random; at every turn decision (a root) `restores` restores of the live
+/// game into a pooled game and as many whole-`Game` copies are timed, then the own-turn DFS below it.
+fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
+    let n = decks.len();
+    let depth = se.depth.max(1);
+    let mut pool: Vec<Box<Game>> = (0..=depth).map(|_| Box::new(Game::new(0))).collect();
+    let mut full = Box::new(Game::new(0));
+    let mut acts: Vec<Vec<Action>> = (0..=depth).map(|_| Vec::new()).collect();
+    let mut s = Scratch::default();
+    let mut srng = Rng::new(seed0.wrapping_mul(40503));
+    let mut t = Tally::default();
+    let mut opts = Vec::new();
+    for i in 0..games {
+        let seed = seed0.wrapping_mul(100_000).wrapping_add(i as u32);
+        let mut g = Game::new(seed);
+        let mut rng = Rng::new(seed.wrapping_mul(2654435761));
+        t.games += 1;
+        if g.start([&decks[seed as usize % n], &decks[(seed as usize / n) % n]]).and_then(|_| g.settle()).is_err() {
+            continue;
+        }
+        for _ in 0..MAX_STEPS {
+            if g.st.turn > MAX_TURNS || play_to_turn(&mut g, &mut rng, &mut s).is_err() {
+                break;
+            }
+            let Pending::Turn(p) = g.pending() else { break };
+            legal_actions_into(&g, &mut opts);
+            if opts.is_empty() {
+                break;
+            }
+            se.roots += 1;
+            // Restores: the live game into a pooled game, and as many whole-`Game` copies.
+            let b = g.copy_bytes();
+            se.copied += b.copied as u64;
+            se.cleared += b.cleared as u64;
+            se.copied_max = se.copied_max.max(b.copied);
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                pool[0].copy_from(std::hint::black_box(&g));
+                std::hint::black_box(&mut pool[0]);
+            }
+            se.restore_ns += t0.elapsed().as_nanos() as u64;
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                **std::hint::black_box(&mut full) = *std::hint::black_box(&g);
+            }
+            se.copy_ns += t0.elapsed().as_nanos() as u64;
+            se.restored += se.restores as u64;
+            // The DFS below the root.
+            let t0 = Instant::now();
+            pool[0].copy_from(&g);
+            acts[0].clone_from(&opts);
+            dfs(&mut pool, p, depth, se, &mut srng, &mut s, &mut acts);
+            se.dfs_ns += t0.elapsed().as_nanos() as u64;
+            let k = rng.index(opts.len());
+            if step(&mut g, opts[k], &mut rng, &mut s).is_err() {
+                break;
+            }
+        }
+        if g.pending() == Pending::Finished {
+            t.finished += 1;
+            t.wins0 += (g.st.winner == 0) as u64;
+        }
+    }
+    let per = |ns: u64, k: u64| ns as f64 * 1e-3 / k.max(1) as f64;
+    let rate = |ns: u64, k: u64| k as f64 / (ns as f64 * 1e-9).max(1e-9);
+    let roots = se.roots.max(1);
+    println!(
+        "search: {} games ({} finished, p0 won {}), {} roots (turn decisions); {} restores per root; DFS over the own turn, depth {}, branch {}",
+        t.games, t.finished, t.wins0, se.roots, se.restores, depth, se.branch
+    );
+    println!(
+        "  restore (copy_from into a pooled game): {:.0} restores/s, {:.3} us/restore; bytes copied {:.0} mean, {} max, + {} cleared (derived stamps)",
+        rate(se.restore_ns, se.restored),
+        per(se.restore_ns, se.restored),
+        se.copied as f64 / roots as f64,
+        se.copied_max,
+        se.cleared / roots
+    );
+    println!(
+        "  whole-Game copy (*dst = *src, {} B): {:.0} copies/s, {:.3} us/copy",
+        std::mem::size_of::<Game>(),
+        rate(se.copy_ns, se.restored),
+        per(se.copy_ns, se.restored)
+    );
+    println!(
+        "  DFS: {} nodes ({} failed steps; {} at the own turn, {:.1} legal actions each) in {:.2}s: {:.0} nodes/s, {:.3} us/node (restore + step + legal actions)",
+        se.nodes,
+        se.failed,
+        se.own,
+        se.listed as f64 / se.own.max(1) as f64,
+        se.dfs_ns as f64 * 1e-9,
+        rate(se.dfs_ns, se.nodes),
+        per(se.dfs_ns, se.nodes)
+    );
+}
+
 fn run(decks: &[Vec<DefId>], seed0: u32, range: std::ops::Range<usize>) -> Tally {
     let n = decks.len();
     let mut t = Tally::default();
@@ -393,6 +616,12 @@ fn main() {
         run_host(&decks, seed0, games, args.iter().any(|a| a == "--apart"));
         return;
     }
+    if args.iter().any(|a| a == "--search") {
+        let num = |k: &str, d: usize| arg(&args, k).map(|s| s.parse().expect(k)).unwrap_or(d);
+        let mut se = Search { restores: num("--restores", 100), depth: num("--depth", 3), branch: num("--branch", 4), ..Search::default() };
+        run_search(&decks, seed0, games, &mut se);
+        return;
+    }
     // Warm up (card tables, caches), then the timed single-thread run.
     run(&decks, seed0.wrapping_add(7777), 0..20.min(games));
     let (t0, c0) = (Instant::now(), thread_cpu());
@@ -402,6 +631,11 @@ fn main() {
         "1 thread: {} games ({} finished, {} failed, p0 won {}) {} decisions in {:.2}s wall / {:.2}s cpu: {:.1} games/s, {:.0} decisions/s, {:.2} us/decision (cpu {:.2})",
         t.games, t.finished, t.failed, t.wins0, t.decisions, dt, cpu, t.games as f64 / dt, t.decisions as f64 / dt, dt * 1e6 / t.decisions.max(1) as f64, cpu * 1e6 / t.decisions.max(1) as f64
     );
+    // `--threads 1`: the timed run is all (the scaling run on one thread would repeat it; tools/instructions.py counts
+    // the instructions of exactly these games).
+    if max_threads <= 1 {
+        return;
+    }
 
     let mut base = 0.0;
     let mut n = 1;

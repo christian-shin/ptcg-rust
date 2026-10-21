@@ -1,7 +1,8 @@
 # Rust engine checks, as separate jobs
 # after one build: unit and integration tests, the golden-corpus replay, every scenario (`scen`: expect assertions, invariants,
 # stuck prompts, errors, panics) and fresh-seed self-play (`tools/fuzz.py`:
-# meta decks plus random legal pool decks) split across runners.
+# meta decks plus random legal pool decks) split across runners; the bench's instructions per decision
+# (`instructions`, cachegrind; reported, not a gate).
 #
 # Runs on pushes to main and to ci/** branches (`tools/ci.py` pushes the
 # current commit to ci/<branch> and waits for the result), and on demand.
@@ -69,6 +70,7 @@ jobs:
             engine/target/release/fuzz
             engine/target/release/diff
             engine/target/release/scen
+            engine/target/release/bench
           retention-days: 1
 
   # Alongside build, not after it: the engine crate recompiles on every commit either way.
@@ -157,6 +159,33 @@ jobs:
           name: golden-diff
           path: golden-diff*.txt
           if-no-files-found: ignore
+
+  # Instructions per decision of the bench (plain and `--host`), counted by cachegrind: deterministic, a number per
+  # commit without a quiet machine. Reported, not a gate (continue-on-error): the job summary shows it, the
+  # `instructions` artifact keeps it, tools/ci.py prints it with the run's result next to the parent commit's.
+  instructions:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bins
+          path: engine/target/release
+      - run: chmod +x engine/target/release/*
+      - name: Install valgrind
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq valgrind
+      - name: Count
+        run: |
+          python3 tools/instructions.py engine/target/release/bench engine/bench/spec.json \
+            --games 200 --mode plain --mode host --json instructions.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instructions
+          path: instructions.json
+          retention-days: 90
 
   scenarios:
     needs: build

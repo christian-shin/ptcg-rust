@@ -177,6 +177,12 @@ impl<T: Copy, const N: usize> SVec<T, N> {
         std::ptr::copy_nonoverlapping(self.items.as_ptr(), items, self.len as usize);
     }
 
+    /// The bytes [`copy_live_to`](Self::copy_live_to) writes: the length and the live items.
+    #[inline]
+    pub fn live_bytes(&self) -> usize {
+        std::mem::size_of::<u8>() + self.len as usize * std::mem::size_of::<T>()
+    }
+
     pub fn new() -> Self {
         Self::default()
     }

@@ -97,6 +97,14 @@ impl Derived {
         self.abil_v = [0; MAX_CARDS];
         self.dig_v = 0;
     }
+
+    /// The bytes [`clear`](Self::clear) writes (`Game::copy_bytes`).
+    #[inline]
+    pub fn clear_bytes(&self) -> usize {
+        use std::mem::size_of_val as s;
+        s(&self.hp_v) + s(&self.types_v) + s(&self.pe_v) + s(&self.retreat_v) + s(&self.attacks_v) + s(&self.cost_v)
+            + s(&self.powers_v) + s(&self.abil_v) + s(&self.dig_v)
+    }
 }
 
 impl Default for Derived {

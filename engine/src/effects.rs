@@ -122,6 +122,12 @@ impl EffectPayloads {
         use std::ptr::addr_of_mut as f;
         self.moves.copy_live_to(f!((*dst).moves));
     }
+
+    /// The bytes [`copy_live_to`](Self::copy_live_to) writes.
+    #[inline]
+    pub fn live_bytes(&self) -> usize {
+        self.moves.live_bytes()
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
