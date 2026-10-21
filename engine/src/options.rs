@@ -262,8 +262,13 @@ thread_local! {
 /// class gates leave, [`Gates`]). The candidates are distinct by construction (a hand card is told apart by its index, a target occurs once per card, an attack
 /// is deduplicated by its identity in `candidates`, an Ability is one per power and spot), so there is no
 /// duplicate scan; `PTCG_VERIFY_LEGAL=1` asserts it.
-pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
-    legal_actions_with(&mut Ctx::new(g), out);
+///
+/// The derived facts and the card lists in the propagation order the scan computed are kept in the game's memo and order
+/// cache (`legal::keep`), for the next decisions and the action taken.
+pub fn legal_actions_into(g: &mut Game, out: &mut Vec<Action>) {
+    let mut fresh = crate::legal::DecisionFacts::new();
+    legal_actions_with(&mut Ctx::keeping(g, &mut fresh), out);
+    crate::legal::keep(g, &fresh);
 }
 
 /// [`legal_actions_into`] over the decision's facts `ctx` (a caller that reads more of the decision afterwards, the
@@ -285,10 +290,11 @@ pub(crate) fn legal_actions_with(ctx: &mut Ctx, out: &mut Vec<Action>) {
     LEGAL_SCRATCH.with(|s| *s.borrow_mut() = cands);
 }
 
-/// Legal turn options (in candidate order). Descriptors are built for the legal ones only.
+/// Legal turn options (in candidate order). Descriptors are built for the legal ones only. For the tools and the checks that
+/// read a `&Game`: the scan's order lists are not kept (`legal_actions_into` keeps them).
 pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
     let mut acts = Vec::new();
-    legal_actions_into(g, &mut acts);
+    legal_actions_with(&mut Ctx::new(g), &mut acts);
     acts.into_iter().map(|action| TurnOption { desc: describe_action(g, action), action }).collect()
 }
 
@@ -420,10 +426,10 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
     Ok(())
 }
 
-/// Legal actions without descriptors (fast path for the select interface).
+/// Legal actions without descriptors, read from a `&Game` (as [`legal_turn_options`]).
 pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
     let mut acts = Vec::new();
-    legal_actions_into(g, &mut acts);
+    legal_actions_with(&mut Ctx::new(g), &mut acts);
     acts.into_iter().map(|action| TurnOption { desc: Value::Null, action }).collect()
 }
 
@@ -533,7 +539,7 @@ mod tests {
             let mut gated = Vec::new();
             for _ in 0..3000 {
                 if let crate::game::Pending::Turn(_) = g.pending() {
-                    legal_actions_into(&g, &mut gated);
+                    legal_actions_into(&mut g, &mut gated);
                     let mut ctx = Ctx::new(&g);
                     let mut all = Vec::new();
                     candidates(&mut ctx, &mut all, false);
