@@ -82,7 +82,7 @@ mod tests {
         let attack = AttackRef { card: g.st.slot_pokemon(me, slot).unwrap(), index: 0 };
         let cause = crate::cause::Cause::of_attack_at(&g, me as u8, attack, source);
         crate::engine::knockout::leave_play_cards(&mut g, source, &[card], crate::spec::event::RulesZone::Discard, cause, None).unwrap();
-        assert!(g.st.players[me].discard.contains(card), "discarded");
+        assert!(g.st.players[me].discard().contains(card), "discarded");
         after(&mut g, me);
         g.run_fx(Effect::AfterAttackTriggers { p: me as u8, opp: (1 - me) as u8, attack }).unwrap();
         (g, me, card)
@@ -106,6 +106,6 @@ mod tests {
             let a = g.st.players[me].active;
             { use crate::list::CardList; g.st.slot_edit(me, a).cards().clear(); }
             });
-        assert!(g.st.players[me].discard.contains(card), "stays in the discard pile");
+        assert!(g.st.players[me].discard().contains(card), "stays in the discard pile");
     }
 }

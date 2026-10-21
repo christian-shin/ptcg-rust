@@ -106,9 +106,9 @@ fn sig(g: &Game, skip: Option<u8>, records: bool) -> String {
     let mut o = String::new();
     for p in 0..2 {
         let pl = &g.st.players[p];
-        o += &format!("P{} hand[{}] deck[{}] disc[{}] lost[{}] stad[{}] ", p, names_of(g, pl.hand.as_slice(), skip), names_of(g, pl.deck.as_slice(), skip), names_of(g, pl.discard.as_slice(), skip), names_of(g, pl.lostzone.as_slice(), skip), names_of(g, pl.stadium.as_slice(), None));
+        o += &format!("P{} hand[{}] deck[{}] disc[{}] lost[{}] stad[{}] ", p, names_of(g, pl.hand().as_slice(), skip), names_of(g, pl.deck().as_slice(), skip), names_of(g, pl.discard().as_slice(), skip), names_of(g, pl.lostzone().as_slice(), skip), names_of(g, pl.stadium().as_slice(), None));
         for i in 0..pl.prize_count as usize {
-            o += &format!("prize{}[{}] ", i, names_of(g, pl.prizes[i].as_slice(), skip));
+            o += &format!("prize{}[{}] ", i, names_of(g, pl.prizes()[i].as_slice(), skip));
         }
         let mut slots = vec![pl.active];
         slots.extend(pl.bench.iter().copied());
@@ -448,7 +448,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                     for o in &opts {
                         let (label, skip) = match o.action {
                             Action::PlayCard { hand_index, .. } => {
-                                let c = g.st.players[p].hand.as_slice()[hand_index as usize];
+                                let c = g.st.players[p].hand().as_slice()[hand_index as usize];
                                 let d = g.st.cdef(c);
                                 if !d.is_trainer() {
                                     continue;
@@ -477,7 +477,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
                             e.1 += 1;
                             if e.2.is_empty() {
                                 let pl = &g.st.players[p];
-                                e.2 = format!("seed {} turn {} hand {} deck {} opp_hand {} opp_bench {} before={}", seed, g.st.turn, pl.hand.len(), pl.deck.len(), g.st.players[1 - p].hand.len(), g.st.players[1 - p].bench.iter().filter(|b| !g.st.players[1 - p].slots[**b as usize].cards().is_empty()).count(), &before[..before.len().min(200)]);
+                                e.2 = format!("seed {} turn {} hand {} deck {} opp_hand {} opp_bench {} before={}", seed, g.st.turn, pl.hand().len(), pl.deck().len(), g.st.players[1 - p].hand().len(), g.st.players[1 - p].bench.iter().filter(|b| !g.st.players[1 - p].slots[**b as usize].cards().is_empty()).count(), &before[..before.len().min(200)]);
                             }
                         }
                     }
@@ -699,7 +699,7 @@ fn trigger_probe() {
             let mut res = String::from("not offered");
             for o in legal_turn_options(&g) {
                 if let Action::PlayCard { hand_index, .. } = o.action {
-                    let c = g.st.players[me].hand.as_slice()[hand_index as usize];
+                    let c = g.st.players[me].hand().as_slice()[hand_index as usize];
                     if g.st.cards[c as usize].def != t {
                         continue;
                     }
@@ -799,7 +799,7 @@ fn main() {
                 let mut tag: Option<(String, Option<u8>)> = None;
                 match o.action {
                     Action::PlayCard { hand_index, .. } if !is_pokemon => {
-                        let c = g.st.players[me].hand.as_slice()[hand_index as usize];
+                        let c = g.st.players[me].hand().as_slice()[hand_index as usize];
                         if g.st.cards[c as usize].def == t && !inplay && !offered.iter().any(|x| x.starts_with("play")) {
                             tag = Some(("play".to_string(), Some(c)));
                         }

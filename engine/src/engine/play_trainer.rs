@@ -111,7 +111,7 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
 /// from its player's hand: the first other card matching, `None` for a card without the rule or when there is none.
 pub fn companion(g: &Game, p: usize, card: CardId) -> Option<CardId> {
     let pr = crate::cards::spec_for(g.st.cards[card as usize].def)?.together.as_ref()?;
-    g.st.players[p].hand.iter().find(|c| *c != card && crate::spec::value::pred(g, *c, pr))
+    g.st.players[p].hand().iter().find(|c| *c != card && crate::spec::value::pred(g, *c, pr))
 }
 
 /// Does the card have to be played with a companion (`CardSpec::together`)?
@@ -284,7 +284,7 @@ fn cleanup_target(g: &Game, card: CardId) -> fn(u8) -> ListRef {
 /// Zone): a consequence of the play (user decision D13). Then the triggers held until the card was done apply (the table
 /// rule `TableRules::evolving_trainer_discarded_before_evolve_triggers`; none otherwise).
 pub fn trainer_cleanup(g: &mut Game, p: usize, card: CardId) -> R {
-    if g.st.players[p].supporter.contains(card) {
+    if g.st.players[p].supporter().contains(card) {
         let t = cleanup_target(g, card)(p as u8);
         let cause = Cause::rule(RuleWhich::Action, p as u8);
         crate::record::scope(g, crate::spec::event::EventKind::PlayTrainer, p as u8, Some(cause), |g| g.move_card_to(ListRef::Supporter(p as u8), card, t));
@@ -300,7 +300,7 @@ fn restore_played_trainer(g: &mut Game, p: usize, card: CardId) {
     if !g.has_prompts() {
         return;
     }
-    if g.st.players[p].discard.contains(card) {
+    if g.st.players[p].discard().contains(card) {
         g.move_card_to(ListRef::Discard(p as u8), card, ListRef::Supporter(p as u8));
     }
 }
@@ -317,7 +317,7 @@ fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId) -> R {
 /// runs first, as its handler; a used card stays where it is).
 pub fn reducer(g: &mut Game, id: crate::effects::EffId) -> R {
     if let Effect::PlayTrainer { p, card, use_: TrainerUse::Played, .. } = *g.e(id) {
-        if g.st.players[p as usize].hand.contains(card) {
+        if g.st.players[p as usize].hand().contains(card) {
             let dst = if g.st.cdef(card).trainer_type == TrainerType::Supporter as u8 { ListRef::Supporter(p) } else { ListRef::Discard(p) };
             g.move_card_to(ListRef::Hand(p), card, dst);
         }
@@ -422,8 +422,8 @@ mod tests {
                 g.answer(&sel, &[0]).unwrap();
             }
             assert!(asked, "Psychic Draw is offered (held {held})");
-            let discarded = g.st.players[me].discard.contains(candy);
-            let in_play_area = g.st.players[me].supporter.contains(candy);
+            let discarded = g.st.players[me].discard().contains(candy);
+            let in_play_area = g.st.players[me].supporter().contains(candy);
             assert_eq!((discarded, in_play_area), (held, !held), "where Rare Candy is when Psychic Draw is asked (held {held})");
         }
     }

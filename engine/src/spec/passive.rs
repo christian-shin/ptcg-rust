@@ -3199,13 +3199,13 @@ mod ace_spec_tests {
         crate::scenario::apply(&mut g, &sc).unwrap();
         let me = g.st.active_player as usize;
         let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
-        let before = g.st.players[me].hand.len() as i32;
+        let before = g.st.players[me].hand().len() as i32;
         let target = SlotRef::new(me, g.st.players[me].active);
         // An effect attaching it (APR C-09: "when you attach this card from your hand" counts it too).
         let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, me as u8);
         assert!(crate::engine::attach::attach(&mut g, card, target, cause).unwrap());
         g.settle().ok();
-        g.st.players[me].hand.len() as i32 - before
+        g.st.players[me].hand().len() as i32 - before
     }
 
     #[test]
@@ -3278,7 +3278,7 @@ mod play_lock_tests {
 
     fn hand(g: &Game, p: usize, name: &str) -> CardId {
         let def = crate::carddb::def_by_full_name(name).unwrap();
-        g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap_or_else(|| panic!("no {name} in the hand"))
+        g.st.players[p].hand().iter().find(|c| g.st.cards[*c as usize].def == def).unwrap_or_else(|| panic!("no {name} in the hand"))
     }
 
     fn active(g: &Game, p: usize) -> CardId {
@@ -3324,7 +3324,7 @@ mod play_lock_tests {
     fn in_deck(g: &Game, p: usize, name: &str) -> CardId {
         let def = crate::carddb::def_by_full_name(name).unwrap();
         let pl = &g.st.players[p];
-        pl.deck.iter().chain(pl.prizes.iter().flat_map(|z| z.iter())).find(|c| g.st.cards[*c as usize].def == def).unwrap()
+        pl.deck().iter().chain(pl.prizes().iter().flat_map(|z| z.iter())).find(|c| g.st.cards[*c as usize].def == def).unwrap()
     }
 
     /// The lock each attack leaves, applied to player `p` as the attack does, with what it stops.

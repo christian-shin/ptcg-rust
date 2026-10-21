@@ -161,8 +161,8 @@ fn asked(g: &Game) -> crate::purpose::PromptPurpose {
 /// Plays the card named `name` from the hand of the player whose turn it is (its first legal play).
 fn play(g: &mut Game, name: &str) -> crate::list::CardId {
     let p = g.st.active_player as usize;
-    let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == name).unwrap();
-    let card = g.st.players[p].hand.as_slice()[k];
+    let k = g.st.players[p].hand().iter().position(|c| g.st.cdef(c).name == name).unwrap();
+    let card = g.st.players[p].hand().as_slice()[k];
     let action = crate::options::legal_actions(g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
     g.act(action).unwrap();
     card

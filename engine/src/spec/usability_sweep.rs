@@ -251,14 +251,14 @@ fn situation(g: &Game, p: usize, me: CardId) -> String {
     format!(
         "turn {} hand {} deck {} discard {} bench {} active energy {} | opp hand {} deck {} discard {} bench {} active energy {}{}",
         g.st.turn,
-        pl.hand.iter().filter(|c| *c != me).count(),
-        pl.deck.len(),
-        pl.discard.len(),
+        pl.hand().iter().filter(|c| *c != me).count(),
+        pl.deck().len(),
+        pl.discard().len(),
         bench(pl),
         energy(pl),
-        o.hand.len(),
-        o.deck.len(),
-        o.discard.len(),
+        o.hand().len(),
+        o.deck().len(),
+        o.discard().len(),
         bench(o),
         energy(o),
         if (0..2).any(|q| !g.lst(crate::state::ListRef::Stadium(q)).is_empty()) { " | a Stadium in play" } else { "" }
@@ -331,7 +331,7 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
     crate::scenario::apply(&mut g, &sc).ok()?;
     let p = g.st.active_player as usize;
     for (q, left) in [(p, me_left), (1 - p, opp_left)] {
-        let n = g.st.players[q].deck.len().saturating_sub(left);
+        let n = g.st.players[q].deck().len().saturating_sub(left);
         if n > 0 {
             g.move_to(crate::state::ListRef::Deck(q as u8), crate::state::ListRef::LostZone(q as u8), Some(n));
         }
@@ -363,7 +363,7 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
     crate::spec::passive::lock_sync(&mut g);
     let pl = &g.st.players[p];
     let me = match subject {
-        Subject::Play => pl.hand.iter().find(|c| g.st.cards[*c as usize].def == card)?,
+        Subject::Play => pl.hand().iter().find(|c| g.st.cards[*c as usize].def == card)?,
         Subject::Power(_) => {
             let mut slots = vec![pl.active];
             slots.extend(pl.bench.iter().copied());

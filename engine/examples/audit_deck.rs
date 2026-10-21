@@ -65,7 +65,7 @@ fn main() {
             if steps > 4000 { break; }
             let sel = match g.select_with(true) { Ok(Some(s)) => s, _ => break };
             steps += 1;
-            let cur_len = [g.st.players[0].deck.len(), g.st.players[1].deck.len()];
+            let cur_len = [g.st.players[0].deck().len(), g.st.players[1].deck().len()];
             let old_len = prev_len;
             prev_len = cur_len;
             match g.pending() {
@@ -77,7 +77,7 @@ fn main() {
                         let p = sel.player as usize;
                         looked[p] = false;
                         shuf[p] = true;
-                        let n = g.st.players[p].deck.len();
+                        let n = g.st.players[p].deck().len();
                         let mut o: Vec<u8> = (0..n as u8).collect();
                         for i in (1..o.len()).rev() { o.swap(i, rng.index(i + 1)); }
                         if g.answer_shuffle(&sel, &o).is_err() { break; }
@@ -99,7 +99,7 @@ fn main() {
                     let n = sel.options.len();
                     let k = rng.index(n);
                     last = match acts.get(k).map(|o| o.action) {
-                        Some(Action::PlayCard { hand_index, .. }) => g.st.players[p as usize].hand.get(hand_index as usize).map(|c| g.st.cdef(c).full_name.to_string()).unwrap_or("?".into()),
+                        Some(Action::PlayCard { hand_index, .. }) => g.st.players[p as usize].hand().get(hand_index as usize).map(|c| g.st.cdef(c).full_name.to_string()).unwrap_or("?".into()),
                         Some(Action::Attack { .. }) => g.st.active_pokemon(p as usize).map(|c| format!("attack of {}", g.st.cdef(c).full_name)).unwrap_or("?".into()),
                         Some(Action::UseAbility { power, .. }) => format!("ability {}", ptcg::options::power_name(&g, power)),
                         a => format!("{:?}", a),
@@ -121,7 +121,7 @@ fn main() {
                         last_search_msg = pr.purpose.message().to_string();
                         let e = stat.entry(last.clone()).or_default();
                         e.0 += 1;
-                        let deck_n = g.st.players[p as usize].deck.len() as u8;
+                        let deck_n = g.st.players[p as usize].deck().len() as u8;
                         let nolim = opts.max_pokemons.is_none() && opts.max_basic_energies.is_none() && opts.max_energies.is_none() && opts.max_trainers.is_none() && opts.max_tools.is_none() && opts.max_stadiums.is_none() && opts.max_supporters.is_none() && opts.max_special_energies.is_none() && opts.max_items.is_none() && opts.max_basics.is_none() && opts.max_evolutions.is_none() && opts.max_stage1.is_none() && opts.max_stage2.is_none() && !opts.different_types && opts.blocked.0 == 0;
                         if filter_none(&filter) && nolim && opts.min < opts.max.min(deck_n) {
                             e.2 += 1;

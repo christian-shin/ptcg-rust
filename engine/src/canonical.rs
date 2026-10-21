@@ -190,15 +190,15 @@ impl Game {
     fn player_json(&self, p: usize) -> Value {
         let pl = &self.st.players[p];
         let mut o = Map::new();
-        o.insert("deck".into(), self.refs_of(pl.deck.as_slice()));
-        o.insert("hand".into(), self.sorted_refs(pl.hand.as_slice()));
-        o.insert("discard".into(), self.sorted_refs(pl.discard.as_slice()));
-        o.insert("lostzone".into(), self.sorted_refs(pl.lostzone.as_slice()));
-        o.insert("stadium".into(), self.refs_of(pl.stadium.as_slice()));
-        o.insert("supporter".into(), self.refs_of(pl.supporter.as_slice()));
+        o.insert("deck".into(), self.refs_of(pl.deck().as_slice()));
+        o.insert("hand".into(), self.sorted_refs(pl.hand().as_slice()));
+        o.insert("discard".into(), self.sorted_refs(pl.discard().as_slice()));
+        o.insert("lostzone".into(), self.sorted_refs(pl.lostzone().as_slice()));
+        o.insert("stadium".into(), self.refs_of(pl.stadium().as_slice()));
+        o.insert("supporter".into(), self.refs_of(pl.supporter().as_slice()));
         o.insert(
             "prizes".into(),
-            Value::Array((0..pl.prize_count as usize).map(|i| self.refs_of(pl.prizes[i].as_slice())).collect()),
+            Value::Array((0..pl.prize_count as usize).map(|i| self.refs_of(pl.prizes()[i].as_slice())).collect()),
         );
         if pl.prize_face_up[..pl.prize_count as usize].iter().any(|v| *v) {
             o.insert("faceUpPrizes".into(), json!(pl.prize_face_up[..pl.prize_count as usize].to_vec()));
@@ -288,19 +288,19 @@ impl Game {
             let pl = &self.st.players[p];
             let lists: Vec<&[CardId]> = {
                 let mut v: Vec<&[CardId]> = vec![
-                    pl.deck.as_slice(),
-                    pl.hand.as_slice(),
-                    pl.discard.as_slice(),
-                    pl.lostzone.as_slice(),
-                    pl.stadium.as_slice(),
-                    pl.supporter.as_slice(),
+                    pl.deck().as_slice(),
+                    pl.hand().as_slice(),
+                    pl.discard().as_slice(),
+                    pl.lostzone().as_slice(),
+                    pl.stadium().as_slice(),
+                    pl.supporter().as_slice(),
                     pl.slots[pl.active as usize].cards().as_slice(),
                 ];
                 for b in pl.bench.iter() {
                     v.push(pl.slots[*b as usize].cards().as_slice());
                 }
                 for i in 0..pl.prize_count as usize {
-                    v.push(pl.prizes[i].as_slice());
+                    v.push(pl.prizes()[i].as_slice());
                 }
                 v.push(pl.slots[pl.active as usize].tools().as_slice());
                 for b in pl.bench.iter() {

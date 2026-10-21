@@ -684,7 +684,7 @@ impl Game {
             }
             PromptKind::ChoosePrize { count, blocked, use_opponent_prizes, allow_cancel, is_secret, face_down_only, .. } => {
                 let q = if use_opponent_prizes { 1 - p } else { p };
-                let left = self.st.players[q].prizes.iter().filter(|l| !l.is_empty()).count();
+                let left = self.st.players[q].prizes().iter().filter(|l| !l.is_empty()).count();
                 base.insert("prizes".into(), json!(left));
                 let mut opts = json!({ "count": count, "max": count, "blocked": blocked.as_slice(), "allowCancel": allow_cancel,
                             "isSecret": is_secret, "useOpponentPrizes": use_opponent_prizes });
@@ -880,7 +880,7 @@ impl Game {
         let nonempty: SVec<u8, 6> = {
             let mut v = SVec::new();
             for i in 0..self.st.players[q].prize_count {
-                if !self.st.players[q].prizes[i as usize].is_empty() {
+                if !self.st.players[q].prizes()[i as usize].is_empty() {
                     v.push(i);
                 }
             }

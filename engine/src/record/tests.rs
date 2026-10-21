@@ -139,7 +139,7 @@ fn a_move_is_seen_where_the_card_is_seen() {
     assert_eq!(e.len(), 1);
     assert_eq!((e[0].kind, e[0].from.unwrap().zone, e[0].to.unwrap().zone, e[0].seen_by), (EventKind::Draw, Zone::Deck, Zone::Hand, only(me as u8)));
 
-    let card = g.st.players[me].hand.as_slice()[0];
+    let card = g.st.players[me].hand().as_slice()[0];
     crate::engine::cards_zone::discard(&mut g, ListRef::Hand(me as u8), &[card], mine).unwrap();
     let e = g.take_record();
     assert_eq!((e[0].kind, e[0].card, e[0].to.unwrap().zone, e[0].seen_by), (EventKind::Discard, Some(card), Zone::Discard, ALL));
@@ -152,7 +152,7 @@ fn a_move_is_seen_where_the_card_is_seen() {
 
     // The opponent looks at my top card: they see it, I don't; it comes back into my hand: I see it, they did already.
     let theirs = Cause::new(CauseKind::Trainer, None, 1 - me as u8);
-    let top = g.st.players[me].deck.as_slice()[0];
+    let top = g.st.players[me].deck().as_slice()[0];
     let t = g.alloc_temp(&[]);
     crate::engine::cards_zone::stage(&mut g, ListRef::Deck(me as u8), &[top], t, theirs);
     crate::engine::cards_zone::put_into_hand(&mut g, t, &[top], theirs).unwrap();
@@ -222,7 +222,7 @@ fn off_by_default_trials_never_record_rollback_rewinds() {
     assert!(g.record.on(), "the game keeps recording");
     assert!(g.take_record().is_empty(), "the draws after the copy are gone with them");
     // A played Basic Pokémon: its EnterPlay from the hand, seen by both.
-    let k = g.st.players[me].hand.iter().position(|c| g.st.cdef(c).name == "Duraludon").unwrap();
+    let k = g.st.players[me].hand().iter().position(|c| g.st.cdef(c).name == "Duraludon").unwrap();
     let play = opts.iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
     g.act(play).unwrap();
     let e = g.take_record();

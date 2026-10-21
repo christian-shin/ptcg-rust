@@ -37,11 +37,11 @@ fn arg<'a>(args: &'a [String], k: &str) -> Option<&'a str> {
 fn action_card(g: &Game, p: usize, a: &Action) -> Option<u8> {
     let pl = &g.st.players[p];
     match *a {
-        Action::PlayCard { hand_index, .. } => pl.hand.get(hand_index as usize),
+        Action::PlayCard { hand_index, .. } => pl.hand().get(hand_index as usize),
         Action::Attack { .. } => g.st.active_pokemon(p),
         Action::UseAbility { target, .. } => match target.slot {
-            SlotType::Hand => pl.hand.get(target.index as usize),
-            SlotType::Discard => pl.discard.get(target.index as usize),
+            SlotType::Hand => pl.hand().get(target.index as usize),
+            SlotType::Discard => pl.discard().get(target.index as usize),
             _ => ptcg::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s)),
         },
         Action::UseStadium => g.st.stadium_card(),

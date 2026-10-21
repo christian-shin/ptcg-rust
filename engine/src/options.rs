@@ -45,7 +45,7 @@ pub fn action_kind(a: &Action) -> &'static str {
 pub fn describe_action(g: &Game, a: Action) -> Value {
     let p = g.st.active_player as usize;
     let card = match a {
-        Action::PlayCard { hand_index, .. } => Some(g.st.players[p].hand.as_slice()[hand_index as usize]),
+        Action::PlayCard { hand_index, .. } => Some(g.st.players[p].hand().as_slice()[hand_index as usize]),
         _ => None,
     };
     describe_action_of(g, a, card)
@@ -85,7 +85,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
     let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
     let pl = &g.st.players[p];
     let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards().is_empty());
-    for (hi, c) in pl.hand.iter().enumerate() {
+    for (hi, c) in pl.hand().iter().enumerate() {
         let d = g.st.cdef(c);
         let hand_index = hi as u8;
         if d.is_energy() {
@@ -202,7 +202,7 @@ fn stat_kind(g: &Game, a: Action) -> usize {
     match a {
         Action::PlayCard { hand_index, .. } => {
             let p = g.st.active_player as usize;
-            let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return 3 };
+            let Some(card) = g.st.players[p].hand().get(hand_index as usize) else { return 3 };
             let d = g.st.cdef(card);
             if d.is_energy() {
                 0
@@ -273,7 +273,7 @@ fn describe_for_verify(g: &Game, a: Action) -> String {
     let p = g.st.active_player as usize;
     match a {
         Action::PlayCard { hand_index, target } => {
-            let c = g.st.players[p].hand.get(hand_index as usize).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
+            let c = g.st.players[p].hand().get(hand_index as usize).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
             format!("[play {} onto {:?}; turn {}]", c, target_json(target), g.st.turn)
         }
         Action::Attack { attack, copied } => {

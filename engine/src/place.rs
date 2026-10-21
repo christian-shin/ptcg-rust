@@ -77,15 +77,15 @@ impl Game {
         let at = |owner: u8, zone: Zone, index: usize| Some(CardPlace { owner, zone, index: index as u8 });
         let pos = |l: &[CardId]| l.iter().position(|x| *x == c).unwrap_or(0);
         match st.locate(c) {
-            Some(ListRef::Deck(p)) => return at(p, Zone::Deck, pos(st.players[p as usize].deck.as_slice())),
-            Some(ListRef::Hand(p)) => return at(p, Zone::Hand, pos(st.players[p as usize].hand.as_slice())),
-            Some(ListRef::Discard(p)) => return at(p, Zone::Discard, pos(st.players[p as usize].discard.as_slice())),
-            Some(ListRef::LostZone(p)) => return at(p, Zone::LostZone, pos(st.players[p as usize].lostzone.as_slice())),
+            Some(ListRef::Deck(p)) => return at(p, Zone::Deck, pos(st.players[p as usize].deck().as_slice())),
+            Some(ListRef::Hand(p)) => return at(p, Zone::Hand, pos(st.players[p as usize].hand().as_slice())),
+            Some(ListRef::Discard(p)) => return at(p, Zone::Discard, pos(st.players[p as usize].discard().as_slice())),
+            Some(ListRef::LostZone(p)) => return at(p, Zone::LostZone, pos(st.players[p as usize].lostzone().as_slice())),
             Some(ListRef::Stadium(p)) => return at(p, Zone::Stadium, 0),
-            Some(ListRef::Supporter(p)) => return at(p, Zone::PlayArea, pos(st.players[p as usize].supporter.as_slice())),
+            Some(ListRef::Supporter(p)) => return at(p, Zone::PlayArea, pos(st.players[p as usize].supporter().as_slice())),
             Some(ListRef::Prize(p, i)) => {
                 let pl = &st.players[p as usize];
-                let left = (0..i as usize).filter(|k| !pl.prizes[*k].is_empty()).count();
+                let left = (0..i as usize).filter(|k| !pl.prizes()[*k].is_empty()).count();
                 return at(p, Zone::Prizes, left);
             }
             Some(ListRef::Slot(p, s)) => return self.spot_place(p, s, c),
@@ -195,21 +195,21 @@ pub(crate) mod tests {
         let p = g.st.active_player as usize;
         let st = &g.st;
         let pl = &st.players[p];
-        for (k, c) in pl.deck.iter().enumerate() {
+        for (k, c) in pl.deck().iter().enumerate() {
             assert_eq!(g.locate_card(c), Some(CardPlace { owner: p as u8, zone: Zone::Deck, index: k as u8 }));
         }
-        for (k, c) in pl.hand.iter().enumerate() {
+        for (k, c) in pl.hand().iter().enumerate() {
             assert_eq!(g.locate_card(c), Some(CardPlace { owner: p as u8, zone: Zone::Hand, index: k as u8 }));
         }
-        for (k, c) in pl.discard.iter().enumerate() {
+        for (k, c) in pl.discard().iter().enumerate() {
             assert_eq!(g.locate_card(c), Some(CardPlace { owner: p as u8, zone: Zone::Discard, index: k as u8 }));
         }
         let mut left = 0;
         for i in 0..pl.prize_count as usize {
-            for c in pl.prizes[i].iter() {
+            for c in pl.prizes()[i].iter() {
                 assert_eq!(g.locate_card(c), Some(CardPlace { owner: p as u8, zone: Zone::Prizes, index: left }));
             }
-            left += !pl.prizes[i].is_empty() as u8;
+            left += !pl.prizes()[i].is_empty() as u8;
         }
         let v = crate::view::TableView::new(&g, p);
         let active = v.players[p].active.unwrap();
@@ -244,7 +244,7 @@ pub(crate) mod tests {
         const MON: &str = "Hop's Phantump ASC 95";
         let mut g = game_of(&[(MON, 4), ("Buddy-Buddy Poffin TEF 144", 4)], json!({"me": {"reset": true, "active": MON, "hand": ["Buddy-Buddy Poffin TEF 144"]}, "opp": {"reset": true, "active": MON}}));
         let me = g.st.active_player as usize;
-        let hand = g.st.players[me].hand.as_slice().to_vec();
+        let hand = g.st.players[me].hand().as_slice().to_vec();
         let k = hand.iter().position(|c| g.st.cdef(*c).name == "Buddy-Buddy Poffin").unwrap();
         let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
         g.act(play).unwrap();
@@ -257,13 +257,13 @@ pub(crate) mod tests {
             let place = g.locate_card(c).unwrap();
             assert_eq!(place.zone, Zone::Deck);
             assert_eq!(place.owner as usize, me);
-            assert_eq!(g.st.players[me].deck.as_slice()[place.index as usize], c);
+            assert_eq!(g.st.players[me].deck().as_slice()[place.index as usize], c);
         }
         // The Item itself is in the play area while its effect resolves.
         let ball = hand[k];
         assert_eq!(g.locate_card(ball).unwrap().zone, Zone::PlayArea);
         // A card set aside (staged) for a look is Looking, from the deck.
-        let top = g.st.players[me].deck.as_slice()[0];
+        let top = g.st.players[me].deck().as_slice()[0];
         let t = g.alloc_temp(&[]);
         crate::engine::cards_zone::stage(&mut g, ListRef::Deck(me as u8), &[top], t, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8));
         assert_eq!(g.locate_card(top), Some(CardPlace { owner: me as u8, zone: Zone::Looking { from: RulesZone::Deck }, index: 0 }));

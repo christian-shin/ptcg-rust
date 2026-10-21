@@ -345,45 +345,33 @@ fn ordered_st(st: &State, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 
     out
 }
 
-/// The card's place in the zone order: player (bit 20), zone (bits 8..19), index in the zone (bits 0..7).
+/// The card's place in the zone order: player (bit 20), zone (bits 8..19), index in the zone (bits 0..7). Read from the
+/// place record (`State::place`: the list and the index), the zone from the list.
 fn prop_key(st: &State, c: CardId) -> Option<u32> {
+    let i = st.place(c).1;
     let key = |p: u8, zone: u32, list: &[CardId]| -> Option<u32> {
-        let i = list.iter().position(|x| *x == c)? as u32;
-        Some((p as u32) << 20 | zone << 8 | i)
-    };
-    let tool_key = |p: usize, s: crate::state::SlotId| -> Option<u32> {
-        let pl = &st.players[p];
-        let zone = if pl.active == s { 3 } else { 5 + 2 * pl.bench.position(&s)? as u32 };
-        key(p as u8, zone, pl.slots[s as usize].tools().as_slice())
-    };
-    // The Tool hint first; a card in a zone list is in no Tool list, so the Tool lists are asked only when the card is
-    // in no zone list (a stale hint).
-    let r = if st.at[c as usize].tool_slot().is_some() {
-        if let Some((p, s)) = st.tool_spot(c) {
-            return tool_key(p, s);
+        if crate::game::verify_cache() {
+            assert_eq!(list.get(i as usize), Some(&c), "State::pos answered differently from the list for card {c}");
         }
-        st.locate(c)?
-    } else {
-        match st.locate(c) {
-            Some(r) => r,
-            None => {
-                let (p, s) = st.tool_spot(c)?;
-                return tool_key(p, s);
-            }
-        }
+        Some((p as u32) << 20 | zone << 8 | i as u32)
     };
     let pl = |p: u8| &st.players[p as usize];
+    let Some(r) = st.locate(c) else {
+        let (p, s) = st.tool_spot(c)?;
+        let zone = if pl(p as u8).active == s { 3 } else { 5 + 2 * pl(p as u8).bench.position(&s)? as u32 };
+        return key(p as u8, zone, pl(p as u8).slots[s as usize].tools().as_slice());
+    };
     match r {
-        ListRef::Stadium(p) => key(p, 0, pl(p).stadium.as_slice()),
-        ListRef::Supporter(p) => key(p, 1, pl(p).supporter.as_slice()),
+        ListRef::Stadium(p) => key(p, 0, pl(p).stadium().as_slice()),
+        ListRef::Supporter(p) => key(p, 1, pl(p).supporter().as_slice()),
         ListRef::Slot(p, s) => {
             let zone = if pl(p).active == s { 2 } else { 4 + 2 * pl(p).bench.position(&s)? as u32 };
             key(p, zone, pl(p).slots[s as usize].cards().as_slice())
         }
-        ListRef::Prize(p, i) => key(p, 20 + i as u32, pl(p).prizes[i as usize].as_slice()),
-        ListRef::Hand(p) => key(p, 26, pl(p).hand.as_slice()),
-        ListRef::Deck(p) => key(p, 27, pl(p).deck.as_slice()),
-        ListRef::Discard(p) => key(p, 28, pl(p).discard.as_slice()),
+        ListRef::Prize(p, i) => key(p, 20 + i as u32, pl(p).prizes()[i as usize].as_slice()),
+        ListRef::Hand(p) => key(p, 26, pl(p).hand().as_slice()),
+        ListRef::Deck(p) => key(p, 27, pl(p).deck().as_slice()),
+        ListRef::Discard(p) => key(p, 28, pl(p).discard().as_slice()),
         ListRef::LostZone(_) | ListRef::SlotEnergies(..) | ListRef::Temp(_) => None,
     }
 }

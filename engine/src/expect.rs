@@ -199,11 +199,11 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     let zone = a["zone"].as_str().unwrap_or("");
     let pl = &g.st.players[p];
     let cards: Vec<CardId> = match zone {
-        "hand" => pl.hand.iter().collect(),
-        "deck" => pl.deck.iter().collect(),
-        "discard" => pl.discard.iter().collect(),
-        "lost_zone" => pl.lostzone.iter().collect(),
-        "prizes" => pl.prizes.iter().flat_map(|l| l.iter()).collect(),
+        "hand" => pl.hand().iter().collect(),
+        "deck" => pl.deck().iter().collect(),
+        "discard" => pl.discard().iter().collect(),
+        "lost_zone" => pl.lostzone().iter().collect(),
+        "prizes" => pl.prizes().iter().flat_map(|l| l.iter()).collect(),
         _ => return Err(format!("unknown zone {}", zone)),
     };
     let w = a["who"].as_str().unwrap_or("");
@@ -263,7 +263,7 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
             (name.is_empty() || crate::options::power_name(g, power) == name) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
         }
         ("play", Action::PlayCard { hand_index, target }) => {
-            names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
+            names_eq(g.st.players[p].hand().as_slice()[hand_index as usize], g, name)
                 && match &a["on"] {
                     Value::Null => true,
                     Value::String(s) if s == "active" => target.slot == crate::types::SlotType::Active,
@@ -736,8 +736,8 @@ mod tests {
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","not_contains":["Fire Energy MEE 2"]})).is_err());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"prizes","count":6})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"lost_zone","count":0})).is_ok());
-        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"hand","count":g.st.players[me].hand.len()})).is_ok());
-        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"deck","count":g.st.players[me].deck.len() + 1})).is_err());
+        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"hand","count":g.st.players[me].hand().len()})).is_ok());
+        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"deck","count":g.st.players[me].deck().len() + 1})).is_err());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","prizes_taken":0})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","prizes_taken":1})).is_err());
         assert!(ev(&g, me, json!({"cite":"c","who":"opp","active":"Pikachu ex ASC 57"})).is_ok());
@@ -774,7 +774,7 @@ mod tests {
         assert!(ok(json!({"cite":"c","who":"me","bench_excludes":["Eternatus SSP 141"]})).is_ok());
         assert!(ok(json!({"cite":"c","who":"me","bench_excludes":["Pikachu ex ASC 57"]})).is_err());
         assert!(ok(json!({"cite":"c","who":"opp","bench_excludes":["Pikachu ex ASC 57"]})).is_ok());
-        let top = crate::carddb::en_key(g.st.cards[g.st.players[me].deck.iter().next().unwrap() as usize].def).to_string();
+        let top = crate::carddb::en_key(g.st.cards[g.st.players[me].deck().iter().next().unwrap() as usize].def).to_string();
         assert!(ok(json!({"cite":"c","who":"me","zone":"deck","top":[top]})).is_ok());
         assert!(ok(json!({"cite":"c","who":"me","zone":"deck","top":["Eternatus SSP 141"]})).is_err());
         let v = p(json!([{"cite":"c","at":"start","who":"me","bench_count":1}])).unwrap();

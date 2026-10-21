@@ -136,13 +136,13 @@ pub(crate) fn may_bench_at_setup(d: &crate::carddb::CardDef) -> bool {
 }
 
 fn hand_has_starting_pokemon(g: &Game, p: usize) -> bool {
-    g.st.players[p].hand.iter().any(|c| is_starting_candidate(g, c))
+    g.st.players[p].hand().iter().any(|c| is_starting_candidate(g, c))
 }
 
 /// A hand with no Basic Pokémon whose only starter is a setup card (Cinderace's Explosiveness): the player
 /// chooses between putting it Active and a mulligan (ruling 1714).
 fn needs_starter_confirm(g: &Game, p: usize) -> bool {
-    hand_has_starting_pokemon(g, p) && !g.st.players[p].hand.iter().any(|c| {
+    hand_has_starting_pokemon(g, p) && !g.st.players[p].hand().iter().any(|c| {
         let d = g.st.cdef(c);
         d.is_pokemon() && d.stage == Stage2Basic::BASIC
     })
@@ -228,7 +228,7 @@ fn deal(g: &mut Game, mut f: SetupFrame) -> R {
 
 fn choose_starting(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     let mut opts = ChooseCardsOpts::new(1, 6, false);
-    let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
+    let hand: Vec<CardId> = g.st.players[p].hand().iter().collect();
     for (i, &c) in hand.iter().enumerate() {
         if !is_starting_candidate(g, c) {
             opts.blocked.push(i as u8);
@@ -358,7 +358,7 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
         in_play.extend(pl.slots[b as usize].cards().iter());
     }
     in_play.extend(pl.slots[pl.active as usize].cards().iter());
-    let hand: Vec<CardId> = pl.hand.iter().collect();
+    let hand: Vec<CardId> = pl.hand().iter().collect();
     let new_basics: Vec<usize> =
         hand.iter().enumerate().filter(|(_, c)| is_starting_candidate(g, **c) && can_bench_at_setup(g, **c) && !in_play.contains(c)).map(|(i, _)| i).collect();
     if new_basics.is_empty() {
@@ -402,7 +402,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         Stage::Dealt => {
             for (p, r) in results.iter().enumerate().take(2) {
                 if let Res::Order(o) = r {
-                    crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
+                    crate::game::apply_order(&mut g.st.zone_edit(ListRef::Deck(p as u8)), o.as_slice());
                     g.st.bump_layout();
                 }
             }
@@ -439,7 +439,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         Stage::AMulliganed | Stage::BMulliganed => {
             let other = if f.stage == Stage::AMulliganed { 1 } else { 0 };
             if let Res::Order(o) = first {
-                crate::game::apply_order(&mut g.st.players[other].deck, o.as_slice());
+                crate::game::apply_order(&mut g.st.zone_edit(ListRef::Deck(other as u8)), o.as_slice());
                 g.st.bump_layout();
             }
             setup_draw(g, other, 7)?;

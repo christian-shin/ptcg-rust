@@ -627,7 +627,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 }
                 f.slot = encode(target);
                 let mut opts = ChooseCardsOpts::new(1, 1, false);
-                let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
+                let hand: Vec<CardId> = g.st.players[p].hand().iter().collect();
                 for (i, c) in hand.iter().enumerate() {
                     let d = g.st.cdef(*c);
                     let stage2 = d.is_pokemon() && d.stage == Stage::Stage2 as u8;
@@ -1423,7 +1423,7 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
 // Evolving skipping Stage 1 (its checks are the Evolve event's: `can_skip_stage1_onto`)
 
 pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
-    g.st.players[p].hand.iter().filter(|c| {
+    g.st.players[p].hand().iter().filter(|c| {
         let d = g.st.cdef(*c);
         d.is_pokemon() && d.stage == Stage::Stage2 as u8
     }).collect()
@@ -1494,7 +1494,7 @@ fn effect_can_evolve<F: crate::derived::Facts>(g: &mut F, t: SlotRef, card: Card
 fn evolution_prompt(g: &mut Game, me: CardId, p: usize, t: SlotRef, stage: Stage, cause: crate::cause::Cause, cont: crate::game::Cont) -> R {
     let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(()) };
     let mut blocked = Blocked::default();
-    let deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
+    let deck: Vec<CardId> = g.st.players[p].deck().iter().collect();
     for (i, c) in deck.iter().copied().enumerate() {
         if g.st.cdef(c).is_pokemon() && !effect_can_evolve(g, t, c, super::super::event::RulesZone::Deck, cause)? {
             blocked.push(i as u8);
@@ -1851,7 +1851,7 @@ mod effect_evolve_tests {
         let cause = crate::cause::Cause::of_trainer(&g, stadium, me as u8);
         let card = |g: &Game, name: &str| {
             let def = crate::carddb::def_by_full_name(name).unwrap();
-            g.st.players[me].deck.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
+            g.st.players[me].deck().iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
         };
         let (palafin, palafin_ex) = (card(&g, "Palafin TWM 60"), card(&g, "Palafin ex TWM 61"));
         assert!(effect_can_evolve(&mut g, t, palafin, RulesZone::Deck, cause).unwrap());

@@ -756,7 +756,7 @@ fn held_until_trainer_done(g: &Game, e: EffId, kind: u32) -> bool {
         return false;
     }
     match g.e(e).cause() {
-        Some(Cause { kind: CauseKind::Trainer, card: Some(t), .. }) => g.st.players[g.st.owner(t)].supporter.contains(t),
+        Some(Cause { kind: CauseKind::Trainer, card: Some(t), .. }) => g.st.players[g.st.owner(t)].supporter().contains(t),
         _ => false,
     }
 }
@@ -1345,7 +1345,7 @@ mod usability_tests {
         crate::scenario::apply(&mut g, &sc).unwrap();
         let p = g.st.active_player as usize;
         let def = crate::carddb::def_by_full_name(card).unwrap();
-        let me = g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).expect("the card in hand");
+        let me = g.st.players[p].hand().iter().find(|c| g.st.cards[*c as usize].def == def).expect("the card in hand");
         let play = crate::cards::spec_for(def).unwrap().play.as_ref().unwrap();
         let f = Frame::start(&g, me, Prog::Play, Phase::Use, 0, p, false);
         usable_by_rules(&g, me, &f, play.steps)

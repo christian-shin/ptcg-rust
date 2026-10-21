@@ -411,7 +411,7 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
     match a {
         Action::Pass => Some(true),
         Action::PlayCard { hand_index, target } => {
-            let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return ctx.none("unknown hand card") };
+            let Some(card) = g.st.players[p].hand().get(hand_index as usize) else { return ctx.none("unknown hand card") };
             let def = d_def(g, card);
             if def_flags(def) & F_TOGETHER != 0 {
                 return play_fresh(ctx, card, target);
@@ -718,7 +718,7 @@ mod tests {
             }
             for energy_played in [false, true] {
                 let Some(g) = twins(def, energy_played) else { continue };
-                let hand = g.st.players[0].hand;
+                let hand = g.st.players[0].hand();
                 if hand.len() != 2 || d_def(&g, hand.get(0).unwrap()) != def {
                     continue;
                 }

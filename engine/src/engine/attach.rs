@@ -337,9 +337,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 fn put_attached(g: &mut Game, card: CardId, target: SlotRef) {
     let tool = is_tool(g, card);
     g.st.bump_layout();
-    if tool {
-        g.st.at[card as usize] = crate::state::Loc::tool(target.p as usize, target.s);
-    }
     let mut slot = g.st.slot_edit(target.p as usize, target.s);
     if tool {
         slot.cards().remove(card);
@@ -410,7 +407,7 @@ mod tests {
         let charm = copy_in(&g, me, CHARM, ListRef::Deck(me as u8));
         let a = active(&g, me);
         assert!(!attach(&mut g, charm, a, ability(me)).unwrap(), "the Active Pokémon has a Tool");
-        assert!(g.st.players[me].deck.contains(charm));
+        assert!(g.st.players[me].deck().contains(charm));
         assert_eq!(g.st.slot(me, a.s).tools().len(), 1);
         let b = bench(&g, me, 0);
         assert!(attach(&mut g, charm, b, ability(me)).unwrap());
@@ -454,12 +451,12 @@ mod tests {
         let me = g.st.active_player as usize;
         let (a, b) = (active(&g, me), bench(&g, me, 0));
         let e = copy_in(&g, me, ENRICHING, a.list());
-        let hand = g.st.players[me].hand.len();
+        let hand = g.st.players[me].hand().len();
         let v = move_view(&g, EventKind::MoveEnergy, e, a, b, ability(me));
         assert_eq!(crate::derived::event_locked(&mut g, &v).unwrap(), None);
         assert!(move_energy(&mut g, e, a, b, ability(me)).unwrap());
         g.settle().ok();
-        assert_eq!(g.st.players[me].hand.len(), hand, "no draw");
+        assert_eq!(g.st.players[me].hand().len(), hand, "no draw");
         assert!(g.st.slot(me, b.s).energies().contains(e) && !g.st.slot(me, a.s).cards().contains(e));
     }
 
@@ -474,11 +471,11 @@ mod tests {
             if !from_hand {
                 g.move_card_to(ListRef::Hand(me as u8), e, ListRef::Deck(me as u8));
             }
-            let hand = g.st.players[me].hand.len() as i32;
+            let hand = g.st.players[me].hand().len() as i32;
             let a = active(&g, me);
             assert!(attach(&mut g, e, a, ability(me)).unwrap());
             g.settle().ok();
-            assert_eq!(g.st.players[me].hand.len() as i32 - hand, drawn, "from the hand: {from_hand}");
+            assert_eq!(g.st.players[me].hand().len() as i32 - hand, drawn, "from the hand: {from_hand}");
         }
     }
 
@@ -494,7 +491,7 @@ mod tests {
         g.settle().ok();
         assert!(g.st.slot(me, a.s).energies().contains(e), "attached");
         crate::engine::phase::end_turn_event(&mut g, me).unwrap();
-        assert!(g.st.players[me].discard.contains(e), "discarded at the end of the turn");
+        assert!(g.st.players[me].discard().contains(e), "discarded at the end of the turn");
         assert!(!g.st.slot(me, a.s).energies().contains(e));
     }
 
@@ -510,7 +507,7 @@ mod tests {
         assert!(!attach(&mut g, from_discard, b, ability(me)).unwrap(), "not a Team Rocket's Pokémon");
         let e = copy_in(&g, me, ROCKET_ENERGY, a.list());
         assert!(move_energy(&mut g, e, a, b, ability(me)).unwrap());
-        assert!(g.st.players[me].discard.contains(e), "discarded at the move");
+        assert!(g.st.players[me].discard().contains(e), "discarded at the move");
         assert!(!g.st.slot(me, b.s).cards().contains(e) && !g.st.slot(me, b.s).energies().contains(e));
     }
 }

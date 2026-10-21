@@ -749,7 +749,7 @@ mod tests {
         g.settle().ok();
         crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "hand_to_deck": true, "active": "Charcadet PFL 19"}, "opp": {"reset": true, "active": "Charcadet PFL 19"}})).unwrap();
         let me = g.st.active_player as usize;
-        let card = g.st.players[me].deck.iter().find(|c| g.st.cdef(*c).is_pokemon()).unwrap();
+        let card = g.st.players[me].deck().iter().find(|c| g.st.cdef(*c).is_pokemon()).unwrap();
         // The copy register is allocated first (the lower index), the staging list second.
         let copy = g.alloc_temp(&[]);
         let staging = g.alloc_temp(&[]);
@@ -779,7 +779,7 @@ mod tests {
         let me = g.st.active_player as usize;
         let t = SlotRef::new(me, g.st.players[me].active);
         let palafin = g.st.slot_pokemon(me, t.s).unwrap();
-        let ex = g.st.players[me].deck.iter().find(|c| g.st.cdef(*c).name == "Palafin ex").unwrap();
+        let ex = g.st.players[me].deck().iter().find(|c| g.st.cdef(*c).name == "Palafin ex").unwrap();
         let other = Cause::new(crate::cause::CauseKind::Trainer, None, me as u8);
         assert!(!swap(&mut g, t, palafin, ex, ListRef::Deck(me as u8), SwapPlace::OldIndex, NO_CARD, other).unwrap(), "another effect's Swap is locked");
         assert_eq!(g.st.slot_pokemon(me, t.s), Some(palafin));
