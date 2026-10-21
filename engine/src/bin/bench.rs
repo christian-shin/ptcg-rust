@@ -436,9 +436,9 @@ struct Search {
     snap_ns: u64,
     snap_restore_ns: u64,
     snap_bytes: u64,
-    /// Bytes per restore (`Game::copy_bytes`), summed over the roots.
+    /// Bytes per restore (`Game::copy_bytes`: the fields and the caches), summed over the roots; the fields' maximum.
     copied: u64,
-    cleared: u64,
+    caches: u64,
     copied_max: usize,
     /// DFS nodes (restore + step + legal actions), steps that failed, nodes at the own turn still (their legal actions
     /// listed) and the actions listed, and the DFS time.
@@ -513,9 +513,9 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
             se.roots += 1;
             // Restores: the live game into a pooled game; as many clones, snapshots and restores from the snapshot.
             let b = g.copy_bytes();
-            se.copied += b.copied as u64;
-            se.cleared += b.cleared as u64;
-            se.copied_max = se.copied_max.max(b.copied);
+            se.copied += b.fields as u64;
+            se.caches += b.caches as u64;
+            se.copied_max = se.copied_max.max(b.fields);
             let t0 = Instant::now();
             for _ in 0..se.restores {
                 pool[0].copy_from(std::hint::black_box(&g));
@@ -579,12 +579,12 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
         t.games, t.finished, t.wins0, se.roots, se.restores, depth, se.branch
     );
     println!(
-        "  restore (copy_from into a pooled game): {:.0} restores/s, {:.3} us/restore; bytes copied {:.0} mean, {} max, + {} cleared (derived stamps)",
+        "  restore (copy_from into a pooled game): {:.0} restores/s, {:.3} us/restore; fields {:.0} B mean, {} max, + caches {} B mean (derived memo, order lists)",
         rate(se.restore_ns, se.restored),
         per(se.restore_ns, se.restored),
         se.copied as f64 / roots as f64,
         se.copied_max,
-        se.cleared / roots
+        se.caches / roots
     );
     println!(
         "  clone (Box<Game>::clone, a new box; size_of Game {} B): {:.0} clones/s, {:.3} us/clone",

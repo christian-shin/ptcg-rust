@@ -419,10 +419,34 @@ impl OrderCache {
         OrderCache { gen: 0, valid: false, next: 0, entries: SVec::new() }
     }
 
-    /// Forget every list (`Game::copy_from`).
+    /// Forget every list (a restore from a snapshot).
     #[inline]
     pub fn invalidate(&mut self) {
         self.valid = false;
+    }
+
+    /// Write a copy of `self` to `dst`, moving only the lists kept (none when it is invalid): a copy of the game
+    /// (`snapshot.rs`).
+    ///
+    /// # Safety
+    /// `dst` must be valid for writes and properly aligned.
+    #[inline]
+    pub unsafe fn copy_live_to(&self, dst: *mut Self) {
+        use std::ptr::addr_of_mut as m;
+        m!((*dst).gen).write(self.gen);
+        m!((*dst).valid).write(self.valid);
+        m!((*dst).next).write(self.next);
+        if self.valid {
+            self.entries.copy_live_to(m!((*dst).entries));
+        } else {
+            m!((*dst).entries).write(SVec::new());
+        }
+    }
+
+    /// The bytes [`copy_live_to`](Self::copy_live_to) writes.
+    #[inline]
+    pub fn live_bytes(&self) -> usize {
+        std::mem::size_of::<u32>() + 2 + if self.valid { self.entries.live_bytes() } else { 1 }
     }
 
     /// The list kept for the layout generation, without touching the cache (`Ctx` reads the game's warm lists).

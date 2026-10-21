@@ -9,8 +9,10 @@
 //! What a copy carries besides the fields:
 //! - the declaration index (fixed per deal, rebuilt when a card's identity is rewritten): copied only into a game holding
 //!   another one;
-//! - the derived memo and the declaration order cache: not copied; the destination forgets its own (another line of play
-//!   may reach the same counters);
+//! - the derived memo and the declaration order cache: a game-to-game copy copies them (the order cache by its live
+//!   lists), so the copy starts warm: they describe the source's state at the source's counters, which the copy now
+//!   holds (the destination's own caches, of another line of play that may reach the same counters, are overwritten). A
+//!   snapshot carries neither (they are larger than the rest); its restore forgets the destination's;
 //! - a restore (`copy_from`, [`Game::restore`]) keeps the destination's chance and event recording switches (restoring a
 //!   recording game from a backup must not turn its recording off; the record goes back to the copy's entries); a clone
 //!   copies them.
@@ -233,11 +235,13 @@ impl Snapshot {
 /// What [`Game::copy_from`] moves: a restore's memory traffic besides the work after it.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct CopyBytes {
-    /// Copied from the source: the state, the live part of the stacks, the staging lists ever allocated, the fixed
-    /// fields (not the declaration index: a restore into a game of the same deal holds it already).
-    pub copied: usize,
-    /// Written in the destination to forget its derived facts (the memo's stamps).
-    pub cleared: usize,
+    /// The fields: the state, the live part of the stacks, the staging lists ever allocated, the fixed fields (not the
+    /// declaration index: a restore into a game of the same deal holds it already). What a snapshot holds besides the
+    /// index.
+    pub fields: usize,
+    /// The caches: the derived memo and the order cache's live lists (a snapshot's restore writes the memo's stamps
+    /// instead: `Derived::clear_bytes`).
+    pub caches: usize,
 }
 
 impl Game {
@@ -252,7 +256,9 @@ impl Game {
         if self.decls.id != src.decls.id {
             self.decls = src.decls;
         }
-        self.restored(rec, on);
+        self.recording_back(rec, on);
+        // SAFETY: as above.
+        unsafe { src.copy_caches_to(self) };
     }
 
     /// The live parts of the game, in a new [`Snapshot`].
@@ -281,20 +287,28 @@ impl Game {
         if self.decls.id != s.decls.id {
             self.decls = s.decls;
         }
-        self.restored(rec, on);
+        self.recording_back(rec, on);
+        self.derived.clear();
+        self.order_cache.invalidate();
     }
 
     /// After a restore: the destination's recording switches back (`rec` the chance recording; `on` the game record,
-    /// whose buffer goes back to the copy's entries: a rolled back action's go) and its caches forgotten.
+    /// whose buffer goes back to the copy's entries: a rolled back action's go).
     #[inline]
-    fn restored(&mut self, rec: bool, on: bool) {
+    fn recording_back(&mut self, rec: bool, on: bool) {
         self.rng.set_record(rec);
         self.record = self.record.with_on(on);
         if on {
             crate::record::rewind(self.record.len);
         }
-        self.derived.clear();
-        self.order_cache.invalidate();
+    }
+
+    /// Write the caches of `self` (the derived memo, the order cache's live lists) to `d`.
+    #[inline]
+    unsafe fn copy_caches_to(&self, d: *mut Game) {
+        use std::ptr::addr_of_mut as m;
+        m!((*d).derived).write(self.derived);
+        self.order_cache.copy_live_to(m!((*d).order_cache));
     }
 
     /// A clone of the game in a new box, written in place (no whole-`Game` copy on the way).
@@ -308,22 +322,15 @@ impl Game {
     }
 
     /// Write a clone of `self` to `d`: every field (`fresh`: `d` is uninitialized memory) or the live parts over a valid
-    /// game. The recording switches are copied; the caches start empty.
+    /// game. The recording switches and the caches are copied.
     #[inline]
     unsafe fn clone_to(&self, d: *mut Game, fresh: bool) {
         use std::ptr::addr_of_mut as m;
         fields(&mut ToGame { src: self, dst: d, fresh });
-        if fresh {
+        if fresh || (*d).decls.id != self.decls.id {
             m!((*d).decls).write(self.decls);
-            m!((*d).derived).write(crate::derived::Derived::new());
-            m!((*d).order_cache).write(crate::decl::OrderCache::new());
-        } else {
-            if (*d).decls.id != self.decls.id {
-                m!((*d).decls).write(self.decls);
-            }
-            (*d).derived.clear();
-            (*d).order_cache.invalidate();
         }
+        self.copy_caches_to(d);
     }
 
     /// What [`copy_from`](Self::copy_from) moves when `self` is the source (a measurement: `bench --search`,
@@ -333,12 +340,12 @@ impl Game {
         let mut c = Count { src: self, bytes: 0 };
         // SAFETY: the counter only reads `self`.
         unsafe { fields(&mut c) };
-        CopyBytes { copied: c.bytes, cleared: self.derived.clear_bytes() }
+        CopyBytes { fields: c.bytes, caches: std::mem::size_of_val(&self.derived) + self.order_cache.live_bytes() }
     }
 }
 
-/// A clone moves the live parts (most of `size_of::<Game>()` is unused capacity: `Game` is not `Copy`); its caches
-/// start empty. `clone_from` writes over the destination in place.
+/// A clone moves the live parts (most of `size_of::<Game>()` is unused capacity: `Game` is not `Copy`) and the
+/// caches. `clone_from` writes over the destination in place.
 impl Clone for Game {
     #[inline]
     fn clone(&self) -> Game {
@@ -420,7 +427,7 @@ mod tests {
             for n in 0..400u32 {
                 if n % 9 == 0 {
                     let s = g.snapshot();
-                    assert_eq!(s.bytes.len(), g.copy_bytes().copied);
+                    assert_eq!(s.bytes.len(), g.copy_bytes().fields);
                     let mut clone = g.clone();
                     let mut boxed = g.boxed();
                     let mut restored = other.boxed();

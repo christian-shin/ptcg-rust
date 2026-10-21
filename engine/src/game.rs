@@ -299,7 +299,7 @@ pub struct Game {
     pub derived: crate::derived::Derived,
     /// The declaration index (`decl.rs`): per reader family, the cards of the game that declare one (set by `start`).
     pub decls: crate::decl::DeclIndex,
-    /// The readers' card lists of the current layout generation (`decl::OrderCache`; not copied by `copy_from`).
+    /// The readers' card lists of the current layout generation (`decl::OrderCache`).
     pub order_cache: crate::decl::OrderCache,
     /// The large payloads of the effects in flight (`effects::EffectPayloads`).
     pub fxp: crate::effects::EffectPayloads,

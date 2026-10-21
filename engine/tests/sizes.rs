@@ -22,17 +22,19 @@ fn sizes() {
 
 /// What a search's restore moves (speed batch S0): the whole `Game` (what a copy would move if `Game` were `Copy`; since
 /// speed batch S8 it isn't: every copy moves the live parts) and the fixed part of a snapshot, `Game::copy_bytes` of a
-/// game with empty stacks: the state and the fixed fields `copy_from` always copies, plus the derived stamps it clears.
+/// game with empty stacks: the state and the fixed fields `copy_from` always copies, plus the caches it copies with them
+/// (since S8; the derived memo and the order cache's live lists).
 /// A game in progress adds its live stack entries (`bench --search` prints the mean and the maximum over the bench's
 /// games). A `Snapshot` holds the same bytes plus the declaration index.
 #[test]
 fn snapshot_sizes() {
     use std::mem::size_of;
     let b = ptcg::game::Game::new(1).copy_bytes();
-    println!("Game {} State {} snapshot fixed part {} B copied + {} B cleared", size_of::<ptcg::game::Game>(),
-        size_of::<ptcg::state::State>(), b.copied, b.cleared);
-    // Speed batch S0 (events-10 530d6c8c): Game 64,032 B, State 7,944 B, snapshot 8,238 B copied + 1,212 B cleared.
+    println!("Game {} State {} snapshot fixed part {} B + caches {} B", size_of::<ptcg::game::Game>(),
+        size_of::<ptcg::state::State>(), b.fields, b.caches);
+    // Speed batch S0 (events-10 530d6c8c): Game 64,032 B, State 7,944 B, snapshot 8,238 B copied + 1,212 B cleared. S8
+    // (058df6e1 + S8): fields 8,382 B, caches 11,079 B (copied by copy_from and clone since S8).
     assert!(size_of::<ptcg::game::Game>() <= 65_536, "Game grew: {} B", size_of::<ptcg::game::Game>());
-    assert!(b.copied <= 8_448, "the fixed part of a snapshot grew: {} B", b.copied);
-    assert!(b.cleared <= 1_280, "the derived stamps grew: {} B", b.cleared);
+    assert!(b.fields <= 8_448, "the fixed part of a snapshot grew: {} B", b.fields);
+    assert!(b.caches <= 11_264, "the caches a restore copies grew: {} B", b.caches);
 }
