@@ -109,12 +109,41 @@ pub struct Ctx<'a> {
     memo: SVec<((DefId, CardTarget), bool), 96>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
-    /// The readers' card lists of the decision (`decl::OrderCache`).
-    order: crate::decl::OrderCache,
+    /// The readers' card lists the decision ordered itself (`decl::OrderCache`; the game's lists of the layout are read
+    /// first).
+    order: Orders<'a>,
+}
+
+/// Where a [`Ctx`] keeps the card lists it orders: its own cache, or a cache its caller lends ([`Ctx::keeping`]: the legal
+/// scan, which hands the lists to the game's cache when the context is done, `decl::OrderCache::keep`).
+enum Orders<'a> {
+    Own(crate::decl::OrderCache),
+    Lent(&'a mut crate::decl::OrderCache),
+}
+
+impl Orders<'_> {
+    #[inline]
+    fn cache(&mut self) -> &mut crate::decl::OrderCache {
+        match self {
+            Orders::Own(c) => c,
+            Orders::Lent(c) => c,
+        }
+    }
 }
 
 impl<'a> Ctx<'a> {
     pub fn new(g: &'a Game) -> Ctx<'a> {
+        Self::with_orders(g, Orders::Own(crate::decl::OrderCache::new()))
+    }
+
+    /// A context that keeps the card lists it orders in `fresh` (an empty cache): after the context, the caller hands them
+    /// to the game's cache (`decl::OrderCache::keep`), for the next decisions of the layout and the actions taken in it.
+    pub(crate) fn keeping(g: &'a Game, fresh: &'a mut crate::decl::OrderCache) -> Ctx<'a> {
+        Self::with_orders(g, Orders::Lent(fresh))
+    }
+
+    #[inline]
+    fn with_orders(g: &'a Game, order: Orders<'a>) -> Ctx<'a> {
         Ctx {
             g,
             p: g.st.active_player as usize,
@@ -128,7 +157,7 @@ impl<'a> Ctx<'a> {
             abil: SVec::new(),
             memo: SVec::new(),
             why: "",
-            order: crate::decl::OrderCache::new(),
+            order,
         }
     }
 
@@ -288,7 +317,7 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, &mut self.order, Some(&self.g.order_cache), f, class);
+        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, self.order.cache(), Some(&self.g.order_cache), f, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::in_place(self.g, f, class).as_slice(), "legality's order cache differs (family {f})");
         }
@@ -296,7 +325,7 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     #[inline]
     fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
-        let r = crate::decl::ordered_cached(&self.g.st, &mut self.order, Some(&self.g.order_cache), set, class);
+        let r = crate::decl::ordered_cached(&self.g.st, self.order.cache(), Some(&self.g.order_cache), set, class);
         if crate::game::verify_cache() {
             assert_eq!(r.as_slice(), crate::decl::kind_order(self.g, set, class).as_slice(), "legality's order cache differs (class {class})");
         }

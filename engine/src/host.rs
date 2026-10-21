@@ -145,17 +145,19 @@ pub fn pick_mask_into(g: &Game, select: &SelectData, picks: &[usize], mask: &mut
 /// The legal actions of the turn decision the game waits for ([`Decision::Turn`]'s list, in its order) into a list the
 /// host keeps (cleared first; [`crate::options::legal_actions_into`]): no list allocated per decision. Call it only at a
 /// turn decision (`Pending::Turn`).
-pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
+pub fn legal_actions_into(g: &mut Game, out: &mut Vec<Action>) {
     crate::options::legal_actions_into(g, out)
 }
 
 /// A turn decision for a host that shows the table and lists the actions together: [`legal_actions_into`] into `actions`
 /// and [`view_into`] of `seat` into `view` (the same values), with the decision's derived facts (the HP and Energy of the
 /// Pokémon in play, the declaration order lists) read once for both. Call it only at a turn decision (`Pending::Turn`).
-pub fn decision_into(g: &Game, seat: usize, view: &mut TableView, actions: &mut Vec<Action>) {
-    let mut facts = crate::legal::Ctx::new(g);
+pub fn decision_into(g: &mut Game, seat: usize, view: &mut TableView, actions: &mut Vec<Action>) {
+    let mut fresh = crate::decl::OrderCache::new();
+    let mut facts = crate::legal::Ctx::keeping(g, &mut fresh);
     crate::options::legal_actions_with(&mut facts, actions);
     view.refresh_with(&mut facts, seat);
+    g.order_cache.keep(g.st.layout_gen, &fresh);
 }
 
 /// Answer a prompt with option indices (as [`Game::answer`]) and settle chance. An answer the prompt does not accept is
@@ -625,7 +627,7 @@ mod tests {
                     for seat in [*player as usize, 1 - *player as usize] {
                         let mut acts = vec![Action::Pass; 3];
                         let mut v = views[1 - seat];
-                        decision_into(&g, seat, &mut v, &mut acts);
+                        decision_into(&mut g, seat, &mut v, &mut acts);
                         assert_eq!(&acts, actions, "seed {seed}, turn {}", g.st.turn);
                         assert_eq!(v, views[seat], "seed {seed}, seat {seat}, turn {}", g.st.turn);
                         turns_read += 1;
@@ -688,7 +690,7 @@ mod tests {
                     Decision::Over { .. } => break,
                     Decision::Turn { actions: list, .. } => {
                         if into {
-                            legal_actions_into(&g, &mut actions);
+                            legal_actions_into(&mut g, &mut actions);
                             assert!(select_into(&mut g, &mut kept).unwrap());
                             seen.push(Seen::Select(format!("{kept:?}")));
                         } else {
