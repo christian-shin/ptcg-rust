@@ -57,8 +57,8 @@ pub(crate) enum Phase {
     /// choices of the after-damage steps are made now, before the damage, and
     /// recorded in `Game::spec_choices`; the after-damage run carries them out.
     /// Deck searches, and choices nested under an `If` the damage can change, a coin or a
-    /// loop, are still made after the damage, when their options exist. Not run at a table with
-    /// `TableRules::attack_choices_asked_when_their_effect_runs`.
+    /// loop, are still made after the damage, when their options exist. At a table with
+    /// `TableRules::attack_choices_asked_when_their_effect_runs` only the choices the damage reads (`damage_reads`).
     Choices = 3,
     /// The consequences of using an Ability (`Step::consequence`: "If you use this Ability, this Pokémon is Knocked
     /// Out"), done when it is used, before the rest of its text; the program goes on with `AfterConsequences`.
@@ -1273,9 +1273,8 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 continue;
             }
             match f.phase {
-                // Step D follows the attack's before-damage text; at a table that asks an attack's choices when their
-                // effect runs there is none (`TableRules::attack_choices_asked_when_their_effect_runs`).
-                Phase::BeforeDamage if !g.st.rules.attack_choices_asked_when_their_effect_runs => {
+                // Step D follows the attack's before-damage text.
+                Phase::BeforeDamage => {
                     f.phase = Phase::Choices;
                     f.path = [0; MAX_DEPTH];
                     f.sub = 0;
@@ -1297,6 +1296,12 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
         }
         let step = &list[i];
         if f.depth == 0 && !runs_in(step.at, f.phase) {
+            f.advance();
+            continue;
+        }
+        // At a table that asks an attack's choices when their effect runs, step D makes only the choices the damage reads
+        // (`TableRules::attack_choices_asked_when_their_effect_runs`); the others are asked after the damage.
+        if f.depth == 0 && f.phase == Phase::Choices && g.st.rules.attack_choices_asked_when_their_effect_runs && !damage_reads(&list[i..]) {
             f.advance();
             continue;
         }
@@ -1585,6 +1590,17 @@ mod outcome_tests {
             assert!(back.via_attack && back.attached_to == 0x13 && back.p == 1);
         }
     }
+}
+
+/// Does the attack's damage read the choice of the first of `rest` (a top-level step of the attack's program and the
+/// steps after it)? The damage reads a choice through `Op::ChoiceDamage` ("N damage for each card you discarded in this
+/// way", "to have this attack do N more damage", "if you can't discard N cards in this way, this attack does nothing"),
+/// which counts what was chosen before it: the step holding it and every step before it.
+fn damage_reads(rest: &[Step]) -> bool {
+    fn holds(steps: &[Step]) -> bool {
+        steps.iter().any(|s| matches!(s.op, Op::ChoiceDamage(_)) || (0..=8).any(|sel| holds(ops::child(&s.op, sel))))
+    }
+    rest.iter().any(|s| s.at == RuleStep::AfterDamage && holds(std::slice::from_ref(s)))
 }
 
 fn runs_in(at: RuleStep, phase: Phase) -> bool {

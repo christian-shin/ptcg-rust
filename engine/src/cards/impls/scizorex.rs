@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             // Discard up to 2 [M] Energy from this Pokémon: 120 damage for each card discarded.
             steps: &[
                 Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Scoped { scope: PromptScope::Active, min: Num::Lit(0), max: Num::Lit(2), kind: EnergyKind::Provides(ct::METAL), clamp: false }, into: Some(0), ..DiscardEnergySpec::DEFAULT })),
-                Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), op: DamageOp::Set, per: 120 })),
+                Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), by: ChoiceDamageBy::Each(DamageOp::Set, 120) })),
             ],
         },
     ],

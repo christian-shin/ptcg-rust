@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
                 when: Cond::True,
                 yes: &[
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::All { provided: true }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT })),
-                    Step::new(Op::ChoiceDamage(ChoiceDamageSpec { reg: None, op: DamageOp::Add, per: 80 })),
+                    Step::new(Op::ChoiceDamage(ChoiceDamageSpec { reg: None, by: ChoiceDamageBy::Each(DamageOp::Add, 80) })),
                 ],
                 no: &[],
             }))],

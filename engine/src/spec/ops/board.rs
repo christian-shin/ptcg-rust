@@ -739,9 +739,11 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 None => 1,
             };
             if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
-                match c.op {
-                    DamageOp::Add => *damage += c.per * n,
-                    DamageOp::Set => *damage = c.per * n,
+                match c.by {
+                    ChoiceDamageBy::Each(DamageOp::Add, per) => *damage += per * n,
+                    ChoiceDamageBy::Each(DamageOp::Set, per) => *damage = per * n,
+                    ChoiceDamageBy::NothingUnless(need) if n < need as i32 => *damage = 0,
+                    ChoiceDamageBy::NothingUnless(_) => {}
                 }
             }
             Ok(Flow::Next)
@@ -1627,11 +1629,21 @@ impl EachSlotSpec {
 }
 
 /// Step D: the attack's damage follows what was chosen just before (the cards of register
-/// `reg`, or a flat amount when there is none): "N for each card", "N more for each card".
+/// `reg`, or, with none, the answer of the choice this op is under: once).
 pub struct ChoiceDamageSpec {
     pub reg: Option<u8>,
-    pub op: DamageOp,
-    pub per: i32,
+    pub by: ChoiceDamageBy,
+}
+
+/// How the attack's damage follows a choice (`ChoiceDamageSpec`).
+#[derive(Clone, Copy)]
+pub enum ChoiceDamageBy {
+    /// "N damage for each card you discarded in this way" (`DamageOp::Set`), "N more damage for each" / "to have this
+    /// attack do N more damage" (`DamageOp::Add`).
+    Each(DamageOp, i32),
+    /// "If you can't discard N cards in this way, this attack does nothing": no damage unless the register holds this
+    /// many cards.
+    NothingUnless(u8),
 }
 
 /// The prompt of an `EachSlot` choice: the selection's side and slot kinds decide what is listed.
