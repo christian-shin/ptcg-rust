@@ -13,6 +13,21 @@ impl Game {
         }
     }
 
+    /// The index of card `c` in the list `r` (`State::index_in`; a staging list by its list).
+    #[inline]
+    pub fn index_in(&self, r: ListRef, c: CardId) -> Option<usize> {
+        match r {
+            ListRef::Temp(i) => self.temps[i as usize].index_of(c),
+            _ => self.st.index_in(r, c),
+        }
+    }
+
+    /// Does the list `r` hold card `c` ([`Game::index_in`])?
+    #[inline]
+    pub fn holds(&self, r: ListRef, c: CardId) -> bool {
+        self.index_in(r, c).is_some()
+    }
+
     pub fn lst_mut(&mut self, r: ListRef) -> ListMut<'_> {
         match r {
             ListRef::Temp(i) => ListMut::Staging(&mut self.temps[i as usize]),
@@ -140,8 +155,8 @@ impl Game {
             crate::engine::usage::reset_card(&mut self.st, c);
         }
         if let Some((p, s)) = Self::slot_of(src) {
-            // PokemonCardList.moveCardsTo
-            if let Some(i) = self.st.slot(p, s).cards().index_of(c) {
+            // From a spot: the card leaves its cards (and its Energy), its Energy only, or its Tools.
+            if let Some(i) = self.st.index_in(src, c) {
                 let mut edit = self.st.slot_edit(p, s);
                 edit.cards().remove_at(i);
                 edit.energies().remove(c);
@@ -161,8 +176,8 @@ impl Game {
                 self.push_to(dst, c, true);
             }
         } else {
-            // CardList.moveCardsTo (source is never a PokemonCardList here)
-            if let Some(i) = self.lst(src).iter().position(|x| *x == c) {
+            // From a player's zone list or a staging list.
+            if let Some(i) = self.index_in(src, c) {
                 self.lst_mut(src).remove_at(i);
                 self.push_to(dst, c, true);
             }

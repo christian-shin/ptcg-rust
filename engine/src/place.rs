@@ -75,14 +75,15 @@ impl Game {
         }
         let st = &self.st;
         let at = |owner: u8, zone: Zone, index: usize| Some(CardPlace { owner, zone, index: index as u8 });
-        let pos = |l: &[CardId]| l.iter().position(|x| *x == c).unwrap_or(0);
+        // The index in the zone list: the place record.
+        let pos = |r: ListRef| st.index_in(r, c).unwrap_or(0);
         match st.locate(c) {
-            Some(ListRef::Deck(p)) => return at(p, Zone::Deck, pos(st.players[p as usize].deck().as_slice())),
-            Some(ListRef::Hand(p)) => return at(p, Zone::Hand, pos(st.players[p as usize].hand().as_slice())),
-            Some(ListRef::Discard(p)) => return at(p, Zone::Discard, pos(st.players[p as usize].discard().as_slice())),
-            Some(ListRef::LostZone(p)) => return at(p, Zone::LostZone, pos(st.players[p as usize].lostzone().as_slice())),
+            Some(r @ ListRef::Deck(p)) => return at(p, Zone::Deck, pos(r)),
+            Some(r @ ListRef::Hand(p)) => return at(p, Zone::Hand, pos(r)),
+            Some(r @ ListRef::Discard(p)) => return at(p, Zone::Discard, pos(r)),
+            Some(r @ ListRef::LostZone(p)) => return at(p, Zone::LostZone, pos(r)),
             Some(ListRef::Stadium(p)) => return at(p, Zone::Stadium, 0),
-            Some(ListRef::Supporter(p)) => return at(p, Zone::PlayArea, pos(st.players[p as usize].supporter().as_slice())),
+            Some(r @ ListRef::Supporter(p)) => return at(p, Zone::PlayArea, pos(r)),
             Some(ListRef::Prize(p, i)) => {
                 let pl = &st.players[p as usize];
                 let left = (0..i as usize).filter(|k| !pl.prizes()[*k].is_empty()).count();

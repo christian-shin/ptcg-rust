@@ -199,7 +199,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if let CopyScope::Register(reg) = c.scope {
                 let p = f.p as usize;
                 // The Pokémon cards of the register that are still in the discard pile.
-                let cards: Vec<CardId> = reg_list(g, f, reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
+                let cards: Vec<CardId> = reg_list(g, f, reg).iter().copied().filter(|x| g.holds(crate::state::ListRef::Discard(p as u8), *x)).collect();
                 if cards.is_empty() {
                     return Ok(Flow::Next);
                 }

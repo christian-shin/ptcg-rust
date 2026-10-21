@@ -1212,6 +1212,30 @@ impl State {
         }
     }
 
+    /// The index of card `c` in the list `r` (`None`: not in it). A player's zone list or a spot's cards: from the place
+    /// record; a spot's Energy: by its list.
+    #[inline]
+    pub fn index_in(&self, r: ListRef, c: CardId) -> Option<usize> {
+        let i = match r {
+            ListRef::SlotEnergies(p, s) => self.players[p as usize].slots[s as usize].energies.index_of(c),
+            ListRef::Temp(_) => panic!("temp lists live in the store"),
+            _ => match self.place(c) {
+                (l, i) if l == Loc::of(r) => Some(i as usize),
+                _ => None,
+            },
+        };
+        if crate::game::verify_cache() {
+            assert_eq!(i, self.list(r).index_of(c), "State::at / pos answered differently from the list {r:?} for card {c}");
+        }
+        i
+    }
+
+    /// Does the list `r` hold card `c` ([`State::index_in`])?
+    #[inline]
+    pub fn holds(&self, r: ListRef, c: CardId) -> bool {
+        self.index_in(r, c).is_some()
+    }
+
     /// Where a card currently is (for lookups): the zone list that holds it among the Active Spot, deck, discard pile,
     /// hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes in use of either player (a Tool is in none). Read from
     /// the place record [`State::at`].
