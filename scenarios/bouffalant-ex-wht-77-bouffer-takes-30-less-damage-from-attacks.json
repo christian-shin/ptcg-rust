@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chewtle SCR 43",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Chewtle SCR 43",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 30,
+   "cite": "card text: this Pokémon takes 30 less damage from attacks (Chewtle's 60 is 30)"
+  }
+ ]
+}

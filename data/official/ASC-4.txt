@@ -1,0 +1,9 @@
+Erika's Bellsprout
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Vine Slap 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

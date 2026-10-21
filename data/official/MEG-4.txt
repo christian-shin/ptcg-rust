@@ -1,0 +1,10 @@
+Exeggcute
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Jam-Packed
+Search your deck for a Basic [ G ] Energy card and attach it to this Pokémon. Then, shuffle your deck.
+Weakness: Fire
+Resistance: none
+Retreat: 1

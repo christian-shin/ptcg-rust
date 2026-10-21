@@ -1,0 +1,13 @@
+Bouffalant ex
+- Colorless - 220 HP
+Pokémon
+- Basic
+Ability:
+Bouffer
+This Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+CCC
+Gold Breaker 100+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,9 @@
+Croagunk
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Smack 20
+Weakness: Psychic
+Resistance: none
+Retreat: 1

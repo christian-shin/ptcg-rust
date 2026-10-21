@@ -1,0 +1,13 @@
+Druddigon
+- Dragon - 120 HP
+Pokémon
+- Basic
+C
+Shred 40
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+RWC
+Ambush 90+
+Flip a coin. If heads, this attack does 60 more damage.
+Weakness: none
+Resistance: none
+Retreat: 2

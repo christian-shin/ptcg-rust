@@ -805,3 +805,33 @@ Shelgon JTG 113	Shelgon
 Torracat TEF 33	Torracat
 Antique Cover Fossil SCR 129	AntiqueCoverFossil
 Galarian Zigzagoon FST 159	GalarianZigzagoon
+Arrokuda DRI 62	Arrokuda
+Arven's Toedscool DRI 109	ArvensToedscool
+Audino BLK 74	Audino
+Axew BLK 68	Axew
+Bagon JTG 112	Bagon
+Baltoy CRI 46	Baltoy
+Bouffalant ex WHT 77	BouffalantEx
+Charcadet PBL 11	CharcadetPBL
+Clamperl DRI 54	Clamperl
+Corphish MEG 33	Corphish
+Cottonee PRE 7	CottoneePRE
+Cottonee WHT 4	CottoneeWHT
+Cramorant TWM 58	Cramorant
+Cresselia PFL 39	CresseliaPFL
+Cynthia's Feebas DRI 52	CynthiasFeebas
+Darumaka PFL 15	Darumaka
+Deino WHT 65	DeinoWHT
+Deoxys CRI 31	DeoxysCRI31
+Deoxys CRI 34	DeoxysCRI34
+Dialga SSP 135	DialgaSSP
+Dondozo ex DRI 66	DondozoEx
+Druddigon WHT 71	Druddigon
+Eiscue MEG 44	Eiscue
+Electrike PBL 23	ElectrikePBL
+Emolga BLK 29	EmolgaBLK
+Emolga CRI 30	EmolgaCRI
+Erika's Oddish ASC 1	ErikasOddish
+Espurr SSP 84	EspurrSSP
+Espurr POR 33	EspurrPOR
+Exeggcute MEG 4	ExeggcuteMEG

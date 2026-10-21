@@ -1,0 +1,11 @@
+Beldum
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Spinning Attack 10
+PP
+Beam 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

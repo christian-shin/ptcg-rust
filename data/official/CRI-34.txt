@@ -1,0 +1,10 @@
+Deoxys
+- Psychic - 100 HP
+Pokémon
+- Basic
+P
+Psyspeed 30
+You may draw cards until you have 5 cards in your hand.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 0

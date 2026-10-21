@@ -1,0 +1,10 @@
+Clamperl
+- Water - 60 HP
+Pokémon
+- Basic
+W
+Shell Press 10
+During your opponent's next turn, this Pokémon takes 10 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Lightning
+Resistance: none
+Retreat: 2

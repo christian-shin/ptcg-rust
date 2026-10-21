@@ -1,0 +1,9 @@
+Clauncher
+- Water - 80 HP
+Pokémon
+- Basic
+WW
+Wave Splash 50
+Weakness: Lightning
+Resistance: none
+Retreat: 2

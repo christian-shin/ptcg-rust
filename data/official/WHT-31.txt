@@ -1,0 +1,11 @@
+Blitzle
+- Lightning - 60 HP
+Pokémon
+- Basic
+C
+Smash Kick 10
+LC
+Zap Kick 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

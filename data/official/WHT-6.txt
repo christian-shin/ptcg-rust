@@ -1,0 +1,9 @@
+Deerling
+- Grass - 70 HP
+Pokémon
+- Basic
+CC
+Rear Kick 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

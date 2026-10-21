@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Exeggcute MEG 4",
+   "1 Hop's Snorlax JTG 117",
+   "58 Grass Energy MEE 1"
+  ],
+  [
+   "1 Exeggcute MEG 4",
+   "1 Hop's Snorlax JTG 117",
+   "58 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Exeggcute MEG 4",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "prizes": [
+   "Hop's Snorlax JTG 117"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jam-Packed"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Exeggcute MEG 4",
+   "damage": 0,
+   "cite": "card text: search your deck and attach to this Pokémon",
+   "energy": 2
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19 (the shuffle follows the search)"
+  }
+ ]
+}

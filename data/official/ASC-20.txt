@@ -1,0 +1,9 @@
+Charmander
+- Fire - 80 HP
+Pokémon
+- Basic
+RC
+Fire Claws 30
+Weakness: Water
+Resistance: none
+Retreat: 1

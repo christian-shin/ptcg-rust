@@ -1,0 +1,9 @@
+Electabuzz
+- Lightning - 90 HP
+Pokémon
+- Basic
+LC
+Electroslug 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

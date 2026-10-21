@@ -1,0 +1,9 @@
+Darumaka
+- Fire - 80 HP
+Pokémon
+- Basic
+RC
+Will-O-Wisp 30
+Weakness: Water
+Resistance: none
+Retreat: 2

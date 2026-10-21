@@ -1,0 +1,11 @@
+Buizel
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Tail Whap 10
+WCC
+Wave Splash 30
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,11 @@
+Electrike
+- Lightning - 60 HP
+Pokémon
+- Basic
+C
+Rear Kick 10
+LC
+Tiny Bolt 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Cresselia
+- Psychic - 120 HP
+Pokémon
+- Basic
+P
+Swelling Light
+Search your deck for up to 2 Basic [ P ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.
+PPC
+Aurora Beam 90
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1
