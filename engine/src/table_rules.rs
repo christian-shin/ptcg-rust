@@ -93,6 +93,18 @@ pub struct TableRules {
     /// the Ability if going through the effects of Step 2 below would not change the game state in any way"; id925,
     /// id2362; RULES.md "Using Trainers, Abilities and attacks"): an attach with no Pokémon to attach to does nothing.
     pub ability_attach_targets_unread: bool,
+    /// An attack's choices are asked when the effect they belong to runs, after the damage: the attack has no step of
+    /// choices before its damage (e.g. Team Rocket's Murkrow's Torment: the damage is done, then the attack to lock is
+    /// chosen). Text the attack does "before doing
+    /// damage" and the damage calculation are unchanged; every choice of the effects after the damage is made as the
+    /// effect is carried out. `spec::run::run` (no `Phase::Choices`).
+    ///
+    /// Off (the rulings): every choice the attack's effects require is made before the damage and carried out after it
+    /// (RULES.md "Attacks / Order", step D: the Rules Team's forum answer of 2026-04-18 on Tricky Steps vs
+    /// Adrena-Pheromone: the Energy is chosen first, the damage and the flip happen, then the Energy is moved; compendium
+    /// id220, id521, id2034: the choice is made, the damage calculated, then the choice carried out); a deck search and a
+    /// choice under a coin or an "If" the damage can change are made after the damage, when their options exist.
+    pub attack_choices_asked_when_their_effect_runs: bool,
 }
 
 impl TableRules {
@@ -106,6 +118,7 @@ impl TableRules {
         "trainer_conditions_on_hidden_cards_unread",
         "copied_copy_attack_does_nothing",
         "ability_attach_targets_unread",
+        "attack_choices_asked_when_their_effect_runs",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -119,6 +132,7 @@ impl TableRules {
             "trainer_conditions_on_hidden_cards_unread" => &mut self.trainer_conditions_on_hidden_cards_unread,
             "copied_copy_attack_does_nothing" => &mut self.copied_copy_attack_does_nothing,
             "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
+            "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

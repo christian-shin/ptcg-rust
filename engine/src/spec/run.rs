@@ -57,7 +57,8 @@ pub(crate) enum Phase {
     /// choices of the after-damage steps are made now, before the damage, and
     /// recorded in `Game::spec_choices`; the after-damage run carries them out.
     /// Deck searches, and choices nested under an `If` the damage can change, a coin or a
-    /// loop, are still made after the damage, when their options exist.
+    /// loop, are still made after the damage, when their options exist. Not run at a table with
+    /// `TableRules::attack_choices_asked_when_their_effect_runs`.
     Choices = 3,
     /// The consequences of using an Ability (`Step::consequence`: "If you use this Ability, this Pokémon is Knocked
     /// Out"), done when it is used, before the rest of its text; the program goes on with `AfterConsequences`.
@@ -1272,8 +1273,9 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 continue;
             }
             match f.phase {
-                // Step D follows the attack's before-damage text.
-                Phase::BeforeDamage => {
+                // Step D follows the attack's before-damage text; at a table that asks an attack's choices when their
+                // effect runs there is none (`TableRules::attack_choices_asked_when_their_effect_runs`).
+                Phase::BeforeDamage if !g.st.rules.attack_choices_asked_when_their_effect_runs => {
                     f.phase = Phase::Choices;
                     f.path = [0; MAX_DEPTH];
                     f.sub = 0;
