@@ -290,7 +290,7 @@ fn sees(g: &Game, c: CardId, place: Option<CardPlace>, kind: EventKind, by: u8) 
         Zone::Hand => only(place.owner),
         Zone::Prizes => {
             let pl = &g.st.players[place.owner as usize];
-            let up = (0..pl.prize_count as usize).any(|i| pl.prize_face_up[i] && pl.prizes[i].contains(c));
+            let up = (0..pl.prize_count as usize).any(|i| pl.prize_face_up[i] && pl.prizes()[i].contains(c));
             if up {
                 ALL
             } else {

@@ -49,31 +49,20 @@ fn fits(g: &Game, owner: usize, at: Unseen, d: &CardDef) -> bool {
     }
 }
 
-/// Put card `c` at `at` among `owner`'s cards, and its location hint (the caller bumps the layout). A face-down spot is
-/// written through its guard: the card arrives there, the spot's top Pokémon follows the card's identity.
+/// Put card `c` at `at` among `owner`'s cards, through the list's write guard (the caller bumps the layout). A face-down
+/// spot's guard also stamps the card's arrival there, and the spot's top Pokémon follows the card's identity.
 fn put_unseen(g: &mut Game, owner: usize, at: Unseen, c: CardId) {
     let pu = owner as u8;
-    let r = match at {
-        Unseen::Hand(i) => {
-            g.st.players[owner].hand.as_mut_slice()[i] = c;
-            ListRef::Hand(pu)
-        }
-        Unseen::Deck(i) => {
-            g.st.players[owner].deck.as_mut_slice()[i] = c;
-            ListRef::Deck(pu)
-        }
-        Unseen::Prize(i, k) => {
-            g.st.players[owner].prizes[i].as_mut_slice()[k] = c;
-            ListRef::Prize(pu, i as u8)
-        }
+    match at {
+        Unseen::Hand(i) => g.st.zone_edit(ListRef::Hand(pu)).replace_at(i, c),
+        Unseen::Deck(i) => g.st.zone_edit(ListRef::Deck(pu)).replace_at(i, c),
+        Unseen::Prize(i, k) => g.st.zone_edit(ListRef::Prize(pu, i as u8)).replace_at(k, c),
         Unseen::FaceDown(s, k) => {
             let mut cards: Vec<CardId> = g.st.slot(owner, s).cards().iter().collect();
             cards[k] = c;
             g.st.slot_edit(owner, s).cards().set_from(&cards);
-            ListRef::Slot(pu, s)
         }
-    };
-    g.st.put_at(c, r);
+    }
 }
 
 /// Whether each of `places` places can take a distinct one of `items` items it fits (`fit(place, item)`): a bipartite
@@ -111,7 +100,7 @@ impl Game {
     /// Swap two cards of one owner that `viewer` cannot see, under the rule [`determinize`] re-deals by (`unseen_at`):
     /// the other player's hand, either deck, face-down Prize cards no effect made public, no open prompt listing the
     /// deck, and during setup the other player's Pokémon put down face down. Each takes the other's place; no event, no
-    /// shuffle, every zone keeps its size, the location hints and the layout generation follow. Refused with
+    /// shuffle, every zone keeps its size, the place records and the layout generation follow. Refused with
     /// `CARD_NOT_HIDDEN` otherwise (a card in play face up, in the viewer's own hand, in a discard pile or the Lost
     /// Zone, set aside, face up; cards of two players), and with `FACE_DOWN_SPOT_REFUSES_CARD` when a card would go to
     /// a face-down spot it may not be put down in at setup. A host that plays one seat holds its guesses as a
@@ -151,10 +140,10 @@ impl Game {
         let hand_hidden = viewer.map_or(false, |v| hand_hidden(v, p));
         let face_down_hidden = viewer.map_or(false, |v| face_down_hidden(self, v, p));
         let at = match self.st.locate(c)? {
-            ListRef::Hand(q) if q as usize == p && hand_hidden => Unseen::Hand(pl.hand.index_of(c)?),
+            ListRef::Hand(q) if q as usize == p && hand_hidden => Unseen::Hand(pl.hand().index_of(c)?),
             ListRef::Slot(q, s) if q as usize == p && face_down_hidden => Unseen::FaceDown(s, pl.slots[s as usize].cards().index_of(c)?),
-            ListRef::Deck(q) if q as usize == p => Unseen::Deck(pl.deck.index_of(c)?),
-            ListRef::Prize(q, i) if q as usize == p && !pl.prize_face_up[i as usize] && !pl.prize_public[i as usize] => Unseen::Prize(i as usize, pl.prizes[i as usize].index_of(c)?),
+            ListRef::Deck(q) if q as usize == p => Unseen::Deck(pl.deck().index_of(c)?),
+            ListRef::Prize(q, i) if q as usize == p && !pl.prize_face_up[i as usize] && !pl.prize_public[i as usize] => Unseen::Prize(i as usize, pl.prizes()[i as usize].index_of(c)?),
             _ => return None,
         };
         if matches!(at, Unseen::Deck(_)) && self.deck_shown(p) {
@@ -194,9 +183,9 @@ fn hidden_places(g: &Game, viewer: usize, owner: usize) -> (Vec<Unseen>, Vec<Car
     let mut places: Vec<Unseen> = vec![];
     let mut cards: Vec<CardId> = vec![];
     let spots: Vec<(CardId, Unseen)> = pl.in_play().flat_map(|s| pl.slots[s as usize].cards().iter().enumerate().map(move |(k, c)| (c, Unseen::FaceDown(s, k))).collect::<Vec<_>>()).collect();
-    let all = pl.deck.iter().enumerate().map(|(i, c)| (c, Unseen::Deck(i)))
-        .chain((0..pl.prize_count as usize).flat_map(|i| pl.prizes[i].iter().enumerate().map(move |(k, c)| (c, Unseen::Prize(i, k)))))
-        .chain(pl.hand.iter().enumerate().map(|(i, c)| (c, Unseen::Hand(i))))
+    let all = pl.deck().iter().enumerate().map(|(i, c)| (c, Unseen::Deck(i)))
+        .chain((0..pl.prize_count as usize).flat_map(|i| pl.prizes()[i].iter().enumerate().map(move |(k, c)| (c, Unseen::Prize(i, k)))))
+        .chain(pl.hand().iter().enumerate().map(|(i, c)| (c, Unseen::Hand(i))))
         .chain(spots);
     for (c, at) in all {
         if g.unseen_at(c, Some(viewer)) == Some(at) {
@@ -406,7 +395,7 @@ impl Game {
     /// the state doesn't name ([`Game::named_cards`]: those stay where they are); a card put into the deck goes to a
     /// random position (the deck order is hidden from both players), a card put into the hand after the others. Nothing
     /// else moves: the cards the viewer sees, the Prize cards, the face-down Pokémon of setup. No event; identities are
-    /// kept; the chance stream is untouched. The location hints and the layout generation follow.
+    /// kept; the chance stream is untouched. The place records and the layout generation follow.
     ///
     /// The Prize cards are not re-sized: their count changes only by public actions (Prize cards taken; turning one face
     /// up), which a following host sees, and every effect of the pool that moves cards into or out of them keeps their
@@ -422,7 +411,7 @@ impl Game {
             return Err(GameError("NO_SUCH_PLAYER"));
         }
         let pl = &self.st.players[owner];
-        let (hand_now, deck_now) = (pl.hand.len(), pl.deck.len());
+        let (hand_now, deck_now) = (pl.hand().len(), pl.deck().len());
         if hand + deck != hand_now + deck_now {
             return Err(GameError("UNSEEN_COUNT_MISMATCH"));
         }
@@ -451,9 +440,6 @@ impl Game {
         }
         self.st.list_mut(from).set_from(&left);
         self.st.list_mut(to).set_from(&grown);
-        for c in moving {
-            self.st.put_at(c, to);
-        }
         Ok(())
     }
 
@@ -527,19 +513,19 @@ pub(crate) mod tests {
     fn unseen_cards_trade_places() {
         let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON}, "opp": {"reset": true, "active": MON}}));
         let p = g.st.active_player as usize;
-        let deck = g.st.players[p].deck.as_slice().to_vec();
+        let deck = g.st.players[p].deck().as_slice().to_vec();
         let (a, b) = (deck[0], deck[5]);
         g.swap_unseen(a, b).unwrap();
-        assert_eq!((g.st.players[p].deck.as_slice()[0], g.st.players[p].deck.as_slice()[5]), (b, a));
+        assert_eq!((g.st.players[p].deck().as_slice()[0], g.st.players[p].deck().as_slice()[5]), (b, a));
         assert_eq!(g.locate_card(b).unwrap().index, 0);
         assert_eq!(g.locate_card(a).unwrap().index, 5);
-        let prize = g.st.players[p].prizes[2].as_slice()[0];
+        let prize = g.st.players[p].prizes()[2].as_slice()[0];
         g.swap_unseen(a, prize).unwrap();
-        assert_eq!(g.st.players[p].prizes[2].as_slice()[0], a);
-        assert_eq!(g.st.players[p].deck.as_slice()[5], prize);
+        assert_eq!(g.st.players[p].prizes()[2].as_slice()[0], a);
+        assert_eq!(g.st.players[p].deck().as_slice()[5], prize);
         assert_eq!(g.locate_card(a).unwrap().zone, Zone::Prizes);
         assert_eq!(g.locate_card(prize).unwrap().zone, Zone::Deck);
-        assert_eq!(g.st.players[p].deck.len(), deck.len());
+        assert_eq!(g.st.players[p].deck().len(), deck.len());
     }
 
     /// A card a player can see is never swapped: a hand card, a Pokémon in play, a face-up Prize card, cards of two
@@ -548,26 +534,26 @@ pub(crate) mod tests {
     fn a_seen_card_is_not_swapped() {
         let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN]}, "opp": {"reset": true, "active": MON}}));
         let p = g.st.active_player as usize;
-        let top = g.st.players[p].deck.as_slice()[0];
+        let top = g.st.players[p].deck().as_slice()[0];
         let refused = Err(GameError("CARD_NOT_UNSEEN"));
-        let hand = g.st.players[p].hand.as_slice()[0];
+        let hand = g.st.players[p].hand().as_slice()[0];
         assert_eq!(g.swap_unseen(top, hand), refused);
         let active = g.st.active_pokemon(p).unwrap();
         assert_eq!(g.swap_unseen(active, top), refused);
-        let theirs = g.st.players[1 - p].deck.as_slice()[0];
+        let theirs = g.st.players[1 - p].deck().as_slice()[0];
         assert_eq!(g.swap_unseen(top, theirs), refused);
         g.st.players[p].prize_face_up[0] = true;
-        let up = g.st.players[p].prizes[0].as_slice()[0];
+        let up = g.st.players[p].prizes()[0].as_slice()[0];
         assert_eq!(g.swap_unseen(top, up), refused);
         // While the search's prompt lists the deck, its cards are seen by the player searching.
-        let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let k = g.st.players[p].hand().iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
         let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
         g.act(play).unwrap();
         g.select().unwrap().unwrap();
-        let deck = g.st.players[p].deck.as_slice().to_vec();
+        let deck = g.st.players[p].deck().as_slice().to_vec();
         assert_eq!(g.swap_unseen(deck[0], deck[1]), refused);
-        let down = g.st.players[p].prizes[1].as_slice()[0];
-        let other = g.st.players[p].prizes[3].as_slice()[0];
+        let down = g.st.players[p].prizes()[1].as_slice()[0];
+        let other = g.st.players[p].prizes()[3].as_slice()[0];
         assert_eq!(g.swap_unseen(down, other), Ok(()), "face-down Prize cards stay unseen during the search");
     }
 
@@ -578,40 +564,40 @@ pub(crate) mod tests {
         let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN]}, "opp": {"reset": true, "active": MON, "hand": [POFFIN, MON]}}));
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
         let refused = Err(GameError("CARD_NOT_HIDDEN"));
-        let (h, d) = (g.st.players[o].hand.as_slice()[0], g.st.players[o].deck.as_slice()[3]);
-        let (hn, dn) = (g.st.players[o].hand.len(), g.st.players[o].deck.len());
+        let (h, d) = (g.st.players[o].hand().as_slice()[0], g.st.players[o].deck().as_slice()[3]);
+        let (hn, dn) = (g.st.players[o].hand().len(), g.st.players[o].deck().len());
         let gen = g.st.layout_gen;
         g.swap_hidden(v, h, d).unwrap();
-        assert_eq!((g.st.players[o].hand.as_slice()[0], g.st.players[o].deck.as_slice()[3]), (d, h));
+        assert_eq!((g.st.players[o].hand().as_slice()[0], g.st.players[o].deck().as_slice()[3]), (d, h));
         assert_eq!(g.locate_card(d).unwrap().zone, Zone::Hand);
         assert_eq!(g.locate_card(h).unwrap().index, 3);
-        assert_eq!((g.st.players[o].hand.len(), g.st.players[o].deck.len()), (hn, dn));
+        assert_eq!((g.st.players[o].hand().len(), g.st.players[o].deck().len()), (hn, dn));
         assert_ne!(g.st.layout_gen, gen);
-        let pz = g.st.players[o].prizes[1].as_slice()[0];
+        let pz = g.st.players[o].prizes()[1].as_slice()[0];
         g.swap_hidden(v, pz, d).unwrap();
         assert_eq!(g.locate_card(pz).unwrap().zone, Zone::Hand);
         // The viewer's own hand is seen by the viewer; it is hidden only from the other player.
-        let mine = g.st.players[v].hand.as_slice()[0];
-        let mine_deck = g.st.players[v].deck.as_slice()[0];
+        let mine = g.st.players[v].hand().as_slice()[0];
+        let mine_deck = g.st.players[v].deck().as_slice()[0];
         assert_eq!(g.swap_hidden(v, mine, mine_deck), refused);
         assert_eq!(g.swap_hidden(o, mine, mine_deck), Ok(()));
         // Public cards: in play, cards of two owners, a face-up Prize card, a bad viewer.
         let active = g.st.active_pokemon(o).unwrap();
-        let top = g.st.players[o].deck.as_slice()[0];
+        let top = g.st.players[o].deck().as_slice()[0];
         assert_eq!(g.swap_hidden(v, active, top), refused);
-        assert_eq!(g.swap_hidden(v, top, g.st.players[v].deck.as_slice()[1]), refused);
+        assert_eq!(g.swap_hidden(v, top, g.st.players[v].deck().as_slice()[1]), refused);
         g.st.players[o].prize_face_up[0] = true;
-        let up = g.st.players[o].prizes[0].as_slice()[0];
+        let up = g.st.players[o].prizes()[0].as_slice()[0];
         assert_eq!(g.swap_hidden(v, top, up), refused);
         assert_eq!(g.swap_hidden(2, top, top), refused);
         // Consistent after determinizing and swapping: every card is found where its list holds it.
         determinize(&mut g, v, 7).unwrap();
-        let (x, y) = (g.st.players[o].hand.as_slice()[0], g.st.players[o].deck.as_slice()[0]);
+        let (x, y) = (g.st.players[o].hand().as_slice()[0], g.st.players[o].deck().as_slice()[0]);
         g.swap_hidden(v, x, y).unwrap();
-        for (i, c) in g.st.players[o].hand.as_slice().to_vec().into_iter().enumerate() {
+        for (i, c) in g.st.players[o].hand().as_slice().to_vec().into_iter().enumerate() {
             assert_eq!(g.locate_card(c).unwrap().index as usize, i);
         }
-        for (i, c) in g.st.players[o].deck.as_slice().to_vec().into_iter().enumerate() {
+        for (i, c) in g.st.players[o].deck().as_slice().to_vec().into_iter().enumerate() {
             assert_eq!(g.locate_card(c).unwrap().index as usize, i);
         }
     }
@@ -624,12 +610,12 @@ pub(crate) mod tests {
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
         g.st.players[o].prize_face_up[0] = true;
         g.st.players[o].prize_public[2] = true;
-        let kept: Vec<(usize, CardId)> = [0usize, 2].iter().map(|i| (*i, g.st.players[o].prizes[*i].as_slice()[0])).collect();
+        let kept: Vec<(usize, CardId)> = [0usize, 2].iter().map(|i| (*i, g.st.players[o].prizes()[*i].as_slice()[0])).collect();
         let hidden = |g: &Game| {
             let pl = &g.st.players[o];
-            let mut h: Vec<CardId> = pl.deck.iter().chain(pl.hand.iter()).collect();
+            let mut h: Vec<CardId> = pl.deck().iter().chain(pl.hand().iter()).collect();
             for i in [1usize, 3, 4, 5] {
-                h.extend(pl.prizes[i].iter());
+                h.extend(pl.prizes()[i].iter());
             }
             h
         };
@@ -640,7 +626,7 @@ pub(crate) mod tests {
             let old = hidden(&g);
             determinize(&mut g, v, seed).unwrap();
             for (i, c) in &kept {
-                assert_eq!(g.st.players[o].prizes[*i].as_slice()[0], *c);
+                assert_eq!(g.st.players[o].prizes()[*i].as_slice()[0], *c);
                 assert_eq!(g.locate_card(*c).unwrap().zone, Zone::Prizes);
             }
             let mut after = hidden(&g);
@@ -687,7 +673,7 @@ pub(crate) mod tests {
         g.st.players[o].prize_public[2] = true;
         let sizes = |g: &Game| {
             let pl = &g.st.players[o];
-            (pl.deck.len(), pl.hand.len(), (0..6).map(|i| pl.prizes[i].len()).collect::<Vec<_>>())
+            (pl.deck().len(), pl.hand().len(), (0..6).map(|i| pl.prizes()[i].len()).collect::<Vec<_>>())
         };
         let size0 = sizes(&g);
         let hidden = g.unseen_cards(v, o);
@@ -710,10 +696,10 @@ pub(crate) mod tests {
         assert_eq!(sizes(&g), size0);
         assert_eq!(seen(&g, o, &hidden), seen_o);
         assert_eq!(seen(&g, v, &[]), seen_v);
-        for (i, c) in g.st.players[o].deck.iter().enumerate() {
+        for (i, c) in g.st.players[o].deck().iter().enumerate() {
             assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Deck, index: i as u8 });
         }
-        for (i, c) in g.st.players[o].hand.iter().enumerate() {
+        for (i, c) in g.st.players[o].hand().iter().enumerate() {
             assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Hand, index: i as u8 });
         }
         // The indexes are the new identities' (Hero's Cape declares an HP modifier the old cards don't).
@@ -736,7 +722,7 @@ pub(crate) mod tests {
         crate::invariants::check(&g).unwrap();
         again.set_unseen(v, o, &list, 11).unwrap();
         assert_eq!(again.state_hash(), g.state_hash());
-        assert_eq!(again.st.players[o].deck.as_slice(), g.st.players[o].deck.as_slice());
+        assert_eq!(again.st.players[o].deck().as_slice(), g.st.players[o].deck().as_slice());
         other.set_unseen(v, o, &list, 12).unwrap();
         let order = |g: &Game| g.unseen_cards(v, o).iter().map(|c| g.st.cards[*c as usize].def).collect::<Vec<_>>();
         assert_ne!(order(&other), order(&g), "another seed deals otherwise");
@@ -748,13 +734,13 @@ pub(crate) mod tests {
     fn set_unseen_for_the_viewer_keeps_the_hand() {
         let mut g = table();
         let v = g.st.active_player as usize;
-        let hand: Vec<(CardId, DefId)> = g.st.players[v].hand.iter().map(|c| (c, g.st.cards[c as usize].def)).collect();
+        let hand: Vec<(CardId, DefId)> = g.st.players[v].hand().iter().map(|c| (c, g.st.cards[c as usize].def)).collect();
         let hidden = g.unseen_cards(v, v);
-        assert_eq!(hidden.len(), g.st.players[v].deck.len() + 6);
-        assert!(hidden.iter().all(|c| !g.st.players[v].hand.contains(*c)));
+        assert_eq!(hidden.len(), g.st.players[v].deck().len() + 6);
+        assert!(hidden.iter().all(|c| !g.st.players[v].hand().contains(*c)));
         let list: Vec<DefId> = hidden.iter().map(|_| def_of(POFFIN)).collect();
         g.set_unseen(v, v, &list, 3).unwrap();
-        assert_eq!(g.st.players[v].hand.iter().map(|c| (c, g.st.cards[c as usize].def)).collect::<Vec<_>>(), hand);
+        assert_eq!(g.st.players[v].hand().iter().map(|c| (c, g.st.cards[c as usize].def)).collect::<Vec<_>>(), hand);
         assert!(g.unseen_cards(v, v).iter().all(|c| g.st.cards[*c as usize].def == def_of(POFFIN)));
         crate::invariants::check(&g).unwrap();
     }
@@ -765,7 +751,7 @@ pub(crate) mod tests {
     fn set_unseen_refuses_and_keeps_named_cards() {
         let mut g = table();
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
-        let back = g.st.players[o].deck.iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
+        let back = g.st.players[o].deck().iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
         g.st.players[o].played_this_turn.push(back);
         let hidden = g.unseen_cards(v, o);
         let list: Vec<DefId> = hidden.iter().map(|_| def_of(MON)).collect();
@@ -796,12 +782,12 @@ pub(crate) mod tests {
     fn set_unseen_assigned_relabels_in_place() {
         let mut g = table();
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
-        let back = g.st.players[o].deck.iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
+        let back = g.st.players[o].deck().iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
         g.st.players[o].played_this_turn.push(back);
         let hidden = g.unseen_cards(v, o);
         let places = |g: &Game| (0..g.st.n_cards).map(|c| g.locate_card(c)).collect::<Vec<_>>();
         let (before, defs0) = (places(&g), g.st.cards.map(|c| c.def));
-        let hand = g.st.players[o].hand.as_slice()[0];
+        let hand = g.st.players[o].hand().as_slice()[0];
         let free: Vec<CardId> = hidden.iter().copied().filter(|c| *c != back && *c != hand).take(2).collect();
         let assigned = [(free[0], def_of("Hero's Cape TEF 152")), (hand, def_of("Duraludon PRE 69")), (free[1], def_of("Metal Energy MEE 8")), (back, def_of(POFFIN))];
         g.set_unseen_assigned(v, o, &assigned).unwrap();
@@ -822,15 +808,15 @@ pub(crate) mod tests {
     fn set_unseen_assigned_refuses_with_nothing_changed() {
         let mut g = table();
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
-        let back = g.st.players[o].deck.iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
+        let back = g.st.players[o].deck().iter().find(|c| g.st.cdef(*c).full_name == POFFIN).unwrap();
         g.st.players[o].played_this_turn.push(back);
-        let top = g.st.players[o].deck.iter().find(|c| *c != back).unwrap();
+        let top = g.st.players[o].deck().iter().find(|c| *c != back).unwrap();
         let mon = def_of(MON);
         let (hash, defs) = (g.state_hash(), g.st.cards.map(|c| c.def));
         for (r, want) in [
             (g.set_unseen_assigned(v, o, &[(g.st.active_pokemon(o).unwrap(), mon)]), "CARD_NOT_HIDDEN"),
-            (g.set_unseen_assigned(o, o, &[(g.st.players[o].hand.as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
-            (g.set_unseen_assigned(v, o, &[(g.st.players[v].deck.as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
+            (g.set_unseen_assigned(o, o, &[(g.st.players[o].hand().as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
+            (g.set_unseen_assigned(v, o, &[(g.st.players[v].deck().as_slice()[0], mon)]), "CARD_NOT_HIDDEN"),
             (g.set_unseen_assigned(v, o, &[(top, mon), (top, mon)]), "DUPLICATE_CARD"),
             (g.set_unseen_assigned(v, o, &[(back, mon)]), "NAMED_CARD_KEEPS_IDENTITY"),
             (g.set_unseen_assigned(v, o, &[(top, crate::carddb::cards().len() as DefId)]), "UNKNOWN_CARD"),
@@ -849,45 +835,45 @@ pub(crate) mod tests {
     fn resize_unseen_moves_hidden_cards_between_hand_and_deck() {
         let mut g = table();
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
-        let named = g.st.players[o].deck.as_slice()[0];
+        let named = g.st.players[o].deck().as_slice()[0];
         g.st.players[o].played_this_turn.push(named);
-        let (h, d) = (g.st.players[o].hand.len(), g.st.players[o].deck.len());
+        let (h, d) = (g.st.players[o].hand().len(), g.st.players[o].deck().len());
         let zones = |g: &Game| {
             let pl = &g.st.players[o];
-            let mut c: Vec<CardId> = pl.hand.iter().chain(pl.deck.iter()).collect();
+            let mut c: Vec<CardId> = pl.hand().iter().chain(pl.deck().iter()).collect();
             c.sort();
             c
         };
         let in_zones = zones(&g);
         let outside = |g: &Game| seen(g, o, &[]).into_iter().filter(|x| !in_zones.contains(&x.0)).collect::<Vec<_>>();
-        let (outside0, mine0, defs0, prizes0) = (outside(&g), seen(&g, v, &[]), g.st.cards.map(|c| c.def), g.st.players[o].prizes);
-        let hand0: Vec<CardId> = g.st.players[o].hand.as_slice().to_vec();
+        let (outside0, mine0, defs0, prizes0) = (outside(&g), seen(&g, v, &[]), g.st.cards.map(|c| c.def), *g.st.players[o].prizes());
+        let hand0: Vec<CardId> = g.st.players[o].hand().as_slice().to_vec();
         let mut again = g.fork();
         let mut other = g.fork();
         let gen = g.st.layout_gen;
         g.resize_unseen(v, o, h + 5, d - 5, 3).unwrap();
         let check = |g: &Game, hand: usize| {
             let pl = &g.st.players[o];
-            assert_eq!((pl.hand.len(), pl.deck.len()), (hand, h + d - hand));
+            assert_eq!((pl.hand().len(), pl.deck().len()), (hand, h + d - hand));
             assert_eq!(zones(g), in_zones);
-            assert!(pl.deck.contains(named), "the named card stays in the deck");
+            assert!(pl.deck().contains(named), "the named card stays in the deck");
             assert_eq!((outside(g), seen(g, v, &[]), g.st.cards.map(|c| c.def)), (outside0.clone(), mine0.clone(), defs0));
-            assert!((0..6).all(|i| pl.prizes[i].as_slice() == prizes0[i].as_slice()));
-            for (i, c) in pl.hand.iter().enumerate() {
+            assert!((0..6).all(|i| pl.prizes()[i].as_slice() == prizes0[i].as_slice()));
+            for (i, c) in pl.hand().iter().enumerate() {
                 assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Hand, index: i as u8 });
             }
-            for (i, c) in pl.deck.iter().enumerate() {
+            for (i, c) in pl.deck().iter().enumerate() {
                 assert_eq!(g.locate_card(c).unwrap(), crate::place::CardPlace { owner: o as u8, zone: Zone::Deck, index: i as u8 });
             }
             crate::invariants::check(g).unwrap();
         };
         check(&g, h + 5);
-        assert_eq!(&g.st.players[o].hand.as_slice()[..h], &hand0[..], "the hand keeps its cards, the new ones after them");
+        assert_eq!(&g.st.players[o].hand().as_slice()[..h], &hand0[..], "the hand keeps its cards, the new ones after them");
         assert_ne!(g.st.layout_gen, gen);
         again.resize_unseen(v, o, h + 5, d - 5, 3).unwrap();
         assert_eq!(again.state_hash(), g.state_hash());
         other.resize_unseen(v, o, h + 5, d - 5, 4).unwrap();
-        assert_ne!(other.st.players[o].hand.as_slice(), g.st.players[o].hand.as_slice(), "another seed moves other cards");
+        assert_ne!(other.st.players[o].hand().as_slice(), g.st.players[o].hand().as_slice(), "another seed moves other cards");
         // Back into the deck, the whole hand; the same sizes change nothing.
         g.resize_unseen(v, o, 0, h + d, 5).unwrap();
         check(&g, 0);
@@ -902,8 +888,8 @@ pub(crate) mod tests {
     fn resize_unseen_refuses_with_nothing_changed() {
         let mut g = table();
         let (v, o) = (g.st.active_player as usize, 1 - g.st.active_player as usize);
-        let (h, d) = (g.st.players[o].hand.len(), g.st.players[o].deck.len());
-        for c in g.st.players[o].hand.as_slice().to_vec() {
+        let (h, d) = (g.st.players[o].hand().len(), g.st.players[o].deck().len());
+        for c in g.st.players[o].hand().as_slice().to_vec() {
             g.st.players[o].played_this_turn.push(c);
         }
         let hash = g.state_hash();
@@ -922,11 +908,11 @@ pub(crate) mod tests {
         // While a search's prompt lists the deck, the searching player's deck is seen.
         let mut g = game_of(&[(MON, 4), (POFFIN, 4)], json!({"me": {"reset": true, "active": MON, "hand": [POFFIN, MON]}, "opp": {"reset": true, "active": MON}}));
         let p = g.st.active_player as usize;
-        let k = g.st.players[p].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let k = g.st.players[p].hand().iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
         let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
         g.act(play).unwrap();
         g.select().unwrap().unwrap();
-        let (h, d) = (g.st.players[p].hand.len(), g.st.players[p].deck.len());
+        let (h, d) = (g.st.players[p].hand().len(), g.st.players[p].deck().len());
         let hash = g.state_hash();
         assert_eq!(g.resize_unseen(1 - p, p, h + 1, d - 1, 1), Err(GameError("ZONE_NOT_HIDDEN")));
         assert_eq!(g.state_hash(), hash);
@@ -1007,20 +993,20 @@ pub(crate) mod tests {
         let down = face_down(&g, 0);
         let hidden = g.unseen_cards(1, 0);
         assert!(down.iter().all(|c| hidden.contains(c)));
-        assert_eq!(hidden.len(), g.st.players[0].deck.len() + g.st.players[0].hand.len() + 6 + down.len());
+        assert_eq!(hidden.len(), g.st.players[0].deck().len() + g.st.players[0].hand().len() + 6 + down.len());
         assert!(g.unseen_cards(0, 0).iter().all(|c| !down.contains(c)));
-        let top = g.st.players[0].deck.as_slice()[0];
+        let top = g.st.players[0].deck().as_slice()[0];
         assert_eq!(g.swap_hidden(0, down[0], top), Err(GameError("CARD_NOT_HIDDEN")));
         assert_eq!(g.swap_unseen(down[0], top), Err(GameError("CARD_NOT_UNSEEN")));
         // A card that may not be put down there is refused; a Basic Pokémon takes the spot (the spot's Pokémon follows).
-        let energy = g.st.players[0].deck.iter().find(|c| g.st.cdef(*c).is_energy()).unwrap();
+        let energy = g.st.players[0].deck().iter().find(|c| g.st.cdef(*c).is_energy()).unwrap();
         assert_eq!(g.swap_hidden(1, down[0], energy), Err(GameError("FACE_DOWN_SPOT_REFUSES_CARD")));
         assert_eq!(g.swap_hidden(1, energy, down[1]), Err(GameError("FACE_DOWN_SPOT_REFUSES_CARD")));
-        let basic = g.st.players[0].deck.iter().find(|c| crate::engine::setup::may_bench_at_setup(g.st.cdef(*c))).unwrap();
-        let at = g.st.players[0].deck.index_of(basic).unwrap();
+        let basic = g.st.players[0].deck().iter().find(|c| crate::engine::setup::may_bench_at_setup(g.st.cdef(*c))).unwrap();
+        let at = g.st.players[0].deck().index_of(basic).unwrap();
         g.swap_hidden(1, down[0], basic).unwrap();
         assert_eq!(g.st.active_pokemon(0), Some(basic));
-        assert_eq!(g.st.players[0].deck.as_slice()[at], down[0]);
+        assert_eq!(g.st.players[0].deck().as_slice()[at], down[0]);
         assert_eq!(g.locate_card(basic).unwrap().zone, Zone::InPlay { spot: crate::place::Spot::Active, role: crate::place::InPlayAs::Pokemon });
         crate::invariants::check(&g).unwrap();
     }

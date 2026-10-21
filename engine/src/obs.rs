@@ -158,11 +158,11 @@ fn card_code(g: &Game, c: crate::list::CardId) -> f32 {
         for (k, p) in [viewer, 1 - viewer].into_iter().enumerate() {
             let base = GLOBAL_FEATURES + k * PLAYER_FEATURES;
             let pl = &st.players[p];
-            v[base] = pl.deck.len() as f32;
-            v[base + 1] = pl.hand.len() as f32;
-            v[base + 2] = pl.discard.len() as f32;
+            v[base] = pl.deck().len() as f32;
+            v[base + 1] = pl.hand().len() as f32;
+            v[base + 2] = pl.discard().len() as f32;
             v[base + 3] = pl.prize_left() as f32;
-            v[base + 4] = pl.lostzone.len() as f32;
+            v[base + 4] = pl.lostzone().len() as f32;
             v[base + 5] = pl.bench.len() as f32;
             v[base + 6] = pl.used_vstar as u8 as f32;
             v[base + 7] = pl.used_gx as u8 as f32;
@@ -176,12 +176,12 @@ fn card_code(g: &Game, c: crate::list::CardId) -> f32 {
                 slot_features(g, &mut facts, p, *s, &mut v[o..o + SLOT_FEATURES]);
             }
             let d0 = base + 16 + SLOTS * SLOT_FEATURES;
-            for (i, c) in pl.discard.iter().take(MAX_DISCARD).enumerate() {
+            for (i, c) in pl.discard().iter().take(MAX_DISCARD).enumerate() {
                 v[d0 + i] = card_code(g, c);
             }
         }
         let h0 = GLOBAL_FEATURES + 2 * PLAYER_FEATURES;
-        for (i, c) in st.players[viewer].hand.iter().take(MAX_HAND).enumerate() {
+        for (i, c) in st.players[viewer].hand().iter().take(MAX_HAND).enumerate() {
             v[h0 + i] = card_code(g, c);
         }
         v

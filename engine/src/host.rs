@@ -291,7 +291,7 @@ pub fn resize_unseen(g: &mut Game, viewer: usize, owner: usize, hand: usize, dec
 /// The number of cards in `seat`'s hand and in their deck (public counts; `None` for a seat that doesn't exist).
 pub fn hand_and_deck_count(g: &Game, seat: usize) -> Option<(usize, usize)> {
     let pl = g.st.players.get(seat)?;
-    Some((crate::list::CardList::len(&pl.hand), crate::list::CardList::len(&pl.deck)))
+    Some((crate::list::CardList::len(pl.hand()), crate::list::CardList::len(pl.deck())))
 }
 
 /// The cards of `owner` that `viewer` cannot see, the ones [`set_unseen`] takes identities for ([`Game::unseen_cards`];
@@ -437,12 +437,12 @@ mod tests {
     fn hidden_cards_swap_and_seen_ones_do_not() {
         let d = deck();
         let mut g = start_game([&d, &d], 3, &StartOptions::default()).unwrap();
-        let (a, b) = (g.st.players[0].deck.get(0).unwrap(), g.st.players[0].deck.get(1).unwrap());
+        let (a, b) = (g.st.players[0].deck().get(0).unwrap(), g.st.players[0].deck().get(1).unwrap());
         let (pa, pb) = (locate_card(&g, a).unwrap(), locate_card(&g, b).unwrap());
         swap_unseen(&mut g, a, b).unwrap();
         assert_eq!(locate_card(&g, a).unwrap().index, pb.index);
         assert_eq!(locate_card(&g, b).unwrap().index, pa.index);
-        if let Some(h) = g.st.players[0].hand.get(0) {
+        if let Some(h) = g.st.players[0].hand().get(0) {
             assert!(swap_unseen(&mut g, a, h).is_err());
         }
     }
@@ -453,14 +453,14 @@ mod tests {
     fn a_guess_is_re_identified_through_the_facade() {
         let d = deck();
         let mut g = start_game([&d, &d], 3, &StartOptions::default()).unwrap();
-        let (a, b) = (g.st.players[1].deck.get(0).unwrap(), g.st.players[1].deck.get(1).unwrap());
+        let (a, b) = (g.st.players[1].deck().get(0).unwrap(), g.st.players[1].deck().get(1).unwrap());
         swap_hidden(&mut g, 0, a, b).unwrap();
         assert_eq!(locate_card(&g, a).unwrap().index, 1);
-        if let Some(h) = g.st.players[1].hand.get(0) {
+        if let Some(h) = g.st.players[1].hand().get(0) {
             swap_hidden(&mut g, 0, h, a).unwrap();
             assert_eq!(locate_card(&g, a).unwrap().zone, crate::place::Zone::Hand);
         }
-        let mine = g.st.players[0].deck.get(0).unwrap();
+        let mine = g.st.players[0].deck().get(0).unwrap();
         assert!(swap_hidden(&mut g, 0, mine, b).is_err());
     }
 
@@ -558,13 +558,13 @@ mod tests {
                         if turns <= 10 {
                             let kept = unseen_kept(&g, v, o);
                             let pl = &g.st.players[o];
-                            let (h, d) = (pl.hand.len(), pl.deck.len());
-                            let (kh, kd) = (kept.iter().filter(|c| pl.hand.contains(**c)).count(), kept.iter().filter(|c| pl.deck.contains(**c)).count());
+                            let (h, d) = (pl.hand().len(), pl.deck().len());
+                            let (kh, kd) = (kept.iter().filter(|c| pl.hand().contains(**c)).count(), kept.iter().filter(|c| pl.deck().contains(**c)).count());
                             // The hand grows only while 10 cards stay in the deck (an empty deck ends the game at the draw).
                             let hi = (h + d).saturating_sub(10).max(h).min(h + d - kd).max(kh);
                             let hand = kh + rnd(hi - kh + 1);
                             resize_unseen(&mut g, v, o, hand, h + d - hand, seed + turns as u32).unwrap();
-                            assert_eq!((g.st.players[o].hand.len(), g.st.players[o].deck.len()), (hand, h + d - hand));
+                            assert_eq!((g.st.players[o].hand().len(), g.st.players[o].deck().len()), (hand, h + d - hand));
                             resized += (hand != h) as usize;
                             crate::invariants::check(&g).unwrap();
                         }

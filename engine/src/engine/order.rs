@@ -534,7 +534,7 @@ mod tests {
         let sc = serde_json::json!({"me": {"reset": true, "active": "Duskull PRE 35", "stadium": "Risky Ruins MEG 127", "hand": ["Buddy-Buddy Poffin TEF 144"]}, "opp": {"reset": true, "active": "Duskull PRE 35"}});
         let mut g = crate::place::tests::game_of(&[("Duskull PRE 35", 4), ("Risky Ruins MEG 127", 4), ("Buddy-Buddy Poffin TEF 144", 4)], sc);
         let me = g.st.active_player as usize;
-        let k = g.st.players[me].hand.iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
+        let k = g.st.players[me].hand().iter().position(|c| g.st.cdef(c).name == "Buddy-Buddy Poffin").unwrap();
         let play = crate::options::legal_actions(&g).into_iter().map(|o| o.action).find(|a| matches!(a, crate::game::Action::PlayCard { hand_index, .. } if *hand_index as usize == k)).unwrap();
         g.act(play).unwrap();
         let sel = g.select_with(false).unwrap().unwrap();

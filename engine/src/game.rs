@@ -1080,14 +1080,14 @@ impl Game {
             Cont::TrainerCleanup { p, card } => crate::engine::play_trainer::trainer_cleanup(self, p as usize, card),
             Cont::ShuffleApplyNoWait { p } => {
                 if let Res::Order(o) = first {
-                    apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
+                    apply_order(&mut self.st.zone_edit(ListRef::Deck(p)), o.as_slice());
                     self.st.bump_layout();
                 }
                 Ok(())
             }
             Cont::ShuffleApply { p } => {
                 if let Res::Order(o) = first {
-                    apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
+                    apply_order(&mut self.st.zone_edit(ListRef::Deck(p)), o.as_slice());
                     self.st.bump_layout();
                 }
                 // SHUFFLE_DECK's silent wait prompt.
@@ -1197,10 +1197,10 @@ impl Game {
         };
         for p in 0..2 {
             let pl = &self.st.players[p];
-            for c in pl.stadium.iter() {
+            for c in pl.stadium().iter() {
                 add(c, &mut cards);
             }
-            for c in pl.supporter.iter() {
+            for c in pl.supporter().iter() {
                 add(c, &mut cards);
             }
             let a = &pl.slots[pl.active as usize];
@@ -1220,17 +1220,17 @@ impl Game {
                 }
             }
             for i in 0..pl.prize_count as usize {
-                for c in pl.prizes[i].iter() {
+                for c in pl.prizes()[i].iter() {
                     add(c, &mut cards);
                 }
             }
-            for c in pl.hand.iter() {
+            for c in pl.hand().iter() {
                 add(c, &mut cards);
             }
-            for c in pl.deck.iter() {
+            for c in pl.deck().iter() {
                 add(c, &mut cards);
             }
-            for c in pl.discard.iter() {
+            for c in pl.discard().iter() {
                 add(c, &mut cards);
             }
         }
@@ -1413,8 +1413,7 @@ impl Game {
             for (i, d) in deck.iter().enumerate() {
                 let c = base + i as u8;
                 self.st.cards[c as usize] = CardInst { def: *d, owner: p as u8, ..Default::default() };
-                self.st.players[p].deck.push(c);
-                self.st.put_at(c, ListRef::Deck(p as u8));
+                self.st.zone_edit(ListRef::Deck(p as u8)).push(c);
             }
             self.st.n_cards += deck.len() as u8;
             if !setup::deck_is_valid(&self.st, deck) {
@@ -1568,7 +1567,7 @@ impl Game {
         match pr.kind {
             PromptKind::ShuffleDeck => {
                 let p = pr.player as usize;
-                let n = self.st.players[p].deck.len();
+                let n = self.st.players[p].deck().len();
                 let mut o = [0u8; 120];
                 self.rng.shuffle(n, &mut o);
                 Res::Order(List::from_slice(&o[..n]))

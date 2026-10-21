@@ -123,8 +123,203 @@ impl Slot {
     }
 }
 
+/// The place records of the cards ([`State::at`], [`State::pos`]) as a list's write guard keeps them: a card that leaves the
+/// list is in no place (until a guard of the list it enters records it), and the cards from the first index a write
+/// touched to the end of the list are recorded again when the guard is dropped.
+struct Places<'a> {
+    at: &'a mut [Loc; MAX_CARDS],
+    pos: &'a mut [u8; MAX_CARDS],
+}
+
+impl Places<'_> {
+    /// `c` left the list recorded as `loc` (a card already recorded in another list, entered before it left this one,
+    /// keeps that place).
+    #[inline]
+    fn leave(&mut self, c: CardId, loc: Loc) {
+        if let Some(a) = self.at.get_mut(c as usize) {
+            if *a == loc {
+                *a = Loc::NONE;
+            }
+        }
+    }
+
+    /// Every card of `list` from index `from` on is at `loc`, at its index.
+    #[inline]
+    fn renumber(&mut self, list: &[CardId], from: u8, loc: Loc) {
+        for (i, &c) in list.iter().enumerate().skip(from as usize) {
+            if (c as usize) < MAX_CARDS {
+                self.at[c as usize] = loc;
+                self.pos[c as usize] = i as u8;
+            }
+        }
+    }
+}
+
+/// `low` when no index of the list was touched.
+const UNTOUCHED: u8 = u8::MAX;
+
+/// A zone list behind its write guard: the list, where its cards are ([`Loc`]), the place records, and the first index a
+/// write touched since the places were last recorded (`low`; the guard that owns it records the places again on drop).
+pub struct Tracked<'e, L: CardList + ?Sized> {
+    list: &'e mut L,
+    loc: Loc,
+    places: Places<'e>,
+    low: &'e mut u8,
+}
+
+impl<'e, L: CardList + ?Sized> Tracked<'e, L> {
+    #[inline]
+    fn touch(&mut self, i: usize) {
+        *self.low = (*self.low).min(i as u8);
+    }
+    /// The list's cards to overwrite in place: every card of the list leaves it, and the cards there when the guard is
+    /// dropped are recorded.
+    fn into_mut_slice(mut self) -> &'e mut [CardId] {
+        for &c in self.list.as_slice() {
+            self.places.leave(c, self.loc);
+        }
+        *self.low = 0;
+        self.list.as_mut_slice()
+    }
+    /// The list's cards to permute in place (the same cards come back): every index is recorded again.
+    fn into_permutable_slice(self) -> &'e mut [CardId] {
+        *self.low = 0;
+        self.list.as_permutable_slice()
+    }
+    /// Put `c` at index `i` in place of the card there, which leaves that index: it has no place any more unless it is
+    /// recorded elsewhere (a card a deal put at another index or in another list before). Nothing shifts, so only index
+    /// `i` is recorded; a deal that moves cards between the places of one list is a series of these.
+    pub fn replace_at(&mut self, i: usize, c: CardId) {
+        let old = self.list.as_slice()[i];
+        if self.places.pos.get(old as usize) == Some(&(i as u8)) {
+            self.places.leave(old, self.loc);
+        }
+        self.list.as_mut_slice()[i] = c;
+        if (c as usize) < MAX_CARDS {
+            self.places.at[c as usize] = self.loc;
+            self.places.pos[c as usize] = i as u8;
+        }
+    }
+}
+
+impl<L: CardList + ?Sized> CardList for Tracked<'_, L> {
+    #[inline]
+    fn as_slice(&self) -> &[CardId] {
+        self.list.as_slice()
+    }
+    fn as_mut_slice(&mut self) -> &mut [CardId] {
+        for &c in self.list.as_slice() {
+            self.places.leave(c, self.loc);
+        }
+        *self.low = 0;
+        self.list.as_mut_slice()
+    }
+    #[inline]
+    fn push(&mut self, c: CardId) {
+        let n = self.list.len();
+        self.list.push(c);
+        self.touch(n);
+    }
+    fn insert(&mut self, i: usize, c: CardId) {
+        self.list.insert(i, c);
+        self.touch(i);
+    }
+    fn remove_at(&mut self, i: usize) -> CardId {
+        let c = self.list.remove_at(i);
+        self.places.leave(c, self.loc);
+        self.touch(i);
+        c
+    }
+    fn clear(&mut self) {
+        for &c in self.list.as_slice() {
+            self.places.leave(c, self.loc);
+        }
+        self.list.clear();
+    }
+    fn set_from(&mut self, cards: &[CardId]) {
+        for &c in self.list.as_slice() {
+            self.places.leave(c, self.loc);
+        }
+        self.list.set_from(cards);
+        *self.low = 0;
+    }
+    fn capacity(&self) -> usize {
+        self.list.capacity()
+    }
+    fn as_permutable_slice(&mut self) -> &mut [CardId] {
+        *self.low = 0;
+        self.list.as_permutable_slice()
+    }
+}
+
+/// The one write path to a player's zone lists (deck, hand, discard pile, Lost Zone, Stadium, Supporter, Prizes): it lends
+/// the list out and keeps the place records of its cards exact ([`State::at`], [`State::pos`]): a card that leaves the
+/// list is in no place, and the indexes a write shifted are recorded again when the guard is dropped. The lists are
+/// private to this module, so no other write to them can exist.
+pub struct ZoneEdit<'a> {
+    list: &'a mut dyn CardList,
+    loc: Loc,
+    at: &'a mut [Loc; MAX_CARDS],
+    pos: &'a mut [u8; MAX_CARDS],
+    low: u8,
+}
+
+impl<'a> ZoneEdit<'a> {
+    #[inline]
+    fn tracked(&mut self) -> Tracked<'_, dyn CardList + 'a> {
+        Tracked { list: &mut *self.list, loc: self.loc, places: Places { at: &mut *self.at, pos: &mut *self.pos }, low: &mut self.low }
+    }
+    /// Put `c` at index `i` in place of the card there (which leaves the list).
+    pub fn replace_at(&mut self, i: usize, c: CardId) {
+        self.tracked().replace_at(i, c);
+    }
+}
+
+impl CardList for ZoneEdit<'_> {
+    #[inline]
+    fn as_slice(&self) -> &[CardId] {
+        self.list.as_slice()
+    }
+    fn as_mut_slice(&mut self) -> &mut [CardId] {
+        self.tracked().into_mut_slice()
+    }
+    #[inline]
+    fn push(&mut self, c: CardId) {
+        self.tracked().push(c)
+    }
+    fn insert(&mut self, i: usize, c: CardId) {
+        self.tracked().insert(i, c)
+    }
+    fn remove_at(&mut self, i: usize) -> CardId {
+        self.tracked().remove_at(i)
+    }
+    fn clear(&mut self) {
+        self.tracked().clear()
+    }
+    fn set_from(&mut self, cards: &[CardId]) {
+        self.tracked().set_from(cards)
+    }
+    fn capacity(&self) -> usize {
+        self.list.capacity()
+    }
+    fn as_permutable_slice(&mut self) -> &mut [CardId] {
+        self.tracked().into_permutable_slice()
+    }
+}
+
+impl Drop for ZoneEdit<'_> {
+    #[inline]
+    fn drop(&mut self) {
+        if self.low != UNTOUCHED {
+            Places { at: &mut *self.at, pos: &mut *self.pos }.renumber(self.list.as_slice(), self.low, self.loc);
+        }
+    }
+}
+
 /// The one write path to a spot's card lists: it lends the lists out mutably and, on drop, recomputes the spot's top
-/// Pokemon and whether it holds a card (`Player::occupied`) from them. A list is private to this module, so no other write to it can exist.
+/// Pokemon and whether it holds a card (`Player::occupied`) from them, and records the places of the cards of its
+/// `cards` and `tools` ([`State::at`], [`State::pos`]; the attached Energy, also in `cards`, has no place of its own) as
+/// [`ZoneEdit`] does. A list is private to this module, so no other write to it can exist.
 ///
 /// A card entering the spot is stamped (`CardInst::arrived`) when it is added to the spot's `cards` (the list every card
 /// enters by: Energy and Tools are on it before they are put among `energies` / `tools`) while it is on none of the
@@ -139,6 +334,13 @@ pub struct SlotEdit<'a> {
     /// The game's arrival counter (`State::arrival`), and its value when the guard was taken.
     arrival: &'a mut u16,
     start: u16,
+    at: &'a mut [Loc; MAX_CARDS],
+    pos: &'a mut [u8; MAX_CARDS],
+    /// Where the spot's `cards` and its `tools` are, and the first index of each a write touched.
+    cards_loc: Loc,
+    tools_loc: Loc,
+    cards_low: u8,
+    tools_low: u8,
     /// `PTCG_VERIFY_CACHE=1`: the spot's lists when the guard was taken, the reference the stamps are checked against.
     before: Option<Box<(ZoneList<60>, ZoneList<60>, ZoneList<4>)>>,
 }
@@ -146,7 +348,7 @@ pub struct SlotEdit<'a> {
 /// The spot's `cards` behind its write guard: the one list a card enters a spot by, so the one list whose additions
 /// stamp arrivals. A card added while it is on none of the spot's lists gets the next arrival number.
 pub struct CardsMut<'e> {
-    cards: &'e mut ZoneList<60>,
+    cards: Tracked<'e, ZoneList<60>>,
     energies: &'e ZoneList<60>,
     tools: &'e ZoneList<4>,
     insts: &'e mut [CardInst; MAX_CARDS],
@@ -158,7 +360,7 @@ impl CardsMut<'_> {
     /// game doesn't come near it).
     #[inline]
     fn arrive(&mut self, c: CardId) {
-        if !(self.cards.contains(c) || self.energies.contains(c) || self.tools.contains(c)) {
+        if !(self.cards.as_slice().contains(&c) || self.energies.contains(c) || self.tools.contains(c)) {
             *self.arrival = self.arrival.saturating_add(1);
             self.insts[c as usize].arrived = *self.arrival;
         }
@@ -170,7 +372,6 @@ impl CardList for CardsMut<'_> {
     fn as_slice(&self) -> &[CardId] {
         self.cards.as_slice()
     }
-    #[inline]
     fn as_mut_slice(&mut self) -> &mut [CardId] {
         self.cards.as_mut_slice()
     }
@@ -206,20 +407,33 @@ impl CardList for CardsMut<'_> {
 
 impl SlotEdit<'_> {
     #[inline]
-    pub fn cards(&mut self) -> CardsMut<'_> {
-        CardsMut { cards: &mut self.slot.cards, energies: &self.slot.energies, tools: &self.slot.tools, insts: &mut *self.insts, arrival: &mut *self.arrival }
+    fn tracked_cards(&mut self) -> Tracked<'_, ZoneList<60>> {
+        Tracked { list: &mut self.slot.cards, loc: self.cards_loc, places: Places { at: &mut *self.at, pos: &mut *self.pos }, low: &mut self.cards_low }
     }
+    #[inline]
+    pub fn cards(&mut self) -> CardsMut<'_> {
+        let s = &mut *self.slot;
+        CardsMut {
+            cards: Tracked { list: &mut s.cards, loc: self.cards_loc, places: Places { at: &mut *self.at, pos: &mut *self.pos }, low: &mut self.cards_low },
+            energies: &s.energies,
+            tools: &s.tools,
+            insts: &mut *self.insts,
+            arrival: &mut *self.arrival,
+        }
+    }
+    /// The attached Energy (also in `cards`: no place record of its own).
     #[inline]
     pub fn energies(&mut self) -> &mut ZoneList<60> {
         &mut self.slot.energies
     }
     #[inline]
-    pub fn tools(&mut self) -> &mut ZoneList<4> {
-        &mut self.slot.tools
+    pub fn tools(&mut self) -> Tracked<'_, ZoneList<4>> {
+        Tracked { list: &mut self.slot.tools, loc: self.tools_loc, places: Places { at: &mut *self.at, pos: &mut *self.pos }, low: &mut self.tools_low }
     }
     /// The spot after "no Pokemon is on it any more" (`reset_empty_slot`): its cards and Energy stay, its Tools and every
     /// other field return to a fresh spot's, bar whether it is public.
     pub fn reset_keeping_cards(&mut self) {
+        self.tools().clear();
         let keep = Slot { cards: self.slot.cards, energies: self.slot.energies, is_public: self.slot.is_public, ..Slot::default() };
         *self.slot = keep;
     }
@@ -248,6 +462,13 @@ impl Drop for SlotEdit<'_> {
         if let Some(before) = self.before.take() {
             self.check_arrivals(&before);
         }
+        let mut places = Places { at: &mut *self.at, pos: &mut *self.pos };
+        if self.cards_low != UNTOUCHED {
+            places.renumber(self.slot.cards.as_slice(), self.cards_low, self.cards_loc);
+        }
+        if self.tools_low != UNTOUCHED {
+            places.renumber(self.slot.tools.as_slice(), self.tools_low, self.tools_loc);
+        }
         self.slot.top = self.slot.top_scan(self.insts).unwrap_or(NO_CARD);
         if self.slot.cards.is_empty() {
             *self.occupied &= !self.bit;
@@ -257,9 +478,11 @@ impl Drop for SlotEdit<'_> {
     }
 }
 
-/// A mutable card list of any kind: a plain list, or one of a spot's two lists behind its [`SlotEdit`].
+/// A mutable card list of any kind: a player's zone list behind its [`ZoneEdit`], one of a spot's two lists behind its
+/// [`SlotEdit`], or a staging list (`Game::temps`: no place records).
 pub enum ListMut<'a> {
-    Plain(&'a mut dyn CardList),
+    Staging(&'a mut dyn CardList),
+    Zone(ZoneEdit<'a>),
     SlotCards(SlotEdit<'a>),
     SlotEnergies(SlotEdit<'a>),
 }
@@ -268,7 +491,8 @@ impl CardList for ListMut<'_> {
     #[inline]
     fn as_slice(&self) -> &[CardId] {
         match self {
-            ListMut::Plain(l) => l.as_slice(),
+            ListMut::Staging(l) => l.as_slice(),
+            ListMut::Zone(z) => z.as_slice(),
             ListMut::SlotCards(e) => e.slot.cards.as_slice(),
             ListMut::SlotEnergies(e) => e.slot.energies.as_slice(),
         }
@@ -276,59 +500,67 @@ impl CardList for ListMut<'_> {
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [CardId] {
         match self {
-            ListMut::Plain(l) => l.as_mut_slice(),
-            ListMut::SlotCards(e) => e.slot.cards.as_mut_slice(),
+            ListMut::Staging(l) => l.as_mut_slice(),
+            ListMut::Zone(z) => z.as_mut_slice(),
+            ListMut::SlotCards(e) => e.tracked_cards().into_mut_slice(),
             ListMut::SlotEnergies(e) => e.slot.energies.as_mut_slice(),
         }
     }
     #[inline]
     fn push(&mut self, c: CardId) {
         match self {
-            ListMut::Plain(l) => l.push(c),
+            ListMut::Staging(l) => l.push(c),
+            ListMut::Zone(z) => z.push(c),
             ListMut::SlotCards(e) => e.cards().push(c),
             ListMut::SlotEnergies(e) => e.slot.energies.push(c),
         }
     }
     fn insert(&mut self, i: usize, c: CardId) {
         match self {
-            ListMut::Plain(l) => l.insert(i, c),
+            ListMut::Staging(l) => l.insert(i, c),
+            ListMut::Zone(z) => z.insert(i, c),
             ListMut::SlotCards(e) => e.cards().insert(i, c),
             ListMut::SlotEnergies(e) => e.slot.energies.insert(i, c),
         }
     }
     fn remove_at(&mut self, i: usize) -> CardId {
         match self {
-            ListMut::Plain(l) => l.remove_at(i),
-            ListMut::SlotCards(e) => e.slot.cards.remove_at(i),
+            ListMut::Staging(l) => l.remove_at(i),
+            ListMut::Zone(z) => z.remove_at(i),
+            ListMut::SlotCards(e) => e.cards().remove_at(i),
             ListMut::SlotEnergies(e) => e.slot.energies.remove_at(i),
         }
     }
     #[inline]
     fn clear(&mut self) {
         match self {
-            ListMut::Plain(l) => l.clear(),
-            ListMut::SlotCards(e) => e.slot.cards.clear(),
+            ListMut::Staging(l) => l.clear(),
+            ListMut::Zone(z) => z.clear(),
+            ListMut::SlotCards(e) => e.cards().clear(),
             ListMut::SlotEnergies(e) => e.slot.energies.clear(),
         }
     }
     fn set_from(&mut self, cards: &[CardId]) {
         match self {
-            ListMut::Plain(l) => l.set_from(cards),
+            ListMut::Staging(l) => l.set_from(cards),
+            ListMut::Zone(z) => z.set_from(cards),
             ListMut::SlotCards(e) => e.cards().set_from(cards),
             ListMut::SlotEnergies(e) => e.slot.energies.set_from(cards),
         }
     }
     fn capacity(&self) -> usize {
         match self {
-            ListMut::Plain(l) => l.capacity(),
+            ListMut::Staging(l) => l.capacity(),
+            ListMut::Zone(z) => z.capacity(),
             ListMut::SlotCards(e) => e.slot.cards.capacity(),
             ListMut::SlotEnergies(e) => e.slot.energies.capacity(),
         }
     }
     fn as_permutable_slice(&mut self) -> &mut [CardId] {
         match self {
-            ListMut::Plain(l) => l.as_permutable_slice(),
-            ListMut::SlotCards(e) => e.slot.cards.as_permutable_slice(),
+            ListMut::Staging(l) => l.as_permutable_slice(),
+            ListMut::Zone(z) => z.as_permutable_slice(),
+            ListMut::SlotCards(e) => e.tracked_cards().into_permutable_slice(),
             ListMut::SlotEnergies(e) => e.slot.energies.as_permutable_slice(),
         }
     }
@@ -526,13 +758,15 @@ impl LastingWhat {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Player {
-    pub deck: Deck,
-    pub hand: Deck,
-    pub discard: Deck,
-    pub lostzone: Deck,
-    pub stadium: ZoneList<4>,
-    pub supporter: ZoneList<8>,
-    pub prizes: [ZoneList<4>; 6],
+    /// The zone lists, private to this module: every write goes through [`ZoneEdit`] ([`State::zone_edit`],
+    /// [`State::list_mut`]), which keeps the place records of their cards exact.
+    deck: Deck,
+    hand: Deck,
+    discard: Deck,
+    lostzone: Deck,
+    stadium: ZoneList<4>,
+    supporter: ZoneList<8>,
+    prizes: [ZoneList<4>; 6],
     pub prize_count: u8,
     /// The Prize card is public (Cresselia SFA turns one public);
     /// all Prize cards start secret.
@@ -613,6 +847,35 @@ impl Player {
         p
     }
 
+    #[inline]
+    pub fn deck(&self) -> &Deck {
+        &self.deck
+    }
+    #[inline]
+    pub fn hand(&self) -> &Deck {
+        &self.hand
+    }
+    #[inline]
+    pub fn discard(&self) -> &Deck {
+        &self.discard
+    }
+    #[inline]
+    pub fn lostzone(&self) -> &Deck {
+        &self.lostzone
+    }
+    #[inline]
+    pub fn stadium(&self) -> &ZoneList<4> {
+        &self.stadium
+    }
+    #[inline]
+    pub fn supporter(&self) -> &ZoneList<8> {
+        &self.supporter
+    }
+    #[inline]
+    pub fn prizes(&self) -> &[ZoneList<4>; 6] {
+        &self.prizes
+    }
+
     pub fn bench_slot(&self, i: usize) -> &Slot {
         &self.slots[self.bench.as_slice()[i] as usize]
     }
@@ -646,18 +909,6 @@ impl Player {
     }
     pub fn prize_left(&self) -> usize {
         self.prizes.iter().map(|p| p.len()).sum()
-    }
-    /// Allocate a fresh (empty) slot in the arena.
-    pub fn alloc_slot(&mut self) -> SlotId {
-        for i in 0..MAX_SLOTS {
-            if !self.slot_used[i] {
-                self.slot_used[i] = true;
-                self.slots[i] = Slot::default();
-                self.occupied &= !(1 << i);
-                return i as SlotId;
-            }
-        }
-        panic!("slot arena exhausted");
     }
     pub fn free_slot(&mut self, s: SlotId) {
         self.slot_used[s as usize] = false;
@@ -722,10 +973,13 @@ pub struct State {
     /// physical moves, `Game::lst_mut`, the Bench edits): what the in-place filter of the declaration sets and the
     /// lock-stamp gate read.
     pub layout_gen: u32,
-    /// Per card id: the list the card was last put into ([`Loc`]), a hint every location read validates (the card must
-    /// still be there) before trusting it, so a write that doesn't update it costs a scan, never a wrong answer
-    /// (`PTCG_VERIFY_CACHE=1` checks every answer against the scan).
-    pub at: [Loc; MAX_CARDS],
+    /// Per card id: the zone list the card is in ([`Loc`]: a player's zone list, a spot's cards or Tools), `Loc::NONE` for
+    /// a card in none (a staging list, an Energy only among a spot's Energy, not in the game). Exact: kept by the write
+    /// guards ([`ZoneEdit`], [`SlotEdit`]), the one write path to those lists (`PTCG_VERIFY_CACHE=1` checks every answer
+    /// read from it against the scan; `invariants::check` the whole record at every turn decision).
+    at: [Loc; MAX_CARDS],
+    /// Per card id: its index in the list `at` names (meaningless for `Loc::NONE`), kept with `at`.
+    pos: [u8; MAX_CARDS],
     /// What the Ability-lock stamps were last synced at (`passive::lock_sync`): the layout generation, the turn and the turn
     /// player; the sync is skipped while they are the same.
     pub lock_synced: Option<(u32, i32, u8)>,
@@ -839,6 +1093,7 @@ impl State {
             version: 1,
             layout_gen: 0,
             at: [Loc::NONE; MAX_CARDS],
+            pos: [0; MAX_CARDS],
             lock_synced: None,
             lasting: SVec::new(),
             usage: SVec::new(),
@@ -859,14 +1114,6 @@ impl State {
     pub fn bump_layout(&mut self) {
         self.layout_gen = self.layout_gen.wrapping_add(1);
         self.version = self.version.wrapping_add(1).max(1);
-    }
-
-    /// Card `c` was put into the list `r` (a hint for [`State::locate`]).
-    #[inline]
-    pub fn put_at(&mut self, c: CardId, r: ListRef) {
-        if (c as usize) < MAX_CARDS {
-            self.at[c as usize] = Loc::of(r);
-        }
     }
 
     /// Is spot `s` of player `p` the Active Spot or a Bench spot?
@@ -934,9 +1181,19 @@ impl State {
         self.players.iter().any(|pl| pl.slots.iter().any(|s| !s.special_conditions.is_empty()))
     }
 
-    /// A fresh (empty) spot for player `p` (`Player::alloc_slot`), without the lasting effects a spot of that number had.
+    /// A fresh (empty) spot for player `p`: the first unused spot of the player's arena, emptied (a card still on its
+    /// lists has no place any more), without the lasting effects a spot of that number had.
     pub fn alloc_slot(&mut self, p: usize) -> SlotId {
-        let s = self.players[p].alloc_slot();
+        let s = (0..MAX_SLOTS).find(|&i| !self.players[p].slot_used[i]).expect("slot arena exhausted") as SlotId;
+        {
+            let mut e = self.slot_edit(p, s);
+            e.cards().clear();
+            e.tools().clear();
+        }
+        let pl = &mut self.players[p];
+        pl.slot_used[s as usize] = true;
+        pl.slots[s as usize] = Slot::default();
+        pl.occupied &= !(1 << s);
         self.lasting.retain(|l| l.on != LastingOn::pokemon(p, s));
         s
     }
@@ -945,63 +1202,41 @@ impl State {
         self.slot_pokemon(p, self.players[p].active)
     }
 
-    /// Where a card currently is (for lookups): the first of the Active Spot, deck, discard pile,
-    /// hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes of player 0, then of player 1, that holds it (a Tool is
-    /// in none). Answered from the hint [`State::at`] when the card is still there, else by the scan.
+    /// The zone list card `c` is in and its index there ([`State::at`], [`State::pos`]): `Loc::NONE` for a card in none.
+    /// A spot's list is named whether or not the spot is in play.
+    #[inline]
+    pub fn place(&self, c: CardId) -> (Loc, u8) {
+        match self.at.get(c as usize) {
+            Some(&l) => (l, self.pos[c as usize]),
+            None => (Loc::NONE, 0),
+        }
+    }
+
+    /// Where a card currently is (for lookups): the zone list that holds it among the Active Spot, deck, discard pile,
+    /// hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes in use of either player (a Tool is in none). Read from
+    /// the place record [`State::at`].
     #[inline]
     pub fn locate(&self, c: CardId) -> Option<ListRef> {
-        let r = self.locate_hinted(c);
+        let r = self.at.get(c as usize).and_then(|l| l.list()).filter(|&r| match r {
+            ListRef::Slot(p, s) => self.spot_in_play(p as usize, s),
+            ListRef::Prize(p, i) => i < self.players[p as usize].prize_count,
+            _ => true,
+        });
         if crate::game::verify_cache() {
             assert_eq!(r, self.locate_scan(c), "State::at answered differently from the scan for card {c}");
         }
         r
     }
 
-    #[inline]
-    fn locate_hinted(&self, c: CardId) -> Option<ListRef> {
-        if let Some(r) = self.at.get(c as usize).and_then(|l| l.list()) {
-            if self.holds(r, c) {
-                return Some(r);
-            }
-        }
-        self.locate_scan(c)
-    }
-
-    /// Does the list `r` hold `c`, as [`State::locate`] scans it (only the in-play spots and the Prizes in use)?
-    #[inline]
-    fn holds(&self, r: ListRef, c: CardId) -> bool {
-        match r {
-            ListRef::Slot(p, s) => self.spot_in_play(p as usize, s) && self.players[p as usize].slots[s as usize].cards.contains(c),
-            ListRef::Prize(p, i) => i < self.players[p as usize].prize_count && self.players[p as usize].prizes[i as usize].contains(c),
-            ListRef::SlotEnergies(..) | ListRef::Temp(_) => false,
-            _ => self.list(r).contains(c),
-        }
-    }
-
-    /// The spot whose Tools hold the Tool `c`, among the Pokémon in play (Active first, then the Bench, player 0 first).
-    /// Answered from the hint [`State::at`]: a Tool location that still holds it, or a zone list that still holds the
-    /// card (a card in a zone list is in no Tool list: `attach::put_attached` takes an attached Tool out of the spot's
-    /// cards); else by the scan.
+    /// The spot whose Tools hold the Tool `c`, among the Pokémon in play (a spot that holds a card). Read from the place
+    /// record [`State::at`].
     #[inline]
     pub fn tool_spot(&self, c: CardId) -> Option<(usize, SlotId)> {
-        let hint = self.at.get(c as usize).copied().unwrap_or(Loc::NONE);
-        if let Some((p, s)) = hint.tool_slot() {
-            let slot = &self.players[p].slots[s as usize];
-            if self.spot_in_play(p, s) && !slot.cards.is_empty() && slot.tools.contains(c) {
-                if crate::game::verify_cache() {
-                    assert_eq!(Some((p, s)), self.tool_spot_scan(c), "State::at answered differently from the scan for Tool {c}");
-                }
-                return Some((p, s));
-            }
-        } else if let Some(r) = hint.list() {
-            if self.holds(r, c) {
-                if crate::game::verify_cache() {
-                    assert_eq!(None, self.tool_spot_scan(c), "card {c} is in a zone list and in a Tool list");
-                }
-                return None;
-            }
+        let r = self.at.get(c as usize).and_then(|l| l.tool_slot()).filter(|&(p, s)| self.spot_in_play(p, s) && !self.players[p].slots[s as usize].cards.is_empty());
+        if crate::game::verify_cache() {
+            assert_eq!(r, self.tool_spot_scan(c), "State::at answered differently from the scan for Tool {c}");
         }
-        self.tool_spot_scan(c)
+        r
     }
 
     fn tool_spot_scan(&self, c: CardId) -> Option<(usize, SlotId)> {
@@ -1017,7 +1252,8 @@ impl State {
         None
     }
 
-    /// [`State::locate`] the slow way: every list scanned.
+    /// [`State::locate`] the slow way: every list scanned (the first that holds the card: the Active Spot, deck, discard
+    /// pile, hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes in use of player 0, then of player 1).
     pub fn locate_scan(&self, c: CardId) -> Option<ListRef> {
         for p in 0..2 {
             let pl = &self.players[p];
@@ -1056,8 +1292,39 @@ impl State {
         None
     }
 
-    /// The slot whose cards, energies or tools contain `c`.
+    /// The spot (the Active Spot or a Bench spot) whose cards, Energy or Tools hold `c`: read from the place record
+    /// [`State::at`] for a card in a spot's cards or Tools; a card with no place is looked for among the attached Energy
+    /// (a card attached as Energy only, not among the spot's cards).
     pub fn find_pokemon_slot(&self, c: CardId) -> Option<(usize, SlotId)> {
+        let at = self.at.get(c as usize).copied().unwrap_or(Loc::NONE);
+        let r = match at.list() {
+            Some(ListRef::Slot(p, s)) => Some((p as usize, s)),
+            Some(_) => None,
+            None if at == Loc::NONE => self.energy_only_slot(c),
+            None => at.tool_slot(),
+        };
+        let r = r.filter(|&(p, s)| self.players[p].active == s || self.players[p].bench.contains(&s));
+        if crate::game::verify_cache() {
+            assert_eq!(r, self.find_pokemon_slot_scan(c), "State::at answered differently from the scan of the spots for card {c}");
+        }
+        r
+    }
+
+    /// The spot whose attached Energy holds `c`.
+    fn energy_only_slot(&self, c: CardId) -> Option<(usize, SlotId)> {
+        for p in 0..2 {
+            let pl = &self.players[p];
+            for s in pl.all_slots().iter() {
+                if pl.slots[*s as usize].energies.contains(c) {
+                    return Some((p, *s));
+                }
+            }
+        }
+        None
+    }
+
+    /// [`State::find_pokemon_slot`] the slow way: every spot's lists scanned.
+    fn find_pokemon_slot_scan(&self, c: CardId) -> Option<(usize, SlotId)> {
         for p in 0..2 {
             let pl = &self.players[p];
             for s in pl.all_slots().iter() {
@@ -1070,6 +1337,46 @@ impl State {
         None
     }
 
+    /// The place records against the lists: every card of a player's zone list, a spot's cards or Tools is recorded at
+    /// that list and index; every other card of the game has no place. `Err` names the first card that differs.
+    pub fn check_places(&self) -> Result<(), String> {
+        let mut want = [(Loc::NONE, 0u8); MAX_CARDS];
+        for (p, pl) in self.players.iter().enumerate() {
+            let pu = p as u8;
+            let mut lists: Vec<(Loc, &[CardId])> = vec![
+                (Loc::of(ListRef::Deck(pu)), pl.deck.as_slice()),
+                (Loc::of(ListRef::Hand(pu)), pl.hand.as_slice()),
+                (Loc::of(ListRef::Discard(pu)), pl.discard.as_slice()),
+                (Loc::of(ListRef::LostZone(pu)), pl.lostzone.as_slice()),
+                (Loc::of(ListRef::Stadium(pu)), pl.stadium.as_slice()),
+                (Loc::of(ListRef::Supporter(pu)), pl.supporter.as_slice()),
+            ];
+            for (i, pr) in pl.prizes.iter().enumerate() {
+                lists.push((Loc::of(ListRef::Prize(pu, i as u8)), pr.as_slice()));
+            }
+            for (s, slot) in pl.slots.iter().enumerate() {
+                lists.push((Loc::of(ListRef::Slot(pu, s as SlotId)), slot.cards.as_slice()));
+                lists.push((Loc::tool(p, s as SlotId), slot.tools.as_slice()));
+            }
+            for (loc, list) in lists {
+                for (i, &c) in list.iter().enumerate() {
+                    if (c as usize) < MAX_CARDS {
+                        if want[c as usize].0 != Loc::NONE {
+                            return Err(format!("card {c} is in two lists ({:?} and {:?})", want[c as usize].0, loc));
+                        }
+                        want[c as usize] = (loc, i as u8);
+                    }
+                }
+            }
+        }
+        for c in 0..MAX_CARDS {
+            let (loc, i) = want[c];
+            if self.at[c] != loc || (loc != Loc::NONE && self.pos[c] != i) {
+                return Err(format!("card {c}: place record ({:?}, {}) but the lists hold it at ({:?}, {})", self.at[c], self.pos[c], loc, i));
+            }
+        }
+        Ok(())
+    }
     pub fn stadium_card(&self) -> Option<CardId> {
         for p in 0..2 {
             if let Some(c) = self.players[p].stadium.get(0) {
@@ -1101,7 +1408,7 @@ impl State {
         match r {
             ListRef::Slot(p, s) => ListMut::SlotCards(self.slot_edit(p as usize, s)),
             ListRef::SlotEnergies(p, s) => ListMut::SlotEnergies(self.slot_edit(p as usize, s)),
-            _ => ListMut::Plain(self.plain_list_mut(r)),
+            _ => ListMut::Zone(self.zone_edit(r)),
         }
     }
 
@@ -1111,11 +1418,28 @@ impl State {
         let pl = &mut self.players[p];
         let slot = &mut pl.slots[s as usize];
         let before = if crate::game::verify_cache() { Some(Box::new((slot.cards, slot.energies, slot.tools))) } else { None };
-        SlotEdit { slot, occupied: &mut pl.occupied, bit: 1 << s, insts: &mut self.cards, start: self.arrival, arrival: &mut self.arrival, before }
+        SlotEdit {
+            slot,
+            occupied: &mut pl.occupied,
+            bit: 1 << s,
+            insts: &mut self.cards,
+            start: self.arrival,
+            arrival: &mut self.arrival,
+            at: &mut self.at,
+            pos: &mut self.pos,
+            cards_loc: Loc::of(ListRef::Slot(p as u8, s)),
+            tools_loc: Loc::tool(p, s),
+            cards_low: UNTOUCHED,
+            tools_low: UNTOUCHED,
+            before,
+        }
     }
 
-    fn plain_list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
-        match r {
+    /// The one write path to a player's zone list `r` (see [`ZoneEdit`]; a spot's lists are written through
+    /// [`State::slot_edit`]). Doesn't bump the layout ([`State::list_mut`] does).
+    pub fn zone_edit(&mut self, r: ListRef) -> ZoneEdit<'_> {
+        let loc = Loc::of(r);
+        let list: &mut dyn CardList = match r {
             ListRef::Deck(p) => &mut self.players[p as usize].deck,
             ListRef::Hand(p) => &mut self.players[p as usize].hand,
             ListRef::Discard(p) => &mut self.players[p as usize].discard,
@@ -1125,7 +1449,23 @@ impl State {
             ListRef::Prize(p, i) => &mut self.players[p as usize].prizes[i as usize],
             ListRef::Slot(..) | ListRef::SlotEnergies(..) => unreachable!("a spot's lists are written through SlotEdit"),
             ListRef::Temp(_) => panic!("temp lists live in the store"),
+        };
+        ZoneEdit { list, loc, at: &mut self.at, pos: &mut self.pos, low: UNTOUCHED }
+    }
+
+    /// Player `p`'s every field back to a new player's, bar the deck, which keeps its cards in their order (a card left on
+    /// another of the player's lists has no place any more).
+    pub fn reset_player_keeping_deck(&mut self, p: usize) {
+        let deck_loc = Loc::of(ListRef::Deck(p as u8));
+        for a in self.at.iter_mut() {
+            if *a != Loc::NONE && (a.0 >> 7) as usize == p && *a != deck_loc {
+                *a = Loc::NONE;
+            }
         }
+        let pl = &mut self.players[p];
+        let deck = pl.deck;
+        *pl = Player::new();
+        pl.deck = deck;
     }
 }
 
@@ -1282,6 +1622,72 @@ mod tests {
         // Bench shrink: a spot taken off the Bench keeps a consistent top.
         g.st.players[0].bench.clear();
         assert_tops(&g);
+    }
+
+    /// The place records (`State::at`, `State::pos`) against the lists after every decision of random games between the
+    /// benchmark's decks (bench/spec.json), every card's `locate` against the scan, and through the writes the guards
+    /// lend out (an evolution, an attach, a Tool, a spot emptied, a reorder).
+    #[test]
+    fn places_follow_every_write() {
+        let mut g = game();
+        g.st.check_places().unwrap();
+        let a = g.st.players[0].active;
+        let (mew, from) = find(&g, 0, MEWTWO);
+        g.move_card_to(from, mew, ListRef::Slot(0, a));
+        assert_eq!(g.st.place(mew), (Loc::of(ListRef::Slot(0, a)), g.st.slot(0, a).cards().index_of(mew).unwrap() as u8));
+        let tool = g.st.slot(0, a).tools().as_slice()[0];
+        assert_eq!(g.st.place(tool), (Loc::tool(0, a), 0));
+        assert_eq!(g.st.tool_spot(tool), Some((0, a)));
+        let mut order: Vec<CardId> = g.st.slot(0, a).cards().iter().collect();
+        order.reverse();
+        g.st.slot_edit(0, a).cards().set_from(&order);
+        g.st.check_places().unwrap();
+        let reversed: Vec<u8> = (0..g.st.players[0].deck().len() as u8).rev().collect();
+        crate::game::apply_order(&mut g.st.zone_edit(ListRef::Deck(0)), &reversed);
+        g.st.check_places().unwrap();
+        let b = g.st.players[0].bench.as_slice()[0];
+        crate::engine::cards_zone::relocate_spot(&mut g, crate::effects::SlotRef::new(0, b), ListRef::Discard(0));
+        g.st.check_places().unwrap();
+        g.st.slot_edit(0, a).reset_keeping_cards();
+        assert_eq!(g.st.place(tool).0, Loc::NONE);
+        g.st.check_places().unwrap();
+
+        let spec: serde_json::Value = serde_json::from_str(include_str!("../bench/spec.json")).unwrap();
+        let decks: Vec<Vec<crate::carddb::DefId>> = spec["decks"].as_array().unwrap().iter().map(|d| crate::selfplay::expand_deck(&d["cards"]).unwrap()).collect();
+        for seed in 0..decks.len() as u32 * 2 {
+            let mut g = Game::new(seed);
+            let n = decks.len();
+            g.start([&decks[seed as usize % n], &decks[(seed as usize / 2 + 1) % n]]).unwrap();
+            g.settle().ok();
+            let mut rng = crate::rng::Rng::new(seed.wrapping_mul(2654435761));
+            for _ in 0..3000 {
+                g.st.check_places().unwrap();
+                for c in 0..g.st.n_cards {
+                    assert_eq!(g.st.locate(c), g.st.locate_scan(c));
+                }
+                let Ok(Some(sel)) = g.select() else { break };
+                let mut picks: Vec<usize> = Vec::new();
+                loop {
+                    let (mask, stop) = g.pick_mask(&sel, &picks);
+                    let allowed: Vec<usize> = (0..sel.options.len()).filter(|j| mask[*j]).collect();
+                    let choices = allowed.len() + stop as usize;
+                    if choices == 0 {
+                        break;
+                    }
+                    let r = rng.index(choices);
+                    if r == allowed.len() {
+                        break;
+                    }
+                    picks.push(allowed[r]);
+                    if sel.max_count <= 1 {
+                        break;
+                    }
+                }
+                if g.answer(&sel, &picks).is_err() {
+                    break;
+                }
+            }
+        }
     }
 
     /// `Player::occupied` against the scan of the lists, and `in_play` in the order Active then Bench.

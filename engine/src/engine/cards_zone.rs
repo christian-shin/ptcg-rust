@@ -355,14 +355,14 @@ pub fn put_into_deck(g: &mut Game, from: ListRef, cards: &[CardId], position: De
 
 /// Draw: player `p` draws `n` cards (as many as the deck has; APR H), by `cause`.
 pub fn draw(g: &mut Game, p: usize, n: usize, cause: Cause) -> R<crate::spec::run::Outcome> {
-    let k = n.min(g.st.players[p].deck.len());
+    let k = n.min(g.st.players[p].deck().len());
     // Nothing to draw (an empty deck, or a count of 0: "draw a card for each of your opponent's Benched Pokémon" with none)
     // isn't drawing: "if you drew" is false.
     if k == 0 {
         return Ok(crate::spec::run::Outcome::Impossible);
     }
     let mut top: SVec<CardId, 64> = SVec::new();
-    for &c in g.st.players[p].deck.as_slice()[..k.min(64)].iter() {
+    for &c in g.st.players[p].deck().as_slice()[..k.min(64)].iter() {
         top.push(c);
     }
     let from = ListRef::Deck(p as u8);
@@ -402,7 +402,7 @@ pub fn shuffle_deck(g: &mut Game, p: usize) {
 pub fn mulligan(g: &mut Game, p: usize) {
     let hand: SVec<CardId, 64> = {
         let mut v = SVec::new();
-        for &c in g.st.players[p].hand.as_slice().iter().take(64) {
+        for &c in g.st.players[p].hand().as_slice().iter().take(64) {
             v.push(c);
         }
         v
@@ -422,7 +422,7 @@ pub fn set_prizes(g: &mut Game, p: usize) {
     let cause = Cause::rule(crate::cause::RuleWhich::Setup, p as u8);
     let all = crate::record::scope(g, EventKind::SetPrizes, p as u8, Some(cause), |g| {
         for i in 0..6u8 {
-            let Some(&c) = g.st.players[p].deck.as_slice().first() else { return false };
+            let Some(&c) = g.st.players[p].deck().as_slice().first() else { return false };
             relocate(g, ListRef::Deck(p as u8), &[c], ListRef::Prize(p as u8, i), false);
         }
         true
@@ -500,14 +500,14 @@ mod tests {
         let water = copies(&g, disc, WATER)[0];
         let mine = Cause::new(CauseKind::Trainer, None, me as u8);
         assert_eq!(put_into_hand(&mut g, disc, &[vital, water], mine).unwrap(), Outcome::Partial);
-        assert!(g.st.players[me].discard.contains(vital) && g.st.players[me].hand.contains(water));
+        assert!(g.st.players[me].discard().contains(vital) && g.st.players[me].hand().contains(water));
         // The opponent's effect is locked too (both players), into the deck as well.
         let theirs = Cause::new(CauseKind::Attack, None, 1 - me as u8);
         assert_eq!(put_into_deck(&mut g, disc, &[vital], DeckPosition::Bottom, theirs).unwrap(), Outcome::Prevented);
-        assert!(g.st.players[me].discard.contains(vital));
+        assert!(g.st.players[me].discard().contains(vital));
         // Discarding isn't locked: from the hand it goes to the discard pile.
         assert_eq!(discard(&mut g, ListRef::Hand(me as u8), &[water], mine).unwrap(), Outcome::Done);
-        assert!(g.st.players[me].discard.contains(water));
+        assert!(g.st.players[me].discard().contains(water));
     }
 
     /// Cards go to their owner's zone (APR C-01, C-02), whoever's effect moves them.
@@ -523,11 +523,11 @@ mod tests {
         // The opponent's effect puts my attached Energy into "the hand": mine.
         let out = crate::engine::knockout::leave_play_cards(&mut g, a, &[energy], RulesZone::Hand, theirs, None).unwrap();
         assert_eq!(out, Outcome::Done);
-        assert!(g.st.players[me].hand.contains(energy) && !g.st.players[o].hand.contains(energy));
+        assert!(g.st.players[me].hand().contains(energy) && !g.st.players[o].hand().contains(energy));
         // My effect discards a card of the opponent's hand: their discard pile.
-        let card = g.st.players[o].hand.as_slice()[0];
+        let card = g.st.players[o].hand().as_slice()[0];
         discard(&mut g, ListRef::Hand(o as u8), &[card], Cause::new(CauseKind::Trainer, None, me as u8)).unwrap();
-        assert!(g.st.players[o].discard.contains(card));
+        assert!(g.st.players[o].discard().contains(card));
     }
 
     /// Milotic's Mentally Calm: the opponent's Pokémon in play and their attached cards can't be put into the opponent's
@@ -555,9 +555,9 @@ mod tests {
     fn draw_as_much_as_there_is() {
         let mut g = game(json!({"me": {"reset": true, "active": MILOTIC, "deck_left": 2}, "opp": {"reset": true, "active": MILOTIC}}));
         let me = g.st.active_player as usize;
-        let n = g.st.players[me].hand.len();
+        let n = g.st.players[me].hand().len();
         assert_eq!(draw(&mut g, me, 3, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Partial);
-        assert_eq!(g.st.players[me].hand.len(), n + 2);
+        assert_eq!(g.st.players[me].hand().len(), n + 2);
         assert_eq!(draw(&mut g, me, 1, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Impossible);
         // A count of 0 draws nothing: not done.
         assert_eq!(draw(&mut g, me, 0, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Impossible);

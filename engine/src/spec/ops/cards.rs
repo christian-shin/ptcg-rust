@@ -474,7 +474,7 @@ fn set_reg(g: &mut Game, f: &mut Frame, r: u8, cards: &[CardId]) {
 /// Cards in the player's hand, not counting the resolving card (a Trainer is out of the hand while it resolves) nor a
 /// legality check's cards out of the hand (`Frame::excl`).
 fn hand_len_without(g: &Game, f: &Frame, p: usize, me: CardId) -> i32 {
-    g.st.players[p].hand.iter().filter(|c| *c != me && !f.out_of_hand(*c)).count() as i32
+    g.st.players[p].hand().iter().filter(|c| *c != me && !f.out_of_hand(*c)).count() as i32
 }
 
 fn zone_is_unset(f: &Frame, z: ZoneRef) -> bool {
@@ -548,7 +548,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let n = match &d.amount {
                 DrawAmount::Count(n) => num_m(g, me, f, n)?,
                 DrawAmount::UntilHandSize(n) => num_m(g, me, f, n)? - hand_len_without(g, f, p, me),
-                DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
+                DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand().iter().filter(|c| *c != me).count() as i32,
             };
             f.outcome = if n > 0 { crate::engine::cards_zone::draw(g, p, n as usize, f.cause)? } else { Outcome::Impossible };
             Ok(Flow::Next)
@@ -600,7 +600,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(s.zone.0);
             // The Shuffle of a Search that was skipped because the deck is empty is skipped with it
             // (ruling 840: an empty deck can't be searched; rulings 361/362: the whole effect fails).
-            if g.st.players[p].deck.is_empty() {
+            if g.st.players[p].deck().is_empty() {
                 f.outcome = Outcome::Impossible;
                 return Ok(Flow::Next);
             }
@@ -642,7 +642,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.p as usize;
             let Some(s) = empty_bench_slots(g, p).as_slice().first().copied() else { crate::bail!("CANNOT_PLAY_THIS_CARD") };
             // An Item resolving sits in the supporter pile; the Pokémon play takes it from the hand.
-            if g.st.players[p].supporter.contains(me) {
+            if g.st.players[p].supporter().contains(me) {
                 g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
             }
             // Played from the hand as a Pokémon: EnterPlay by the rule, caused by the Trainer card.
@@ -748,7 +748,7 @@ mod cost_card_tests {
         let mut g = Game::new(7);
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
-        let hand = g.st.players[0].deck.as_slice().to_vec();
+        let hand = g.st.players[0].deck().as_slice().to_vec();
         let (paid, other) = (hand[0], hand[1]);
         let ListRef::Temp(t) = g.alloc_temp(&[paid]) else { panic!("a staging list") };
         let mut f = crate::spec::run::Frame::for_check(crate::spec::run::Prog::Power(0), crate::spec::run::Phase::Use, 0, crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, 0), [NO_CARD; 2]);
@@ -1446,7 +1446,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::Shuffle(s) => {
             if let Res::Order(o) = first {
                 let p = f.who(s.zone.0);
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
+                crate::game::apply_order(&mut g.st.zone_edit(ListRef::Deck(p as u8)), o.as_slice());
                 g.st.bump_layout();
             }
             Ok(Flow::Next)
@@ -1726,7 +1726,7 @@ fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec)
 /// itself; an op on the cards an earlier op chose or set aside is possible when that choice is (a gate); moving cards needs cards
 /// to move; a search and a draw need a deck with a card.
 pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    let deck = |w: Who| !g.st.players[f.who(w)].deck.is_empty();
+    let deck = |w: Who| !g.st.players[f.who(w)].deck().is_empty();
     let dependent = |from: &ZoneRef, cards: &CardSel| matches!(cards, CardSel::Chosen(_)) || matches!(from.1, Zone::Scratch(_));
     Some(match op {
         Op::Pick(_) | Op::Snapshot(_) | Op::PickPrize(_) | Op::PrizeVisibility(_) => return None,
@@ -1783,7 +1783,7 @@ fn energy_move_possible(g: &Game, me: CardId, f: &Frame, d: &DiscardEnergySpec) 
 /// still above 0 for "draw until you have N cards in your hand".
 pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec, removed: i32) -> bool {
     let p = f.who(d.who);
-    if g.st.players[p].deck.is_empty() {
+    if g.st.players[p].deck().is_empty() {
         return false;
     }
     match &d.amount {
@@ -1855,10 +1855,10 @@ fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
     let Some(limit) = crate::engine::setup::copy_limit(def) else { return true };
     let named = |c: CardId| g.st.cdef(c).name == name && g.st.owner(c) == p;
     let pl = &g.st.players[p];
-    let mut known = pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
+    let mut known = pl.discard().iter().filter(|c| named(*c)).count() + pl.lostzone().iter().filter(|c| named(*c)).count();
     for i in 0..pl.prize_count as usize {
         if pl.prize_public[i] || pl.prize_face_up[i] {
-            known += pl.prizes[i].iter().filter(|c| named(*c)).count();
+            known += pl.prizes()[i].iter().filter(|c| named(*c)).count();
         }
     }
     for q in 0..2 {
@@ -2275,7 +2275,7 @@ fn redeal_prizes(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R {
     let pc = g.st.players[p].prize_count as usize;
     let mut all: Vec<(CardId, u8)> = Vec::new();
     for i in 0..pc {
-        for c in g.st.players[p].prizes[i].iter() {
+        for c in g.st.players[p].prizes()[i].iter() {
             all.push((c, i as u8));
         }
     }
@@ -2299,8 +2299,8 @@ fn redeal_prizes(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R {
     }
     // The new Prizes come from the top of the deck, into the first empty Prize slots.
     for _ in 0..count {
-        let Some(c) = g.st.players[p].deck.get(0) else { continue };
-        if let Some(i) = (0..pc).find(|i| g.st.players[p].prizes[*i].is_empty()) {
+        let Some(c) = g.st.players[p].deck().get(0) else { continue };
+        if let Some(i) = (0..pc).find(|i| g.st.players[p].prizes()[*i].is_empty()) {
             crate::engine::cards_zone::set_prize(g, ListRef::Deck(p as u8), c, p, i as u8);
         }
     }
@@ -3017,7 +3017,7 @@ fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: 
     }
     if left <= 1 && !g.st.rules.prize_cards_always_chosen {
         let pl = &g.st.players[p];
-        let first = (0..pl.prize_count).find(|i| !pl.prizes[*i as usize].is_empty());
+        let first = (0..pl.prize_count).find(|i| !pl.prizes()[*i as usize].is_empty());
         if let Some(i) = first {
             if record {
                 f.record_items(g, me, CHOICE_YES, &[i]);
@@ -3080,7 +3080,7 @@ fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R
     let mut blocked: SVec<u8, 6> = SVec::new();
     let mut n = 0u8;
     for i in 0..pl.prize_count {
-        if pl.prizes[i as usize].is_empty() {
+        if pl.prizes()[i as usize].is_empty() {
             continue;
         }
         if pl.prize_face_up[i as usize] {
@@ -3090,12 +3090,12 @@ fn bother_exec(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec) -> R
     }
     if blocked.len() >= n as usize {
         // No face-down Prize card to turn face up: you only look at a random card of their hand.
-        let n = g.st.players[o].hand.len();
+        let n = g.st.players[o].hand().len();
         if n == 0 {
             return Ok(Flow::Next);
         }
         let k = g.rng.index(n);
-        let seen = g.st.players[o].hand.as_slice()[k];
+        let seen = g.st.players[o].hand().as_slice()[k];
         crate::record::reveal(g, f.p as usize, &[seen]);
         bother_show(g, me, f, 4);
         return Ok(Flow::Suspend);
@@ -3127,12 +3127,12 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             // Face up: everyone sees it.
             let up: Vec<CardId> = g.lst(ListRef::Prize(o as u8, idx)).to_vec();
             crate::record::reveal(g, f.p as usize, &up);
-            let n = g.st.players[o].hand.len();
+            let n = g.st.players[o].hand().len();
             if n == 0 {
                 bother_show(g, me, f, 4);
                 return Ok(Flow::Suspend);
             }
-            let hand_card = g.st.players[o].hand.as_slice()[g.rng.index(n)];
+            let hand_card = g.st.players[o].hand().as_slice()[g.rng.index(n)];
             g.spec_choices.retain(|x| !(x.card == me && x.key == BOTHER_STASH));
             let mut ch = SpecChoice { card: me, key: BOTHER_STASH, answer: 0, items: [0; SPEC_CHOICE_ITEMS], len: 2 };
             ch.items[0] = idx;

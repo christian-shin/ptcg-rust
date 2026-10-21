@@ -413,7 +413,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         }
         Num::KnownCopies(w, name) => {
             let p = f.who(*w);
-            let mut n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).name == *name).count();
+            let mut n = g.st.players[p].discard().iter().filter(|c| g.st.cdef(*c).name == *name).count();
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
                 n += g.st.slot(p, *s).cards().iter().filter(|c| g.st.cdef(*c).name == *name).count();
             }
@@ -504,7 +504,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::AttackFlag(k) => (f.eff as usize) < g.fx.len() && matches!(k, super::ops::state::AttackFlagKind::OptionChosen) && g.fx_flags(f.eff) & crate::game::fx_flag::OPTION_CHOSEN != 0,
         Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
         Cond::LastCardInHand(w) => {
-            let hand = &g.st.players[f.who(*w)].hand;
+            let hand = &g.st.players[f.who(*w)].hand();
             !f.out_of_hand(me) && hand.contains(me) && hand.iter().filter(|c| !f.out_of_hand(*c)).all(|c| c == me)
         }
         Cond::TypesShared(..) => panic!("checked read: evaluate with cond_m"),
@@ -539,7 +539,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::FaceDownPrize(w) => {
             let pl = &g.st.players[f.who(*w)];
-            (0..pl.prize_count as usize).any(|i| !pl.prize_public[i] && !pl.prize_face_up[i] && !pl.prizes[i].is_empty())
+            (0..pl.prize_count as usize).any(|i| !pl.prize_public[i] && !pl.prize_face_up[i] && !pl.prizes()[i].is_empty())
         }
         Cond::AttackerOfKnockOut { who, pred: q } => g.attacker_of_knock_out(f.who(*who)).and_then(|(c, _)| c).map_or(false, |c| pred(g, c, q)),
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
@@ -570,7 +570,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                     let d = g.st.cdef(c);
                     d.is_pokemon() && d.name == name
                 };
-                let mut n = pl.hand.iter().filter(|c| named(*c)).count() + pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
+                let mut n = pl.hand().iter().filter(|c| named(*c)).count() + pl.discard().iter().filter(|c| named(*c)).count() + pl.lostzone().iter().filter(|c| named(*c)).count();
                 for s in pl.in_play() {
                     n += pl.slots[s as usize].cards().iter().filter(|c| named(*c)).count();
                 }

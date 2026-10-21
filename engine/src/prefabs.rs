@@ -29,7 +29,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
         }
         PrefabCont::ShuffleOrderThenDraw { p, draw, after, cause } => {
             if let Res::Order(o) = first {
-                crate::game::apply_order(&mut g.st.players[p as usize].deck, o.as_slice());
+                crate::game::apply_order(&mut g.st.zone_edit(ListRef::Deck(p)), o.as_slice());
                 g.st.bump_layout();
             }
             g.wait(p as usize, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after, cause }));
@@ -263,7 +263,7 @@ fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, cr
 pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: crate::cause::Cause) -> R {
     let cards: SVec<CardId, 64> = {
         let mut v = SVec::new();
-        for c in g.st.players[p].hand.iter() {
+        for c in g.st.players[p].hand().iter() {
             if c != exclude {
                 v.push(c);
             }

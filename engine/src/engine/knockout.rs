@@ -314,7 +314,7 @@ pub fn take_prizes_chosen(g: &mut Game, p: usize, prizes: &[u8], cause: Cause) -
 fn first_prizes(g: &Game, p: usize, count: usize) -> SVec<u8, 6> {
     let mut v = SVec::new();
     for i in 0..g.st.players[p].prize_count {
-        if !g.st.players[p].prizes[i as usize].is_empty() && v.len() < count {
+        if !g.st.players[p].prizes()[i as usize].is_empty() && v.len() < count {
             v.push(i);
         }
     }
@@ -557,7 +557,7 @@ fn win_condition_met(g: &Game) -> bool {
     (0..2).any(|i| {
         let pl = &g.st.players[i];
         let no_pokemon = pl.slots[pl.active as usize].cards().is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty());
-        no_pokemon || pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty())
+        no_pokemon || pl.prizes()[..pl.prize_count as usize].iter().all(|l| l.is_empty())
     })
 }
 
@@ -820,7 +820,7 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
     // counts both players' win conditions) unless both took their last Prize card
     // at the same time: then the new Active Pokémon are promoted and their effects
     // resolve before the winner is determined (R7F-12; rulings 820, 1584).
-    let taken: [bool; 2] = [0, 1].map(|i: usize| g.st.players[i].prizes[..g.st.players[i].prize_count as usize].iter().all(|l| l.is_empty()));
+    let taken: [bool; 2] = [0, 1].map(|i: usize| g.st.players[i].prizes()[..g.st.players[i].prize_count as usize].iter().all(|l| l.is_empty()));
     if (taken[0] || taken[1]) && !(taken[0] && taken[1]) {
         if knock_out_pending_before_winner(g, &f)? {
             return state_check(g, f.oc);
@@ -981,7 +981,7 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
         if pl.slots[pl.active as usize].cards().is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards().is_empty()) {
             points[1 - i] += 1;
         }
-        if pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty()) {
+        if pl.prizes()[..pl.prize_count as usize].iter().all(|l| l.is_empty()) {
             points[i] += 1;
             prizes_out = true;
         }
@@ -1131,11 +1131,8 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         for l in lists {
             g.move_to(l, ListRef::Deck(p), None);
         }
-        let old = &g.st.players[p as usize];
-        let deck = old.deck;
-        let cards: Vec<CardId> = deck.iter().collect();
-        g.st.players[p as usize] = Player::new();
-        g.st.players[p as usize].deck = deck;
+        let cards: Vec<CardId> = g.st.players[p as usize].deck().iter().collect();
+        g.st.reset_player_keeping_deck(p as usize);
         g.st.bump_layout();
         for c in cards {
             let inst = &mut g.st.cards[c as usize];

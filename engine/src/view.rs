@@ -271,10 +271,10 @@ fn seat_into(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize, o
     let trainer = |kind: TrainerType| pl.played_this_turn.iter().any(|c| st.cdef(*c).trainer_type == kind as u8);
     out.prizes.clear();
     for i in 0..pl.prize_count as usize {
-        if pl.prizes[i].is_empty() {
+        if pl.prizes()[i].is_empty() {
             continue;
         }
-        out.prizes.push(if pl.prize_face_up[i] { pl.prizes[i].get(0).map(|c| card(g, c)) } else { None });
+        out.prizes.push(if pl.prize_face_up[i] { pl.prizes()[i].get(0).map(|c| card(g, c)) } else { None });
     }
     // A card lying face down is seen by its owner only (`State::in_play_face_down`).
     let down = |s: SlotId| st.in_play_face_down() && !st.slot(p, s).cards().is_empty();
@@ -292,15 +292,15 @@ fn seat_into(g: &Game, facts: &mut crate::legal::Ctx, viewer: usize, p: usize, o
     }
     pokemon_into(g, facts, p, pl.active, down(pl.active) && p != viewer, &mut out.active);
     out.active_face_down = down(pl.active);
-    out.deck_count = pl.deck.len() as u8;
-    out.hand_count = pl.hand.len() as u8;
+    out.deck_count = pl.deck().len() as u8;
+    out.hand_count = pl.hand().len() as u8;
     if p == viewer {
-        cards_into(g, &pl.hand, out.hand.get_or_insert_with(SVec::new));
+        cards_into(g, &pl.hand(), out.hand.get_or_insert_with(SVec::new));
     } else {
         out.hand = None;
     }
-    cards_into(g, &pl.discard, &mut out.discard);
-    cards_into(g, &pl.lostzone, &mut out.lost_zone);
+    cards_into(g, &pl.discard(), &mut out.discard);
+    cards_into(g, &pl.lostzone(), &mut out.lost_zone);
     out.prize_count = pl.prize_left() as u8;
     out.bench_max = pl.bench.len() as u8;
     out.supporter_played = trainer(TrainerType::Supporter);
@@ -343,7 +343,7 @@ impl TableView {
         self.phase = st.phase as u8;
         self.active_player = st.active_player;
         self.first_player = st.first_player;
-        self.stadium = (0..2).find_map(|q| st.players[q].stadium.get(0).map(|c| (card(g, c), q as u8)));
+        self.stadium = (0..2).find_map(|q| st.players[q].stadium().get(0).map(|c| (card(g, c), q as u8)));
         looking_into(g, viewer, &mut self.looking);
         let [a, b] = &mut self.players;
         seat_into(g, facts, viewer, 0, a);
@@ -403,7 +403,7 @@ mod tests {
         crate::scenario::apply(&mut g, &sc).unwrap();
         let (a, b) = (g.st.players[0].active, g.st.players[0].bench.as_slice()[0]);
         for s in [b, a, b] {
-            let c = g.st.players[0].deck.iter().find(|c| g.st.cdef(*c).is_energy()).unwrap();
+            let c = g.st.players[0].deck().iter().find(|c| g.st.cdef(*c).is_energy()).unwrap();
             g.move_card_to(ListRef::Deck(0), c, ListRef::Slot(0, s));
         }
         let v = TableView::new(&g, 0);
@@ -500,8 +500,8 @@ mod tests {
     fn looking_keeps_hidden_entries() {
         let seen = |v: &TableView| v.looking.iter().map(|c| c.map(|c| c.card)).collect::<Vec<_>>();
         let mut g = board(6, &[]);
-        let theirs = g.st.players[1].deck.iter().next().unwrap();
-        let mine = g.st.players[0].deck.iter().next().unwrap();
+        let theirs = g.st.players[1].deck().iter().next().unwrap();
+        let mine = g.st.players[0].deck().iter().next().unwrap();
         let list = g.alloc_temp(&[]);
         // Player 0 looks at the top of the opponent's deck and of their own.
         let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, 0);
@@ -511,7 +511,7 @@ mod tests {
         assert_eq!(seen(&TableView::new(&g, 1)), vec![None, None]);
         // The same look by player 1: the roles swap.
         let mut g = board(6, &[]);
-        let theirs = g.st.players[1].deck.iter().next().unwrap();
+        let theirs = g.st.players[1].deck().iter().next().unwrap();
         let list = g.alloc_temp(&[]);
         let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, 1);
         crate::engine::cards_zone::stage(&mut g, ListRef::Deck(1), &[theirs], list, cause);
@@ -527,8 +527,8 @@ mod tests {
         let seen = |v: &TableView| v.looking.iter().map(|c| c.map(|c| c.card)).collect::<Vec<_>>();
         let mut g = board(6, &[]);
         g.st.rules.looked_cards_shown_to_owner = true;
-        let theirs = g.st.players[1].deck.iter().next().unwrap();
-        let mine = g.st.players[0].deck.iter().next().unwrap();
+        let theirs = g.st.players[1].deck().iter().next().unwrap();
+        let mine = g.st.players[0].deck().iter().next().unwrap();
         let list = g.alloc_temp(&[]);
         let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, 0);
         crate::engine::cards_zone::stage(&mut g, ListRef::Deck(1), &[theirs], list, cause);

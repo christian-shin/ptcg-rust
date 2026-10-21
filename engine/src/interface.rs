@@ -427,7 +427,7 @@ impl Game {
             let mut r = Opt::default();
             match *a {
                 Action::PlayCard { hand_index, target } => {
-                    let c = self.st.players[p as usize].hand.as_slice()[hand_index as usize];
+                    let c = self.st.players[p as usize].hand().as_slice()[hand_index as usize];
                     let d = self.st.cdef(c);
                     r.kind = if d.is_energy() || (d.is_trainer() && d.trainer_type == TrainerType::Tool as u8) {
                         OptionType::Attach as u8
@@ -558,7 +558,7 @@ impl Game {
             }
             PromptKind::ChoosePrize { count, use_opponent_prizes, .. } => {
                 let q = if use_opponent_prizes { 1 - persp } else { persp };
-                let left = self.st.players[q].prizes.iter().filter(|l| !l.is_empty()).count();
+                let left = self.st.players[q].prizes().iter().filter(|l| !l.is_empty()).count();
                 options.extend((0..left).map(|k| Opt { kind: OptionType::Card as u8, area: Some(AreaType::Prize as u8), index: Some(k as u8), player_index: Some(q as u8), ..Default::default() }));
                 vals.extend((0..left).map(OptionValue::Index));
                 let n = (count as usize).min(left);

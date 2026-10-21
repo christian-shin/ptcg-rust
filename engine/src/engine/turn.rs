@@ -60,7 +60,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
         return Ok(());
     }
     let p = g.st.active_player as usize;
-    let card = match g.st.players[p].hand.get(hand_index as usize) {
+    let card = match g.st.players[p].hand().get(hand_index as usize) {
         Some(c) => c,
         None => crate::bail!("UNKNOWN_CARD"),
     };
@@ -139,8 +139,8 @@ pub fn ability_source(g: &Game, p: usize, target: CardTarget) -> R<Option<CardId
             let t = get_target(&g.st, p, target)?;
             g.st.slot_pokemon(t.p as usize, t.s)
         }
-        SlotType::Discard => g.st.players[p].discard.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
-        SlotType::Hand => g.st.players[p].hand.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
+        SlotType::Discard => g.st.players[p].discard().get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
+        SlotType::Hand => g.st.players[p].hand().get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
         _ => None,
     })
 }

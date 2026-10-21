@@ -24,14 +24,14 @@ pub fn check(g: &Game) -> Result<(), String> {
         Ok(())
     };
     for (p, pl) in st.players.iter().enumerate() {
-        count(pl.deck.as_slice(), "deck")?;
-        count(pl.hand.as_slice(), "hand")?;
-        count(pl.discard.as_slice(), "discard")?;
-        count(pl.lostzone.as_slice(), "lostzone")?;
-        count(pl.stadium.as_slice(), "stadium")?;
-        count(pl.supporter.as_slice(), "supporter")?;
+        count(pl.deck().as_slice(), "deck")?;
+        count(pl.hand().as_slice(), "hand")?;
+        count(pl.discard().as_slice(), "discard")?;
+        count(pl.lostzone().as_slice(), "lostzone")?;
+        count(pl.stadium().as_slice(), "stadium")?;
+        count(pl.supporter().as_slice(), "supporter")?;
         let mut prizes = 0;
-        for pr in pl.prizes.iter() {
+        for pr in pl.prizes().iter() {
             count(pr.as_slice(), "prizes")?;
             prizes += pr.len();
         }
@@ -65,6 +65,8 @@ pub fn check(g: &Game) -> Result<(), String> {
             k => return Err(format!("card {} ({}) is in {} zones", c, st.cdef(c as u8).full_name, k)),
         }
     }
+    // Every card's place record (`State::at`, `State::pos`) names its list and index.
+    st.check_places()?;
     if matches!(g.pending(), Pending::Turn(_)) && !g.fx.is_empty() {
         return Err(format!("{} effects on the stack at a turn decision", g.fx.len()));
     }

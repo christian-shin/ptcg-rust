@@ -70,7 +70,6 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
     for n in stack(tool) {
         let c = mv(g, p, n, ListRef::Slot(pu, s))?;
         g.st.bump_layout();
-        g.st.at[c as usize] = crate::state::Loc::tool(p, s);
         let mut slot = g.st.slot_edit(p, s);
         slot.cards().remove(c);
         slot.tools().push(c);
@@ -229,7 +228,7 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         }
     }
     if let Some(n) = side["deck_left"].as_u64() {
-        while g.st.players[p].deck.len() > n as usize {
+        while g.st.players[p].deck().len() > n as usize {
             g.move_to(ListRef::Deck(pu), ListRef::Discard(pu), Some(1));
         }
     }

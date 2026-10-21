@@ -262,7 +262,7 @@ fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize
     let p = g.st.active_player as usize;
     opts.iter().position(|o| {
         let Action::PlayCard { hand_index, .. } = o.action else { return false };
-        let Some(c) = g.st.players[p].hand.get(hand_index as usize) else { return false };
+        let Some(c) = g.st.players[p].hand().get(hand_index as usize) else { return false };
         let d = g.st.cdef(c);
         let named = want_def == Some(g.st.cards[c as usize].def) || crate::carddb::card_is(d, name) || d.name == name;
         named && want_target.as_ref().map_or(true, |t| stable(&o.desc["target"]) == *t)
@@ -543,7 +543,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     None => pick_turn(&opts, o.policy[p], &mut prng),
                 };
                 let card = match opts[k] {
-                    Action::PlayCard { hand_index, .. } => g.st.players[p].hand.get(hand_index as usize),
+                    Action::PlayCard { hand_index, .. } => g.st.players[p].hand().get(hand_index as usize),
                     _ => None,
                 };
                 note(Last::Turn(opts[k], card));

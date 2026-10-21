@@ -39,7 +39,7 @@ pub fn init_next_turn(g: &mut Game) -> R {
 
     g.st.phase = GamePhase::Draw;
     g.st.bump();
-    if g.st.players[p].deck.is_empty() {
+    if g.st.players[p].deck().is_empty() {
         let winner = if g.st.active_player != 0 { WINNER_P1 } else { WINNER_P2 };
         crate::engine::knockout::game_end(g, winner, crate::engine::knockout::EndReason::DeckOut);
         return Ok(());

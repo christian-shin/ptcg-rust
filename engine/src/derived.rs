@@ -147,7 +147,8 @@ fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, memo: T, again:
 }
 
 /// A digest of everything a fact can read in the state (`PTCG_VERIFY_CACHE=1` only): the zones, the spots and their
-/// records, the players' records, the cards' instance fields, the globals. Not the version counters and the location hints.
+/// records, the players' records, the cards' instance fields, the globals. Not the version counters and the place
+/// records (`State::at`, `State::pos`: what the zones say already).
 pub fn state_digest(st: &crate::state::State) -> u64 {
     use std::hash::{Hash, Hasher};
     struct H(u64);
@@ -243,14 +244,14 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         ci.staged_by.hash(&mut h);
     }
     for pl in st.players.iter() {
-        for z in [&pl.deck, &pl.hand, &pl.discard, &pl.lostzone] {
+        for z in [&pl.deck(), &pl.hand(), &pl.discard(), &pl.lostzone()] {
             l(&mut h, z.as_slice());
         }
-        l(&mut h, pl.stadium.as_slice());
-        l(&mut h, pl.supporter.as_slice());
+        l(&mut h, pl.stadium().as_slice());
+        l(&mut h, pl.supporter().as_slice());
         h.write_u8(pl.prize_count);
         for i in 0..6 {
-            l(&mut h, pl.prizes[i].as_slice());
+            l(&mut h, pl.prizes()[i].as_slice());
             h.write_u8(pl.prize_public[i] as u8);
             h.write_u8(pl.prize_face_up[i] as u8);
         }
