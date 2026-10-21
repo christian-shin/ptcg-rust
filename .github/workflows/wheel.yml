@@ -1,5 +1,6 @@
 # The engine's Python wheel (python/: PyO3 abi3-py39, maturin) built in a manylinux2014 container, smoke-tested on stock
-# Python 3.9 and 3.11, and uploaded as an artifact. Runs on ci/** pushes that touch the engine, the bindings or this file,
+# Python 3.9 and 3.11, and uploaded as an artifact, once per build profile (`release`, and `dist`: fat LTO, one codegen
+# unit, the shipped one; compare the wheel sizes in the `ls` steps and the import times in the smoke steps). Runs on ci/** pushes that touch the engine, the bindings or this file,
 # and on demand.
 name: wheel
 run-name: wheel ${{ github.ref_name }}
@@ -16,19 +17,22 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        profile: [release, dist]
     steps:
       - uses: actions/checkout@v4
       - uses: PyO3/maturin-action@v1
         with:
           command: build
-          args: --release --out dist --manifest-path python/Cargo.toml
+          args: --profile ${{ matrix.profile }} --out wheels --manifest-path python/Cargo.toml
           target: x86_64
           manylinux: "2014"
-      - run: ls -l dist
+      - run: ls -l wheels
       - uses: actions/upload-artifact@v4
         with:
-          name: ptcg-wheel
-          path: dist/*.whl
+          name: ptcg-wheel-${{ matrix.profile }}
+          path: wheels/*.whl
           if-no-files-found: error
 
   smoke:
@@ -37,6 +41,7 @@ jobs:
     strategy:
       matrix:
         python: ["3.9", "3.11"]
+        profile: [release, dist]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -44,9 +49,10 @@ jobs:
           python-version: ${{ matrix.python }}
       - uses: actions/download-artifact@v4
         with:
-          name: ptcg-wheel
-          path: dist
+          name: ptcg-wheel-${{ matrix.profile }}
+          path: wheels
       - run: |
-          ls -l dist
-          python -m pip install numpy dist/*.whl
+          ls -l wheels
+          python -m pip install numpy wheels/*.whl
           python -I tools/wheel_smoke.py
+          for i in 1 2 3; do python -I -X importtime -c "import ptcg" 2>&1 | grep -E " ptcg$|_ptcg" | tail -1; done

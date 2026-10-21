@@ -163,6 +163,7 @@ jobs:
   # Instructions per decision of the bench (plain and `--host`), counted by cachegrind: deterministic, a number per
   # commit without a quiet machine. Reported, not a gate (continue-on-error): the job summary shows it, the
   # `instructions` artifact keeps it, tools/ci.py prints it with the run's result next to the parent commit's.
+  # The dist build (keys `plain-dist`, `host-dist`) is counted in the same job.
   instructions:
     needs: build
     runs-on: ubuntu-latest
@@ -175,12 +176,17 @@ jobs:
           name: bins
           path: engine/target/release
       - run: chmod +x engine/target/release/*
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build the dist profile (fat LTO, one codegen unit)
+        run: cargo build --profile dist --manifest-path engine/Cargo.toml --bin bench
       - name: Install valgrind
         run: sudo apt-get update -qq && sudo apt-get install -y -qq valgrind
       - name: Count
         run: |
           python3 tools/instructions.py engine/target/release/bench engine/bench/spec.json \
             --games 200 --mode plain --mode host --json instructions.json
+          python3 tools/instructions.py engine/target/dist/bench engine/bench/spec.json \
+            --games 200 --mode plain --mode host --label dist --json instructions.json
       - uses: actions/upload-artifact@v4
         with:
           name: instructions

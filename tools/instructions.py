@@ -1,6 +1,6 @@
 """Instructions per decision of the bench, counted by cachegrind (deterministic: no timer, no machine noise).
 
-usage: instructions.py BENCH SPEC [--games N] [--base M] [--mode plain|host]... [--json OUT]
+usage: instructions.py BENCH SPEC [--games N] [--base M] [--mode plain|host]... [--label L] [--json OUT]
 
 Runs `valgrind --tool=cachegrind` over `BENCH SPEC --games N --threads 1` and over the same with `--games M` (default
 200 and 20), per mode (`plain`: the bench's random play; `host`: `bench --host`, the host calls). Both runs play the
@@ -8,6 +8,9 @@ same warm-up and their games are a prefix of each other's, so the difference of 
 instructions of games M..N-1, and the difference of the two decision counts their decisions: the quotient is the
 instructions per decision without the process start, the card tables, the spec load or the warm-up. (`--host` times
 every call: its count includes the timer reads, about the same per decision in every commit.)
+
+With --label L the mode keys read `plain-L`, `host-L` and --json merges into an existing file (CI keeps the release
+and the dist build's numbers in one `instructions.json`).
 
 Prints one line per mode; appends a table to $GITHUB_STEP_SUMMARY when set; writes the numbers as JSON with --json
 (the `instructions` artifact of the `rust` workflow, which tools/ci.py prints with the run's result).
@@ -36,6 +39,7 @@ def main():
     ap.add_argument('--games', type=int, default=200)
     ap.add_argument('--base', type=int, default=20)
     ap.add_argument('--mode', action='append', choices=['plain', 'host'])
+    ap.add_argument('--label', default='')
     ap.add_argument('--json')
     a = ap.parse_args()
     if a.base >= a.games:
@@ -45,10 +49,11 @@ def main():
         ir_n, d_n = count(a.bench, a.spec, a.games, mode)
         ir_m, d_m = count(a.bench, a.spec, a.base, mode)
         per = (ir_n - ir_m) / max(1, d_n - d_m)
-        out[mode] = {'per_decision': round(per), 'instructions': ir_n - ir_m, 'decisions': d_n - d_m,
+        key = mode + ('-' + a.label if a.label else '')
+        out[key] = {'per_decision': round(per), 'instructions': ir_n - ir_m, 'decisions': d_n - d_m,
                      'games': [a.base, a.games]}
         print('%s: %.0f instructions per decision (games %d..%d: %d decisions, %d instructions)'
-              % (mode, per, a.base, a.games - 1, d_n - d_m, ir_n - ir_m))
+              % (key, per, a.base, a.games - 1, d_n - d_m, ir_n - ir_m))
     summary = os.environ.get('GITHUB_STEP_SUMMARY')
     if summary:
         with open(summary, 'a') as f:
@@ -57,8 +62,13 @@ def main():
             for mode, v in out.items():
                 f.write('| %s | %s | %d |\n' % (mode, format(v['per_decision'], ','), v['decisions']))
     if a.json:
+        merged = {}
+        if os.path.exists(a.json):
+            with open(a.json) as f:
+                merged = json.load(f)
+        merged.update(out)
         with open(a.json, 'w') as f:
-            json.dump(out, f, indent=1)
+            json.dump(merged, f, indent=1)
 
 
 if __name__ == '__main__':
