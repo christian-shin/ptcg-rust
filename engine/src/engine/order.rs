@@ -457,11 +457,11 @@ mod tests {
         let turn = g.st.active_player as usize;
         // E-04: the player whose turn is currently being played; at Checkup, in neither player's turn, the player whose
         // turn would be next.
-        g.st.phase = GamePhase::PlayerTurn;
+        g.st.set_phase(GamePhase::PlayerTurn);
         assert_eq!(Window::KnockOut.chooser(&g), turn);
-        g.st.phase = GamePhase::Attack;
+        g.st.set_phase(GamePhase::Attack);
         assert_eq!(Window::KnockOut.chooser(&g), turn);
-        g.st.phase = GamePhase::BetweenTurns;
+        g.st.set_phase(GamePhase::BetweenTurns);
         assert_eq!(Window::KnockOut.chooser(&g), 1 - turn);
         // E-21: the player whose turn is ending. F step 2: the player whose turn would be next.
         assert_eq!(Window::EndTurn { p: turn as u8, e: 0 }.chooser(&g), turn);

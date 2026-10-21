@@ -36,6 +36,7 @@ pub fn has(st: &State, key: UsageKey, by: UsageBy) -> bool {
 /// The record is made: a card's Ability record sets the card's bit of `State::usage_held`.
 #[inline]
 fn push(st: &mut State, key: UsageKey, by: UsageBy, until: Until) {
+    st.touch(crate::state::reads::EFFECTS);
     if let (UsageBy::Card(c), UsageKey::Ability(_)) = (by, key) {
         st.usage_held[(c >> 6) as usize] |= 1u64 << (c & 63);
     }
@@ -61,6 +62,7 @@ pub fn use_once(st: &mut State, key: UsageKey, by: UsageBy, until: Until) -> boo
 /// The records that end with player `p`'s turn, before its end-of-turn effects (`Until::ThisTurn`).
 pub fn expire_this_turn(st: &mut State, p: usize) {
     if !st.usage.is_empty() {
+        st.touch(crate::state::reads::EFFECTS);
         st.usage.retain(|u| u.until != Until::ThisTurn(p as u8));
     }
 }
@@ -73,6 +75,7 @@ pub fn reset_card(st: &mut State, card: CardId) {
     if st.usage_held[w] & bit == 0 {
         return;
     }
+    st.touch(crate::state::reads::EFFECTS);
     st.usage_held[w] &= !bit;
     st.usage.retain(|u| !(u.by == UsageBy::Card(card) && matches!(u.key, UsageKey::Ability(_))));
 }

@@ -75,10 +75,10 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
         slot.tools().push(c);
     }
     if let Some(d) = damage.as_i64() {
-        g.st.players[p].slots[s as usize].damage = d as i32;
+        *g.st.damage_mut(p, s) = d as i32;
     }
     for c in names(conditions) {
-        add_condition(&mut g.st.players[p].slots[s as usize], condition(c)?);
+        add_condition(&mut g.st, p, s, condition(c)?);
     }
     let turn = g.st.turn;
     let played_turn = if played.as_str() == Some("this_turn") { turn } else { 0 };
@@ -158,10 +158,10 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         // Active Pokémon goes to its Bench spot directly, like the `reset` path. Being put into the Active Spot at
         // setup isn't moving from the Bench (RULES.md), so no ChangeActive: no "moved this turn" record (APR E-25),
         // no trigger.
-        let pl = &mut g.st.players[p];
-        let bi = pl.bench_index_of(s).ok_or("scenario: no Bench spot")?;
-        pl.bench.as_mut_slice()[bi] = pl.active;
-        pl.active = s;
+        let bi = g.st.players[p].bench_index_of(s).ok_or("scenario: no Bench spot")?;
+        let a = g.st.players[p].active;
+        g.st.bench_mut(p).as_mut_slice()[bi] = a;
+        g.st.set_active(p, s);
         g.st.bump_layout();
         let a = s;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;
@@ -171,10 +171,10 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
             mv(g, p, n, ListRef::Slot(pu, a))?;
         }
         if let Some(d) = side["active_damage"].as_i64() {
-            g.st.players[p].slots[a as usize].damage = d as i32;
+            *g.st.damage_mut(p, a) = d as i32;
         }
         for c in names(&side["active_conditions"]) {
-            add_condition(&mut g.st.players[p].slots[a as usize], condition(c)?);
+            add_condition(&mut g.st, p, a, condition(c)?);
         }
     }
     for b in side["bench"].as_array().into_iter().flatten() {
@@ -182,7 +182,7 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         if empty_bench(g, p).is_err() && g.st.players[p].bench.len() < crate::state::MAX_BENCH {
             let s = g.st.alloc_slot(p);
             g.st.players[p].slots[s as usize].is_public = true;
-            g.st.players[p].bench.push(s);
+            g.st.bench_mut(p).push(s);
             g.st.bump_layout();
         }
         let s = empty_bench(g, p)?;

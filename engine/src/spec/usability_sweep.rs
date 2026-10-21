@@ -336,7 +336,7 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
             g.move_to(crate::state::ListRef::Deck(q as u8), crate::state::ListRef::LostZone(q as u8), Some(n));
         }
     }
-    g.st.turn = [1, 2, 2, 3, 5][r.below(5)] + if p == 1 { 1 } else { 0 };
+    g.st.set_turn([1, 2, 2, 3, 5][r.below(5)] + if p == 1 { 1 } else { 0 });
     // What happened before: Pokémon Knocked Out during the opponent's last turn, an Ancient Pokémon's attack, a Supporter
     // played this turn.
     for q in [p, 1 - p] {

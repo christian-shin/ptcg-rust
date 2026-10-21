@@ -3210,11 +3210,11 @@ mod attach_target_tests {
         let active = g.st.players[0].active;
         g.st.slot_edit(0, active).cards().clear();
         g.st.slot_edit(0, active).cards().push(duskull);
-        g.st.players[0].bench.clear();
+        g.st.bench_mut(0).clear();
         let b = (0..g.st.players[0].slots.len() as u8).find(|s| *s != active).unwrap();
         g.st.slot_edit(0, b).cards().clear();
         g.st.slot_edit(0, b).cards().push(murkrow);
-        g.st.players[0].bench.push(b);
+        g.st.bench_mut(0).push(b);
         (g, duskull)
     }
 

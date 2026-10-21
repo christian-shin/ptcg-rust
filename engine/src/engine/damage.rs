@@ -377,13 +377,13 @@ pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cau
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::PlaceCounters { target, amount, .. } => {
-            g.st.players[target.p as usize].slots[target.s as usize].damage += amount.max(0);
+            *g.st.damage_mut(target.p as usize, target.s) += amount.max(0);
         }
         Effect::Damage { b, amount, survive } => {
             let t = b.target;
             let (tp, ts) = (t.p as usize, t.s);
             let Some(card) = g.st.slot_pokemon(tp, ts) else { crate::bail!("ILLEGAL_ACTION") };
-            g.st.players[tp].slots[ts as usize].damage += amount;
+            *g.st.damage_mut(tp, ts) += amount;
             g.st.cards[card as usize].damage_taken_last_turn += amount;
             // The survive-on-10 replacement a full-HP Pokémon's effect armed in the calculation (its remaining HP is 10).
             if survive {
@@ -410,9 +410,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         Effect::MoveCounters { buf, .. } => {
             let moves = g.fxp.moves[buf as usize];
             for m in moves.iter() {
-                let s = &mut g.st.players[m.from.p as usize].slots[m.from.s as usize];
-                s.damage = (s.damage - m.removed as i32).max(0);
-                g.st.players[m.to.p as usize].slots[m.to.s as usize].damage += m.placed as i32;
+                let s = g.st.damage_mut(m.from.p as usize, m.from.s);
+                *s = (*s - m.removed as i32).max(0);
+                *g.st.damage_mut(m.to.p as usize, m.to.s) += m.placed as i32;
             }
         }
         _ => {}
@@ -482,7 +482,7 @@ pub fn retaliate(g: &mut Game, t: &Retaliation) -> R {
 /// leaves 10 HP of `hp`, and the Pokémon is recorded so an effect of the same attack lowering its HP keeps it at 10
 /// (ruling 1589; `engine::phase`'s AfterAttack).
 pub fn survive_on_10(g: &mut Game, t: SlotRef, hp: i32) {
-    g.st.players[t.p as usize].slots[t.s as usize].damage = hp - 10;
+    *g.st.damage_mut(t.p as usize, t.s) = hp - 10;
     if !g.ten_hp.contains(&t) {
         g.ten_hp.push(t);
     }
@@ -490,7 +490,7 @@ pub fn survive_on_10(g: &mut Game, t: SlotRef, hp: i32) {
 
 /// The remaining HP of a Pokémon recorded by [`survive_on_10`] is 10 again after the attack lowered its HP (ruling 1589).
 pub fn keep_10(g: &mut Game, t: SlotRef, hp: i32) {
-    g.st.players[t.p as usize].slots[t.s as usize].damage = hp - 10;
+    *g.st.damage_mut(t.p as usize, t.s) = hp - 10;
 }
 
 #[cfg(test)]
@@ -528,7 +528,7 @@ mod tests {
         let card = g.st.slot_pokemon(p, source.s).unwrap();
         let attack = crate::state::AttackRef { card, index: 0 };
         let atk = g.new_fx(Effect::Attack { p: p as u8, opp: (1 - p) as u8, attack, damage: 0, ignore_weakness: true, ignore_resistance: true, ignore_defender_effects: false, source, second_attack: false });
-        g.st.phase = GamePhase::Attack;
+        g.st.set_phase(GamePhase::Attack);
         g.last_attack = Some(crate::game::LastAttack { p: p as u8, effect: atk, attack, source, pokemon: Some(card), damaged_active: SVec::new(), damaged: SVec::new() });
         AtkBase { attack_effect: atk, player: p as u8, opponent: (1 - p) as u8, attack, source, target, cause: Cause::of_attack_at(g, p as u8, attack, source) }
     }
@@ -567,7 +567,7 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let t = SlotRef::new(o, g.st.players[o].active);
-        g.st.lasting.push(crate::state::LastingEffect {
+        g.st.lasting_mut().push(crate::state::LastingEffect {
             on: crate::state::LastingOn::pokemon(o, t.s),
             source: 0,
             what: crate::state::LastingWhat::TakesMoreDamage { amount: 30, attacker: Some(me as u8), pending: false, rearm: false },
@@ -580,7 +580,7 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let t = SlotRef::new(o, g.st.players[o].active);
-        g.st.lasting.push(crate::state::LastingEffect {
+        g.st.lasting_mut().push(crate::state::LastingEffect {
             on: crate::state::LastingOn::pokemon(o, t.s),
             source: 0,
             what: crate::state::LastingWhat::TakesMoreDamage { amount: 30, attacker: Some(me as u8), pending: false, rearm: false },

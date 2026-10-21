@@ -1039,7 +1039,7 @@ impl Game {
             Cont::Noop => Ok(()),
             Cont::Setup(f) => setup::resume(self, f, results),
             Cont::PhasePlayerTurn => {
-                self.st.phase = GamePhase::PlayerTurn;
+                self.st.set_phase(GamePhase::PlayerTurn);
                 self.st.bump();
                 Ok(())
             }
@@ -1418,12 +1418,12 @@ impl Game {
             self.st.n_cards += deck.len() as u8;
             if !setup::deck_is_valid(&self.st, deck) {
                 self.st.players_added = p as u8;
-                self.st.phase = GamePhase::Finished;
+                self.st.set_phase(GamePhase::Finished);
                 self.st.winner = WINNER_NONE;
                 return Ok(());
             }
         }
-        self.st.phase = GamePhase::Setup;
+        self.st.set_phase(GamePhase::Setup);
         self.index_cards();
         self.st.bump_layout();
         setup::start(self)?;
@@ -1447,6 +1447,8 @@ impl Game {
             }
         }
         self.decls = crate::decl::DeclIndex::build(self);
+        // The facts' keys and what the cards are changed: no memo entry stands.
+        self.derived.clear();
     }
 
     fn after_dispatch(&mut self) -> R {

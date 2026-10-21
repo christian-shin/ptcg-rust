@@ -113,10 +113,10 @@ pub fn attack(g: &Game, attacker: CardId, attack: usize, target: CardId, extra_e
     let mut base = g.fork();
     let attacker_moved = from.s != base.st.players[p].active;
     if attacker_moved {
-        let pl = &mut base.st.players[p];
-        let bi = pl.bench_index_of(from.s).ok_or(GameError("INVALID_ATTACKER"))?;
-        pl.bench.as_mut_slice()[bi] = pl.active;
-        pl.active = from.s;
+        let bi = base.st.players[p].bench_index_of(from.s).ok_or(GameError("INVALID_ATTACKER"))?;
+        let a = base.st.players[p].active;
+        base.st.bench_mut(p).as_mut_slice()[bi] = a;
+        base.st.set_active(p, from.s);
         base.st.bump_layout();
         crate::spec::passive::lock_sync(&mut base);
     }

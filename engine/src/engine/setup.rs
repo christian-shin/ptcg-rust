@@ -394,7 +394,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         }
         Stage::GoFirst => {
             let choice = matches!(first, Res::Bool(true));
-            g.st.active_player = if choice == f.who_begins { 0 } else { 1 };
+            g.st.set_active_player(if choice == f.who_begins { 0 } else { 1 });
             g.st.first_player = g.st.active_player;
             g.st.bump();
             deal(g, f)
