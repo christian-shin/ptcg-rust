@@ -85,6 +85,10 @@ pub struct Derived {
     cls_ok: u8,
     cls_gen: [u32; reads::CLASSES],
     cls_dig: [u64; reads::CLASSES],
+    /// The key ([`ko_key`]) at which the Knock Out scan last found no Pokémon to Knock Out (0: none), and whether that
+    /// scan passed undamaged Pokémon unread (a legality trial's: it holds for trials only).
+    no_ko: (u32, u32),
+    no_ko_trial: bool,
 }
 
 impl Derived {
@@ -115,6 +119,8 @@ impl Derived {
             cls_ok: 0,
             cls_gen: [0; reads::CLASSES],
             cls_dig: [0; reads::CLASSES],
+            no_ko: (0, 0),
+            no_ko_trial: false,
         }
     }
 
@@ -131,6 +137,7 @@ impl Derived {
         self.abil_v = [0; MAX_CARDS];
         self.dig_v = 0;
         self.cls_ok = 0;
+        self.no_ko = (0, 0);
     }
 
     /// The bytes [`clear`](Self::clear) writes (`Game::copy_bytes`).
@@ -138,7 +145,7 @@ impl Derived {
     pub fn clear_bytes(&self) -> usize {
         use std::mem::size_of_val as s;
         s(&self.hp_v) + s(&self.types_v) + s(&self.pe_v) + s(&self.retreat_v) + s(&self.attacks_v) + s(&self.cost_v)
-            + s(&self.powers_v) + s(&self.abil_v) + s(&self.dig_v) + s(&self.cls_ok)
+            + s(&self.powers_v) + s(&self.abil_v) + s(&self.dig_v) + s(&self.cls_ok) + s(&self.no_ko)
     }
 }
 
@@ -170,6 +177,37 @@ fn key(g: &Game, f: usize) -> u32 {
     } else {
         k
     }
+}
+
+/// The key the Knock Out scan's answer is good at (`engine::knockout::find_ko_pokemons`, speed batch L4): which
+/// Pokémon are Knocked Out reads the Pokémon in play ([`reads::BOARD`]), their damage counters ([`reads::COUNTERS`]),
+/// their HP (the HP memo's key) and the Knock Outs recorded by effects (`Slot::ko_pending`: [`knock_out_recorded`]
+/// forgets the answer). The first part is never 0.
+#[inline]
+fn ko_key(g: &Game) -> (u32, u32) {
+    const B: usize = reads::BOARD.trailing_zeros() as usize;
+    const C: usize = reads::COUNTERS.trailing_zeros() as usize;
+    (key(g, fact::HP), g.st.facts_gen[B].wrapping_add(g.st.facts_gen[C]))
+}
+
+/// The Knock Out scan found no Pokémon to Knock Out at the current key, by a scan that holds for this game (a
+/// trial's answer holds for trials only).
+#[inline]
+pub fn no_knock_out_known(g: &Game) -> bool {
+    g.derived.no_ko == ko_key(g) && (g.trial || !g.derived.no_ko_trial)
+}
+
+/// The Knock Out scan found no Pokémon to Knock Out; `trial`: it passed undamaged Pokémon unread.
+#[inline]
+pub fn record_no_knock_out(g: &mut Game, trial: bool) {
+    g.derived.no_ko = ko_key(g);
+    g.derived.no_ko_trial = trial;
+}
+
+/// An effect recorded a Knock Out (`Slot::ko_pending`): the scan's last answer is stale.
+#[inline]
+pub fn knock_out_recorded(g: &mut Game) {
+    g.derived.no_ko = (0, 0);
 }
 
 /// The declaration families (`decl::fam`) whose modifiers the facts' computations read, with the fact.

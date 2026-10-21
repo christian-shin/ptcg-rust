@@ -127,6 +127,7 @@ pub fn by_effect(g: &mut Game, target: SlotRef, cause: Cause) -> R<bool> {
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
     if slot.ko_pending.is_none() {
         slot.ko_pending = Some(cause);
+        crate::derived::knock_out_recorded(g);
     }
     Ok(true)
 }
@@ -512,9 +513,28 @@ pub fn on_complete(g: &mut Game, oc: OnComplete) -> R {
 
 /// Every Pokémon in play to Knock Out now, player 0's then player 1's, Active first: its damage reaches its HP (`by_hp`)
 /// or an effect Knocks it Out (`Slot::ko_pending`). An undamaged Pokémon is at 0 HP only when an effect lowers HP: with
-/// no HP modifier declared in the game (`decl::fam::HP`) its HP isn't read.
+/// no HP modifier declared in the game (`decl::fam::HP`) its HP isn't read. An answer of none is remembered at the key of
+/// what it read (`derived::no_knock_out_known`: the Pokémon in play, their damage counters and HP, the recorded Knock
+/// Outs) and given again without a scan while that key holds (speed batch L4; `PTCG_VERIFY_CACHE=1` scans and compares).
 #[allow(clippy::type_complexity)]
 pub(crate) fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>, SVec<bool, { crate::state::MAX_SLOT_REFS }>)> {
+    if crate::derived::no_knock_out_known(g) {
+        if crate::game::verify_cache() {
+            let (out, _) = scan_ko_pokemons(g)?;
+            assert!(out.is_empty(), "the Knock Out scan's remembered answer of none is stale: {:?}", out.as_slice());
+        }
+        return Ok((SVec::new(), SVec::new()));
+    }
+    let r = scan_ko_pokemons(g)?;
+    if r.0.is_empty() {
+        let trial = g.trial && g.decls.sets[crate::decl::fam::HP] != 0;
+        crate::derived::record_no_knock_out(g, trial);
+    }
+    Ok(r)
+}
+
+#[allow(clippy::type_complexity)]
+fn scan_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>, SVec<bool, { crate::state::MAX_SLOT_REFS }>)> {
     let mut out = SVec::new();
     let mut by_hp = SVec::new();
     let hp_fixed = g.decls.sets[crate::decl::fam::HP] == 0;
@@ -1415,6 +1435,36 @@ mod tests {
         assert_eq!(g.st.players[me].prize_left(), left, "the Prize card is chosen next");
         assert!(g.prompts.iter().any(|p| !p.answered && matches!(p.kind, PromptKind::ChoosePrize { count: 1, .. })));
         assert!(g.st.slot_pokemon(o, misty.s).is_some());
+    }
+
+    /// The scan's remembered answer of none (speed batch L4) is given again only while what it read holds: a Knock Out
+    /// recorded by an effect, a damage counter and a trial's partial scan each make the next scan look again.
+    #[test]
+    fn knock_out_scan_remembers_none_only_while_it_holds() {
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX, "bench": [{"card": SNORLAX}]}}));
+        g.st.set_phase(GamePhase::PlayerTurn);
+        let me = g.st.active_player as usize;
+        let o = 1 - me;
+        let a = SlotRef::new(o, g.st.players[o].active);
+        let b = SlotRef::new(o, g.st.players[o].bench.as_slice()[0]);
+        assert!(find_ko_pokemons(&mut g).unwrap().0.is_empty());
+        assert!(crate::derived::no_knock_out_known(&g));
+        assert!(by_effect(&mut g, a, Cause::new(CauseKind::Attack, None, me as u8)).unwrap());
+        assert!(!crate::derived::no_knock_out_known(&g), "a recorded Knock Out forgets the answer");
+        assert_eq!(find_ko_pokemons(&mut g).unwrap().0.as_slice(), &[a]);
+        g.st.players[o].slots[a.s as usize].ko_pending = None;
+        assert!(find_ko_pokemons(&mut g).unwrap().0.is_empty());
+        let hp = crate::derived::hp(&mut g, o, b.s).unwrap();
+        *g.st.damage_mut(o, b.s) = hp;
+        assert!(!crate::derived::no_knock_out_known(&g), "a damage counter forgets the answer");
+        assert_eq!(find_ko_pokemons(&mut g).unwrap().0.as_slice(), &[b]);
+        *g.st.damage_mut(o, b.s) = 0;
+        g.trial = true;
+        assert!(find_ko_pokemons(&mut g).unwrap().0.is_empty());
+        assert!(crate::derived::no_knock_out_known(&g));
+        g.trial = false;
+        let hp_fixed = g.decls.sets[crate::decl::fam::HP] == 0;
+        assert_eq!(crate::derived::no_knock_out_known(&g), hp_fixed, "a trial's partial scan holds for trials only");
     }
 
     /// A Tiebreaker game is a new game (APR I-E): every lasting entry ends, the effects of attacks and of Trainers included.
