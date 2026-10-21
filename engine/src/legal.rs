@@ -109,7 +109,8 @@ pub struct Ctx<'a> {
     memo: SVec<((DefId, CardTarget), bool), 96>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
-    /// The readers' card lists of the decision (`decl::OrderCache`).
+    /// The readers' card lists the decision ordered itself (`decl::OrderCache`; the game's lists of the layout are read
+    /// first): the legal scan hands them to the game's cache when it is done ([`Ctx::into_orders`]).
     order: crate::decl::OrderCache,
 }
 
@@ -130,6 +131,13 @@ impl<'a> Ctx<'a> {
             why: "",
             order: crate::decl::OrderCache::new(),
         }
+    }
+
+    /// The card lists this decision ordered (those the game's cache lacked), for the game's cache when the context is done
+    /// (`decl::OrderCache::keep`): the next decisions of the layout and the actions taken in it read them.
+    #[inline]
+    pub(crate) fn into_orders(self) -> crate::decl::OrderCache {
+        self.order
     }
 
     fn none(&mut self, why: &'static str) -> Option<bool> {
