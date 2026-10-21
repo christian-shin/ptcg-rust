@@ -20,10 +20,11 @@ fn sizes() {
     assert!(size_of::<ptcg::prompts::PromptRec>() <= 256, "PromptRec grew: {} B", size_of::<ptcg::prompts::PromptRec>());
 }
 
-/// What a search's restore moves (speed batch S0): the whole `Game` (what `clone()` / `*dst = *src` copies while `Game`
-/// is `Copy`) and the fixed part of a snapshot, `Game::copy_bytes` of a game with empty stacks: the state and the fixed
-/// fields `copy_from` always copies, plus the derived stamps it clears. A game in progress adds its live stack entries
-/// (`bench --search` prints the mean and the maximum over the bench's games).
+/// What a search's restore moves (speed batch S0): the whole `Game` (what a copy would move if `Game` were `Copy`; since
+/// speed batch S8 it isn't: every copy moves the live parts) and the fixed part of a snapshot, `Game::copy_bytes` of a
+/// game with empty stacks: the state and the fixed fields `copy_from` always copies, plus the derived stamps it clears.
+/// A game in progress adds its live stack entries (`bench --search` prints the mean and the maximum over the bench's
+/// games). A `Snapshot` holds the same bytes plus the declaration index.
 #[test]
 fn snapshot_sizes() {
     use std::mem::size_of;

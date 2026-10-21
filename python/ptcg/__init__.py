@@ -5,7 +5,9 @@
     sel = env.select()            # select dict: type, context, minCount, maxCount, option
     env.step([0])                 # answer with option indices
     obs = env.observe(0)          # float32 [OBS_SIZE] from player 0's view
-    copy = env.clone()            # cheap full copy (mid-prompt included)
+    copy = env.clone()            # independent copy (mid-prompt included; the live parts only)
+    snap = env.snapshot()         # the game kept (about 10 KB) ...
+    env.restore(snap)             # ... and put back (into this Env or another)
     copy.determinize(0, seed=7)   # re-deal hidden cards for a search rollout
     copy.set_unseen(0, 1, names, seed=7)  # seat 1's cards hidden from seat 0 become `names` (unseen_count of them)
     copy.resize_unseen(0, 1, hand, deck, seed=7)  # seat 1's hidden cards move between hand and deck to these sizes
@@ -16,9 +18,9 @@
 """
 import numpy as np
 
-from ._ptcg import Env as _Env, VecEnv as _VecEnv, OBS_SIZE, OPTION_FEATURES, TABLE_RULES
+from ._ptcg import Env as _Env, VecEnv as _VecEnv, Snapshot, OBS_SIZE, OPTION_FEATURES, TABLE_RULES
 
-__all__ = ["Env", "VecEnv", "OBS_SIZE", "OPTION_FEATURES", "TABLE_RULES", "read_deck"]
+__all__ = ["Env", "VecEnv", "Snapshot", "OBS_SIZE", "OPTION_FEATURES", "TABLE_RULES", "read_deck"]
 
 
 def read_deck(path):

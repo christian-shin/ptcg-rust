@@ -41,6 +41,18 @@ try:
     raise AssertionError("a different total was accepted")
 except ValueError as e:
     assert str(hand + deck) in str(e), e
+# A snapshot puts the game back: the same state after 20 random steps, in this Env and in a clone of another state.
+snap = env.snapshot()
+before = env.state_hash()
+other = env.clone()
+for i in range(20):
+    env.step_random(1000 + i)
+assert env.state_hash() != before
+env.restore(snap)
+assert env.state_hash() == before and env.select() == other.select()
+other.step_random(5)
+other.restore(snap)
+assert other.state_hash() == before and 1000 < snap.size < 64000, snap.size
 steps = 0
 what_ifs = 0
 while not env.done:

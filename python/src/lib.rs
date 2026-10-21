@@ -128,7 +128,6 @@ fn random_answer(g: &mut Game, sel: &SelectData, rng: &mut Rng) -> bool {
 }
 
 #[pyclass(skip_from_py_object)]
-#[derive(Clone)]
 struct Env {
     game: Box<Game>,
     decks: [Vec<DefId>; 2],
@@ -136,6 +135,13 @@ struct Env {
     /// The table rules every game of this Env starts with (`reset` keeps them).
     rules: ptcg::table_rules::TableRules,
     sel: Option<SelectData>,
+}
+
+/// The game boxed in place (`Game::boxed`; `Box<Game>::clone` would move the whole game through the stack).
+impl Clone for Env {
+    fn clone(&self) -> Self {
+        Env { game: self.game.boxed(), decks: self.decks.clone(), manual_chance: self.manual_chance, rules: self.rules, sel: self.sel.clone() }
+    }
 }
 
 impl Env {
@@ -261,11 +267,29 @@ impl Env {
         }))
     }
 
-    /// Independent copy (a memcpy of the whole game, mid-prompt included).
+    /// Independent copy (mid-prompt included; the game's live parts are copied, not its whole capacity).
     fn clone(&self) -> PyResult<Env> {
         guarded(|| Ok({
             Clone::clone(self)
         }))
+    }
+
+    /// The game's live parts and its current decision, kept for `restore` (about 10 KB: for a search that keeps many
+    /// states).
+    fn snapshot(&self) -> PyResult<Snapshot> {
+        guarded(|| Ok({
+            Snapshot { snap: self.game.snapshot(), sel: self.sel.clone() }
+        }))
+    }
+
+    /// Make this Env's game the one `snap` was taken from (by any Env; this Env's decks and table rules stay for
+    /// `reset`).
+    fn restore(&mut self, snap: &Snapshot) -> PyResult<()> {
+        guarded(|| {
+            self.game.restore(&snap.snap);
+            self.sel.clone_from(&snap.sel);
+            Ok(())
+        })
     }
 
     /// Re-deal hidden cards uniformly for `viewer` and reseed chance.
@@ -405,6 +429,22 @@ impl Env {
         guarded(|| Ok({
             self.game.canonical_text()
         }))
+    }
+}
+
+/// A game kept by `Env.snapshot` for `Env.restore`.
+#[pyclass(frozen)]
+struct Snapshot {
+    snap: ptcg::snapshot::Snapshot,
+    sel: Option<SelectData>,
+}
+
+#[pymethods]
+impl Snapshot {
+    /// The bytes the snapshot's game holds.
+    #[getter]
+    fn size(&self) -> usize {
+        self.snap.size()
     }
 }
 
@@ -705,6 +745,7 @@ fn _ptcg(m: &Bound<'_, PyModule>) -> PyResult<()> {
     guarded(|| {
         m.add_class::<Env>()?;
         m.add_class::<VecEnv>()?;
+        m.add_class::<Snapshot>()?;
         m.add("OBS_SIZE", OBS_SIZE)?;
         m.add("OPTION_FEATURES", OPTION_FEATURES)?;
         m.add("TABLE_RULES", ptcg::table_rules::TableRules::NAMES.to_vec())?;

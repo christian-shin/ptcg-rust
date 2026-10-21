@@ -177,6 +177,15 @@ impl<T: Copy, const N: usize> SVec<T, N> {
         std::ptr::copy_nonoverlapping(self.items.as_ptr(), items, self.len as usize);
     }
 
+    /// The addresses of the length and of the items of the vector at `v` (a snapshot writes and reads the live part).
+    ///
+    /// # Safety
+    /// `v` must point to a vector (valid for reads; for writes too where the caller writes through them).
+    #[inline]
+    pub unsafe fn raw_parts(v: *const Self) -> (*const u8, *const T) {
+        (std::ptr::addr_of!((*v).len), std::ptr::addr_of!((*v).items) as *const T)
+    }
+
     /// The bytes [`copy_live_to`](Self::copy_live_to) writes: the length and the live items.
     #[inline]
     pub fn live_bytes(&self) -> usize {

@@ -792,7 +792,7 @@ mod tests {
         ]))
         .unwrap();
         arm(&g, a, false);
-        let fork = g;
+        let fork = g.clone();
         on_turn_end(&fork); // a copy at another address is a trial: ignored
         on_turn_decision(&g); // same turn: next_turn assertions wait
         on_turn_end(&g);

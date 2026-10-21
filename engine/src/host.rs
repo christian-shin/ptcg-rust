@@ -13,7 +13,14 @@
 //! give the values of [`view`], [`next`]'s list and select, [`pick_mask`] and [`take_record`]. At a turn decision [`decision_into`] gives the view and the legal actions together,
 //! reading the decision's derived facts (HP, Energy) once for both.
 //!
-//! Threads. A [`Game`] is plain data (`Send + Clone`). The chance tape, the chance recording ([`take_chance`]) and the game
+//! Copies. A [`Game`] is plain data (`Send + Clone`, not `Copy`): most of its size is unused stack capacity, and every
+//! copy moves only the live parts. For a search: [`restore`] a kept game into a game of the host's own (the cheapest
+//! copy: no allocation), [`snapshot`] / [`snapshot_into`] to keep many states in buffers of their own size (about 10 KB
+//! each against `size_of::<Game>()`'s 64 KB) and [`restore_snapshot`] to put one back; [`Game::boxed`] (written in
+//! place) or `Game::clone` for a copy of its own (`Box<Game>::clone` moves the whole game through the stack on the
+//! way), `clone_from` over a kept game. A restore keeps the destination's recording switches, a clone copies them.
+//!
+//! Threads. The chance tape, the chance recording ([`take_chance`]) and the game
 //! record are per-thread buffers: drive one recording game per thread, and read them on the thread that plays.
 //!
 //! Lookahead. [`attack_what_if`] tells what an attack would do now (damage, Knock Outs, Prize cards) on copies of the
@@ -31,6 +38,7 @@ pub use crate::place::{CardPlace, InPlayAs, Spot, Zone};
 pub use crate::prompts::{PromptKind, PromptPurpose, PromptRec, Provenance};
 pub use crate::record::{Detail, RecordEntry};
 pub use crate::rng::Draw;
+pub use crate::snapshot::Snapshot;
 pub use crate::spec::passive::RuleSource;
 pub use crate::state::NO_PLAYER;
 pub use crate::types::WINNER_NONE;
@@ -235,6 +243,28 @@ pub fn tape_left() -> usize {
 /// ([`StartOptions::record_chance`]); feed them back as a tape to replay.
 pub fn take_chance() -> Vec<Draw> {
     crate::rng::take_recorded()
+}
+
+/// Overwrite `g` with `src`, moving only the live parts ([`Game::copy_from`]): `g` plays on as `src` would. `g` keeps
+/// its own chance and event recording switches (a recording game's record goes back to `src`'s entries).
+pub fn restore(g: &mut Game, src: &Game) {
+    g.copy_from(src)
+}
+
+/// The live parts of `g` in a new [`Snapshot`] ([`Game::snapshot`]).
+pub fn snapshot(g: &Game) -> Snapshot {
+    g.snapshot()
+}
+
+/// The live parts of `g` into `out`, its buffer reused ([`Game::snapshot_into`]).
+pub fn snapshot_into(g: &Game, out: &mut Snapshot) {
+    g.snapshot_into(out)
+}
+
+/// Overwrite `g` with the game `s` was taken from, as [`restore`] from that game would ([`Game::restore`]); any game
+/// can take any snapshot (the snapshot holds its game's declaration index).
+pub fn restore_snapshot(g: &mut Game, s: &Snapshot) {
+    g.restore(s)
 }
 
 /// Trade the places of two cards that no seat can see (two deck cards, or two face-down Prize cards, of one owner);

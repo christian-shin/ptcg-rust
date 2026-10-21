@@ -243,7 +243,9 @@ impl Drop for Fork {
     }
 }
 
-#[derive(Clone, Copy)]
+/// A game: the rules state and everything in flight (prompts, effects, continuations). Not `Copy`: most of its size is
+/// unused stack capacity, so every copy moves only the live parts (`snapshot.rs`: `Clone`, [`Game::copy_from`],
+/// [`crate::snapshot::Snapshot`]).
 pub struct Game {
     pub st: State,
     pub rng: Rng,
@@ -404,7 +406,7 @@ impl Game {
                 b.copy_from(self);
                 b
             }
-            None => Box::new(*self),
+            None => self.boxed(),
         };
         let mut b = b;
         // A trial's draws are not the game's: they never go into a recorded trace. Nor its events into the game record.
@@ -412,141 +414,6 @@ impl Game {
         b.record_stop_in_copy();
         Fork(Some(b))
     }
-
-    /// Overwrite `self` with `src`, copying only the live part of the
-    /// prompt / item / wait / effect stacks. Same value as `*self = *src`,
-    /// but most of `size_of::<Game>()` is unused capacity.
-    #[inline]
-    pub fn copy_from(&mut self, src: &Game) {
-        let d: *mut Game = self;
-        // SAFETY: `d` is a valid, exclusive Game; SVec tails are MaybeUninit.
-        unsafe {
-            use std::ptr::addr_of_mut as f;
-            let Game {
-                st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, temp_hw, coin_callbacks,
-                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, copy_chain, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
-                derived: _,
-                decls,
-                order_cache: _,
-                fxp,
-                answers,
-                prompt_payloads,
-                payload_serial,
-                prevented_events,
-                reach_skip,
-                survive_groups,
-                order_pending,
-                checkup_held,
-                put_by,
-                record,
-            } = src;
-            f!((*d).st).write(*st);
-            // The destination keeps its own recording flag (restoring the live game from a backup
-            // fork must not turn its recording off).
-            let rec = (*d).rng.recording();
-            f!((*d).rng).write(*rng);
-            (*d).rng.set_record(rec);
-            prompts.copy_live_to(f!((*d).prompts));
-            f!((*d).last_prompt_id).write(*last_prompt_id);
-            items.copy_live_to(f!((*d).items));
-            waits.copy_live_to(f!((*d).waits));
-            fx.copy_live_to(f!((*d).fx));
-            // The staging lists ever allocated (batch 8 C8: not the 32 x 121 B of them).
-            let hw = *temp_hw as usize;
-            std::ptr::copy_nonoverlapping(temps.as_ptr(), f!((*d).temps) as *mut List<120>, hw);
-            f!((*d).temp_used).write(*temp_used);
-            f!((*d).temp_hw).write(*temp_hw);
-            coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
-            f!((*d).trial).write(*trial);
-            f!((*d).kinds_present).write(*kinds_present);
-            f!((*d).lock_cards).write(*lock_cards);
-            f!((*d).trace_effects).write(*trace_effects);
-            copy_sessions.copy_live_to(f!((*d).copy_sessions));
-            f!((*d).copy_serial).write(*copy_serial);
-            copy_chain.copy_live_to(f!((*d).copy_chain));
-            f!((*d).deleg).write(*deleg);
-            after_dmg.copy_live_to(f!((*d).after_dmg));
-            pending.copy_live_to(f!((*d).pending));
-            ten_hp.copy_live_to(f!((*d).ten_hp));
-            ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
-            spec_choices.copy_live_to(f!((*d).spec_choices));
-            f!((*d).last_attack).write(*last_attack);
-            fxp.copy_live_to(f!((*d).fxp));
-            answers.copy_live_to(f!((*d).answers));
-            prompt_payloads.copy_live_to(f!((*d).prompt_payloads));
-            f!((*d).payload_serial).write(*payload_serial);
-            f!((*d).prevented_events).write(*prevented_events);
-            f!((*d).reach_skip).write(*reach_skip);
-            f!((*d).survive_groups).write(*survive_groups);
-            f!((*d).order_pending).write(*order_pending);
-            f!((*d).checkup_held).write(*checkup_held);
-            f!((*d).put_by).write(*put_by);
-            // The destination keeps its own recording flag (like the chance recording); a recording game restored from a
-            // copy keeps the entries made up to the copy (a rolled back action's go).
-            let on = (*d).record.on;
-            f!((*d).record).write(record.with_on(on));
-            if on {
-                crate::record::rewind(record.len);
-            }
-            // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
-            // another (a fork restored into its own game has it already).
-            if (*d).decls.id != decls.id {
-                f!((*d).decls).write(*decls);
-            }
-            // The derived facts are not copied: another line of play may reach the same version numbers.
-            (*d).derived.clear();
-            // Nor the card lists: another line of play may reach the same layout generation.
-            (*d).order_cache.invalidate();
-        }
-    }
-
-    /// What [`copy_from`](Self::copy_from) moves when `self` is the source (a measurement: `bench --search`,
-    /// tests/sizes.rs). Lists the fields as `copy_from` does, so a new field of `Game` must be counted here too.
-    /// `#[inline]` (as its helpers `live_bytes` / `clear_bytes`): compiled only where it is called, so the library's code
-    /// units stay as they were (a non-inline copy moved the bench's instruction count by +0.5%).
-    #[inline]
-    pub fn copy_bytes(&self) -> CopyBytes {
-        use std::mem::size_of_val as s;
-        let Game {
-            st, rng, prompts, last_prompt_id, items, waits, fx, temps: _, temp_used, temp_hw, coin_callbacks,
-            trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, copy_chain, deleg, after_dmg, pending, ten_hp, ten_hp_coin, last_attack, spec_choices,
-            derived,
-            // Copied only into a game holding another game's index (a fork of the same game has it already).
-            decls: _,
-            order_cache: _,
-            fxp,
-            answers,
-            prompt_payloads,
-            payload_serial,
-            prevented_events,
-            reach_skip,
-            survive_groups,
-            order_pending,
-            checkup_held,
-            put_by,
-            record,
-        } = self;
-        let copied = s(st) + s(rng) + prompts.live_bytes() + s(last_prompt_id) + items.live_bytes() + waits.live_bytes()
-            + fx.live_bytes()
-            + *temp_hw as usize * std::mem::size_of::<List<120>>()
-            + s(temp_used) + s(temp_hw) + coin_callbacks.live_bytes() + s(trial) + s(kinds_present) + s(lock_cards)
-            + s(trace_effects) + copy_sessions.live_bytes() + s(copy_serial) + copy_chain.live_bytes() + s(deleg)
-            + after_dmg.live_bytes() + pending.live_bytes() + ten_hp.live_bytes() + ten_hp_coin.live_bytes()
-            + spec_choices.live_bytes() + s(last_attack) + fxp.live_bytes() + answers.live_bytes()
-            + prompt_payloads.live_bytes() + s(payload_serial) + s(prevented_events) + s(reach_skip) + s(survive_groups)
-            + s(order_pending) + s(checkup_held) + s(put_by) + s(record);
-        CopyBytes { copied, cleared: derived.clear_bytes() }
-    }
-}
-
-/// What [`Game::copy_from`] moves: a restore's memory traffic besides the work after it.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct CopyBytes {
-    /// Copied from the source: the state, the live part of the stacks, the staging lists ever allocated, the fixed
-    /// fields (not the declaration index: a restore into a game of the same deal holds it already).
-    pub copied: usize,
-    /// Written in the destination to forget its derived facts (the memo's stamps).
-    pub cleared: usize,
 }
 
 impl Game {

@@ -3230,7 +3230,7 @@ mod play_lock_tests {
 
     /// "Has no Ability" of `card` (the generic probe), on a copy of the game.
     fn ability_off(g: &Game, card: CardId) -> Option<bool> {
-        let mut c = Box::new(*g);
+        let mut c = g.boxed();
         Some(crate::derived::has_no_ability(&mut c, card, None))
     }
 

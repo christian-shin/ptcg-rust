@@ -6,10 +6,12 @@
 //!
 //! `--search` measures what a search over copies of the game costs: the bench's games played at random, and at every turn
 //! decision (a root) `N` restores (default 100: `copy_from` of the live game into a pooled game) timed alone, as many
-//! whole-`Game` copies (`*dst = *src`), then a depth-limited DFS over the deciding player's own turn below the root
+//! clones (`Box<Game>::clone`, a new box each), snapshots (`Game::snapshot_into` a kept buffer) and snapshot restores
+//! (`Game::restore`), then a depth-limited DFS over the deciding player's own turn below the root
 //! (default depth 3, up to `B` = 4 random actions of each node expanded): each node is a restore of its parent, one
 //! step (the action, then random answers to the prompts up to the next turn decision) and the node's legal actions.
-//! Prints restores/s, copies/s, the bytes a restore moves (`Game::copy_bytes`), DFS nodes/s.
+//! Prints restores/s, clones/s, snapshots/s, the bytes a restore moves (`Game::copy_bytes`) and a snapshot holds, DFS
+//! nodes/s.
 //!
 //! `--host` plays the same games the way a program that embeds the engine does (`ptcg::host`, its buffers kept between
 //! decisions): at a turn decision the table as the deciding seat sees it and the legal actions in one call
@@ -425,8 +427,15 @@ struct Search {
     /// Restores timed alone (`copy_from` of the root into a pooled game), and their time.
     restored: u64,
     restore_ns: u64,
-    /// The same number of whole-`Game` assignments (`*dst = *src`: `Game` is `Copy`), and their time.
-    copy_ns: u64,
+    /// The same number of clones (`Box<Game>::clone`), snapshots taken (`snapshot_into` a kept buffer) and restored
+    /// (`Game::restore`), and their times; the snapshot bytes, summed over the roots.
+    clone_ns: u64,
+    /// `Game::boxed` (a new box written in place) and `clone_from` into a kept game.
+    boxed_ns: u64,
+    clone_from_ns: u64,
+    snap_ns: u64,
+    snap_restore_ns: u64,
+    snap_bytes: u64,
     /// Bytes per restore (`Game::copy_bytes`), summed over the roots.
     copied: u64,
     cleared: u64,
@@ -473,12 +482,12 @@ fn dfs(pool: &mut [Box<Game>], p: u8, depth: usize, se: &mut Search, rng: &mut R
 }
 
 /// `--search`: the bench's games played at random; at every turn decision (a root) `restores` restores of the live
-/// game into a pooled game and as many whole-`Game` copies are timed, then the own-turn DFS below it.
+/// game into a pooled game, as many clones, snapshots and restores from a snapshot are timed, then the own-turn DFS below it.
 fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
     let n = decks.len();
     let depth = se.depth.max(1);
     let mut pool: Vec<Box<Game>> = (0..=depth).map(|_| Box::new(Game::new(0))).collect();
-    let mut full = Box::new(Game::new(0));
+    let mut snap = ptcg::snapshot::Snapshot::default();
     let mut acts: Vec<Vec<Action>> = (0..=depth).map(|_| Vec::new()).collect();
     let mut s = Scratch::default();
     let mut srng = Rng::new(seed0.wrapping_mul(40503));
@@ -502,7 +511,7 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
                 break;
             }
             se.roots += 1;
-            // Restores: the live game into a pooled game, and as many whole-`Game` copies.
+            // Restores: the live game into a pooled game; as many clones, snapshots and restores from the snapshot.
             let b = g.copy_bytes();
             se.copied += b.copied as u64;
             se.cleared += b.cleared as u64;
@@ -513,11 +522,38 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
                 std::hint::black_box(&mut pool[0]);
             }
             se.restore_ns += t0.elapsed().as_nanos() as u64;
+            let src = g.boxed();
             let t0 = Instant::now();
             for _ in 0..se.restores {
-                **std::hint::black_box(&mut full) = *std::hint::black_box(&g);
+                let b = std::hint::black_box(&src).clone();
+                std::hint::black_box(&b);
             }
-            se.copy_ns += t0.elapsed().as_nanos() as u64;
+            se.clone_ns += t0.elapsed().as_nanos() as u64;
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                let b = std::hint::black_box(&g).boxed();
+                std::hint::black_box(&b);
+            }
+            se.boxed_ns += t0.elapsed().as_nanos() as u64;
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                (*pool[0]).clone_from(std::hint::black_box(&g));
+                std::hint::black_box(&mut pool[0]);
+            }
+            se.clone_from_ns += t0.elapsed().as_nanos() as u64;
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                std::hint::black_box(&g).snapshot_into(&mut snap);
+                std::hint::black_box(&mut snap);
+            }
+            se.snap_ns += t0.elapsed().as_nanos() as u64;
+            se.snap_bytes += snap.size() as u64;
+            let t0 = Instant::now();
+            for _ in 0..se.restores {
+                pool[0].restore(std::hint::black_box(&snap));
+                std::hint::black_box(&mut pool[0]);
+            }
+            se.snap_restore_ns += t0.elapsed().as_nanos() as u64;
             se.restored += se.restores as u64;
             // The DFS below the root.
             let t0 = Instant::now();
@@ -551,10 +587,25 @@ fn run_search(decks: &[Vec<DefId>], seed0: u32, games: usize, se: &mut Search) {
         se.cleared / roots
     );
     println!(
-        "  whole-Game copy (*dst = *src, {} B): {:.0} copies/s, {:.3} us/copy",
+        "  clone (Box<Game>::clone, a new box; size_of Game {} B): {:.0} clones/s, {:.3} us/clone",
         std::mem::size_of::<Game>(),
-        rate(se.copy_ns, se.restored),
-        per(se.copy_ns, se.restored)
+        rate(se.clone_ns, se.restored),
+        per(se.clone_ns, se.restored)
+    );
+    println!(
+        "  Game::boxed (a new box written in place): {:.0}/s, {:.3} us; clone_from into a kept game: {:.0}/s, {:.3} us",
+        rate(se.boxed_ns, se.restored),
+        per(se.boxed_ns, se.restored),
+        rate(se.clone_from_ns, se.restored),
+        per(se.clone_from_ns, se.restored)
+    );
+    println!(
+        "  snapshot (snapshot_into a kept buffer, {:.0} B mean): {:.0} snapshots/s, {:.3} us/snapshot; restore from it: {:.0} restores/s, {:.3} us/restore",
+        se.snap_bytes as f64 / roots as f64,
+        rate(se.snap_ns, se.restored),
+        per(se.snap_ns, se.restored),
+        rate(se.snap_restore_ns, se.restored),
+        per(se.snap_restore_ns, se.restored)
     );
     println!(
         "  DFS: {} nodes ({} failed steps; {} at the own turn, {:.1} legal actions each) in {:.2}s: {:.0} nodes/s, {:.3} us/node (restore + step + legal actions)",

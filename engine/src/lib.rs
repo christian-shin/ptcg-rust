@@ -1,7 +1,7 @@
 //! Pokémon TCG rules engine.
 //!
 //! See docs/ENGINE.md (local, not in git). Effects are propagated to cards and prompts carry continuations, over
-//! plain-data state: a whole game, including pending prompts, is `Copy`.
+//! plain-data state: a whole game, including pending prompts, has no heap; a copy moves its live parts (`snapshot.rs`).
 
 pub mod canonical;
 pub mod cause;
@@ -34,6 +34,7 @@ pub mod expect;
 pub mod scenario;
 pub mod search;
 pub mod selfplay;
+pub mod snapshot;
 pub mod state;
 pub mod table_rules;
 pub mod types;
