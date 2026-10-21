@@ -597,9 +597,75 @@ fn fossil_in_play(g: &Game, c: CardId) -> bool {
     g.st.players[p].in_play().any(|s| g.st.slot_pokemon(p, s) == Some(c))
 }
 
-/// Does the card satisfy the predicate? Pure: it reads the card's definition and, for a Fossil and the in-play variants,
-/// the board.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Known { Yes, No, Open }
+fn kb(b: bool) -> Known { if b { Known::Yes } else { Known::No } }
+fn kand(a: Known, b: impl FnOnce() -> Known) -> Known {
+    match a { Known::No => Known::No, Known::Yes => b(), Known::Open => if b() == Known::No { Known::No } else { Known::Open } }
+}
+pub fn known(p: &Pred, d: &crate::carddb::CardDef, fossil: bool) -> Known {
+    let mon = if d.is_pokemon() { Known::Yes } else if fossil { Known::Open } else { Known::No };
+    match p {
+        Pred::Any => Known::Yes,
+        Pred::False => Known::No,
+        Pred::Not(q) => match known(q, d, fossil) { Known::Yes => Known::No, Known::No => Known::Yes, Known::Open => Known::Open },
+        Pred::All(ps) => { let mut r = Known::Yes; for q in ps.iter() { match known(q, d, fossil) { Known::No => return Known::No, Known::Open => r = Known::Open, Known::Yes => {} } } r }
+        Pred::OneOf(ps) => { let mut r = Known::No; for q in ps.iter() { match known(q, d, fossil) { Known::Yes => return Known::Yes, Known::Open => r = Known::Open, Known::No => {} } } r }
+        Pred::Pokemon => mon,
+        Pred::Basic => kand(mon, || kb(d.stage == Stage::Basic as u8)),
+        Pred::HpAtMost(n) => kand(mon, || kb(d.hp <= *n)),
+        Pred::HasAttacks => kand(mon, || kb(!d.attacks.is_empty())),
+        Pred::Stage(st) => kand(mon, || kb(d.stage == *st)),
+        Pred::HasAbilityNamed(n) => kand(mon, || kb(d.powers.iter().any(|p| p.source() == crate::spec::passive::RuleSource::Ability && p.name == *n))),
+        Pred::StageIs(st) => kand(mon, || kb(d.stage == *st as u8)),
+        Pred::PokemonType(t) => kand(mon, || kb(d.card_type.contains(t))),
+        Pred::EvolvesFrom(n) => kand(mon, || kb(d.evolves_from == *n)),
+        Pred::EvolvesFromOwnInPlay | Pred::EvolvesFromActive => kand(mon, || Known::Open),
+        Pred::Energy => kb(d.is_energy()),
+        Pred::BasicEnergy => kb(d.is_energy() && d.energy_type == EnergyType::Basic as u8),
+        Pred::Trainer => kb(d.is_trainer()),
+        Pred::Item => kb(d.is_trainer() && d.trainer_type == TrainerType::Item as u8),
+        Pred::Supporter => kb(d.is_trainer() && d.trainer_type == TrainerType::Supporter as u8),
+        Pred::Tool => kb(d.is_trainer() && d.trainer_type == TrainerType::Tool as u8),
+        Pred::Stadium => kb(d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8),
+        Pred::Name(n) => kb(d.name == *n),
+        Pred::Tag(t) => kb(d.has_tag(*t)),
+        Pred::NameContains(n) => kb(d.name.contains(*n)),
+        Pred::HasAttackNamed(n) => kb(d.attacks.iter().any(|a| a.name == *n)),
+        Pred::ProvidesType(t) => kb(d.provides.contains(t)),
+        Pred::Provides(t) => kb(d.is_energy() && d.provides.contains(t)),
+        Pred::RuleBox => kb(d.has_rule_box()),
+        Pred::PokemonEx => kb(d.is_pokemon_ex()),
+        Pred::PokemonV => kb(d.is_pokemon_v()),
+        Pred::SpecialEnergy => kb(d.is_energy() && d.energy_type == EnergyType::Special as u8),
+        Pred::PrintsAbility => kb(d.powers.iter().any(|pw| pw.source() == crate::spec::passive::RuleSource::Ability)),
+    }
+}
+struct Hack { keys: Vec<usize>, rows: Vec<u32>, bits: Vec<u64>, w: usize }
+thread_local! { static HACK: std::cell::UnsafeCell<Hack> = std::cell::UnsafeCell::new(Hack { keys: vec![0; 4096], rows: vec![0; 4096], bits: Vec::new(), w: (crate::carddb::cards().len() + 63) / 64 }); }
 pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
+    let def = g.st.cards[c as usize].def as usize;
+    let a = p as *const Pred as usize;
+    let r = HACK.with(|h| unsafe {
+        let h = &mut *h.get();
+        let mut i = ((a >> 3).wrapping_mul(0x9E3779B97F4A7C15) >> 52) as usize;
+        loop {
+            if h.keys[i] == a { break; }
+            if h.keys[i] == 0 {
+                h.keys[i] = a; h.rows[i] = (h.bits.len() / (2 * h.w)) as u32;
+                let base = h.bits.len(); h.bits.resize(base + 2 * h.w, 0);
+                for (j, d) in crate::carddb::cards().iter().enumerate() {
+                    let f = crate::carddb::pokemon_flags(j as u16) & crate::carddb::PF_FOSSIL != 0;
+                    match known(p, d, f) { Known::Yes => h.bits[base + j / 64] |= 1 << (j % 64), Known::No => {}, Known::Open => h.bits[base + h.w + j / 64] |= 1 << (j % 64) }
+                }
+                break;
+            }
+            i = (i + 1) & 4095;
+        }
+        let base = h.rows[i] as usize * 2 * h.w;
+        if h.bits[base + h.w + def / 64] >> (def % 64) & 1 != 0 { 2 } else { (h.bits[base + def / 64] >> (def % 64) & 1) as u8 }
+    });
+    if r != 2 { return r == 1; }
     pred_def(g, c, g.st.cdef(c), p)
 }
 
