@@ -1,0 +1,12 @@
+Eiscue
+- Water - 110 HP
+Pokémon
+- Basic
+C
+Freezing Headbutt 20
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+WCC
+Tackle 90
+Weakness: Metal
+Resistance: none
+Retreat: 1

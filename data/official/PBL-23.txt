@@ -1,0 +1,12 @@
+Electrike
+- Lightning - 70 HP
+Pokémon
+- Basic
+L
+Collect
+Draw a card.
+LL
+Tackle 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

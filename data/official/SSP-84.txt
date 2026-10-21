@@ -1,0 +1,12 @@
+Espurr
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+See Through
+Your opponent reveals their hand.
+PC
+Psyshot 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

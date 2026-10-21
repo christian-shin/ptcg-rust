@@ -1,0 +1,12 @@
+Dialga
+- Dragon - 130 HP
+Pokémon
+- Basic
+C
+Time Manipulation
+Search your deck for 2 cards, shuffle your deck, then put those cards on top of it in any order.
+PMC
+Buster Tail 160
+Weakness: none
+Resistance: none
+Retreat: 2

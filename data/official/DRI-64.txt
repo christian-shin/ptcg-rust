@@ -1,0 +1,11 @@
+Cetoddle
+- Water - 100 HP
+Pokémon
+- Basic
+WC
+Gentle Slap 30
+WWWC
+Frost Smash 80
+Weakness: Metal
+Resistance: none
+Retreat: 3

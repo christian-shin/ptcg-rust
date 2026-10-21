@@ -1,0 +1,9 @@
+Chewtle
+- Water - 80 HP
+Pokémon
+- Basic
+CCC
+Headbutt 60
+Weakness: Lightning
+Resistance: none
+Retreat: 2

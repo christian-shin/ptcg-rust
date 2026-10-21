@@ -1,0 +1,12 @@
+Bagon
+- Dragon - 70 HP
+Pokémon
+- Basic
+C
+Bite 10
+RW
+Reckless Charge 50
+This Pokémon also does 10 damage to itself.
+Weakness: none
+Resistance: none
+Retreat: 2

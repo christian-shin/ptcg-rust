@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Espurr POR 33",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Espurr POR 33",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Espurr POR 33",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "active_damage": 30,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Espurr POR 33",
+   "damage": 10,
+   "cite": "card text: heal 20 damage from this Pokémon"
+  }
+ ]
+}

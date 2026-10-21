@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Deoxys CRI 31",
+   "4 Dondozo ex DRI 66",
+   "4 Psychic Energy MEE 5",
+   "4 Fighting Energy MEE 6",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Deoxys CRI 31",
+   "4 Dondozo ex DRI 66",
+   "4 Psychic Energy MEE 5",
+   "4 Fighting Energy MEE 6",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Deoxys CRI 31",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Psychic"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 140,
+   "cite": "card text: 80 + 20 for each Energy attached to the opponent's Active Pokémon (3)"
+  }
+ ]
+}

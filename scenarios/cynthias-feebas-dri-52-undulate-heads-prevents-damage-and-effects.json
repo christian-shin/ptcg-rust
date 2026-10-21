@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cynthia's Feebas DRI 52",
+   "4 Bunnelby POR 64",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Cynthia's Feebas DRI 52",
+   "4 Bunnelby POR 64",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Cynthia's Feebas DRI 52",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bunnelby POR 64",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Undulate"
+  },
+  {
+   "a": "attack",
+   "name": "Smash Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Cynthia's Feebas DRI 52",
+   "damage": 0,
+   "cite": "card text: heads prevents all damage from and effects of attacks during the opponent's next turn",
+   "turn": 2
+  }
+ ]
+}

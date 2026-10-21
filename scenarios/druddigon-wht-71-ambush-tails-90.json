@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Druddigon WHT 71",
+   "4 Dondozo ex DRI 66",
+   "4 Water Energy MEE 3",
+   "4 Fighting Energy MEE 6",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Druddigon WHT 71",
+   "4 Dondozo ex DRI 66",
+   "4 Water Energy MEE 3",
+   "4 Fighting Energy MEE 6",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Druddigon WHT 71",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ambush"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 90,
+   "cite": "card text: flip a coin; if heads, 60 more damage"
+  }
+ ]
+}

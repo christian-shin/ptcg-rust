@@ -1,0 +1,9 @@
+Capsakid
+- Grass - 70 HP
+Pokémon
+- Basic
+CC
+Headbutt Bounce 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,10 @@
+Erika's Oddish
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Reckless Charge 30
+This Pokémon also does 10 damage to itself.
+Weakness: Fire
+Resistance: none
+Retreat: 1

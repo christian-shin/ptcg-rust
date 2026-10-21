@@ -1,0 +1,11 @@
+Arven's Maschiff
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Stampede 10
+CCC
+Confront 50
+Weakness: Grass
+Resistance: none
+Retreat: 2

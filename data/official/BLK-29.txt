@@ -1,0 +1,12 @@
+Emolga
+- Lightning - 70 HP
+Pokémon
+- Basic
+C
+Call for Family
+Search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.
+L
+Static Shock 20
+Weakness: Fighting
+Resistance: none
+Retreat: 0

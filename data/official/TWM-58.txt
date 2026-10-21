@@ -1,0 +1,12 @@
+Cramorant
+- Water - 110 HP
+Pokémon
+- Basic
+W
+Water Gun 20
+CCC
+Spit Shot
+Discard all Energy from this Pokémon. This attack does 120 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Lightning
+Resistance: none
+Retreat: 1

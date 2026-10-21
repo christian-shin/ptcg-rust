@@ -3523,5 +3523,255 @@
   "name": "Smoochum",
   "text": "Smoochum\n- Psychic - 30 HP\nPokémon\n- Basic\n0\nDelightful Kiss\nSearch your deck for up to 2 Basic [ P ] Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 0",
   "url": "https://limitlesstcg.com/cards/SSP/75"
+ },
+ "DRI 62": {
+  "name": "Arrokuda",
+  "text": "Arrokuda\n- Water - 70 HP\nPokémon\n- Basic\nW\nReckless Charge 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/62"
+ },
+ "DRI 138": {
+  "name": "Arven's Maschiff",
+  "text": "Arven's Maschiff\n- Darkness - 70 HP\nPokémon\n- Basic\nC\nStampede 10\nCCC\nConfront 50\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/138"
+ },
+ "DRI 109": {
+  "name": "Arven's Toedscool",
+  "text": "Arven's Toedscool\n- Fighting - 70 HP\nPokémon\n- Basic\nC\nSlight Intrusion 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/109"
+ },
+ "BLK 74": {
+  "name": "Audino",
+  "text": "Audino\n- Colorless - 100 HP\nPokémon\n- Basic\nC\nReturn 30\nYou may draw cards until you have 6 cards in your hand.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/74"
+ },
+ "BLK 68": {
+  "name": "Axew",
+  "text": "Axew\n- Dragon - 70 HP\nPokémon\n- Basic\nC\nGather Strength\nSearch your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.\nWeakness: none\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/68"
+ },
+ "JTG 112": {
+  "name": "Bagon",
+  "text": "Bagon\n- Dragon - 70 HP\nPokémon\n- Basic\nC\nBite 10\nRW\nReckless Charge 50\nThis Pokémon also does 10 damage to itself.\nWeakness: none\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/JTG/112"
+ },
+ "CRI 46": {
+  "name": "Baltoy",
+  "text": "Baltoy\n- Fighting - 70 HP\nPokémon\n- Basic\nF\nContinuous Spin 30×\nFlip a coin until you get tails. This attack does 30 damage for each heads.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/46"
+ },
+ "JTG 61": {
+  "name": "Beldum",
+  "text": "Beldum\n- Psychic - 60 HP\nPokémon\n- Basic\nP\nSpinning Attack 10\nPP\nBeam 30\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/61"
+ },
+ "CRI 23": {
+  "name": "Bergmite",
+  "text": "Bergmite\n- Water - 80 HP\nPokémon\n- Basic\nW\nChilly 10\nWCC\nFrost Breath 50\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/23"
+ },
+ "WHT 31": {
+  "name": "Blitzle",
+  "text": "Blitzle\n- Lightning - 60 HP\nPokémon\n- Basic\nC\nSmash Kick 10\nLC\nZap Kick 30\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/31"
+ },
+ "WHT 77": {
+  "name": "Bouffalant ex",
+  "text": "Bouffalant ex\n- Colorless - 220 HP\nPokémon\n- Basic\nAbility:\nBouffer\nThis Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .\nCCC\nGold Breaker 100+\nIf your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/77"
+ },
+ "DRI 57": {
+  "name": "Buizel",
+  "text": "Buizel\n- Water - 70 HP\nPokémon\n- Basic\nC\nTail Whap 10\nWCC\nWave Splash 30\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/57"
+ },
+ "POR 64": {
+  "name": "Bunnelby",
+  "text": "Bunnelby\n- Colorless - 70 HP\nPokémon\n- Basic\nC\nSmash Kick 10\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/64"
+ },
+ "JTG 1": {
+  "name": "Caterpie",
+  "text": "Caterpie\n- Grass - 50 HP\nPokémon\n- Basic\nG\nBug Bite 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/1"
+ },
+ "DRI 64": {
+  "name": "Cetoddle",
+  "text": "Cetoddle\n- Water - 100 HP\nPokémon\n- Basic\nWC\nGentle Slap 30\nWWWC\nFrost Smash 80\nWeakness: Metal\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/DRI/64"
+ },
+ "PBL 11": {
+  "name": "Charcadet",
+  "text": "Charcadet\n- Fire - 80 HP\nPokémon\n- Basic\nR\nBest Punch 40\nFlip a coin. If tails, this attack does nothing.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PBL/11"
+ },
+ "ASC 20": {
+  "name": "Charmander",
+  "text": "Charmander\n- Fire - 80 HP\nPokémon\n- Basic\nRC\nFire Claws 30\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/20"
+ },
+ "CRI 5": {
+  "name": "Chespin",
+  "text": "Chespin\n- Grass - 70 HP\nPokémon\n- Basic\nG\nBeat 10\nGG\nSpike Sting 30\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/5"
+ },
+ "SCR 43": {
+  "name": "Chewtle",
+  "text": "Chewtle\n- Water - 80 HP\nPokémon\n- Basic\nCCC\nHeadbutt 60\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SCR/43"
+ },
+ "DRI 54": {
+  "name": "Clamperl",
+  "text": "Clamperl\n- Water - 60 HP\nPokémon\n- Basic\nW\nShell Press 10\nDuring your opponent's next turn, this Pokémon takes 10 less damage from attacks (after applying Weakness and Resistance) .\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/54"
+ },
+ "MEG 37": {
+  "name": "Clauncher",
+  "text": "Clauncher\n- Water - 80 HP\nPokémon\n- Basic\nWW\nWave Splash 50\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/37"
+ },
+ "MEG 33": {
+  "name": "Corphish",
+  "text": "Corphish\n- Water - 80 HP\nPokémon\n- Basic\nC\nVise Grip 10\nCC\nTake Down 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/33"
+ },
+ "PRE 7": {
+  "name": "Cottonee",
+  "text": "Cottonee\n- Grass - 60 HP\nPokémon\n- Basic\nG\nTriple Spin 10×\nFlip 3 coins. This attack does 10 damage for each heads.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PRE/7"
+ },
+ "WHT 4": {
+  "name": "Cottonee",
+  "text": "Cottonee\n- Grass - 60 HP\nPokémon\n- Basic\nG\nAbsorb 10\nHeal 10 damage from this Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/4"
+ },
+ "TWM 58": {
+  "name": "Cramorant",
+  "text": "Cramorant\n- Water - 110 HP\nPokémon\n- Basic\nW\nWater Gun 20\nCCC\nSpit Shot\nDiscard all Energy from this Pokémon. This attack does 120 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/TWM/58"
+ },
+ "PFL 39": {
+  "name": "Cresselia",
+  "text": "Cresselia\n- Psychic - 120 HP\nPokémon\n- Basic\nP\nSwelling Light\nSearch your deck for up to 2 Basic [ P ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.\nPPC\nAurora Beam 90\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/39"
+ },
+ "MEG 78": {
+  "name": "Croagunk",
+  "text": "Croagunk\n- Fighting - 70 HP\nPokémon\n- Basic\nF\nSmack 20\nWeakness: Psychic\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/78"
+ },
+ "DRI 52": {
+  "name": "Cynthia's Feebas",
+  "text": "Cynthia's Feebas\n- Water - 30 HP\nPokémon\n- Basic\nC\nUndulate 10\nFlip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/52"
+ },
+ "BLK 13": {
+  "name": "Darumaka",
+  "text": "Darumaka\n- Fire - 80 HP\nPokémon\n- Basic\nRC\nWill-O-Wisp 30\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/13"
+ },
+ "PFL 15": {
+  "name": "Darumaka",
+  "text": "Darumaka\n- Fire - 80 HP\nPokémon\n- Basic\nCCC\nBlaze Ball 10+\nThis attack does 20 more damage for each [ R ] Energy attached to this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/15"
+ },
+ "WHT 6": {
+  "name": "Deerling",
+  "text": "Deerling\n- Grass - 70 HP\nPokémon\n- Basic\nCC\nRear Kick 30\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/6"
+ },
+ "WHT 65": {
+  "name": "Deino",
+  "text": "Deino\n- Darkness - 80 HP\nPokémon\n- Basic\nCC\nBody Slam 20\nFlip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.\nDCC\nDarkness Fang 50\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/65"
+ },
+ "CRI 31": {
+  "name": "Deoxys",
+  "text": "Deoxys\n- Psychic - 110 HP\nPokémon\n- Basic\nC\nGenome Charge\nSearch your deck for up to 2 Basic [ P ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.\nPPC\nPsychic 80+\nThis attack does 20 more damage for each Energy attached to your opponent's Active Pokémon.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/31"
+ },
+ "CRI 34": {
+  "name": "Deoxys",
+  "text": "Deoxys\n- Psychic - 100 HP\nPokémon\n- Basic\nP\nPsyspeed 30\nYou may draw cards until you have 5 cards in your hand.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/CRI/34"
+ },
+ "SSP 135": {
+  "name": "Dialga",
+  "text": "Dialga\n- Dragon - 130 HP\nPokémon\n- Basic\nC\nTime Manipulation\nSearch your deck for 2 cards, shuffle your deck, then put those cards on top of it in any order.\nPMC\nBuster Tail 160\nWeakness: none\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SSP/135"
+ },
+ "DRI 66": {
+  "name": "Dondozo ex",
+  "text": "Dondozo ex\n- Water - 260 HP\nPokémon\n- Basic\nWC\nAvenging Billow 30+\nThis attack does 10 more damage for each damage counter on this Pokémon.\nWWCC\nDynamic Dive 120+\nYou may do 120 more damage. If you do, this Pokémon also does 50 damage to itself.\nWeakness: Lightning\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/DRI/66"
+ },
+ "BLK 45": {
+  "name": "Drilbur",
+  "text": "Drilbur\n- Fighting - 70 HP\nPokémon\n- Basic\nF\nMud-Slap 10\nFF\nCorkscrew Punch 30\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/45"
+ },
+ "WHT 71": {
+  "name": "Druddigon",
+  "text": "Druddigon\n- Dragon - 120 HP\nPokémon\n- Basic\nC\nShred 40\nThis attack's damage isn't affected by any effects on your opponent's Active Pokémon.\nRWC\nAmbush 90+\nFlip a coin. If heads, this attack does 60 more damage.\nWeakness: none\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/71"
+ },
+ "MEG 44": {
+  "name": "Eiscue",
+  "text": "Eiscue\n- Water - 110 HP\nPokémon\n- Basic\nC\nFreezing Headbutt 20\nFlip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.\nWCC\nTackle 90\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/44"
+ },
+ "DRI 68": {
+  "name": "Electabuzz",
+  "text": "Electabuzz\n- Lightning - 90 HP\nPokémon\n- Basic\nLC\nElectroslug 50\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/68"
+ },
+ "DRI 75": {
+  "name": "Electrike",
+  "text": "Electrike\n- Lightning - 60 HP\nPokémon\n- Basic\nC\nRear Kick 10\nLC\nTiny Bolt 30\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/75"
+ },
+ "PBL 23": {
+  "name": "Electrike",
+  "text": "Electrike\n- Lightning - 70 HP\nPokémon\n- Basic\nL\nCollect\nDraw a card.\nLL\nTackle 30\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PBL/23"
+ },
+ "BLK 29": {
+  "name": "Emolga",
+  "text": "Emolga\n- Lightning - 70 HP\nPokémon\n- Basic\nC\nCall for Family\nSearch your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.\nL\nStatic Shock 20\nWeakness: Fighting\nResistance: none\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/BLK/29"
+ },
+ "CRI 30": {
+  "name": "Emolga",
+  "text": "Emolga\n- Lightning - 70 HP\nPokémon\n- Basic\nC\nMinor Errand-Running\nSearch your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.\nL\nSky Return 30\nPut this Pokémon and all attached cards into your hand.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/30"
+ },
+ "ASC 4": {
+  "name": "Erika's Bellsprout",
+  "text": "Erika's Bellsprout\n- Grass - 60 HP\nPokémon\n- Basic\nG\nVine Slap 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/4"
+ },
+ "ASC 1": {
+  "name": "Erika's Oddish",
+  "text": "Erika's Oddish\n- Grass - 60 HP\nPokémon\n- Basic\nG\nReckless Charge 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/1"
+ },
+ "SSP 84": {
+  "name": "Espurr",
+  "text": "Espurr\n- Psychic - 60 HP\nPokémon\n- Basic\nC\nSee Through\nYour opponent reveals their hand.\nPC\nPsyshot 20\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SSP/84"
+ },
+ "POR 33": {
+  "name": "Espurr",
+  "text": "Espurr\n- Psychic - 60 HP\nPokémon\n- Basic\nC\nNap\nHeal 20 damage from this Pokémon.\nP\nStampede 10\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/33"
+ },
+ "MEG 4": {
+  "name": "Exeggcute",
+  "text": "Exeggcute\n- Grass - 60 HP\nPokémon\n- Basic\nC\nJam-Packed\nSearch your deck for a Basic [ G ] Energy card and attach it to this Pokémon. Then, shuffle your deck.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/4"
+ },
+ "SSP 12": {
+  "name": "Capsakid",
+  "text": "Capsakid\n- Grass - 70 HP\nPokémon\n- Basic\nCC\nHeadbutt Bounce 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SSP/12"
  }
 }

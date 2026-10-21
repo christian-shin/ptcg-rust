@@ -1,0 +1,11 @@
+Chespin
+- Grass - 70 HP
+Pokémon
+- Basic
+G
+Beat 10
+GG
+Spike Sting 30
+Weakness: Fire
+Resistance: none
+Retreat: 2

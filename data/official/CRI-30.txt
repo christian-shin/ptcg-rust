@@ -1,0 +1,13 @@
+Emolga
+- Lightning - 70 HP
+Pokémon
+- Basic
+C
+Minor Errand-Running
+Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+L
+Sky Return 30
+Put this Pokémon and all attached cards into your hand.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

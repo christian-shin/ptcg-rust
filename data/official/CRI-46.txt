@@ -1,0 +1,10 @@
+Baltoy
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Continuous Spin 30×
+Flip a coin until you get tails. This attack does 30 damage for each heads.
+Weakness: Grass
+Resistance: none
+Retreat: 2

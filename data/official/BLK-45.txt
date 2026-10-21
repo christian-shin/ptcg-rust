@@ -1,0 +1,11 @@
+Drilbur
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Mud-Slap 10
+FF
+Corkscrew Punch 30
+Weakness: Grass
+Resistance: none
+Retreat: 1

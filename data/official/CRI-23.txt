@@ -1,0 +1,11 @@
+Bergmite
+- Water - 80 HP
+Pokémon
+- Basic
+W
+Chilly 10
+WCC
+Frost Breath 50
+Weakness: Metal
+Resistance: none
+Retreat: 2

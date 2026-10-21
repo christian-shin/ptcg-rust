@@ -1,0 +1,12 @@
+Espurr
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+Nap
+Heal 20 damage from this Pokémon.
+P
+Stampede 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

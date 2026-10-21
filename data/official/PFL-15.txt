@@ -1,0 +1,10 @@
+Darumaka
+- Fire - 80 HP
+Pokémon
+- Basic
+CCC
+Blaze Ball 10+
+This attack does 20 more damage for each [ R ] Energy attached to this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Baltoy CRI 46",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Baltoy CRI 46",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Baltoy CRI 46",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "coins": [
+  true,
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Continuous Spin"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 60,
+   "cite": "card text: flip a coin until you get tails; 30 damage for each heads (2 heads)"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+Deoxys
+- Psychic - 110 HP
+Pokémon
+- Basic
+C
+Genome Charge
+Search your deck for up to 2 Basic [ P ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.
+PPC
+Psychic 80+
+This attack does 20 more damage for each Energy attached to your opponent's Active Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

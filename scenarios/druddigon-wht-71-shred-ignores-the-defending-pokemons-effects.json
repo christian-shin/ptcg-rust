@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Druddigon WHT 71",
+   "4 Bouffalant ex WHT 77",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Druddigon WHT 71",
+   "4 Bouffalant ex WHT 77",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Druddigon WHT 71",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shred"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 40,
+   "cite": "card text: the damage isn't affected by any effects on the opponent's Active Pokémon (Bouffer's 30 less is ignored)"
+  }
+ ]
+}
