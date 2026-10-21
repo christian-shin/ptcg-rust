@@ -1,6 +1,7 @@
 //! Turn-level options: structural candidates, each answered from the declared
 //! checks (`legal.rs`); a trial on a copy of the game only for what is not
-//! declared (a counted fallback). Options come in a fixed order.
+//! declared (a counted fallback). The legal scan leaves out the candidates a
+//! rule refuses before any other check (`Gates`). Options come in a fixed order.
 
 use crate::effects::PowerRef;
 use crate::game::{Action, Game};
@@ -73,41 +74,128 @@ pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
 /// Pokémon in play and the Stadium by position, the attacks in list order, the retreat, passing.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
     let mut out = Vec::with_capacity(32);
-    candidates(&mut Ctx::new(g), &mut out);
+    candidates(&mut Ctx::new(g), &mut out, false);
     out
 }
 
-/// The candidates, reading the attack list through the decision's context.
-fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
+/// The candidates a rule refuses before any other check (speed plan L7, "class gates"), read from the check function the
+/// action's own checks (legality and execution) call: such a candidate is illegal whatever else holds, so the legal scan
+/// doesn't list it. The classes closed for the whole decision are read once (the fields); the others per candidate in
+/// [`candidates`] (an Evolution card onto a spot, a Tool onto a full spot, a passive Ability). `PTCG_VERIFY_LEGAL=1` plays
+/// every left-out candidate on a copy: it must be refused ([`left_out`]).
+struct Gates {
+    /// The gates are read (the legal scan); off: every structural candidate ([`candidate_actions`]).
+    on: bool,
+    /// The player attached an Energy from the hand this turn (`turn::energy_attached_this_turn`, read by
+    /// `turn::can_attach_energy`): no Energy card can be attached.
+    energy: bool,
+    /// A Supporter / a Stadium was played this turn (`play_trainer::played_kind_this_turn`, read by
+    /// `play_trainer::turn_rules`): no other card of the type can be played.
+    supporter: bool,
+    stadium: bool,
+    /// No card in the game can lift "evolves from" (`enter::may_permit` of `Limit::EvolvesFrom`, read by
+    /// `enter::evolve_rules`): an Evolution card is played only onto a Pokémon it evolves from (`enter::evolves_into`).
+    evolves_from: bool,
+}
+
+impl Gates {
+    fn of(g: &Game, p: usize) -> Gates {
+        Gates {
+            on: true,
+            energy: crate::engine::turn::energy_attached_this_turn(g, p),
+            supporter: crate::engine::play_trainer::played_kind_this_turn(g, p, TrainerType::Supporter),
+            stadium: crate::engine::play_trainer::played_kind_this_turn(g, p, TrainerType::Stadium),
+            evolves_from: !crate::engine::enter::may_permit(g, crate::spec::event::Limit::EvolvesFrom),
+        }
+    }
+
+    /// Nothing is left out (the structural candidates, [`candidate_actions`]).
+    const OFF: Gates = Gates { on: false, energy: false, supporter: false, stadium: false, evolves_from: false };
+}
+
+/// `PTCG_VERIFY_LEGAL=1`: a candidate the gates leave out is refused by the full trial.
+fn left_out(g: &Game, a: Action) {
+    if verify_legal() {
+        let full = trial(g, a, false);
+        assert!(full.is_err(), "a class gate left out a legal candidate: {:?} {}", a, describe_for_verify(g, a));
+    }
+}
+
+/// The candidates, reading the attack list through the decision's context; `gated`: without those a rule refuses before
+/// any other check ([`Gates`]; the legal scan).
+fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>, gated: bool) {
     let g = ctx.g;
     out.clear();
     let p = g.st.active_player as usize;
     let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
     let pl = &g.st.players[p];
+    let gates = if gated { Gates::of(g, p) } else { Gates::OFF };
     let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards().is_empty());
     for (hi, c) in pl.hand().iter().enumerate() {
         let d = g.st.cdef(c);
         let hand_index = hi as u8;
         if d.is_energy() {
             for t in own.iter() {
-                out.push(Action::PlayCard { hand_index, target: *t });
+                let a = Action::PlayCard { hand_index, target: *t };
+                if gates.energy {
+                    left_out(g, a);
+                    continue;
+                }
+                out.push(a);
             }
         } else if d.is_pokemon() {
+            // A card that isn't a Basic Pokémon is played onto a Pokémon only, by evolving it (`enter::hand_play_view`): the
+            // gated scan leaves out its empty Bench spot, and, when no card lifts "evolves from", every spot holding a
+            // Pokémon it doesn't evolve from (`enter::evolves_into`, read by `enter::evolve_rules`).
+            let evolution = d.stage != Stage::Basic as u8;
             if let Some(i) = first_empty {
-                out.push(Action::PlayCard { hand_index, target: CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8) });
+                let a = Action::PlayCard { hand_index, target: CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8) };
+                if gates.on && evolution {
+                    left_out(g, a);
+                } else {
+                    out.push(a);
+                }
             }
-            if d.stage != Stage::Basic as u8 {
+            if evolution {
                 for t in own.iter() {
-                    out.push(Action::PlayCard { hand_index, target: *t });
+                    let a = Action::PlayCard { hand_index, target: *t };
+                    if gates.evolves_from {
+                        let base = crate::prompts::get_target(&g.st, p, *t).ok().and_then(|s| g.st.slot_pokemon(s.p as usize, s.s));
+                        if !base.is_some_and(|b| crate::engine::enter::evolves_into(g, b, c, crate::engine::enter::Reach::Next)) {
+                            left_out(g, a);
+                            continue;
+                        }
+                    }
+                    out.push(a);
                 }
             }
         } else if d.is_trainer() {
             if d.trainer_type == TrainerType::Tool as u8 {
                 for t in own.iter() {
-                    out.push(Action::PlayCard { hand_index, target: *t });
+                    let a = Action::PlayCard { hand_index, target: *t };
+                    // A Pokémon holding as many Tools as it may have takes no other (`attach::attach_spot_ok`, read by the
+                    // Tool's Attach, `attach::check_attach_with`).
+                    if gates.on {
+                        let full = crate::prompts::get_target(&g.st, p, *t).map_or(true, |s| crate::engine::attach::attach_spot_ok(g, c, s, g.st.owner(c) as u8).is_err());
+                        if full {
+                            left_out(g, a);
+                            continue;
+                        }
+                    }
+                    out.push(a);
                 }
             } else {
-                out.push(Action::PlayCard { hand_index, target: BOARD });
+                let a = Action::PlayCard { hand_index, target: BOARD };
+                let closed = match d.trainer_type() {
+                    TrainerType::Supporter => gates.supporter,
+                    TrainerType::Stadium => gates.stadium,
+                    _ => false,
+                };
+                if closed {
+                    left_out(g, a);
+                    continue;
+                }
+                out.push(a);
             }
         }
     }
@@ -118,7 +206,14 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
         if let Some(c) = g.st.slot_pokemon(slot.p as usize, slot.s) {
             // (The checked power list only removes powers: the printed powers are the candidates.)
             for i in 0..g.st.cdef(c).powers.len() {
-                out.push(Action::UseAbility { power: PowerRef { card: c, index: i as u8 }, target: *t });
+                let power = PowerRef { card: c, index: i as u8 };
+                let a = Action::UseAbility { power, target: *t };
+                // An Ability with nothing to use (a passive one) is never used (`turn::can_use_ability_core`).
+                if gates.on && crate::engine::turn::can_use_ability_core(g, power, t.slot).is_err() {
+                    left_out(g, a);
+                    continue;
+                }
+                out.push(a);
             }
         }
     }
@@ -163,8 +258,8 @@ thread_local! {
     static LEGAL_SCRATCH: std::cell::RefCell<Vec<Action>> = const { std::cell::RefCell::new(Vec::new()) };
 }
 
-/// The legal actions of the active player's turn into `out` (cleared first), in candidate order. The candidates
-/// are distinct by construction (a hand card is told apart by its index, a target occurs once per card, an attack
+/// The legal actions of the active player's turn into `out` (cleared first), in candidate order (the candidates the
+/// class gates leave, [`Gates`]). The candidates are distinct by construction (a hand card is told apart by its index, a target occurs once per card, an attack
 /// is deduplicated by its identity in `candidates`, an Ability is one per power and spot), so there is no
 /// duplicate scan; `PTCG_VERIFY_LEGAL=1` asserts it.
 pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
@@ -176,7 +271,7 @@ pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
 pub(crate) fn legal_actions_with(ctx: &mut Ctx, out: &mut Vec<Action>) {
     out.clear();
     let mut cands = LEGAL_SCRATCH.with(|s| std::mem::take(&mut *s.borrow_mut()));
-    candidates(ctx, &mut cands);
+    candidates(ctx, &mut cands, true);
     if verify_legal() {
         for (i, a) in cands.iter().enumerate() {
             assert!(!cands[..i].contains(a), "duplicate candidate: {:?}", a);
@@ -419,6 +514,55 @@ mod tests {
             checked += 1;
         }
         assert!(checked > 0, "no board was built");
+    }
+
+    /// The class gates leave out illegal candidates only: at every turn decision of random games between the benchmark's
+    /// decks (bench/spec.json), the legal scan's list equals every structural candidate answered one by one, and the gates
+    /// leave some out.
+    #[test]
+    fn class_gates_leave_out_illegal_candidates_only() {
+        let spec: serde_json::Value = serde_json::from_str(include_str!("../bench/spec.json")).unwrap();
+        let decks: Vec<Vec<DefId>> = spec["decks"].as_array().unwrap().iter().map(|d| crate::selfplay::expand_deck(&d["cards"]).unwrap()).collect();
+        let n = decks.len();
+        let (mut decisions, mut left_out) = (0usize, 0usize);
+        for seed in 0..n as u32 * 2 {
+            let mut g = Game::new(seed);
+            g.start([&decks[seed as usize % n], &decks[(seed as usize / 2 + 1) % n]]).unwrap();
+            g.settle().ok();
+            let mut rng = crate::rng::Rng::new(seed.wrapping_mul(2654435761));
+            let mut gated = Vec::new();
+            for _ in 0..3000 {
+                if let crate::game::Pending::Turn(_) = g.pending() {
+                    legal_actions_into(&g, &mut gated);
+                    let mut ctx = Ctx::new(&g);
+                    let mut all = Vec::new();
+                    candidates(&mut ctx, &mut all, false);
+                    let mut gated_cands = Vec::new();
+                    candidates(&mut ctx, &mut gated_cands, true);
+                    left_out += all.len() - gated_cands.len();
+                    let open: Vec<Action> = all.iter().copied().filter(|a| legal_in(&mut ctx, *a)).collect();
+                    assert_eq!(gated, open, "seed {seed}, turn {}", g.st.turn);
+                    decisions += 1;
+                    let a = gated[rng.index(gated.len())];
+                    if g.act(a).and_then(|_| g.settle()).is_err() {
+                        break;
+                    }
+                    continue;
+                }
+                let Ok(Some(sel)) = g.select() else { break };
+                let mut picks: Vec<usize> = Vec::new();
+                while picks.len() < sel.min_count {
+                    let (mask, _) = g.pick_mask(&sel, &picks);
+                    let allowed: Vec<usize> = (0..sel.options.len()).filter(|j| mask[*j]).collect();
+                    picks.push(allowed[rng.index(allowed.len())]);
+                }
+                if g.answer(&sel, &picks).and_then(|_| g.settle()).is_err() {
+                    break;
+                }
+            }
+        }
+        assert!(decisions > 500, "{decisions} turn decisions");
+        assert!(left_out > decisions, "the gates left out {left_out} candidates in {decisions} turn decisions");
     }
 
     /// The candidates of every turn decision of 12 games are pairwise distinct (why `legal_actions_into` has no
