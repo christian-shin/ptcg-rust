@@ -82,6 +82,17 @@ pub struct TableRules {
     /// FAQ Slowking SCR 58), among the attacks not already being used in this attack (id657; RULES.md "A copied attack
     /// is the copycat's only while it is used", `Game::copy_chain`).
     pub copied_copy_attack_does_nothing: bool,
+    /// Whether an Ability that attaches cards to a Pokémon ("attach ... from your hand to 1 of your Benched ... Pokémon")
+    /// can be used is judged from the cards it would attach only: with such cards in the zone it attaches from it is
+    /// offered even when none of the player's Pokémon may get them (e.g. Ethan's Ho-Oh ex's Golden Flame with Basic Fire
+    /// Energy in hand and no Benched Ethan's Pokémon); used then, it attaches nothing (its question has no answer, so it
+    /// isn't asked) and its once-per-turn use is spent. Printed conditions ("if you have ... in play") still apply.
+    /// `spec::ops::cards::implied_ok` (the attach's precondition, read by the usability walk of an Ability).
+    ///
+    /// Off (the rulings): an Ability that would not change the game state can't be used (APR A-02 step 1: "you can't use
+    /// the Ability if going through the effects of Step 2 below would not change the game state in any way"; id925,
+    /// id2362; RULES.md "Using Trainers, Abilities and attacks"): an attach with no Pokémon to attach to does nothing.
+    pub ability_attach_targets_unread: bool,
 }
 
 impl TableRules {
@@ -94,6 +105,7 @@ impl TableRules {
         "evolving_trainer_discarded_before_evolve_triggers",
         "trainer_conditions_on_hidden_cards_unread",
         "copied_copy_attack_does_nothing",
+        "ability_attach_targets_unread",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -106,6 +118,7 @@ impl TableRules {
             "evolving_trainer_discarded_before_evolve_triggers" => &mut self.evolving_trainer_discarded_before_evolve_triggers,
             "trainer_conditions_on_hidden_cards_unread" => &mut self.trainer_conditions_on_hidden_cards_unread,
             "copied_copy_attack_does_nothing" => &mut self.copied_copy_attack_does_nothing,
+            "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

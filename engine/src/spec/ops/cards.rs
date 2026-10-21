@@ -1686,8 +1686,11 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             let eligible = cards.iter().filter(|c| pred(g, **c, &a.predicate)).count() as i32;
             let min = num(g, me, f, &a.bounds.min).max(1);
             let hidden = a.from.1 == Zone::Deck;
+            // At a table that judges an Ability's attach by the cards it attaches, the Pokémon to attach them to aren't read
+            // (`TableRules::ability_attach_targets_unread`).
+            let targets_unread = g.st.rules.ability_attach_targets_unread && matches!(f.prog, crate::spec::run::Prog::Power(_));
             // A register filled by an earlier step can't be judged yet.
-            (zone_is_unset(f, a.from) || if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, me, f, a)
+            (zone_is_unset(f, a.from) || if hidden { !cards.is_empty() } else { eligible >= min }) && (targets_unread || attach_targets_exist(g, me, f, a))
         }
         Op::PlayFromZone(pz) => !empty_bench_slots(g, f.who(pz.who)).is_empty(),
         Op::PlayAsPokemon(_) => !empty_bench_slots(g, f.p as usize).is_empty(),

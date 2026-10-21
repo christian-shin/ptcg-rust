@@ -1,0 +1,18 @@
+{
+ "turn": 2,
+ "rules": {"ability_attach_targets_unread": true},
+ "decks": [
+  ["4 Ethan's Ho-Oh ex ASC 26", "4 Ethan's Cyndaquil DRI 32", "4 Hop's Snorlax JTG 117", "48 Fire Energy MEE 2"],
+  ["4 Ethan's Ho-Oh ex ASC 26", "4 Ethan's Cyndaquil DRI 32", "4 Hop's Snorlax JTG 117", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"reset": true, "active": "Ethan's Ho-Oh ex ASC 26", "bench": [{"card": "Hop's Snorlax JTG 117"}], "hand": ["3 Fire Energy MEE 2"]},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"},
+ "answers": [
+  {"a": "ability", "name": "Golden Flame", "source": {"player": 2, "slot": 1, "index": 0}}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Golden Flame", "is": true, "cite": "table rule ability_attach_targets_unread (on): Golden Flame is judged by the Basic Fire Energy in hand; no Benched Ethan's Pokemon is read, so it is offered"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "ability", "name": "Golden Flame", "is": false, "cite": "table rule ability_attach_targets_unread (on): used with no Pokemon to attach to, it attaches nothing and its once-per-turn use is spent (Golden Flame: 'Once during your turn')"},
+  {"at": "decision", "n": 1, "who": "me", "bench": 0, "energy": 0, "cite": "Golden Flame attaches only to a Benched Ethan's Pokemon: Hop's Snorlax gets nothing"}
+ ]
+}
