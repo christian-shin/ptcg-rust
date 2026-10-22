@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],
-        steps: &[Step::new(Op::ArmEach(ArmEachSpec { side: Who::Me, subject: SlotPred::TypeIs(ct::METAL), what: Lasting::TakesLessDamage(30) }))],
+        steps: &[Step::new(Op::ArmEach(ArmEachSpec { side: Who::Me, subject: SlotPred::TypeIs(ct::METAL), what: Lasting::TakesLessDamage(30, DamageSource::Any) }))],
     }),
     ..CardSpec::NONE
 };

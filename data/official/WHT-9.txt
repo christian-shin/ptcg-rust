@@ -1,0 +1,12 @@
+Accelgor
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Shelmet
+G
+Acid Spray 50
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

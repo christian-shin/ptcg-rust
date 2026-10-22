@@ -1,0 +1,10 @@
+Iono's Voltorb
+- Lightning - 70 HP
+Pokémon
+- Basic
+CC
+Voltaic Chain 20+
+This attack does 20 more damage for each [ L ] Energy attached to all of your Iono's Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

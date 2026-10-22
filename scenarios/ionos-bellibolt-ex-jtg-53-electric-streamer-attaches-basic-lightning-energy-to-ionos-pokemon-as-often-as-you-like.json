@@ -1,0 +1,106 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Iono's Tadbulb JTG 52",
+   "1 Iono's Bellibolt ex JTG 53",
+   "2 Lightning Energy MEE 4",
+   "1 Hop's Snorlax JTG 117",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "2 Iono's Tadbulb JTG 52",
+   "1 Iono's Bellibolt ex JTG 53",
+   "2 Lightning Energy MEE 4",
+   "1 Hop's Snorlax JTG 117",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Iono's Tadbulb JTG 52",
+   "Iono's Bellibolt ex JTG 53"
+  ],
+  "bench": [
+   {
+    "card": "Iono's Tadbulb JTG 52"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "hand_to_deck": true,
+  "hand": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Electric Streamer",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 2
+    }
+   }
+  ],
+  {
+   "a": "ability",
+   "name": "Electric Streamer",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 2
+    }
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 2,
+   "cite": "card text: two Basic [L] Energy cards attached to the Benched Iono's Tadbulb"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "energy": 0,
+   "cite": "card text: only Iono's Pokemon can be chosen"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text: both cards left the hand"
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+Bronzor
+- Metal - 80 HP
+Pokémon
+- Basic
+M
+Mirror Attack 10+
+If your opponent's Active Pokémon is a [ M ] Pokémon, this attack does 30 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

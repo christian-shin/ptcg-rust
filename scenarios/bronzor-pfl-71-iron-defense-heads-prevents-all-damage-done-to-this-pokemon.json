@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bronzor PFL 71",
+   "2 Water Energy MEE 3",
+   "1 Snover MEG 35",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Bronzor PFL 71",
+   "2 Water Energy MEE 3",
+   "1 Snover MEG 35",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bronzor PFL 71",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iron Defense"
+  },
+  {
+   "a": "attack",
+   "name": "Icy Snow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: heads: during your opponent's next turn, prevent all damage done to this Pokemon by attacks"
+  }
+ ]
+}

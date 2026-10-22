@@ -1478,7 +1478,7 @@ mod tests {
         let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX}}));
         let a = g.st.players[0].active;
         for on in [LastingOn::pokemon(0, a), LastingOn::Player(1)] {
-            g.st.lasting_mut().push(LastingEffect { on, source: 0, what: LastingWhat::TakesLessDamage(30) });
+            g.st.lasting_mut().push(LastingEffect { on, source: 0, what: LastingWhat::TakesLessDamage(30, crate::spec::DamageSource::Any) });
         }
         g.st.lasting_mut().push(LastingEffect { on: LastingOn::pokemon(1, a), source: 0, what: LastingWhat::NoWeakness { armed: true, pending: false } });
         initiate_sudden_death(&mut g).unwrap();

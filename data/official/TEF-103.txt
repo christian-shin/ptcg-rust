@@ -1,0 +1,12 @@
+Haunter
+- Darkness - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Gastly
+DD
+Super Poison Breath 30
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

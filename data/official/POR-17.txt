@@ -1,0 +1,13 @@
+Turtonator
+- Fire - 120 HP
+Pokémon
+- Basic
+Ability:
+Shell Spikes
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , discard an Energy from the Attacking Pokémon.
+RRC
+Heat Breath 80+
+Flip a coin. If heads, this attack does 80 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Pecharunt ASC 143",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Pecharunt ASC 143",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Pecharunt ASC 143",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mochi Rush"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Mochi Rush"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "turn": 2,
+   "slot": "active",
+   "damage": 90,
+   "cite": "card text: 20 now, then during your next turn Mochi Rush does 50 more: 20 + 70"
+  }
+ ]
+}

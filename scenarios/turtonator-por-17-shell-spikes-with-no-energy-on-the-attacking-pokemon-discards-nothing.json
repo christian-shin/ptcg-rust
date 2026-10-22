@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tyrogue MEG 71",
+   "1 Turtonator POR 17",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Tyrogue MEG 71",
+   "1 Turtonator POR 17",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tyrogue MEG 71",
+  "reset": true
+ },
+ "opp": {
+  "active": "Turtonator POR 17",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pow-Pow Punching"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: the Attacking Pokemon has no Energy to discard: the Ability does nothing"
+  }
+ ]
+}

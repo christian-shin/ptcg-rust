@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Zygarde ex POR 47",
+   "3 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Mega Zygarde ex POR 47",
+   "3 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gaia Wave"
+  },
+  {
+   "a": "attack",
+   "name": "Gaia Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "damage": 170,
+   "cite": "card text: takes 30 less damage from attacks: 200 - 30"
+  }
+ ]
+}

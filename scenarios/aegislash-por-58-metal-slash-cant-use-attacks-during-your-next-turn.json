@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Aegislash POR 58",
+   "1 Metal Energy MEE 8",
+   "3 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "1 Aegislash POR 58",
+   "1 Metal Energy MEE 8",
+   "3 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Aegislash POR 58",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metal Slash"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 230,
+   "cite": "card text: 230 damage"
+  },
+  {
+   "at": "next_turn",
+   "who": "me",
+   "turn": 2,
+   "legal": "attack",
+   "name": "Slash",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't use attacks"
+  }
+ ]
+}

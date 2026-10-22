@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ho-Oh CRI 10",
+   "3 Fire Energy MEE 2",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Ho-Oh CRI 10",
+   "3 Fire Energy MEE 2",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Ho-Oh CRI 10",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bright Wing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "card text: 130 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "card text: discard a [R] Energy from this Pokemon"
+  }
+ ]
+}

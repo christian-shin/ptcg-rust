@@ -1,0 +1,12 @@
+Gastly
+- Darkness - 60 HP
+Pokémon
+- Basic
+D
+Mysterious Beam
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+DD
+Suffocating Gas 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

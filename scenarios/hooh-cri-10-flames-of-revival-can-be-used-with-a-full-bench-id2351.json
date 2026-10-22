@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ho-Oh CRI 10",
+   "2 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "1 Swablu SSP 148",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "1 Ho-Oh CRI 10",
+   "2 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "1 Swablu SSP 148",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Ho-Oh CRI 10",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "2 Snover MEG 35"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Swablu SSP 148"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flames of Revival"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Flames of Revival",
+   "cite": "id2351: the attack can be used with a full Bench, nothing is put onto the Bench"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "cite": "id2351: no Basic Pokemon is put onto the Bench"
+  }
+ ]
+}

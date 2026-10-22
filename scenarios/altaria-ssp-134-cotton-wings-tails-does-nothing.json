@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Altaria SSP 134",
+   "1 Water Energy MEE 3",
+   "1 Metal Energy MEE 8",
+   "1 Pikachu ex PRE 28",
+   "1 Lightning Energy MEE 4",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Altaria SSP 134",
+   "1 Water Energy MEE 3",
+   "1 Metal Energy MEE 8",
+   "1 Pikachu ex PRE 28",
+   "1 Lightning Energy MEE 4",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Altaria SSP 134",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pikachu ex PRE 28",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cotton Wings"
+  },
+  {
+   "a": "attack",
+   "name": "Tail Whap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: tails: no prevention, Tail Whap does 30"
+  }
+ ]
+}

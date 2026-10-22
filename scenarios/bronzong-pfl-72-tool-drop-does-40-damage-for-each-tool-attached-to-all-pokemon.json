@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bronzong PFL 72",
+   "3 Water Energy MEE 3",
+   "1 Air Balloon ASC 181",
+   "1 Snover MEG 35",
+   "1 Rescue Board PRE 126",
+   "1 Hop's Snorlax JTG 117",
+   "1 Sacred Charm PFL 93",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "1 Bronzong PFL 72",
+   "3 Water Energy MEE 3",
+   "1 Air Balloon ASC 181",
+   "1 Snover MEG 35",
+   "1 Rescue Board PRE 126",
+   "1 Hop's Snorlax JTG 117",
+   "1 Sacred Charm PFL 93",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bronzong PFL 72",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "active_tool": "Air Balloon ASC 181",
+  "bench": [
+   {
+    "card": "Snover MEG 35",
+    "tool": "Rescue Board PRE 126"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_tool": "Sacred Charm PFL 93",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tool Drop"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: 40 damage for each Pokemon Tool attached to all Pokemon (3, both players)"
+  }
+ ]
+}

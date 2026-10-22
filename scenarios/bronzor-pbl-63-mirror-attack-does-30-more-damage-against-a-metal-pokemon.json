@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bronzor PBL 63",
+   "1 Metal Energy MEE 8",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Bronzor PBL 63",
+   "1 Metal Energy MEE 8",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bronzor PBL 63",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bronzor PBL 63",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mirror Attack"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: 10 + 30 more against a [M] Pokemon"
+  }
+ ]
+}

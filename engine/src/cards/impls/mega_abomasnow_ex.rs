@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::before_damage(damage_is(Num::Mul(&Num::CardCount(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::All(&[Pred::BasicEnergy, Pred::Provides(ct::WATER)])), &Num::Lit(100)))),
             ],
         },
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(30) }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(30, DamageSource::Any) }))] },
     ],
     ..CardSpec::NONE
 };

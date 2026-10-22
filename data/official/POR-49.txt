@@ -1,0 +1,12 @@
+Haunter
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Gastly
+D
+Haunt
+Place 3 damage counters on your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

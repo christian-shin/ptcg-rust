@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tyrogue MEG 71",
+   "1 Snover MEG 35",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Tyrogue MEG 71",
+   "1 Snover MEG 35",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tyrogue MEG 71",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "coins": [
+  true,
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pow-Pow Punching"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "card text: 10 + 30 more for each heads (2)"
+  }
+ ]
+}

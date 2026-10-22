@@ -1,0 +1,9 @@
+Swirlix
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Ram 20
+Weakness: Metal
+Resistance: none
+Retreat: 1

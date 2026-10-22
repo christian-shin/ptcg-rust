@@ -96,7 +96,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         let st = &mut g.st;
         use crate::engine::lasting as l;
         match effect {
-            Lasting::TakesLessDamage(n) => l::set_takes_less(st, tp, ts, n, card),
+            Lasting::TakesLessDamage(n, from) => l::set_takes_less(st, tp, ts, n, from, card),
             Lasting::DealsLessDamage(n) => l::set_deals_less(st, tp, ts, n, card),
             Lasting::TakesMoreDamage(n) => l::set_takes_more(st, tp, ts, n, p as u8, card),
             Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),

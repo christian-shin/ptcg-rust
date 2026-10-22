@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Sigilyph WHT 38",
+   "1 Water Energy MEE 3",
+   "1 Mankey SSP 98",
+   "1 Primeape PBL 43",
+   "1 Annihilape DRI 92",
+   "2 Fighting Energy MEE 6",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Sigilyph WHT 38",
+   "1 Water Energy MEE 3",
+   "1 Mankey SSP 98",
+   "1 Primeape PBL 43",
+   "1 Annihilape DRI 92",
+   "2 Fighting Energy MEE 6",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Sigilyph WHT 38",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reflect"
+  },
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "damage": 90,
+   "cite": "card text: 160, -30 Resistance, -40 less: 90"
+  }
+ ]
+}

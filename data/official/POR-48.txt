@@ -1,0 +1,10 @@
+Gastly
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Surprise Attack 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

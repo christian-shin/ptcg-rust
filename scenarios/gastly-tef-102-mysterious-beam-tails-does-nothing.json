@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Gastly TEF 102",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "2 Water Energy MEE 3",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Gastly TEF 102",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "2 Water Energy MEE 3",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Gastly TEF 102",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mysterious Beam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": 2,
+   "cite": "card text: tails: nothing"
+  }
+ ]
+}

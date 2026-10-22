@@ -111,7 +111,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // The lasting defender-side effects: "takes N less damage", "the Defending Pokémon takes N more damage" (summed,
     // floored once: APR B-05).
     if !shred {
-        d -= crate::engine::lasting::takes_less_damage(&g.st, t.p as usize, t.s);
+        d -= crate::engine::lasting::takes_less_damage(g, &b)?;
         d += crate::engine::lasting::takes_more_damage(&g.st, t.p as usize, t.s, b.player);
     }
     d = d.max(0);

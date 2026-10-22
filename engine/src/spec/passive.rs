@@ -1708,13 +1708,18 @@ pub const TERA_RULE: PreventSpec = PreventSpec::on(
     super::event::EventPred::Kind(super::event::EventKind::Damage),
 );
 
+/// The attacking Pokémon a `DamageSource` names, where the attacker is read: "from Evolution Pokémon" / "from Basic Pokémon that
+/// aren't [C]" (the type the attacking Pokémon has now, APR D-07, a checked read). `DamageSource::attacker` is the one table of them.
+pub const ATTACKER_EVOLUTION: SlotPred = SlotPred::Not(&SlotPred::Basic);
+pub const ATTACKER_BASIC_NON_COLORLESS: SlotPred = SlotPred::All(&[SlotPred::Basic, SlotPred::Not(&SlotPred::TypeIs(crate::types::ct::COLORLESS))]);
+
 /// The lasting "during your opponent's next turn, prevent all damage done to this Pokémon by attacks (from <these>
 /// Pokémon)" an attack leaves on its Pokémon (`DamageSource::spec`), stored with it (the lasting table, `engine::lasting`). The
 /// attacking Pokémon is read where it is now (`CausePred::Pokemon`).
 pub static LASTING_PREVENT_DAMAGE: PreventSpec = PreventSpec::on(SlotPred::Any, DAMAGE_BY_OPP_ATTACKS);
 pub static LASTING_PREVENT_DAMAGE_FROM_BASIC: PreventSpec = PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::Basic))]));
 pub static LASTING_PREVENT_DAMAGE_FROM_EVOLUTION: PreventSpec =
-    PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::Not(&SlotPred::Basic)))]));
+    PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(ATTACKER_EVOLUTION))]));
 /// "Pokémon that have an Ability": a Pokémon whose Abilities are locked has none.
 pub static LASTING_PREVENT_DAMAGE_FROM_ABILITY: PreventSpec =
     PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::HasAbility))]));
@@ -1723,10 +1728,7 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = Preven
     SlotPred::Any,
     super::event::EventPred::All(&[
         DAMAGE_BY_OPP_ATTACKS,
-        super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::All(&[
-            SlotPred::Basic,
-            SlotPred::Not(&SlotPred::TypeIs(crate::types::ct::COLORLESS)),
-        ]))),
+        super::event::EventPred::Cause(super::event::CausePred::Pokemon(ATTACKER_BASIC_NON_COLORLESS)),
     ]),
 );
 

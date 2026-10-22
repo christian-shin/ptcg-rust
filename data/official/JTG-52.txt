@@ -1,0 +1,9 @@
+Iono's Tadbulb
+- Lightning - 60 HP
+Pokémon
+- Basic
+LC
+Tiny Charge 30
+Weakness: Fighting
+Resistance: none
+Retreat: 2

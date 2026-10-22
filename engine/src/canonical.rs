@@ -61,8 +61,11 @@ impl Game {
                         o.insert("newPokemon".into(), json!(true));
                         o.insert("endsWith".into(), player(ends_with));
                     }
-                    LastingWhat::TakesLessDamage(n) => {
+                    LastingWhat::TakesLessDamage(n, from) => {
                         o.insert("takesLessDamage".into(), json!(n));
+                        if from != crate::spec::ops::state::DamageSource::Any {
+                            o.insert("from".into(), json!(format!("{:?}", from)));
+                        }
                     }
                     LastingWhat::DealsLessDamage(n) => {
                         o.insert("dealsLessDamage".into(), json!(n));

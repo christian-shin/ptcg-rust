@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Sigilyph WHT 38",
+   "1 Psychic Energy MEE 5",
+   "2 Water Energy MEE 3",
+   "1 Timburr TWM 103",
+   "1 Gurdurr BLK 48",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "1 Sigilyph WHT 38",
+   "1 Psychic Energy MEE 5",
+   "2 Water Energy MEE 3",
+   "1 Timburr TWM 103",
+   "1 Gurdurr BLK 48",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Sigilyph WHT 38",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Timburr TWM 103",
+   "Gurdurr BLK 48"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Telekinesis"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "card text: 70 damage, not affected by Weakness (Gurdurr is weak to [P])"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+Eternatus
+- Darkness - 150 HP
+Pokémon
+- Basic
+DD
+Shatter 50
+Discard a Stadium in play.
+DDD
+Power Rush 130
+Flip a coin. If tails, during your next turn, this Pokémon can't use attacks.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

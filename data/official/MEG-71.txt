@@ -1,0 +1,10 @@
+Tyrogue
+- Fighting - 30 HP
+Pokémon
+- Basic
+0
+Pow-Pow Punching 10+
+Flip a coin until you get tails. This attack does 30 more damage for each heads.
+Weakness: Psychic
+Resistance: none
+Retreat: 0
