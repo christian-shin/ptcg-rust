@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Golbat CRI 50",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Golbat CRI 50",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Golbat CRI 50",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Covert Flight"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Golbat CRI 50",
+   "damage": 0,
+   "cite": "card text: prevent all damage done by attacks from Basic Pokémon (Chewtle is Basic)",
+   "turn": 2
+  }
+ ]
+}

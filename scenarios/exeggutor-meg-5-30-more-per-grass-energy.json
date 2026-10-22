@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggutor MEG 5",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "22 Grass Energy MEE 1",
+   "22 Fire Energy MEE 2"
+  ],
+  [
+   "4 Exeggutor MEG 5",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "22 Grass Energy MEE 1",
+   "22 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Exeggutor MEG 5",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Stomping Wood"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 150,
+   "cite": "card text: 60 + 30 x 3 [G] Energy (the Fire Energy does not count)"
+  }
+ ]
+}

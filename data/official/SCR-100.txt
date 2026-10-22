@@ -1,0 +1,12 @@
+Klang
+- Metal - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Klink
+CC
+Iron Tackle 60
+This Pokémon also does 20 damage to itself.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beheeyem BLK 41",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Beheeyem BLK 41",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Beheeyem BLK 41",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "active_damage": 60
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Calm Mind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Beheeyem BLK 41",
+   "damage": 20,
+   "cite": "card text: heal 40 damage from this Pokémon"
+  }
+ ]
+}

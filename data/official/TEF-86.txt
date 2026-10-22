@@ -1,0 +1,14 @@
+Excadrill
+- Fighting - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Drilbur
+C
+Mud Shot 20
+FFC
+Wild Tackle 180
+This Pokémon also does 50 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 2

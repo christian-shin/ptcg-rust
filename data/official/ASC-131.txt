@@ -1,0 +1,13 @@
+Galarian Linoone
+- Darkness - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Galarian Zigzagoon
+D
+Gnaw 20
+DC
+Claw Slash 50
+Weakness: Grass
+Resistance: none
+Retreat: 2

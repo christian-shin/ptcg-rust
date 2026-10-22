@@ -1,0 +1,12 @@
+Braixen
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Fennekin
+RR
+Flamethrower 80
+Discard an Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

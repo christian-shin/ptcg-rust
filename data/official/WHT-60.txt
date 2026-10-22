@@ -1,0 +1,14 @@
+Garbodor
+- Darkness - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Trubbish
+D
+Suffocating Gas 40
+DDC
+Gunk Shot 120
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

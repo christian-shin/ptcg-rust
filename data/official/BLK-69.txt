@@ -1,0 +1,14 @@
+Fraxure
+- Dragon - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Axew
+C
+Bite 30
+FM
+Boundless Power 90
+During your next turn, this Pokémon can't use attacks.
+Weakness: none
+Resistance: none
+Retreat: 2

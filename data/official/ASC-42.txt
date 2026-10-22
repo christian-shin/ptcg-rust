@@ -1,0 +1,12 @@
+Croconaw
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Totodile
+WW
+Crunch 50
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

@@ -1,0 +1,13 @@
+Charjabug
+- Lightning - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Grubbin
+L
+Vise Grip 30
+LL
+Ram 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

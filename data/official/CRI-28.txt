@@ -1,0 +1,12 @@
+Flaaffy
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Mareep
+LC
+Disconnect 40
+During your opponent's next turn, they can't play any Item cards from their hand.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Boltund
+- Lightning - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Yamper
+LC
+Electric Run 70+
+Flip a coin. If heads, this attack does 70 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

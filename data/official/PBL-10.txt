@@ -1,0 +1,15 @@
+Centiskorch
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Sizzlipede
+R
+Controlled Burn
+Discard the top 2 cards of your opponent's deck.
+RCCC
+Heat Tackle 160
+This Pokémon also does 30 damage to itself.
+Weakness: Water
+Resistance: none
+Retreat: 3

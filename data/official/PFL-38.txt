@@ -1,0 +1,14 @@
+Granbull
+- Psychic - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snubbull
+PC
+Bite 50
+PPC
+Finishing Blow 90+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 90 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 2

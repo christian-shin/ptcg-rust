@@ -1,0 +1,12 @@
+Escavalier
+- Metal - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Karrablast
+M
+Wild Lances 90
+This Pokémon also does 30 damage to itself.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

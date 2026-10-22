@@ -1,0 +1,12 @@
+Bisharp
+- Metal - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pawniard
+M
+Rapid Draw 50
+Draw 2 cards.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

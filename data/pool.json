@@ -9558,5 +9558,505 @@
   "key": "Team Rocket's Exeggcute ASC 77",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "110",
+  "name": "Arven's Toedscruel",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Arven's Toedscruel DRI 110",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "63",
+  "name": "Barraskewda",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Barraskewda DRI 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "41",
+  "name": "Beheeyem",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Beheeyem BLK 41",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "65",
+  "name": "Bisharp",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Bisharp BLK 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "147",
+  "name": "Bisharp",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Bisharp ASC 147",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "31",
+  "name": "Boltund",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Boltund PFL 31",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "12",
+  "name": "Braixen",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Braixen CRI 12",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "78",
+  "name": "Braviary",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Braviary BLK 78",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "6",
+  "name": "Breloom",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Breloom DRI 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "19",
+  "name": "Brionne",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Brionne PBL 19",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "119",
+  "name": "Carkol",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Carkol ASC 119",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "14",
+  "name": "Cascoon",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Cascoon ASC 14",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "10",
+  "name": "Centiskorch",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Centiskorch PBL 10",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "25",
+  "name": "Charjabug",
+  "type": "L Stage 1",
+  "reg": "J",
+  "key": "Charjabug PBL 25",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "21",
+  "name": "Charmeleon",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Charmeleon ASC 21",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "76",
+  "name": "Cinccino",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Cinccino BLK 76",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "44",
+  "name": "Cranidos",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Cranidos PBL 44",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "30",
+  "name": "Crocalor",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Crocalor SSP 30",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "42",
+  "name": "Croconaw",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Croconaw ASC 42",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "53",
+  "name": "Cynthia's Milotic",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Cynthia's Milotic DRI 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "14",
+  "name": "Darmanitan",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Darmanitan BLK 14",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "16",
+  "name": "Darmanitan",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Darmanitan PFL 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "166",
+  "name": "Delcatty",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Delcatty ASC 166",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "22",
+  "name": "Dewott",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Dewott WHT 22",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "65",
+  "name": "Diggersby",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Diggersby POR 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "40",
+  "name": "Drizzile",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Drizzile MEG 40",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "69",
+  "name": "Electivire ex",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Electivire ex DRI 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "2",
+  "name": "Erika's Gloom",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Erika's Gloom ASC 2",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "5",
+  "name": "Erika's Weepinbell",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Erika's Weepinbell ASC 5",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "60",
+  "name": "Escavalier",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Escavalier BLK 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "86",
+  "name": "Excadrill",
+  "type": "F Stage 1",
+  "reg": "H",
+  "key": "Excadrill TEF 86",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "5",
+  "name": "Exeggutor",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Exeggutor MEG 5",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "103",
+  "name": "Fearow",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Fearow MEG 103",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "69",
+  "name": "Ferrothorn",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Ferrothorn WHT 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "28",
+  "name": "Flaaffy",
+  "type": "L Stage 1",
+  "reg": "J",
+  "key": "Flaaffy CRI 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "13",
+  "name": "Fletchinder",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Fletchinder POR 13",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "58",
+  "name": "Floatzel",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Floatzel DRI 58",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "69",
+  "name": "Fraxure",
+  "type": "N Stage 1",
+  "reg": "I",
+  "key": "Fraxure BLK 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "131",
+  "name": "Galarian Linoone",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Galarian Linoone ASC 131",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "60",
+  "name": "Garbodor",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Garbodor WHT 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "50",
+  "name": "Gliscor",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Gliscor PFL 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "50",
+  "name": "Golbat",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Golbat CRI 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "43",
+  "name": "Golurk",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Golurk BLK 43",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "38",
+  "name": "Granbull",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Granbull PFL 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "53",
+  "name": "Heliolisk",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Heliolisk MEG 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "75",
+  "name": "Herdier",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Herdier WHT 75",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "58",
+  "name": "Honchkrow",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Honchkrow PFL 58",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "134",
+  "name": "Hop's Corvisquire",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Hop's Corvisquire JTG 134",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "87",
+  "name": "Hop's Sandaconda",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Hop's Sandaconda JTG 87",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "100",
+  "name": "Klang",
+  "type": "M Stage 1",
+  "reg": "H",
+  "key": "Klang SCR 100",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

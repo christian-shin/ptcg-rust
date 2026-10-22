@@ -1,0 +1,14 @@
+Ferrothorn
+- Metal - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Ferroseed
+M
+Power Whip
+This attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+MCCC
+Metal Claw 130
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

@@ -1,0 +1,14 @@
+Herdier
+- Colorless - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Lillipup
+C
+Roar
+Switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)
+CCC
+Lunge Out 70
+Weakness: Fighting
+Resistance: none
+Retreat: 1

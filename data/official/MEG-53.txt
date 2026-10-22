@@ -1,0 +1,14 @@
+Heliolisk
+- Lightning - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Helioptile
+C
+Dazzle Blast 20
+Your opponent's Active Pokémon is now Confused.
+LC
+Head Bolt 70
+Weakness: Fighting
+Resistance: none
+Retreat: 1
