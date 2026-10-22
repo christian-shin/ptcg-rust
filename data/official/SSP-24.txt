@@ -1,0 +1,11 @@
+Larvesta
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Ram 10
+RC
+Steady Firebreathing 20
+Weakness: Water
+Resistance: none
+Retreat: 2

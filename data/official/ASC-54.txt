@@ -1,0 +1,13 @@
+Glastrier
+- Water - 130 HP
+Pokémon
+- Basic
+W
+Ice Shot 20
+This attack also does 20 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+WWW
+Frosty Typhoon 130
+During your next turn, this Pokémon can't use Frosty Typhoon.
+Weakness: Metal
+Resistance: none
+Retreat: 2

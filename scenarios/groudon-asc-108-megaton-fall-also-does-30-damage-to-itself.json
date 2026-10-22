@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Groudon ASC 108",
+   "4 Dondozo ex DRI 66",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Groudon ASC 108",
+   "4 Dondozo ex DRI 66",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Groudon ASC 108",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Megaton Fall"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 150,
+   "cite": "card text: 150 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Groudon ASC 108",
+   "damage": 30,
+   "cite": "card text: this Pokémon also does 30 damage to itself"
+  }
+ ]
+}

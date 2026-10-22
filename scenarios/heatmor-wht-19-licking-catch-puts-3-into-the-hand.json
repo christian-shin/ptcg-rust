@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Heatmor WHT 19",
+   "56 Fire Energy MEE 2"
+  ],
+  [
+   "4 Heatmor WHT 19",
+   "56 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Heatmor WHT 19",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand_to_deck": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Heatmor WHT 19",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Licking Catch"
+  },
+  [
+   0,
+   1,
+   2
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 3,
+   "cite": "card text: up to 3 in any combination of [R] Pokémon and Basic [R] Energy cards, into the hand"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}

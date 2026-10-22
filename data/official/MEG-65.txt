@@ -1,0 +1,12 @@
+Greavard
+- Psychic - 80 HP
+Pokémon
+- Basic
+P
+Stampede 10
+PC
+Take Down 40
+This Pokémon also does 10 damage to itself.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

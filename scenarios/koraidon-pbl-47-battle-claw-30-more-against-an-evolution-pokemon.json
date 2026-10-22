@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Koraidon PBL 47",
+   "4 Litleo MEG 23",
+   "4 Pyroar PRE 16",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Koraidon PBL 47",
+   "4 Litleo MEG 23",
+   "4 Pyroar PRE 16",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Koraidon PBL 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Litleo MEG 23",
+   "Pyroar PRE 16"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Battle Claw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Pyroar PRE 16",
+   "damage": 60,
+   "cite": "card text: 30 + 30"
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Keldeo ex WHT 30",
+   "4 Lillie's Cutiefly JTG 66",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Keldeo ex WHT 30",
+   "4 Lillie's Cutiefly JTG 66",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Lillie's Cutiefly JTG 66",
+  "bench": [
+   {
+    "card": "Keldeo ex WHT 30",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Gale Thrust"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 120,
+   "cite": "card text: 30 + 90"
+  }
+ ]
+}

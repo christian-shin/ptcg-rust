@@ -1,0 +1,9 @@
+Mankey
+- Fighting - 50 HP
+Pokémon
+- Basic
+C
+Low Kick 20
+Weakness: Psychic
+Resistance: none
+Retreat: 1

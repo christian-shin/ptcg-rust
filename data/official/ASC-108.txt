@@ -1,0 +1,12 @@
+Groudon
+- Fighting - 140 HP
+Pokémon
+- Basic
+FFC
+Hammer In 80
+FFCC
+Megaton Fall 150
+This Pokémon also does 30 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 3

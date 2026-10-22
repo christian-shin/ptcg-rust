@@ -1,0 +1,13 @@
+Keldeo
+- Water - 110 HP
+Pokémon
+- Basic
+W
+Shoot Through 20
+This attack also does 20 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+WW
+Reflect Energy 70
+Move an Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1
