@@ -1,0 +1,10 @@
+Magmar
+- Fire - 80 HP
+Pokémon
+- Basic
+RC
+Searing Flame 30
+Flip a coin. If heads, your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 2

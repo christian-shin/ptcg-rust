@@ -1,0 +1,10 @@
+Gligar
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Poison Jab 10
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Grass
+Resistance: none
+Retreat: 1

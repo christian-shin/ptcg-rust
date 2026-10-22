@@ -1,0 +1,10 @@
+Foongus
+- Grass - 50 HP
+Pokémon
+- Basic
+C
+Toxic Spore
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fire
+Resistance: none
+Retreat: 1

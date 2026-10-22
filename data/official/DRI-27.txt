@@ -1,0 +1,11 @@
+Growlithe
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Live Coal 10
+CC
+Dig Claws 20
+Weakness: Water
+Resistance: none
+Retreat: 2

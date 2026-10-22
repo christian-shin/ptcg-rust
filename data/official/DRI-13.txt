@@ -1,0 +1,9 @@
+Fomantis
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Cut Up 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

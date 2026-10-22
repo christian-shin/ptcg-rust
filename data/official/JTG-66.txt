@@ -1,0 +1,10 @@
+Lillie's Cutiefly
+- Psychic - 30 HP
+Pokémon
+- Basic
+P
+Hold Still
+Heal 10 damage from this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 0

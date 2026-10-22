@@ -1,0 +1,10 @@
+Goomy
+- Dragon - 60 HP
+Pokémon
+- Basic
+WP
+Absorb 30
+Heal 30 damage from this Pokémon.
+Weakness: none
+Resistance: none
+Retreat: 2

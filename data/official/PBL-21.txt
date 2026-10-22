@@ -1,0 +1,10 @@
+Finizen
+- Water - 80 HP
+Pokémon
+- Basic
+WW
+Draining Fin 20
+Heal 20 damage from this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

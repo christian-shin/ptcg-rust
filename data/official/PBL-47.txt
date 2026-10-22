@@ -1,0 +1,13 @@
+Koraidon
+- Fighting - 130 HP
+Pokémon
+- Basic
+F
+Battle Claw 30+
+If your opponent's Active Pokémon is an Evolution Pokémon, this attack does 30 more damage.
+FFC
+Gaia Impact 190
+Discard all Energy from this Pokémon.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

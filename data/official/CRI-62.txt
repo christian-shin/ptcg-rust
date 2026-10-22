@@ -1,0 +1,9 @@
+Ferroseed
+- Metal - 70 HP
+Pokémon
+- Basic
+MM
+Rolling Tackle 40
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

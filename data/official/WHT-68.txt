@@ -1,0 +1,11 @@
+Ferroseed
+- Metal - 70 HP
+Pokémon
+- Basic
+M
+Zzzt 10
+MCC
+Metal Claw 40
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

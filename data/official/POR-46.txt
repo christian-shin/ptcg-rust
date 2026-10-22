@@ -1,0 +1,10 @@
+Hawlucha
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Vengeful Kick 30+
+If your Benched Pokémon have any damage counters on them, this attack does 60 more damage.
+Weakness: Psychic
+Resistance: none
+Retreat: 0

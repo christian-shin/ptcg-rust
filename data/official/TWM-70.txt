@@ -1,0 +1,12 @@
+Helioptile
+- Lightning - 60 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+L
+Static Shock 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

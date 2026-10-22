@@ -835,3 +835,39 @@ Erika's Oddish ASC 1	ErikasOddish
 Espurr SSP 84	EspurrSSP
 Espurr POR 33	EspurrPOR
 Exeggcute MEG 4	ExeggcuteMEG
+Fennekin CRI 11	Fennekin
+Mantine MEG 32	Mantine
+Finizen PBL 21	FinizenPBL
+Goomy CRI 66	Goomy
+Lillie's Cutiefly JTG 66	LilliesCutiefly
+Fomantis PBL 3	Fomantis
+Greavard MEG 65	Greavard
+Groudon ASC 108	Groudon
+Foongus BLK 10	Foongus
+Gligar PFL 49	Gligar
+Golett BLK 42	Golett
+Mankey DRI 90	MankeyDRI
+Grubbin PBL 2	Grubbin
+Mareep CRI 27	Mareep
+Magmar JTG 20	Magmar
+Glastrier ASC 54	Glastrier
+Keldeo CRI 19	Keldeo
+Hawlucha POR 46	Hawlucha
+Heatmor WHT 19	Heatmor
+Helioptile MEG 52	HelioptileMEG
+Helioptile TWM 70	HelioptileTWM
+Hippopotas DRI 105	Hippopotas
+Hoopa ASC 141	Hoopa
+Hop's Rookidee JTG 133	HopsRookidee
+Jigglypuff PFL 76	Jigglypuff
+Jynx MEG 57	Jynx
+Kangaskhan DRI 151	Kangaskhan
+Keldeo ex WHT 30	KeldeoEx
+Klink SCR 99	KlinkSCR
+Klink BLK 61	KlinkBLK
+Koraidon PBL 47	KoraidonPBL
+Landorus POR 41	Landorus
+Larry's Dunsparce ASC 163	LarrysDunsparce
+Lillipup WHT 74	Lillipup
+Larry's Rufflet ASC 173	LarrysRufflet
+Larry's Starly ASC 168	LarrysStarly

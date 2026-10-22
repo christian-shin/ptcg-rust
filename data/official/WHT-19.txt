@@ -1,0 +1,12 @@
+Heatmor
+- Fire - 120 HP
+Pokémon
+- Basic
+R
+Licking Catch
+Search your deck for up to 3 in any combination of [ R ] Pokémon and Basic [ R ] Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+RR
+Fire Claws 60
+Weakness: Water
+Resistance: none
+Retreat: 2

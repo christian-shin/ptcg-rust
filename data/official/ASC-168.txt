@@ -1,0 +1,12 @@
+Larry's Starly
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Minor Errand-Running
+Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+C
+Glide 10
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,9 @@
+Lotad
+- Water - 60 HP
+Pokémon
+- Basic
+W
+Water Gun 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

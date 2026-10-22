@@ -1,0 +1,13 @@
+Hoopa
+- Darkness - 120 HP
+Pokémon
+- Basic
+C
+Filch
+Draw 2 cards.
+DDC
+Knuckle Impact 130
+During your next turn, this Pokémon can't use attacks.
+Weakness: Grass
+Resistance: none
+Retreat: 2
