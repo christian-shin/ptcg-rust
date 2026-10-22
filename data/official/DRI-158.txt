@@ -1,0 +1,10 @@
+Arven's Skwovet
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Gnaw Through 10
+Before doing damage, discard all Pokémon Tools from your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

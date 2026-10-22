@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Virizion WHT 10",
+   "4 Hop's Snorlax JTG 117",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Virizion WHT 10",
+   "4 Hop's Snorlax JTG 117",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Virizion WHT 10",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Emerald Blade"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Giga Drain",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokémon can't use attacks"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Emerald Blade",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokémon can't use attacks"
+  }
+ ]
+}

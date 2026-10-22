@@ -112,6 +112,9 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
+    /// The damage the attack in progress did to the opponent's Active Pokémon, as done (not capped by its HP: id462): "the same
+    /// amount of damage you did to your opponent's Active Pokémon".
+    DamageDone,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -215,8 +218,8 @@ pub enum Cond {
     /// "If 1 of your [other] [Ancient] Pokémon used [an attack / name] during your last turn" (Koraidon SSP 116, Sylveon ex's
     /// Angelite): the attack the player used during their previous turn (the player's last-attack record: a turn without an
     /// attack, a failed attack and a Knock Out reset leave none) matches `attack` and was used by a Pokémon card matching `by`,
-    /// other than this card when `other`. A copied attack counts for the copycat that used it (id2402).
-    AttackedLastTurn { who: Who, by: Pred, other: bool, attack: AttackPred },
+    /// narrowed by `user` to another card or to this card. A copied attack counts for the copycat that used it (id2402).
+    AttackedLastTurn { who: Who, by: Pred, user: AttackUser, attack: AttackPred },
     /// The Ability of this card is blocked for the player the program runs for (a checked read).
     AbilityBlocked,
     /// Some Basic Pokémon the player has in play can evolve now into a card in the game (a checked read).
@@ -225,6 +228,15 @@ pub enum Cond {
     ToolBlocked,
     /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
     HasEvolutionInPool(Who),
+}
+
+/// Which Pokémon used the attack `Cond::AttackedLastTurn` reads: "1 of your Pokémon" (`Anyone`), "1 of your other Pokémon" (`Other`),
+/// "this Pokémon" (`This`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum AttackUser {
+    Anyone,
+    Other,
+    This,
 }
 
 /// An attack predicate: which printed attack was used.
@@ -436,6 +448,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::Last => f.last,
+        Num::DamageDone => g.last_attack.as_ref().map_or(0, |la| la.damage_to_active),
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -548,14 +561,18 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
         Cond::CanEvolveBasic(_) => panic!("Cond::CanEvolveBasic needs a checked read (cond_m)"),
         Cond::ToolBlocked => panic!("Cond::ToolBlocked needs a checked read (cond_m)"),
-        Cond::AttackedLastTurn { who, by, other, attack } => {
+        Cond::AttackedLastTurn { who, by, user, attack } => {
             // The player's previous turn is two turns ago (turns alternate: no card in the pool skips a turn); an attack
             // that failed (Confusion) isn't used (its stamp is voided).
             let p = f.who(*who);
             match g.st.player_last_attack[p] {
                 Some((a, src)) => {
                     g.st.player_last_attack_turn[p] == g.st.turn - 2
-                        && (!*other || src != me)
+                        && match user {
+                            AttackUser::Anyone => true,
+                            AttackUser::Other => src != me,
+                            AttackUser::This => src == me,
+                        }
                         && pred(g, src, by)
                         && match attack {
                             AttackPred::Any => true,

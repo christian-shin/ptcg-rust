@@ -1,0 +1,10 @@
+Entei
+- Fire - 140 HP
+Pokémon
+- Basic
+RR
+Flare Fall 30+
+If you have at least 4 [ R ] Energy in play, this attack does 90 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 3

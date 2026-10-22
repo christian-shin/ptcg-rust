@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hippopotas POR 39",
+   "4 Chewtle SCR 43",
+   "8 Water Energy MEE 3",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Hippopotas POR 39",
+   "4 Chewtle SCR 43",
+   "8 Water Energy MEE 3",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hippopotas POR 39",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Chewtle SCR 43",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sand Attack"
+  },
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Hippopotas POR 39",
+   "damage": 60,
+   "cite": "id2196-style (C-15): the effect is on the Defending Pokémon; a Pokémon that moves up isn't affected, so its attack needs no flip"
+  }
+ ]
+}

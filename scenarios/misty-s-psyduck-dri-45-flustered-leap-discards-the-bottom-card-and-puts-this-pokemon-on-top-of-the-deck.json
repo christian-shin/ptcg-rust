@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Misty's Psyduck DRI 45",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Misty's Psyduck DRI 45",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chewtle SCR 43",
+  "bench": [
+   {
+    "card": "Misty's Psyduck DRI 45",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Flustered Leap",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 0,
+   "cite": "card text: discard all cards from this Pokémon and put this Pokémon on top of your deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Misty's Psyduck DRI 45"
+   ],
+   "cite": "card text: put this Pokémon on top of your deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "cite": "card text: the bottom card of the deck and the 2 Energy attached"
+  }
+ ]
+}

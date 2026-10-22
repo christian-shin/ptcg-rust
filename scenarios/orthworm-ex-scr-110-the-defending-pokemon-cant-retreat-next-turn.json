@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Orthworm ex SCR 110",
+   "4 Dondozo ex DRI 66",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Orthworm ex SCR 110",
+   "4 Dondozo ex DRI 66",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Orthworm ex SCR 110",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true,
+  "bench": [
+   {
+    "card": "Dondozo ex DRI 66"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rock Tomb"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokémon can't retreat"
+  }
+ ]
+}

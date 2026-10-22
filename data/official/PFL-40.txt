@@ -1,0 +1,12 @@
+Meloetta
+- Psychic - 90 HP
+Pokémon
+- Basic
+P
+Soothing Melody
+Heal 120 damage from 1 of your Benched [ P ] Pokémon.
+PC
+Magical Shot 50
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

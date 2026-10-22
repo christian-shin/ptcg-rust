@@ -47,14 +47,27 @@ pub struct PowerFrame {
     pub bench_target: Option<SlotRef>,
 }
 
-/// Attack-flow coin callbacks (none needed by the core yet).
+/// Attack-flow coin callbacks.
 #[derive(Clone, Copy, Debug)]
 pub enum AttackCoinCb {
-    None,
+    /// The coin of a coin-gated lock on the attacking Pokémon (`CoinGate::TailsStopsAttack`): heads, the attack goes on (the Confusion
+    /// flip, then the attack); tails, it doesn't happen.
+    Gate(AttackFrame),
 }
 
-pub fn coin_cb(_g: &mut Game, _a: AttackCoinCb, _result: bool) -> R {
-    Ok(())
+pub fn coin_cb(g: &mut Game, a: AttackCoinCb, result: bool) -> R {
+    match a {
+        AttackCoinCb::Gate(f) => {
+            if result {
+                return confusion_then_attack(g, f, false);
+            }
+            // A failed attack attempt isn't an attack used (the stamp is voided, as for a Confused Pokémon's tails); the attack
+            // ends: its Knock Out check, then the end of the turn.
+            g.st.player_last_attack_turn[f.p as usize] = -1;
+            g.release_fx(f.origin);
+            attack_over(g, f.p as usize)
+        }
+    }
 }
 
 pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
@@ -97,7 +110,6 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
         _ => return Ok(()),
     };
     let active = g.st.players[p].active;
-    let sp = g.st.slot(p, active).special_conditions;
     // The UseAttack event's checks (`engine::turn_action::attack_checks`, the function legality calls); a what-if use makes
     // none (the Energy, the locks on using attacks, the first-turn rule, the Special Conditions: no Confusion flip).
     let attacking = if what_if {
@@ -111,6 +123,21 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     };
     g.retain_fx(id);
     let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id, delegate_from };
+    // A coin-gated lock on the attacking Pokémon (Sand Attack): its flip comes first, before the Confusion flip (id2317); a legality
+    // trial takes the heads path.
+    if !what_if && !g.rng.is_fixed() {
+        if let Some(cause) = crate::spec::passive::attack_coin_gate(g, p, attacking, attack)? {
+            g.coin_flip(p, crate::game::CoinCb::Attack(AttackCoinCb::Gate(f)), cause)?;
+            return Ok(());
+        }
+    }
+    confusion_then_attack(g, f, what_if)
+}
+
+/// The Confusion flip of a Confused attacker, then the attack.
+fn confusion_then_attack(g: &mut Game, f: AttackFrame, what_if: bool) -> R {
+    let p = f.p as usize;
+    let sp = g.st.slot(p, g.st.players[p].active).special_conditions;
     if sp.contains(&(SpecialCondition::Confused as u8)) && !what_if {
         g.prompt(p, PromptPurpose::ConfusionFlip, PromptKind::CoinFlip, crate::prompts::Provenance::NONE, Cont::UseAttack(f));
         return Ok(());

@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[Cond::IsActive(SlotExpr::This)],
         steps: &[
-            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Deck) })),
+            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Deck), top: false })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }],

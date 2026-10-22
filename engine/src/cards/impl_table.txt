@@ -1040,3 +1040,50 @@ Servine BLK 2	ServineBLK
 Shieldon PBL 61	Shieldon
 Skuntank CRI 54	Skuntank
 Spewpa SSP 6	SpewpaSSP
+Registeel ex ASC 145	RegisteelEx
+Mesprit SSP 79	Mesprit
+Mow Rotom SCR 8	MowRotomSCR
+Arven's Skwovet DRI 158	ArvensSkwovet
+Larvesta BLK 15	LarvestaBLK
+N's Joltik JTG 49	NsJoltik
+Spearow MEG 102	Spearow
+Phantump CRI 38	Phantump
+Dedenne POR 29	DedennePOR
+Mow Rotom DRI 9	MowRotomDRI
+Deerling TEF 16	DeerlingTEF
+Team Rocket's Moltres ex DRI 31	TeamRocketsMoltresEx
+Ducklett WHT 25	Ducklett
+Skarmory PBL 60	SkarmoryPBL
+Mawile POR 32	MawilePOR
+Drampa ASC 176	Drampa
+Hippopotas POR 39	HippopotasPOR
+Sandygast TWM 91	Sandygast
+Zamazenta DRI 146	Zamazenta
+Roggenrola WHT 46	Roggenrola
+Pachirisu MEG 51	Pachirisu
+Delibird CRI 18	DelibirdCRI
+Volcanion POR 25	Volcanion
+Lugia ex PRE 82	LugiaEx
+Team Rocket's Diglett ASC 100	TeamRocketsDiglett
+Virizion WHT 10	Virizion
+Mega Floette ex CRI 35	MegaFloetteEx
+Munna BLK 35	Munna
+Meloetta PFL 40	Meloetta
+Miltank MEG 106	Miltank
+Bombirdier PBL 71	Bombirdier
+Wo-Chien SSP 15	WoChien
+Durant WHT 70	Durant
+Cobalion BLK 66	Cobalion
+Bruxish SSP 49	Bruxish
+Team Rocket's Koffing DRI 125	TeamRocketsKoffing
+Miraidon PBL 28	MiraidonPBL
+Orthworm ex SCR 110	OrthwormEx
+Togedemaru ex ASC 149	TogedemaruEx
+Misty's Psyduck DRI 45	MistysPsyduck
+Dhelmise MEG 18	DhelmiseMEG
+Entei ASC 25	Entei
+Raikou MEG 48	Raikou
+Suicune PFL 26	Suicune
+Tapu Koko SSP 65	TapuKokoSSP
+Victini BLK 12	VictiniBLK
+Shelmet WHT 8	ShelmetWHT

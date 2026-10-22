@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Moltres ex DRI 31",
+   "4 Bouffalant ex WHT 77",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Moltres ex DRI 31",
+   "4 Bouffalant ex WHT 77",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Moltres ex DRI 31",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flame Screen"
+  },
+  {
+   "a": "attack",
+   "name": "Gold Breaker"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Team Rocket's Moltres ex DRI 31",
+   "damage": 150,
+   "turn": 2,
+   "cite": "card text: Gold Breaker 100 + 100 against a Pokémon ex = 200, 50 less = 150"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Misty's Psyduck
+- Water - 70 HP
+Pokémon
+- Basic
+Ability:
+Flustered Leap
+Once during your turn, if this Pokémon is on your Bench, you may discard the bottom card of your deck. If you do, discard all cards from this Pokémon and put this Pokémon on top of your deck.
+W
+Sprinkle Water 30
+Weakness: Lightning
+Resistance: none
+Retreat: 1

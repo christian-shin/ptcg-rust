@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bruxish SSP 49",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Bruxish SSP 49",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bruxish SSP 49",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "bench": [
+   {
+    "card": "Bouffalant ex WHT 77"
+   }
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Big Bite"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokémon can't retreat"
+  }
+ ]
+}

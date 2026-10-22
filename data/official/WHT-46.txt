@@ -1,0 +1,12 @@
+Roggenrola
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Harden
+During your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 40 or less.
+FF
+Rolling Rocks 30
+Weakness: Grass
+Resistance: none
+Retreat: 2

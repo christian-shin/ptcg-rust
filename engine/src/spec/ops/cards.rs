@@ -1255,8 +1255,9 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
     }
     let mut o = AttachOpts::new(cards.len().min(255) as u8);
     o.allow_cancel = a.cancel;
-    o.max = to_u8(num(g, me, f, &a.bounds.max));
-    o.min = to_u8(num(g, me, f, &a.bounds.min)).min(o.max);
+    // A count of Energy provided (Dedenne's "up to the amount of Energy attached to all of your opponent's Pokémon") is a checked read.
+    o.max = to_u8(num_m(g, me, f, &a.bounds.max)?);
+    o.min = to_u8(num_m(g, me, f, &a.bounds.min)?).min(o.max);
     for (i, c) in cards.iter().enumerate() {
         if !pred(g, *c, &a.predicate) {
             o.blocked.push(i as u8);
@@ -1775,7 +1776,7 @@ fn energy_move_possible(g: &Game, me: CardId, f: &Frame, d: &DiscardEnergySpec) 
         let def = g.st.cdef(c);
         def.is_energy() && match kind {
             EnergyKind::Any | EnergyKind::Provides(_) => true,
-            EnergyKind::Basic => def.energy_type == EnergyType::Basic as u8,
+            EnergyKind::Basic | EnergyKind::BasicProvides(_) => def.energy_type == EnergyType::Basic as u8,
         }
     })
 }
@@ -2573,6 +2574,8 @@ pub enum EnergyKind {
     /// Energy that provides this type as the Pokémon's Energy provides it now (an Energy that
     /// provides every type counts).
     Provides(CardType),
+    /// Basic Energy cards that provide this type ("Basic [L] Energy cards").
+    BasicProvides(CardType),
 }
 
 /// Which Pokémon a DiscardEnergy prompt lists.
@@ -2629,6 +2632,10 @@ fn ec_energy_cards(g: &mut Game, src: SlotRef, kind: EnergyKind) -> R<Vec<CardId
         EnergyKind::Provides(t) => {
             let providing = energy_cards_that_provide_type(g, src.p as usize, src.s, t)?;
             all.into_iter().filter(|c| providing.contains(c)).collect()
+        }
+        EnergyKind::BasicProvides(t) => {
+            let providing = energy_cards_that_provide_type(g, src.p as usize, src.s, t)?;
+            all.into_iter().filter(|c| g.st.cdef(*c).energy_type == EnergyType::Basic as u8 && providing.contains(c)).collect()
         }
     })
 }
@@ -2788,7 +2795,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
 /// The prompt filter of the Energy cards of a kind.
 fn energy_filter(kind: EnergyKind) -> Filter {
     match kind {
-        EnergyKind::Basic => Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() },
+        EnergyKind::Basic | EnergyKind::BasicProvides(_) => Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() },
         _ => Filter::super_type(SuperType::Energy),
     }
 }

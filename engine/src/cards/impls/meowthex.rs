@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "MeowthEx",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Hand) }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Hand), top: false }))] }],
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,

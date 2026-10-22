@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tapu Koko SSP 65",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Tapu Koko SSP 65",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Tapu Koko SSP 65",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "prizes_left": 4
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Prize Count"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 150,
+   "cite": "card text: 90 + 90 with 6 Prize cards remaining against 4, 30 less from the Defending Pokémon's Ability"
+  }
+ ]
+}

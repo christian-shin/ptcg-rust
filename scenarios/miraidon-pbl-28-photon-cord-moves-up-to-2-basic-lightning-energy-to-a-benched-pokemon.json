@@ -1,0 +1,91 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Miraidon PBL 28",
+   "4 Bouffalant ex WHT 77",
+   "4 Fire Energy MEE 2",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Miraidon PBL 28",
+   "4 Bouffalant ex WHT 77",
+   "4 Fire Energy MEE 2",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Miraidon PBL 28",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Miraidon PBL 28"
+   }
+  ]
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder"
+  },
+  {
+   "a": "attack",
+   "name": "Gold Breaker"
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 2
+    }
+   },
+   {
+    "index": 1,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 2
+    }
+   }
+  ],
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Miraidon PBL 28",
+   "energy": 2,
+   "cite": "card text: move up to 2 Basic [L] Energy cards from this Pokémon to 1 of your Benched Pokémon (it was promoted after the Knock Out); id2399: at least 1"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "cite": "the Knocked Out Miraidon and its 2 other Energy cards"
+  }
+ ]
+}

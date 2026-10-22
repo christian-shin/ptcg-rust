@@ -1,0 +1,12 @@
+Volcanion
+- Water - 130 HP
+Pokémon
+- Basic
+WC
+Strength 50
+WWC
+Powerful Steam 90×
+Flip a coin for each [ W ] Energy attached to this Pokémon. This attack does 90 damage for each heads.
+Weakness: Lightning
+Resistance: none
+Retreat: 3

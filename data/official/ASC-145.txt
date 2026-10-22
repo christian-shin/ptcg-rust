@@ -1,0 +1,13 @@
+Registeel ex
+- Metal - 230 HP
+Pokémon
+- Basic
+C
+Regi Charge
+Attach up to 2 Basic [ M ] Energy cards from your discard pile to this Pokémon.
+MCCC
+Protecting Steel 140
+During your opponent's next turn, this Pokémon takes 50 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

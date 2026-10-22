@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Moltres ex DRI 31",
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Energy DRI 182",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Moltres ex DRI 31",
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Energy DRI 182",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Moltres ex DRI 31",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Team Rocket's Energy DRI 182",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true,
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evil Incineration"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Hop's Snorlax JTG 117",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text: discard a Team Rocket's Energy; if you do, discard your opponent's Active Pokémon and all attached cards"
+  },
+  {
+   "at": "next_turn",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "id2156: discarded, not Knocked Out: no Prize card"
+  }
+ ]
+}

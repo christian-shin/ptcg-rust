@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Roggenrola WHT 46",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Roggenrola WHT 46",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Roggenrola WHT 46",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Harden"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Roggenrola WHT 46",
+   "damage": 60,
+   "cite": "card text: only damage of 40 or less is prevented (Headbutt 60)"
+  }
+ ]
+}

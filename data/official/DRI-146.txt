@@ -1,0 +1,10 @@
+Zamazenta
+- Metal - 130 HP
+Pokémon
+- Basic
+MMC
+Strong Bash 70
+During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out) , put damage counters on the Attacking Pokémon equal to the damage done to this Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

@@ -1,0 +1,13 @@
+Mow Rotom
+- Grass - 70 HP
+Pokémon
+- Basic
+G
+Trimming Mower 20
+Discard a Stadium in play.
+CC
+Gadget Show 30×
+This attack does 30 damage for each Pokémon Tool attached to all of your Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -152,6 +152,7 @@ pub fn num(n: &Num) -> ReadSet {
         Num::ZoneSize(z) => zone(*z),
         Num::CardCount(z, p) | Num::DistinctTypes(z, p) | Num::OthersCount(z, p) => zone(*z).or(pred(p)),
         Num::BenchCount(_) | Num::OpenBench(_) => ReadSet::st(BOARD),
+        Num::DamageDone => ReadSet::st(COUNTERS),
         Num::PrizesLeft(_) | Num::PrizesTaken(_) => ReadSet::st(ZONES),
         Num::DamageOn(e) => ReadSet::st(COUNTERS).or(slot_expr(*e)),
         Num::Turn => ReadSet::st(TURN),

@@ -168,6 +168,8 @@ pub struct LastAttack {
     pub pokemon: Option<CardId>,
     /// Opponent's Pokémon damaged by the attack while in the Active Spot.
     pub damaged_active: SVec<SlotRef, 4>,
+    /// The damage (HP, as done: not capped by the Pokémon's HP, id462) the attack did to the opponent's Active Pokémon so far.
+    pub damage_to_active: i32,
     /// Every Pokémon (any zone) that took damage, not counters, from the attack (`RECORD_DAMAGED`).
     pub damaged: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
 }
@@ -1137,6 +1139,7 @@ impl Game {
                 attack,
                 pokemon: self.st.slot_pokemon(source.p as usize, source.s),
                 damaged_active: SVec::new(),
+                damage_to_active: 0,
                 damaged: SVec::new(),
             });
         }

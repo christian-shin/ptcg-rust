@@ -1,0 +1,13 @@
+Wo-Chien
+- Grass - 130 HP
+Pokémon
+- Basic
+GC
+Hazardous Greed 20
+If there are 3 or fewer cards in your deck, this attack also does 120 damage to 2 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+GGC
+Entangling Whip 130
+Discard the top 3 cards of your deck.
+Weakness: Fire
+Resistance: none
+Retreat: 3

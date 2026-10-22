@@ -22,6 +22,7 @@ enum Kind {
     RetaliatePending,
     RetaliateArmed,
     DiscardEnergy,
+    AttachTrap,
     AttackCost,
     RetreatCost,
     NoWeakness,
@@ -37,6 +38,7 @@ fn kind_of(w: &LastingWhat) -> Option<Kind> {
         LastingWhat::Retaliate { pending: true, .. } => Kind::RetaliatePending,
         LastingWhat::Retaliate { pending: false, .. } => Kind::RetaliateArmed,
         LastingWhat::DiscardAttackerEnergy { .. } => Kind::DiscardEnergy,
+        LastingWhat::AttachTrap { .. } => Kind::AttachTrap,
         LastingWhat::AttackCostIncrease { .. } => Kind::AttackCost,
         LastingWhat::RetreatCostIncrease { .. } => Kind::RetreatCost,
         LastingWhat::NoWeakness { .. } => Kind::NoWeakness,
@@ -162,6 +164,15 @@ pub fn armed_retaliate(st: &State, p: usize, s: SlotId) -> Option<LastingEffect>
         return None;
     }
     find(st, on, Kind::RetaliateArmed).copied()
+}
+
+/// The "whenever they attach an Energy card from their hand to this Pokémon, place N damage counters on it" trigger on the Pokémon
+/// in spot `s` of player `p`: the counters (HP), the attack that left it, the attacking player and the source card.
+pub fn attach_trap(st: &State, p: usize, s: SlotId) -> Option<(i32, AttackRef, u8, CardId)> {
+    match find(st, LastingOn::pokemon(p, s), Kind::AttachTrap) {
+        Some(LastingEffect { source, what: LastingWhat::AttachTrap { hp, attack, attacker }, .. }) => Some((*hp as i32, *attack, *attacker, *source)),
+        _ => None,
+    }
 }
 
 /// The armed "when this Pokémon is Knocked Out, discard an Energy from the Attacking Pokémon" trigger on the Pokémon in spot `s` of player `p`: (its attack, the attacking player, the
@@ -360,9 +371,17 @@ pub fn rearm_takes_more_after_attack(st: &mut State, o: usize) {
 }
 
 /// A Retaliate trigger put this turn (pending).
-pub fn set_retaliate(st: &mut State, p: usize, s: SlotId, amount: i32, attack: AttackRef, attacker: u8, source: CardId) {
+pub fn set_retaliate(st: &mut State, p: usize, s: SlotId, amount: crate::spec::ops::state::PutOnAttacker, attack: AttackRef, attacker: u8, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    set(st, on, Kind::RetaliatePending, Some(LastingEffect { on, source, what: LastingWhat::Retaliate { amount: amount as i16, attack, attacker, pending: true } }));
+    set(st, on, Kind::RetaliatePending, Some(LastingEffect { on, source, what: LastingWhat::Retaliate { amount, attack, attacker, pending: true } }));
+}
+
+/// "Whenever they attach an Energy card from their hand to the Defending Pokémon, place N damage counters on it" put this turn:
+/// in force at once (no pending: nothing of the attacker's own turn can attach to the opponent's Pokémon), ended at the end of the
+/// Pokémon's owner's next turn.
+pub fn set_attach_trap(st: &mut State, p: usize, s: SlotId, hp: i32, attack: AttackRef, attacker: u8, source: CardId) {
+    let on = LastingOn::pokemon(p, s);
+    set(st, on, Kind::AttachTrap, Some(LastingEffect { on, source, what: LastingWhat::AttachTrap { hp: hp as i16, attack, attacker } }));
 }
 
 /// The "when this Pokémon is Knocked Out, discard an Energy from the Attacking Pokémon" trigger put this turn.
@@ -548,6 +567,8 @@ pub fn end_turn(st: &mut State, p: usize) {
     }
     for s in in_play(st, p) {
         let on = LastingOn::pokemon(p, s);
+        // What the opponent's attack left on this Pokémon "during your next turn" ends with its owner's turn.
+        set(st, on, Kind::AttachTrap, None);
         // The locks on the Pokémon count this turn of its owner (events batch 7, D14).
         st.lasting_mut().retain_mut(|l| {
             if l.on == on {

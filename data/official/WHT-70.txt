@@ -1,0 +1,12 @@
+Durant
+- Metal - 110 HP
+Pokémon
+- Basic
+C
+Bite Together 20+
+If Durant is on your Bench, this attack does 20 more damage.
+MC
+Vise Grip 50
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

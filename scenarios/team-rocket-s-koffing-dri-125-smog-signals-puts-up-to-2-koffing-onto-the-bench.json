@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Koffing DRI 125",
+   "3 Team Rocket's Koffing DRI 125",
+   "1 Chewtle SCR 43",
+   "55 Darkness Energy MEE 7"
+  ],
+  [
+   "1 Team Rocket's Koffing DRI 125",
+   "3 Team Rocket's Koffing DRI 125",
+   "1 Chewtle SCR 43",
+   "55 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Koffing DRI 125",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true,
+  "prizes": [
+   "Chewtle SCR 43",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "discard": [
+   "48 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Leaking Gas"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "bench_count": 2,
+   "cite": "card text: if this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, search your deck for up to 2 Pokémon that have \"Koffing\" in their name and put them onto your Bench (id2153, id2172)"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Team Rocket's Koffing DRI 125",
+   "damage": 60,
+   "cite": "Headbutt 60"
+  }
+ ]
+}

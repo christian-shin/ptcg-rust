@@ -352,7 +352,10 @@ ALLOWED_LITERALS = {
 # Keyed by identifier; every entry says why. `Pred::Name`, `Pred::NameContains`, `HasAbilityNamed`, `HasAttackNamed`,
 # `SlotPred::Named`, `CausePred::Attack(name)` contain only the words "name(d)" / "attack", which are no card's name,
 # so they never reach this list; entries here are matches that did.
-ALLOWED_IDENTS = {}
+ALLOWED_IDENTS = {
+    # The rules' count of Prize cards (a Player field); the pool prints an attack named "Prize Count" (Tapu Koko SSP 65).
+    "prize_count": "rules field: the number of Prize cards a player has",
+}
 
 # Single-word names that are also plain rules vocabulary: a match of the whole identifier is reported as LOW
 # confidence (the identifier is almost surely the rules concept, not the card). Words in the card pool's names that are

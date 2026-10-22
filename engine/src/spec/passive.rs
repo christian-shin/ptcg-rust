@@ -380,6 +380,10 @@ pub enum CoinGate {
     No,
     /// Flip when trying: tails, the event doesn't happen and the card is discarded instead.
     TailsDiscardsCard,
+    /// Flip when trying to use an attack ("if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails,
+    /// that attack doesn't happen"): tails, the attack isn't used (it ends at once, as a Confused Pokémon's tails does: APR D-01).
+    /// The flip comes before the Confusion flip (id2317) and before any cost the attack's text asks (id497).
+    TailsStopsAttack,
 }
 
 /// A lock (events design section 5: `Lock { forbids }`), and the code the stopped action fails with: the events it
@@ -416,6 +420,33 @@ pub static CANT_ATTACK: LockDecl = LockDecl::on(
     super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
     "BLOCKED_BY_EFFECT",
 );
+
+/// "If the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen" (an attack's lasting
+/// effect on the Defending Pokémon, `Lasting::Lock` on it): not a legality check (heads lets the attack through), asked by the
+/// attack routine (`attack_coin_gate`).
+pub static ATTACK_COIN_GATE: LockDecl = LockDecl {
+    error: "BLOCKED_BY_EFFECT",
+    forbids: super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
+    coin: CoinGate::TailsStopsAttack,
+};
+
+/// A coin-gated lock on the attacking Pokémon that its attack `attack` matches: the cause of the coin (the lock's source's attack,
+/// by its owner), or `None` when no such lock applies (a plain read of the Pokémon's locks first).
+pub fn attack_coin_gate(g: &mut Game, p: usize, attacking: crate::effects::SlotRef, attack: crate::state::AttackRef) -> R<Option<crate::cause::Cause>> {
+    let locks = crate::engine::lasting::pokemon_locks(&g.st, attacking.p as usize, attacking.s);
+    if locks.is_empty() {
+        return Ok(None);
+    }
+    let v = crate::engine::turn_action::attack_view(g, p, attacking, attack);
+    let Some(me) = g.st.slot_pokemon(attacking.p as usize, attacking.s) else { return Ok(None) };
+    for l in locks.iter() {
+        let crate::state::LastingWhat::Lock { decl, .. } = l.what else { continue };
+        if decl.coin == CoinGate::TailsStopsAttack && decl.forbids.eval(g, me, &v)? {
+            return Ok(Some(crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8)));
+        }
+    }
+    Ok(None)
+}
 
 /// "This Pokémon can't use [this attack] again until it leaves the Active Spot" (Gouging Fire ex's Blaze Blitz): the same
 /// lock, named, until the Pokémon's effects of attacks end.
@@ -1742,8 +1773,12 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BURNED: PreventSpec = PreventSpec::on(
     ]),
 );
 
+/// "Prevent all damage done to this Pokémon by attacks if that damage is 40 or less": the damage after Weakness and Resistance
+/// (id472, id2197).
+pub static LASTING_PREVENT_DAMAGE_AT_MOST_40: PreventSpec = PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::AmountAtMost(40)]));
+
 /// Every lasting `Prevent` an attack can leave on a Pokémon (a `LastingWhat::Prevent` stores an index into it).
-pub static LASTING_PREVENTS: [&PreventSpec; 7] = [
+pub static LASTING_PREVENTS: [&PreventSpec; 8] = [
     &LASTING_PREVENT_EFFECTS,
     &LASTING_PREVENT_DAMAGE,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC,
@@ -1751,6 +1786,7 @@ pub static LASTING_PREVENTS: [&PreventSpec; 7] = [
     &LASTING_PREVENT_DAMAGE_FROM_ABILITY,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
     &LASTING_PREVENT_DAMAGE_FROM_BURNED,
+    &LASTING_PREVENT_DAMAGE_AT_MOST_40,
 ];
 
 /// The index of a lasting `Prevent` in [`LASTING_PREVENTS`].

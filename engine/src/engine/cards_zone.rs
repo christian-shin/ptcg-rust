@@ -35,6 +35,11 @@ use crate::types::*;
 // The physical layer
 
 /// Put the cards just moved at the top of the destination: they were pushed onto its end, so lift them out first.
+pub fn put_on_top(g: &mut Game, dst: ListRef, cards: &[CardId]) {
+    reorder_top(g, dst, cards);
+    g.st.bump();
+}
+
 fn reorder_top(g: &mut Game, dst: ListRef, cards: &[CardId]) {
     let cur: SVec<CardId, 120> = {
         let mut v = SVec::new();

@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Skarmory PBL 60",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Skarmory PBL 60",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Skarmory PBL 60",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true,
+  "hand": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Steel Cutter"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 80,
+   "cite": "card text: discard up to 2 Basic [M] Energy cards from your hand, 40 damage for each"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "2 of the 3 discarded"
+  }
+ ]
+}

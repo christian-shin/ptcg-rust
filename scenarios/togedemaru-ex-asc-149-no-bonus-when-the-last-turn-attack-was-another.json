@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Togedemaru ex ASC 149",
+   "4 Dondozo ex DRI 66",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Togedemaru ex ASC 149",
+   "4 Dondozo ex DRI 66",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Togedemaru ex ASC 149",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Stun Needle"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Spiky Rolling"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 100,
+   "cite": "card text: 20, then only 80: the last turn attack was Stun Needle, not Spiky Rolling"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Delibird
+- Water - 90 HP
+Pokémon
+- Basic
+C
+Pleasing Present
+Each player may attach up to 3 Basic Energy cards from their hand to their Pokémon in any way they like. Your opponent does this first.
+CC
+Flap 40
+Weakness: Metal
+Resistance: none
+Retreat: 1

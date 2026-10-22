@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dedenne POR 29",
+   "4 Hop's Snorlax JTG 117",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Dedenne POR 29",
+   "4 Hop's Snorlax JTG 117",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Dedenne POR 29",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Shock"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 30,
+   "cite": "card text: flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed",
+   "conditions": [
+    "PARALYZED"
+   ]
+  }
+ ]
+}

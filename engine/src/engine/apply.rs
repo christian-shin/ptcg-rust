@@ -100,12 +100,18 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Lasting::DealsLessDamage(n) => l::set_deals_less(st, tp, ts, n, card),
             Lasting::TakesMoreDamage(n) => l::set_takes_more(st, tp, ts, n, p as u8, card),
             Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            Lasting::PreventDamageAtMost(cap) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(cap.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
             Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
             // The two lasting triggers (they fire in the Damage routine's step-7 window and in the KnockOut routine): an
             // attack's only.
             Lasting::Retaliate(n) => {
                 if let Some(attack) = attack {
                     l::set_retaliate(st, tp, ts, n, attack, p as u8, card)
+                }
+            }
+            Lasting::CountersOnEnergyAttached(n) => {
+                if let Some(attack) = attack {
+                    l::set_attach_trap(st, tp, ts, n, attack, p as u8, card)
                 }
             }
             Lasting::DiscardAttackerEnergyIfKnockedOut => {
@@ -127,7 +133,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 pub fn target_of(g: &Game, p: usize, source: SlotRef, effect: Lasting) -> ApplyTarget {
     let o = 1 - p;
     match effect {
-        Lasting::Lock(LastingLockSpec { on: LockOn::DefendingPokemon, .. }) | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
+        Lasting::Lock(LastingLockSpec { on: LockOn::DefendingPokemon, .. }) | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::CountersOnEnergyAttached(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
             ApplyTarget::Slot(SlotRef::new(o, g.st.players[o].active))
         }
         Lasting::Lock(LastingLockSpec { on: LockOn::ThisPokemon, .. }) => ApplyTarget::Slot(source),

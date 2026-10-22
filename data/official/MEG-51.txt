@@ -1,0 +1,10 @@
+Pachirisu
+- Lightning - 70 HP
+Pokémon
+- Basic
+L
+Electrified Incisors 10
+During your opponent's next turn, whenever they attach an Energy card from their hand to the Defending Pokémon, place 8 damage counters on that Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1
