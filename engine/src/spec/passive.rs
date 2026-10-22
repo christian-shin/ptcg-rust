@@ -3859,7 +3859,7 @@ mod next_turn_bonus_tests {
     #[test]
     fn the_attack_index_is_the_printed_attack_the_text_names() {
         // (the card's key, the printed attack the bonus is for, its bonus)
-        let printed = [("Metagross TEF 115", "Meteor Mash", 60), ("Meloetta ex BLK 44", "Echoed Voice", 80)];
+        let printed = [("Metagross TEF 115", "Meteor Mash", 60), ("Meloetta ex BLK 44", "Echoed Voice", 80), ("Pecharunt ASC 143", "Mochi Rush", 50)];
         let mut found = 0;
         for (id, d) in crate::carddb::cards().iter().enumerate() {
             let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
