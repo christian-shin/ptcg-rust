@@ -1,0 +1,9 @@
+Maschiff
+- Darkness - 70 HP
+Pokémon
+- Basic
+DD
+Bite 40
+Weakness: Grass
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Pansage
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+CC
+Scratch 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

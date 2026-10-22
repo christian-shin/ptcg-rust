@@ -1,0 +1,10 @@
+Quaxly
+- Water - 60 HP
+Pokémon
+- Basic
+W
+Aerial Ace 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,9 @@
+Popplio
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Pound 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

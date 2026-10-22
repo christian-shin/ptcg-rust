@@ -1,0 +1,9 @@
+Mienfoo
+- Fighting - 60 HP
+Pokémon
+- Basic
+F
+Kick 20
+Weakness: Psychic
+Resistance: none
+Retreat: 1

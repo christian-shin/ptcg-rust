@@ -1,0 +1,10 @@
+Marnie's Scraggy
+- Darkness - 70 HP
+Pokémon
+- Basic
+DDC
+Crunch 50
+Discard an Energy from your opponent's Active Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 1

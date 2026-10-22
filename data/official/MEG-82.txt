@@ -1,0 +1,9 @@
+Nacli
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Ram 10
+Weakness: Grass
+Resistance: none
+Retreat: 2

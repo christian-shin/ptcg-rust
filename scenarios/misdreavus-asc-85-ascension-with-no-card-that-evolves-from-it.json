@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Misdreavus ASC 85",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Misdreavus ASC 85",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Misdreavus ASC 85",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ascension"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Misdreavus ASC 85",
+   "cite": "card text: no card in the deck evolves from this Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ShuffleDeck"
+   ],
+   "cite": "APR E-19"
+  }
+ ]
+}

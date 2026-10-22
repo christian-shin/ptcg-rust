@@ -1,0 +1,10 @@
+Pancham
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Reckless Charge 20
+This Pokémon also does 10 damage to itself.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

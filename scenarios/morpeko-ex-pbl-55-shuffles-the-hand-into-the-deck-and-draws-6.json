@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Morpeko ex PBL 55",
+   "4 Hop's Snorlax JTG 117",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Morpeko ex PBL 55",
+   "4 Hop's Snorlax JTG 117",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Morpeko ex PBL 55",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true,
+  "hand": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "hand_to_deck": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wheely Draw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 6,
+   "cite": "card text: shuffle your hand into your deck, then draw 6 cards"
+  }
+ ]
+}

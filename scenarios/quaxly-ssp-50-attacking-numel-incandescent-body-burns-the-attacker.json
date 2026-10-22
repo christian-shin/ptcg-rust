@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Quaxly SSP 50",
+   "4 Numel ASC 27",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Quaxly SSP 50",
+   "4 Numel ASC 27",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Quaxly SSP 50",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Numel ASC 27",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aerial Ace"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "conditions": [
+    "BURNED"
+   ],
+   "cite": "card text: the Attacking Pokémon is now Burned"
+  }
+ ]
+}

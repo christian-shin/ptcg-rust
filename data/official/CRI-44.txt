@@ -1,0 +1,11 @@
+Phanpy
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Mud-Slap 10
+CCC
+Rollout 40
+Weakness: Grass
+Resistance: none
+Retreat: 2

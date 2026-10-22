@@ -1,0 +1,12 @@
+Mawile
+- Metal - 90 HP
+Pokémon
+- Basic
+C
+Call for Family
+Search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.
+MCC
+Bite 90
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

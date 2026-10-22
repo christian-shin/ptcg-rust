@@ -1,0 +1,11 @@
+Oshawott
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Tackle 10
+WW
+Water Gun 30
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,10 @@
+Mudbray
+- Fighting - 90 HP
+Pokémon
+- Basic
+FC
+Running Charge 40×
+Flip a coin until you get tails. This attack does 40 damage for each heads.
+Weakness: Grass
+Resistance: none
+Retreat: 3

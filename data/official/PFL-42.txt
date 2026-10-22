@@ -1,0 +1,12 @@
+Mimikyu
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Call for Family
+Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+P
+Scratch 20
+Weakness: Metal
+Resistance: none
+Retreat: 1
