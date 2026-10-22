@@ -19,11 +19,16 @@ pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<SlotRef> {
         Some(t) if !g.st.slot(t.p as usize, t.s).cards().is_empty() => t,
         _ => crate::bail!("INVALID_TARGET"),
     };
-    let pl = &g.st.players[p];
-    if pl.energy_played_turn == g.st.turn {
+    if energy_attached_this_turn(g, p) {
         crate::bail!("ENERGY_ALREADY_ATTACHED");
     }
     Ok(t)
+}
+
+/// Has player `p` attached an Energy card from the hand to a Pokémon this turn (the once-per-turn turn action)? No card
+/// lifts the rule: an effect that attaches Energy is not the turn action.
+pub fn energy_attached_this_turn(g: &Game, p: usize) -> bool {
+    g.st.players[p].energy_played_turn == g.st.turn
 }
 
 /// Check only: using the Stadium in play (APR B-04: once during each player's turn, a Stadium whose card says it can be

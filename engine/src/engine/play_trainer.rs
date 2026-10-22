@@ -88,12 +88,12 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
     let d = g.st.cdef(card);
     match d.trainer_type() {
         TrainerType::Supporter => {
-            if played_this_turn(g, p, |c| c.trainer_type == TrainerType::Supporter as u8) {
+            if played_kind_this_turn(g, p, TrainerType::Supporter) {
                 return Some("SUPPORTER_ALREADY_PLAYED");
             }
         }
         TrainerType::Stadium => {
-            if played_this_turn(g, p, |c| c.trainer_type == TrainerType::Stadium as u8) {
+            if played_kind_this_turn(g, p, TrainerType::Stadium) {
                 return Some("STADIUM_ALREADY_PLAYED");
             }
             if let Some(s) = g.st.stadium_card() {
@@ -105,6 +105,12 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
         _ => {}
     }
     None
+}
+
+/// Has player `p` played a Trainer card of type `kind` from the hand this turn? For a Supporter or a Stadium no other card
+/// of the type can be played this turn ([`turn_rules`]; no card lifts that rule).
+pub fn played_kind_this_turn(g: &Game, p: usize, kind: TrainerType) -> bool {
+    played_this_turn(g, p, |c| c.trainer_type == kind as u8)
 }
 
 /// The companion a card that must be played with another ("you must play 2 X cards at once", `CardSpec::together`) takes
