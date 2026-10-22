@@ -3279,8 +3279,15 @@ mod pick_purpose_tests {
             if matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) {
                 out.push(&s.op);
             }
+            // Each nested list once (`child` answers a flow op's last list for every selector past its last).
+            let mut seen: Vec<*const Step> = Vec::new();
             for sel in 0..=8 {
-                picks(crate::spec::ops::child(&s.op, sel), out);
+                let c = crate::spec::ops::child(&s.op, sel);
+                if c.is_empty() || seen.contains(&c.as_ptr()) {
+                    continue;
+                }
+                seen.push(c.as_ptr());
+                picks(c, out);
             }
         }
     }
@@ -3321,7 +3328,7 @@ mod pick_purpose_tests {
                 }
             }
         }
-        assert_eq!(n, 25, "the pool has 25 PickSlot steps");
+        assert_eq!(n, 26, "the pool has 26 PickSlot steps");
     }
 
     fn outcomes(class: &str) -> Vec<PromptPurpose> {
