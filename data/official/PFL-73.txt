@@ -1,0 +1,12 @@
+Togedemaru
+- Metal - 80 HP
+Pokémon
+- Basic
+C
+Find a Friend
+Search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+M
+Gnaw 30
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

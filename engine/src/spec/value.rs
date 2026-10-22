@@ -101,8 +101,8 @@ pub enum Num {
     CostNow,
     /// The [C] in the player's Active Pokémon's Retreat Cost as the game checks it: a checked read.
     RetreatCostColorless(Who),
-    /// Pokémon Tools attached to the Pokémon.
-    ToolCount(SlotExpr),
+    /// Pokémon Tools attached to the selected Pokémon (summed): "for each Pokémon Tool attached to all of your Pokémon".
+    ToolCount(SlotSel),
     /// Heads of the last finished coin sequence.
     Heads,
     /// Total damage (HP) on the selected Pokémon that satisfy the predicate.
@@ -112,8 +112,6 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
-    /// Pokémon Tools attached to the Pokémon in play, both sides'.
-    ToolsInPlay,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -258,6 +256,8 @@ pub enum Pred {
     Tag(u32),
     /// A Pokémon with at least one attack.
     HasAttacks,
+    /// A Pokémon card that prints a Resistance to the type ("Pokémon with [F] Resistance").
+    HasResistance(CardType),
     // --- F-board appends ---
     Stage(u8),
     NameContains(&'static str),
@@ -432,12 +432,11 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::Heads => f.heads as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
-        Num::ToolCount(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).tools().len() as i32).unwrap_or(0),
+        Num::ToolCount(sel) => slots_of(g, me, f, sel).iter().map(|s| g.st.slot(s.p as usize, s.s).tools().len() as i32).sum(),
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::Last => f.last,
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
-        Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools().len() as i32).sum::<i32>()).sum(),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -631,6 +630,7 @@ fn pred_def(g: &Game, c: CardId, d: &'static crate::carddb::CardDef, p: &Pred) -
         Pred::HpAtMost(n) => mon() && d.hp <= *n,
         Pred::Tag(t) => d.has_tag(*t),
         Pred::HasAttacks => mon() && !d.attacks.is_empty(),
+        Pred::HasResistance(t) => mon() && d.resistance.iter().any(|r| r.card_type == *t),
         Pred::Stage(st) => mon() && d.stage == *st,
         Pred::NameContains(n) => d.name.contains(*n),
         Pred::HasAbilityNamed(n) => mon() && d.powers.iter().any(|p| p.source() == crate::spec::passive::RuleSource::Ability && p.name == *n),

@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Hop's Silicobra JTG 86",
+   "1 Hop's Snorlax JTG 117",
+   "2 Mystery Garden ASC 194",
+   "2 Levincia DRI 244",
+   "54 Fighting Energy MEE 6"
+  ],
+  [
+   "1 Hop's Silicobra JTG 86",
+   "1 Hop's Snorlax JTG 117",
+   "2 Mystery Garden ASC 194",
+   "2 Levincia DRI 244",
+   "54 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Silicobra JTG 86",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "discard": [
+   "48 Fighting Energy MEE 6"
+  ],
+  "prizes": [
+   "Hop's Snorlax JTG 117",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Turf Maker"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: search your deck for a Stadium card, reveal it, and put it into your hand"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}

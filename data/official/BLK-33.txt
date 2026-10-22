@@ -1,0 +1,13 @@
+Thundurus
+- Lightning - 120 HP
+Pokémon
+- Basic
+C
+Charge
+Search your deck for a Basic [ L ] Energy card and attach it to this Pokémon. Then, shuffle your deck.
+LCC
+Disaster Volt 110
+Discard an Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Larvitar DRI 94",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Team Rocket's Larvitar DRI 94",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Larvitar DRI 94",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mountain Munch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 10,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: discard the top card of your opponent's deck"
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+Wailmer
+- Water - 130 HP
+Pokémon
+- Basic
+CCC
+Surf 60
+Weakness: Lightning
+Resistance: none
+Retreat: 3

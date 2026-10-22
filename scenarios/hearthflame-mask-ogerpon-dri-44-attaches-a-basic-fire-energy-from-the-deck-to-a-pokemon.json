@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Hearthflame Mask Ogerpon DRI 44",
+   "1 Hop's Snorlax JTG 117",
+   "58 Fire Energy MEE 2"
+  ],
+  [
+   "1 Hearthflame Mask Ogerpon DRI 44",
+   "1 Hop's Snorlax JTG 117",
+   "58 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Hearthflame Mask Ogerpon DRI 44",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true,
+  "prizes": [
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fire Kagura"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Hearthflame Mask Ogerpon DRI 44",
+   "energy": 2,
+   "cite": "card text: search your deck for a Basic [R] Energy card and attach it to 1 of your Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Xerneas ex SVP 179",
+   "4 Dondozo ex DRI 66",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Xerneas ex SVP 179",
+   "4 Dondozo ex DRI 66",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Xerneas ex SVP 179",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rising Horns"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 220,
+   "cite": "card text: 120 + 100 against a Pokémon ex"
+  }
+ ]
+}

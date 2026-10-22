@@ -1,0 +1,12 @@
+Vanillite
+- Water - 60 HP
+Pokémon
+- Basic
+C
+Beat 10
+WC
+Ice Edge 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 1

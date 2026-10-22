@@ -1,0 +1,10 @@
+Totodile
+- Water - 80 HP
+Pokémon
+- Basic
+WW
+Slight Intrusion 40
+This Pokémon also does 10 damage to itself.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

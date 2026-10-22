@@ -1,0 +1,13 @@
+Hearthflame Mask Ogerpon
+- Fire - 110 HP
+Pokémon
+- Basic
+C
+Fire Kagura
+Search your deck for a Basic [ R ] Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.
+RRC
+Searing Flame 80
+Your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 1

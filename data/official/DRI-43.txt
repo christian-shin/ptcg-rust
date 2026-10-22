@@ -1,0 +1,13 @@
+Heat Rotom
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Singe
+Your opponent's Active Pokémon is now Burned.
+CC
+Gadget Show 30×
+This attack does 30 damage for each Pokémon Tool attached to all of your Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,11 @@
+Tepig
+- Fire - 70 HP
+Pokémon
+- Basic
+R
+Tackle 10
+RR
+Rollout 30
+Weakness: Water
+Resistance: none
+Retreat: 1

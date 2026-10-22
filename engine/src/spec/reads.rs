@@ -54,6 +54,7 @@ pub fn pred(p: &Pred) -> ReadSet {
         | Pred::HasAbilityNamed(_)
         | Pred::StageIs(_)
         | Pred::PokemonType(_)
+        | Pred::HasResistance(_)
         | Pred::EvolvesFrom(_)
         | Pred::EvolvesFromOwnInPlay
         | Pred::EvolvesFromActive => ReadSet::st(BOARD),
@@ -150,7 +151,7 @@ pub fn num(n: &Num) -> ReadSet {
         Num::Lit(_) => ReadSet::NONE,
         Num::ZoneSize(z) => zone(*z),
         Num::CardCount(z, p) | Num::DistinctTypes(z, p) | Num::OthersCount(z, p) => zone(*z).or(pred(p)),
-        Num::BenchCount(_) | Num::OpenBench(_) | Num::ToolsInPlay => ReadSet::st(BOARD),
+        Num::BenchCount(_) | Num::OpenBench(_) => ReadSet::st(BOARD),
         Num::PrizesLeft(_) | Num::PrizesTaken(_) => ReadSet::st(ZONES),
         Num::DamageOn(e) => ReadSet::st(COUNTERS).or(slot_expr(*e)),
         Num::Turn => ReadSet::st(TURN),
@@ -164,7 +165,7 @@ pub fn num(n: &Num) -> ReadSet {
             EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) => ReadSet::fact(fact::PROVIDES),
         }),
         Num::RetreatCostColorless(_) => ReadSet::st(BOARD).or(ReadSet::fact(fact::RETREAT)),
-        Num::ToolCount(e) => ReadSet::st(BOARD).or(slot_expr(*e)),
+        Num::ToolCount(sel) => ReadSet::st(BOARD).or(slot_sel(sel)),
         Num::DamageSum(sel, sp) => ReadSet::st(COUNTERS).or(slot_sel(sel)).or(slot_pred(sp)),
         // The attack being used, the program's registers and coins, a "last turn" record.
         Num::PrintedCost | Num::RegCount(_) | Num::Heads | Num::DamageTakenLastTurn(_) | Num::PrizesTakenLastTurn(_) | Num::CostNow | Num::Last => ReadSet::st(ANY),

@@ -5,13 +5,15 @@
 //! play; as a Trainer's effect "up to 2" takes at least 1 (id2301, id2399), no cancel.
 use crate::spec::prelude::*;
 
+const TOOLS_IN_PLAY: Num = Num::Add(&Num::ToolCount(SlotSel::Pokemon(Who::Me)), &Num::ToolCount(SlotSel::Pokemon(Who::Opp)));
+
 pub static SPEC: CardSpec = CardSpec {
     class: "ToolScrapper",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Cmp(Num::ToolsInPlay, CmpOp::Gt, Num::Lit(0))],
+        needs: &[Cond::Cmp(TOOLS_IN_PLAY, CmpOp::Gt, Num::Lit(0))],
         // Choose up to 2 Pokémon Tools attached to Pokémon in play (yours or your opponent's) and discard them.
-        steps: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Tools { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &Num::ToolsInPlay) }, to: EnergyDest::Discard, ..DiscardEnergySpec::DEFAULT }))],
+        steps: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Tools { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &TOOLS_IN_PLAY) }, to: EnergyDest::Discard, ..DiscardEnergySpec::DEFAULT }))],
     }),
     ..CardSpec::NONE
 };

@@ -903,3 +903,37 @@ Pidove BLK 71	PidoveBLK
 Ponyta DRI 29	PonytaDRI
 Quaxly SSP 50	QuaxlySSP
 Rattata POR 60	RattataPOR
+Team Rocket's Larvitar DRI 94	TeamRocketsLarvitar
+Team Rocket's Meowth DRI 149	TeamRocketsMeowth
+Team Rocket's Nidoran♀ DRI 114	TeamRocketsNidoranF
+Team Rocket's Rattata DRI 147	TeamRocketsRattata
+Team Rocket's Zubat DRI 120	TeamRocketsZubat
+Thundurus BLK 33	Thundurus
+Togedemaru PFL 73	TogedemaruPFL
+Totodile ASC 41	TotodileASC
+Trapinch SSP 104	TrapinchSSP
+Trapinch PFL 51	TrapinchPFL
+Vanillite WHT 27	VanilliteWHT
+Veluza SCR 45	Veluza
+Venipede BLK 54	VenipedeBLK
+Venipede TWM 115	VenipedeTWM
+Voltorb ex ASC 58	VoltorbEx
+Vulpix CRI 8	VulpixCRI
+Xerneas CRI 42	XerneasCRI
+Xerneas ex SVP 179	XerneasEx
+Yamask WHT 39	YamaskWHT
+Yamper PFL 30	YamperPFL
+Zangoose ex ASC 167	ZangooseEx
+Zapdos SVP 157	ZapdosSVP
+Zigzagoon PFL 81	ZigzagoonPFL
+Zubat CRI 49	ZubatCRI
+Fletchling POR 66	FletchlingPOR
+Hearthflame Mask Ogerpon DRI 44	HearthflameMaskOgerpon
+Heat Rotom DRI 43	HeatRotom
+Heatran PBL 7	HeatranPBL
+Hop's Silicobra JTG 86	HopsSilicobra
+Inkay PBL 51	InkayPBL
+Iron Crown SSP 132	IronCrownSSP
+Karrablast BLK 9	KarrablastBLK
+Kyurem ex BLK 28	KyuremEx
+Landorus BLK 53	LandorusBLK

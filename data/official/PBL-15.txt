@@ -1,0 +1,11 @@
+Wailmer
+- Water - 130 HP
+Pokémon
+- Basic
+WW
+Water Gun 40
+WWW
+Wave Splash 80
+Weakness: Lightning
+Resistance: none
+Retreat: 4

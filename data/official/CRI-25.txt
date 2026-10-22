@@ -1,0 +1,11 @@
+Wimpod
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Gnaw 10
+CC
+Corkscrew Punch 20
+Weakness: Lightning
+Resistance: none
+Retreat: 2
