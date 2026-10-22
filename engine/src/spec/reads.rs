@@ -141,7 +141,7 @@ pub fn slot_pred(sp: &SlotPred) -> ReadSet {
         SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) => ReadSet::st(BOARD).or(ReadSet::fact(fact::ABILITY)),
         SlotPred::RemainingHpAtMost(_) => ReadSet::st(BOARD | COUNTERS).or(ReadSet::fact(fact::HP)),
         // `Slot::entered_turn`: a "this turn" record.
-        SlotPred::PlayedThisTurn => ReadSet::st(ANY),
+        SlotPred::PlayedThisTurn | SlotPred::HealedThisTurn => ReadSet::st(ANY),
     }
 }
 

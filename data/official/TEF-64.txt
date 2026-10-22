@@ -1,0 +1,12 @@
+Marill
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Ball Roll 10×
+Flip a coin until you get tails. This attack does 10 damage for each heads.
+PCC
+Magical Shot 40
+Weakness: Metal
+Resistance: none
+Retreat: 2

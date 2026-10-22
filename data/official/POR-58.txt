@@ -1,0 +1,14 @@
+Aegislash
+- Metal - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Doublade
+CCC
+Slash 80
+MCCC
+Metal Slash 230
+During your next turn, this Pokémon can't use attacks.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

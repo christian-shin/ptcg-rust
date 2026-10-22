@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Turtonator POR 17",
+   "2 Fire Energy MEE 2",
+   "1 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Turtonator POR 17",
+   "2 Fire Energy MEE 2",
+   "1 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Turtonator POR 17",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Heat Breath"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: 80 + 80 more on heads"
+  }
+ ]
+}

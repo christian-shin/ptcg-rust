@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snorlax POR 63",
+   "4 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "1 Snorlax POR 63",
+   "4 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snorlax POR 63",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Collapse"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: 160 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "card text: this Pokemon is now Asleep"
+  }
+ ]
+}

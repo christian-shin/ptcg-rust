@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Kyogre MEG 34",
+   "2 Fire Energy MEE 2",
+   "1 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Kyogre MEG 34",
+   "2 Fire Energy MEE 2",
+   "1 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Kyogre MEG 34",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "discard": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Riptide"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: 20 times 0 Basic [W] Energy cards"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "absent": [
+    "ShuffleDeck"
+   ],
+   "cite": "card text: nothing to shuffle into the deck"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 //! Klink (BLK 61): Hard Gears - 10; during your opponent's next turn, this Pokémon takes 10 less damage from attacks (after applying Weakness and Resistance).
 //!
-//! `Lasting::TakesLessDamage(10)` armed on this Pokémon (Clamperl DRI 54).
+//! `Lasting::TakesLessDamage(10, DamageSource::Any)` armed on this Pokémon (Clamperl DRI 54).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(10) })),
+                Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(10, DamageSource::Any) })),
             ],
         },
     ],

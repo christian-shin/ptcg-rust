@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Stunfisk WHT 35",
+   "1 Lightning Energy MEE 4",
+   "1 Snover MEG 35",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Stunfisk WHT 35",
+   "1 Lightning Energy MEE 4",
+   "1 Snover MEG 35",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Stunfisk WHT 35",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Muddy Bolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "card text: 20 damage without [F] Energy"
+  }
+ ]
+}

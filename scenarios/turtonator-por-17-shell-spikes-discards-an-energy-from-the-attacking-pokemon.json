@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "2 Water Energy MEE 3",
+   "1 Turtonator POR 17",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Snover MEG 35",
+   "2 Water Energy MEE 3",
+   "1 Turtonator POR 17",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Turtonator POR 17",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Icy Snow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "cite": "card text: if this Pokemon is in the Active Spot and is damaged by an attack from your opponent's Pokemon, discard an Energy from the Attacking Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text: Icy Snow 30 doubled by Weakness (Turtonator is [R], weak to [W])"
+  }
+ ]
+}

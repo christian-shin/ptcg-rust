@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Klefki POR 59",
+   "1 Metal Energy MEE 8",
+   "1 Snover MEG 35",
+   "2 Water Energy MEE 3",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Klefki POR 59",
+   "1 Metal Energy MEE 8",
+   "1 Snover MEG 35",
+   "2 Water Energy MEE 3",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Klefki POR 59",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Memory Lock"
+  },
+  {
+   "attack": "Beat",
+   "index": 0
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "turn": 1,
+   "legal": "attack",
+   "name": "Beat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, that Pokemon can't use that attack"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "turn": 1,
+   "legal": "attack",
+   "name": "Icy Snow",
+   "is": true,
+   "cite": "card text: the other attack can still be used (APR C-15)"
+  }
+ ]
+}

@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "1 Abomasnow DRI 60",
+   "3 Water Energy MEE 3",
+   "2 Grass Energy MEE 1",
+   "1 Mega Zygarde ex POR 47",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "1 Snover MEG 35",
+   "1 Abomasnow DRI 60",
+   "3 Water Energy MEE 3",
+   "2 Grass Energy MEE 1",
+   "1 Mega Zygarde ex POR 47",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Snover MEG 35",
+   "Abomasnow DRI 60"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Frozen Wood"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 240,
+   "cite": "card text: 120 + 120 more with 2 or more [G] Energy attached"
+  }
+ ]
+}

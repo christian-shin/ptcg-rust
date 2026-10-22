@@ -1,0 +1,15 @@
+Bronzong
+- Metal - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Bronzor
+C
+Triple Draw
+Draw 3 cards.
+CCC
+Tool Drop 40×
+This attack does 40 damage for each Pokémon Tool attached to all Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

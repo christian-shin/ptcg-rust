@@ -1,0 +1,13 @@
+Pecharunt
+- Darkness - 80 HP
+Pokémon
+- Basic
+Ability:
+Final Chain
+If this Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, search your deck for a card and put it into your hand. Then, shuffle your deck.
+D
+Mochi Rush 20
+During your next turn, this Pokémon's Mochi Rush attack does 50 more damage (before applying Weakness and Resistance) .
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::after_damage(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT })),
             ],
         },
-        AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(2), per_heads: PerHeads::DamageIs(20), ..CoinSpec::DEFAULT }))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(Num::Lit(2)), per_heads: PerHeads::DamageIs(20), ..CoinSpec::DEFAULT }))] },
     ],
     ..CardSpec::NONE
 };

@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "6 Water Energy MEE 3",
+   "1 Pecharunt ASC 143",
+   "1 Fire Energy MEE 2",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "1 Snover MEG 35",
+   "6 Water Energy MEE 3",
+   "1 Pecharunt ASC 143",
+   "1 Fire Energy MEE 2",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pecharunt ASC 143",
+  "active_damage": 70,
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "hand_to_deck": true,
+  "deck_top": [
+   "Fire Energy MEE 2"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Beat"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 1,
+   "contains": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text: if this Pokemon is Knocked Out by damage from an attack from your opponent's Pokemon, search your deck for a card and put it into your hand"
+  }
+ ]
+}

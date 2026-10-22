@@ -1,0 +1,12 @@
+Maractus
+- Grass - 100 HP
+Pokémon
+- Basic
+G
+Lively Needles 20+
+If this Pokémon was healed during this turn, this attack does 100 more damage.
+GC
+Pierce 50
+Weakness: Fire
+Resistance: none
+Retreat: 1

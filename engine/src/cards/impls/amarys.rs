@@ -1,0 +1,25 @@
+//! Amarys (PRE 93, Supporter): draw 4 cards. At the end of this turn, if you have 5 or more cards in your hand, discard your hand.
+//!
+//! Draw 4 is one Draw event (cause: this Supporter). The end-of-turn clause is a trigger on the EndTurn event of the owner's turn
+//! (APR E-21: "at the end of this turn" effects, ordered with the other end-of-turn effects by the player whose turn it is, id2135),
+//! held by the Supporter wherever it is: it runs when this turn's record of the Trainer cards played from the hand holds an Amarys,
+//! and discards the whole hand when it has 5 or more cards. Two copies of Amarys in the game both react to the one played, the second
+//! finding the hand already empty.
+use crate::spec::prelude::*;
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "Amarys",
+    play: Some(PlaySpec { kind: PlayKind::Supporter, needs: &[], steps: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(4)) }))] }),
+    triggers: &[Trigger {
+        origin: RuleSource::TrainerEffect,
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
+        steps: &[Step::new(Op::If(IfSpec {
+            cond: Cond::All(&[Cond::PlayedThisTurn(Who::Me, Pred::Name("Amarys")), Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Ge, Num::Lit(5))]),
+            yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, into: None }))],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();

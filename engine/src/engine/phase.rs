@@ -371,10 +371,14 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     g.st.bump();
     // usedTurnSkip / pendingEndOfTurnEffects: not modeled.
     for s in g.st.players[p].in_play() {
-        let slot = &mut g.st.players[p].slots[s as usize];
-        slot.healed_this_turn = false;
         if let Some(c) = g.st.slot_pokemon(p, s) {
             g.st.cards[c as usize].damage_taken_last_turn = 0;
+        }
+    }
+    // "Healed during this turn" ends with the turn, whoever's Pokémon it is (a heal in the opponent's turn isn't this turn's).
+    for q in 0..2 {
+        for s in g.st.players[q].in_play() {
+            g.st.players[q].slots[s as usize].healed_this_turn = false;
         }
     }
     g.st.players[p].pokemon_knocked_out_during_opponents_last_turn = false;

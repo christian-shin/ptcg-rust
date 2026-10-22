@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Eternatus PFL 69",
+   "3 Darkness Energy MEE 7",
+   "1 Mega Zygarde ex POR 47",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Eternatus PFL 69",
+   "3 Darkness Energy MEE 7",
+   "1 Mega Zygarde ex POR 47",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Eternatus PFL 69",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Power Rush"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "turn": 2,
+   "legal": "attack",
+   "name": "Shatter",
+   "is": true,
+   "cite": "card text: heads: nothing happens"
+  }
+ ]
+}

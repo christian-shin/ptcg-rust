@@ -1,0 +1,15 @@
+Iono's Bellibolt ex
+- Lightning - 280 HP
+Pokémon
+- Stage 1
+- Evolves from
+Iono's Tadbulb
+Ability:
+Electric Streamer
+As often as you like during your turn, you may attach a Basic [ L ] Energy card from your hand to 1 of your Iono's Pokémon.
+LLLC
+Thunderous Bolt 230
+During your next turn, this Pokémon can't attack.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

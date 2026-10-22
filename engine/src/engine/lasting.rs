@@ -31,7 +31,7 @@ enum Kind {
 
 fn kind_of(w: &LastingWhat) -> Option<Kind> {
     Some(match *w {
-        LastingWhat::TakesLessDamage(_) => Kind::TakesLess,
+        LastingWhat::TakesLessDamage(..) => Kind::TakesLess,
         LastingWhat::DealsLessDamage(_) => Kind::DealsLess,
         LastingWhat::TakesMoreDamage { .. } => Kind::TakesMore,
         LastingWhat::Retaliate { pending: true, .. } => Kind::RetaliatePending,
@@ -95,9 +95,25 @@ fn in_play(st: &State, p: usize) -> crate::state::InPlay {
 /// "Takes N less damage from attacks" on the Pokémon in spot `s` of player `p`: every one on it, added up (APR B-05: "If
 /// several instances of 5. Effects on the Pokémon taking the damage apply at the same time, they must all be included";
 /// JP FAQ Iron Defender: two copies, 60 less).
-pub fn takes_less_damage(st: &State, p: usize, s: SlotId) -> i32 {
+///
+/// An entry for attacks from some Pokémon only ("from Evolution Pokémon") counts when the Pokémon attacking now is one (read
+/// where it is, as the game checks it).
+pub fn takes_less_damage(g: &mut crate::game::Game, b: &crate::effects::AtkBase) -> crate::game::R<i32> {
+    let (p, s) = (b.target.p as usize, b.target.s);
     let on = LastingOn::pokemon(p, s);
-    st.lasting.iter().filter(|l| l.on == on).map(|l| if let LastingWhat::TakesLessDamage(n) = l.what { n as i32 } else { 0 }).sum()
+    let mut sum = 0;
+    for i in 0..g.st.lasting.len() {
+        let l = g.st.lasting.as_slice()[i];
+        if l.on != on {
+            continue;
+        }
+        if let LastingWhat::TakesLessDamage(n, from) = l.what {
+            if from == crate::spec::ops::state::DamageSource::Any || crate::spec::value::slot_pred_m(g, l.source, b.source, from.attacker())? {
+                sum += n as i32;
+            }
+        }
+    }
+    Ok(sum)
 }
 
 /// "Attacks used by the Defending Pokémon do N less damage" on the Pokémon in spot `s` of player `p`.
@@ -280,10 +296,10 @@ pub fn add_prevent(st: &mut State, p: usize, s: SlotId, spec: u8, source: CardId
 }
 
 /// "Takes N less damage": one entry per source card (the same card's again replaces it; different ones add up).
-pub fn set_takes_less(st: &mut State, p: usize, s: SlotId, n: i32, source: CardId) {
+pub fn set_takes_less(st: &mut State, p: usize, s: SlotId, n: i32, from: crate::spec::ops::state::DamageSource, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    st.retain_lasting(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::TakesLessDamage(_))));
-    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16) });
+    st.retain_lasting(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::TakesLessDamage(..))));
+    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16, from) });
 }
 
 /// `Op::ArmEach`'s entry on player `q`: the effect for the Pokémon of theirs that come into play while it lasts.
@@ -519,7 +535,7 @@ pub fn end_turn(st: &mut State, p: usize) {
     st.retain_lasting(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));
     for s in in_play(st, o) {
         let on = LastingOn::pokemon(o, s);
-        st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(_))));
+        st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(..))));
         if let Some(LastingEffect { what: LastingWhat::NoWeakness { .. }, .. }) = find(st, on, Kind::NoWeakness) {
             modify(st, on, Kind::NoWeakness, |e| {
                 if let LastingWhat::NoWeakness { armed, .. } = &mut e.what {

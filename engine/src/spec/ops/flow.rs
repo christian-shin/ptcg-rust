@@ -44,11 +44,11 @@ pub struct CoinSpec {
 impl CoinSpec {
     pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
 }
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Flips {
     One,
-    /// A fixed number of flips (a MULTIPLE_COIN_FLIPS prompt).
-    Count(u8),
+    /// A number of flips (a MULTIPLE_COIN_FLIPS prompt): "flip 2 coins", "flip a coin for each of your Pokémon that ...". Read
+    /// when the flips start; none when it is 0 (the heads are 0 and `then` runs).
+    Count(Num),
     /// Flip until tails; the number of heads is what counts.
     UntilTails,
 }
@@ -179,12 +179,20 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             // A coin flip always happens (batch 4: it can't be refused).
             f.outcome = super::super::run::Outcome::Done;
             let p = f.who(c.flipper);
-            match c.flips {
+            match &c.flips {
                 Flips::One => {
                     g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) }, f.cause)?;
                 }
                 // The sequence's callback leaves the frame as it is and passes the results.
-                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) }, f.cause)?,
+                Flips::Count(n) => {
+                    let n = num_m(g, me, f, n)?.clamp(0, u8::MAX as i32) as u8;
+                    // No flips: nothing to flip, the sequence is over with no heads (mode 0 would be "until tails").
+                    if n == 0 {
+                        flips_done(g, f, c, 0);
+                        return Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) });
+                    }
+                    coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) }, f.cause)?
+                }
                 Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) }, f.cause)?,
             }
             Ok(Flow::Suspend)

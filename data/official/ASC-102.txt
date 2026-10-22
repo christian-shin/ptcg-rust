@@ -1,0 +1,12 @@
+Hitmontop
+- Fighting - 100 HP
+Pokémon
+- Basic
+C
+Spin and Draw
+Shuffle your hand into your deck. Then, draw 6 cards.
+FC
+Low Kick 50
+Weakness: Psychic
+Resistance: none
+Retreat: 1

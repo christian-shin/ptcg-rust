@@ -1,0 +1,10 @@
+Sableye
+- Darkness - 80 HP
+Pokémon
+- Basic
+D
+Cocky Claw 20+
+If you have any Stage 2 [ D ] Pokémon on your Bench, this attack does 70 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 1

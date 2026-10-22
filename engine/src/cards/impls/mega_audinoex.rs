@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[Step::after_damage(Op::Coin(CoinSpec {
-                flips: Flips::Count(3),
+                flips: Flips::Count(Num::Lit(3)),
                 then: &[
                     Step::new(Op::If(IfSpec {
                         cond: Cond::Cmp(Num::Heads, CmpOp::Gt, Num::Lit(0)),

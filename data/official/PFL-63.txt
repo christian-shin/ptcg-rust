@@ -1,0 +1,12 @@
+Absol
+- Darkness - 110 HP
+Pokémon
+- Basic
+C
+Allure
+Draw 2 cards.
+DC
+Dark Cutter 60
+Weakness: Grass
+Resistance: none
+Retreat: 1

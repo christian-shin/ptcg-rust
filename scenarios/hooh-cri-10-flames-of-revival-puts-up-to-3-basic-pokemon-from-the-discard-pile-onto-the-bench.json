@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ho-Oh CRI 10",
+   "4 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "1 Hop's Snorlax JTG 117",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Ho-Oh CRI 10",
+   "4 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "1 Hop's Snorlax JTG 117",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Ho-Oh CRI 10",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "4 Snover MEG 35"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flames of Revival"
+  },
+  [
+   0,
+   1,
+   2
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 4,
+   "cite": "card text: put up to 3 Basic Pokemon from your discard pile onto your Bench (3 of the 4 chosen)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: the unchosen Basic Pokemon stays in the discard pile"
+  }
+ ]
+}

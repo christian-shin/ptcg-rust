@@ -748,6 +748,9 @@ pub enum SlotPred {
     Evolved,
     /// The Pokémon is on the side of the player who owns this card.
     OnMySide,
+    /// Damage counters were removed from the Pokémon during this turn ("if this Pokémon was healed during this turn": a
+    /// heal that removed nothing isn't healing, id2198; `Slot::healed_this_turn`).
+    HealedThisTurn,
 }
 
 impl SlotPred {
@@ -776,6 +779,7 @@ impl SlotPred {
             | SlotPred::HasCondition
             | SlotPred::CardBelowThis(_)
             | SlotPred::PlayedThisTurn
+            | SlotPred::HealedThisTurn
             | SlotPred::Tag(_)
             | SlotPred::Basic
             | SlotPred::StageIs(_)
@@ -882,6 +886,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
             stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map_or(false, |i| g.st.cdef(stack.as_slice()[i]).name == *name)
         }
         SlotPred::PlayedThisTurn => slot.entered_turn == g.st.turn as i32,
+        SlotPred::HealedThisTurn => slot.healed_this_turn,
         SlotPred::Holder => slot.cards().contains(me) || slot.tools().contains(me),
         SlotPred::Tag(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_tag(*t)).unwrap_or(false),
         SlotPred::RuleBox => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_rule_box()).unwrap_or(false),
