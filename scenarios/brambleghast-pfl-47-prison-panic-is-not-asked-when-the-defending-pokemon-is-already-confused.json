@@ -1,0 +1,63 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "1 Brambleghast PFL 47",
+   "1 Bramblin PFL 46",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Snover MEG 35",
+   "1 Brambleghast PFL 47",
+   "1 Bramblin PFL 46",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Bramblin PFL 46"
+   }
+  ],
+  "hand_to_deck": true,
+  "hand": [
+   "Brambleghast PFL 47"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_conditions": [
+   "CONFUSED"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Brambleghast PFL 47",
+   "target": {
+    "index": 0,
+    "player": 2,
+    "slot": 2
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "absent": [
+    "Confirm"
+   ],
+   "cite": "APR B-01, id925, user decision 2a: a \"you may\" that can't change the game isn't asked (the Defending Pokemon is already Confused)"
+  }
+ ]
+}
