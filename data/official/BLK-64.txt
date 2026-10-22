@@ -1,0 +1,10 @@
+Pawniard
+- Metal - 60 HP
+Pokémon
+- Basic
+M
+Corner 10
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

@@ -1,0 +1,9 @@
+Nickit
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Darkness Fang 20
+Weakness: Grass
+Resistance: none
+Retreat: 1

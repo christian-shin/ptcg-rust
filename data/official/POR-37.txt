@@ -1,0 +1,9 @@
+Nosepass
+- Fighting - 90 HP
+Pokémon
+- Basic
+FF
+Rolling Rocks 40
+Weakness: Grass
+Resistance: none
+Retreat: 3

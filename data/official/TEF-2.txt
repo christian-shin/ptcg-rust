@@ -1,0 +1,9 @@
+Pineco
+- Grass - 70 HP
+Pokémon
+- Basic
+CCC
+Ram 50
+Weakness: Fire
+Resistance: none
+Retreat: 2

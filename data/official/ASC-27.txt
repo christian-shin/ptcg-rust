@@ -1,0 +1,12 @@
+Numel
+- Fire - 80 HP
+Pokémon
+- Basic
+Ability:
+Incandescent Body
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , the Attacking Pokémon is now Burned.
+RC
+Combustion 20
+Weakness: Water
+Resistance: none
+Retreat: 3

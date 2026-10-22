@@ -1,0 +1,9 @@
+Nincada
+- Grass - 50 HP
+Pokémon
+- Basic
+C
+Scratch 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

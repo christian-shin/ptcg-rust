@@ -1,0 +1,10 @@
+Milcery
+- Psychic - 50 HP
+Pokémon
+- Basic
+P
+Draining Kiss 10
+Heal 10 damage from this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 1

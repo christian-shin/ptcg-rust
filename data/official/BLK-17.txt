@@ -1,0 +1,12 @@
+Panpour
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+CC
+Scratch 30
+Weakness: Lightning
+Resistance: none
+Retreat: 1

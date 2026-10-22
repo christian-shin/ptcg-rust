@@ -1,0 +1,9 @@
+Nymble
+- Grass - 50 HP
+Pokémon
+- Basic
+C
+Rear Kick 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

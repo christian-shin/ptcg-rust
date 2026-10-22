@@ -1,0 +1,12 @@
+Pidove
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Scout
+Your opponent reveals their hand.
+C
+Stampede 10
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,10 @@
+Meditite
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Steady Punch 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

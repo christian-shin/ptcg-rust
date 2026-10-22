@@ -1,0 +1,14 @@
+Miraidon ex
+- Lightning - 220 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+L
+Slashing Claw 40
+LLC
+Hadron Spark 120+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 120 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1
