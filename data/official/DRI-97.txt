@@ -1,0 +1,11 @@
+Nosepass
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Headbutt 20
+CCC
+Rock Throw 40
+Weakness: Grass
+Resistance: none
+Retreat: 3

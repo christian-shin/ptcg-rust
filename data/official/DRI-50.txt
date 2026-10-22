@@ -1,0 +1,12 @@
+Misty's Lapras
+- Water - 110 HP
+Pokémon
+- Basic
+W
+Swim Together
+Search your deck for up to 3 Misty's Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+WC
+Surf 60
+Weakness: Lightning
+Resistance: none
+Retreat: 1

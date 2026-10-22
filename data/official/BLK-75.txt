@@ -1,0 +1,10 @@
+Minccino
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Tail Slap 20×
+Flip 2 coins. This attack does 20 damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

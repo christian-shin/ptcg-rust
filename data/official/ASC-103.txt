@@ -1,0 +1,12 @@
+Meditite
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+F
+Gentle Slap 10
+Weakness: Psychic
+Resistance: none
+Retreat: 1

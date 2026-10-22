@@ -1,0 +1,9 @@
+Pumpkaboo
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Stampede 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

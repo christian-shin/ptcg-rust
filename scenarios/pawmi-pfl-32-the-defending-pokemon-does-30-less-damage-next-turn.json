@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pawmi PFL 32",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Pawmi PFL 32",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pawmi PFL 32",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Growl"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Pawmi PFL 32",
+   "damage": 30,
+   "cite": "card text: Chewtle's 60 is 30 after 30 less damage",
+   "turn": 2
+  }
+ ]
+}

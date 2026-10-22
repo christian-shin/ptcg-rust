@@ -7718,5 +7718,505 @@
   "key": "Capsakid SSP 12",
   "tier": "data",
   "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "130",
+  "name": "Marnie's Purrloin",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Marnie's Purrloin DRI 130",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "132",
+  "name": "Marnie's Scraggy",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Marnie's Scraggy DRI 132",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "57",
+  "name": "Maschiff",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Maschiff PBL 57",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "144",
+  "name": "Mawile",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Mawile ASC 144",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "99",
+  "name": "Meditite",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Meditite DRI 99",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "103",
+  "name": "Meditite",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Meditite ASC 103",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "52",
+  "name": "Mienfoo",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Mienfoo WHT 52",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "43",
+  "name": "Milcery",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Milcery PFL 43",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "42",
+  "name": "Mimikyu",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Mimikyu PFL 42",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "75",
+  "name": "Minccino",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Minccino BLK 75",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "72",
+  "name": "Minccino",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Minccino CRI 72",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "73",
+  "name": "Miraidon ex",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Miraidon ex ASC 73",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "35",
+  "name": "Misdreavus",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Misdreavus PFL 35",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "85",
+  "name": "Misdreavus",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Misdreavus ASC 85",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "50",
+  "name": "Misty's Lapras",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Misty's Lapras DRI 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "46",
+  "name": "Misty's Staryu",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Misty's Staryu DRI 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "55",
+  "name": "Morpeko ex",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Morpeko ex PBL 55",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "107",
+  "name": "Mudbray",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Mudbray DRI 107",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "57",
+  "name": "Murkrow",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Murkrow PFL 57",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "49",
+  "name": "N's Vanillite",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "N's Vanillite ASC 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "82",
+  "name": "Nacli",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Nacli MEG 82",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "89",
+  "name": "Nickit",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Nickit MEG 89",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "53",
+  "name": "Nickit",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Nickit PBL 53",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "16",
+  "name": "Nincada",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Nincada MEG 16",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "97",
+  "name": "Nosepass",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Nosepass DRI 97",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "37",
+  "name": "Nosepass",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Nosepass POR 37",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "21",
+  "name": "Numel",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Numel MEG 21",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "27",
+  "name": "Numel",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Numel ASC 27",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "19",
+  "name": "Nymble",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Nymble JTG 19",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "9",
+  "name": "Nymble",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Nymble PFL 9",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "103",
+  "name": "N's Klink",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "N's Klink JTG 103",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "1",
+  "name": "Oddish",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Oddish PFL 1",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "21",
+  "name": "Oshawott",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Oshawott WHT 21",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "115",
+  "name": "Pancham",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Pancham ASC 115",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "17",
+  "name": "Panpour",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Panpour BLK 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "4",
+  "name": "Pansage",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Pansage BLK 4",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "14",
+  "name": "Pansear",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Pansear WHT 14",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "32",
+  "name": "Pawmi",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Pawmi PFL 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "64",
+  "name": "Pawniard",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Pawniard BLK 64",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "146",
+  "name": "Pawniard",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Pawniard ASC 146",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "44",
+  "name": "Phanpy",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Phanpy CRI 44",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "71",
+  "name": "Pidove",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Pidove BLK 71",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "55",
+  "name": "Pikachu",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Pikachu ASC 55",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "2",
+  "name": "Pineco",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Pineco TEF 2",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "4",
+  "name": "Pineco",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Pineco DRI 4",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "29",
+  "name": "Ponyta",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Ponyta DRI 29",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "18",
+  "name": "Popplio",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Popplio PBL 18",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "40",
+  "name": "Pumpkaboo",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Pumpkaboo CRI 40",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "50",
+  "name": "Quaxly",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Quaxly SSP 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "60",
+  "name": "Rattata",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Rattata POR 60",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

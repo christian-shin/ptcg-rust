@@ -1,0 +1,9 @@
+Oddish
+- Grass - 50 HP
+Pokémon
+- Basic
+G
+Seed Bomb 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mimikyu PFL 42",
+   "4 Hop's Snorlax JTG 117",
+   "4 Chewtle SCR 43",
+   "4 Bunnelby POR 64",
+   "4 Beldum JTG 61",
+   "4 Bergmite CRI 23",
+   "4 Blitzle WHT 31",
+   "4 Buizel DRI 57",
+   "4 Caterpie JTG 1",
+   "4 Cetoddle DRI 64",
+   "4 Chespin CRI 5",
+   "4 Clauncher MEG 37",
+   "4 Croagunk MEG 78",
+   "4 Darumaka BLK 13",
+   "3 Capsakid SSP 12",
+   "1 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mimikyu PFL 42",
+   "4 Hop's Snorlax JTG 117",
+   "4 Chewtle SCR 43",
+   "4 Bunnelby POR 64",
+   "4 Beldum JTG 61",
+   "4 Bergmite CRI 23",
+   "4 Blitzle WHT 31",
+   "4 Buizel DRI 57",
+   "4 Caterpie JTG 1",
+   "4 Cetoddle DRI 64",
+   "4 Chespin CRI 5",
+   "4 Clauncher MEG 37",
+   "4 Croagunk MEG 78",
+   "4 Darumaka BLK 13",
+   "3 Capsakid SSP 12",
+   "1 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mimikyu PFL 42",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Call for Family"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 1,
+   "cite": "card text: search your deck for Basic Pokémon and put them onto your Bench"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}

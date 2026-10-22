@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Morpeko ex PBL 55",
+   "4 Dondozo ex DRI 66",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Morpeko ex PBL 55",
+   "4 Dondozo ex DRI 66",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Morpeko ex PBL 55",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true,
+  "active_damage": 30
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hangry Blaster"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 160,
+   "cite": "card text: 40 + 40 x 3 damage counters"
+  }
+ ]
+}

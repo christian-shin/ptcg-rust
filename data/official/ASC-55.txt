@@ -1,0 +1,11 @@
+Pikachu
+- Lightning - 70 HP
+Pokémon
+- Basic
+L
+Tail Smack 10
+LC
+Tiny Bolt 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

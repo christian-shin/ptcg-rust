@@ -1,0 +1,10 @@
+Misdreavus
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Ascension
+Search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

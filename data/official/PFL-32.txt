@@ -1,0 +1,12 @@
+Pawmi
+- Lightning - 60 HP
+Pokémon
+- Basic
+L
+Growl
+During your opponent's next turn, attacks used by the Defending Pokémon do 30 less damage (before applying Weakness and Resistance) .
+L
+Tiny Charge 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

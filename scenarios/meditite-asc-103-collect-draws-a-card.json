@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meditite ASC 103",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Meditite ASC 103",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Meditite ASC 103",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "hand_to_deck": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Collect"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: draw a card"
+  }
+ ]
+}

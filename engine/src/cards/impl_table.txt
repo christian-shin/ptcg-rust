@@ -835,3 +835,35 @@ Erika's Oddish ASC 1	ErikasOddish
 Espurr SSP 84	EspurrSSP
 Espurr POR 33	EspurrPOR
 Exeggcute MEG 4	ExeggcuteMEG
+Marnie's Purrloin DRI 130	MarniesPurrloin
+Marnie's Scraggy DRI 132	MarniesScraggy
+Mawile ASC 144	MawileASC
+Meditite DRI 99	MedititeDRI
+Meditite ASC 103	MedititeASC
+Milcery PFL 43	MilceryPFL
+Mimikyu PFL 42	MimikyuPFL
+Minccino BLK 75	MinccinoBLK
+Minccino CRI 72	MinccinoCRI
+Miraidon ex ASC 73	MiraidonExASC
+Misdreavus ASC 85	MisdreavusASC
+Misty's Lapras DRI 50	MistysLapras
+Misty's Staryu DRI 46	MistysStaryu
+Morpeko ex PBL 55	MorpekoExPBL
+Mudbray DRI 107	MudbrayDRI
+Murkrow PFL 57	MurkrowPFL
+N's Vanillite ASC 49	NsVanillite
+Numel MEG 21	NumelMEG
+Numel ASC 27	NumelASC
+Nymble PFL 9	NymblePFL
+N's Klink JTG 103	NsKlink
+Pancham ASC 115	PanchamASC
+Panpour BLK 17	PanpourBLK
+Pansage BLK 4	PansageBLK
+Pansear WHT 14	PansearWHT
+Pawmi PFL 32	PawmiPFL
+Pawniard BLK 64	PawniardBLK
+Pawniard ASC 146	PawniardASC
+Pidove BLK 71	PidoveBLK
+Ponyta DRI 29	PonytaDRI
+Quaxly SSP 50	QuaxlySSP
+Rattata POR 60	RattataPOR

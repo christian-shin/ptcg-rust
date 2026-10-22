@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Miraidon ex ASC 73",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Miraidon ex ASC 73",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Miraidon ex ASC 73",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hadron Spark"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 210,
+   "cite": "card text: 240 damage, minus 30 from Bouffer (after Weakness and Resistance)"
+  }
+ ]
+}

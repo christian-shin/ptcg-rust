@@ -1,0 +1,12 @@
+Numel
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Call for Family
+Search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.
+RCC
+Flare 30
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,11 @@
+Nickit
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Gnaw 10
+DC
+Rear Kick 30
+Weakness: Grass
+Resistance: none
+Retreat: 1
