@@ -1,0 +1,10 @@
+Yamper
+- Lightning - 70 HP
+Pokémon
+- Basic
+LC
+Play Rough 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

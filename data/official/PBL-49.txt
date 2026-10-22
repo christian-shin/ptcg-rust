@@ -1,0 +1,11 @@
+Vullaby
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Flap 10
+DC
+Gust 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

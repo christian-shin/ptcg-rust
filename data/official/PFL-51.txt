@@ -1,0 +1,10 @@
+Trapinch
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Double Headbutt 10×
+Flip 2 coins. This attack does 10 damage for each heads.
+Weakness: Grass
+Resistance: none
+Retreat: 1

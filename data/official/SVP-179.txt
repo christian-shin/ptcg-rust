@@ -1,0 +1,12 @@
+Xerneas ex
+- Psychic - 210 HP
+Pokémon
+- Basic
+PC
+Aurora Beam 50
+PPC
+Rising Horns 120+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 1

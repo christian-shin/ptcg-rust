@@ -1,0 +1,10 @@
+Team Rocket's Larvitar
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Mountain Munch 10
+Discard the top card of your opponent's deck.
+Weakness: Grass
+Resistance: none
+Retreat: 1

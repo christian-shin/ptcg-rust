@@ -1,0 +1,12 @@
+Karrablast
+- Grass - 60 HP
+Pokémon
+- Basic
+Ability:
+Stimulated Evolution
+If you have Shelmet in play, this Pokémon can evolve during your first turn or the turn you play it.
+C
+Horn Attack 10
+Weakness: Fire
+Resistance: none
+Retreat: 1

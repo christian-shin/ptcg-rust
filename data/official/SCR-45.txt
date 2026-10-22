@@ -1,0 +1,13 @@
+Veluza
+- Water - 130 HP
+Pokémon
+- Basic
+Ability:
+Food Prep
+Attacks used by this Pokémon cost [ C ] less for each Kofu card in your discard pile.
+CCCC
+Sonic Edge 110
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

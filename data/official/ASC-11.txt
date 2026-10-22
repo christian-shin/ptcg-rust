@@ -1,0 +1,9 @@
+Wurmple
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Bug Bite 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

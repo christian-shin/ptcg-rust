@@ -1,0 +1,10 @@
+Yamask
+- Psychic - 70 HP
+Pokémon
+- Basic
+PC
+Focused Wish 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

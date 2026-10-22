@@ -1,0 +1,12 @@
+Kyurem ex
+- Water - 230 HP
+Pokémon
+- Basic
+CC
+Slash 50
+WWC
+Blizzard Burst 130
+This attack also does 10 damage to each of your opponent's Benched Pokémon for each Prize card your opponent has taken. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Metal
+Resistance: none
+Retreat: 2

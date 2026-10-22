@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Landorus BLK 53",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Landorus BLK 53",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Landorus BLK 53",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Landorus BLK 53"
+   },
+   {
+    "card": "Landorus BLK 53"
+   }
+  ]
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Earthquake"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 110,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "damage": 10,
+   "cite": "card text: 10 damage to each of your Benched Pokémon, no Weakness or Resistance"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "damage": 10,
+   "cite": "card text: 10 damage to each of your Benched Pokémon, no Weakness or Resistance"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+Heatran
+- Fire - 140 HP
+Pokémon
+- Basic
+R
+Singe
+Your opponent's Active Pokémon is now Burned.
+RRC
+Lava Wall 120
+During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Burned Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 4

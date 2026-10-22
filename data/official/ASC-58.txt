@@ -1,0 +1,10 @@
+Voltorb ex
+- Lightning - 170 HP
+Pokémon
+- Basic
+CCC
+Hundred-Hitting Ball 100+
+Flip a coin until you get tails. This attack does 100 more damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

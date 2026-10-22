@@ -1,0 +1,12 @@
+Venipede
+- Darkness - 80 HP
+Pokémon
+- Basic
+D
+Spit Poison
+Your opponent's Active Pokémon is now Poisoned.
+DCC
+Spinning Attack 40
+Weakness: Fighting
+Resistance: none
+Retreat: 3

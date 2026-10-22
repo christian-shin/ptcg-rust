@@ -1,0 +1,12 @@
+Inkay
+- Darkness - 60 HP
+Pokémon
+- Basic
+D
+Procurement
+Search your deck for an Item card, reveal it, and put it into your hand. Then, shuffle your deck.
+DD
+Spinning Attack 30
+Weakness: Grass
+Resistance: none
+Retreat: 1

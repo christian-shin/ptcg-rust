@@ -1,0 +1,9 @@
+Woobat
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+Heart Stamp 10
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

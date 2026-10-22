@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Fletchling POR 66",
+   "1 Hop's Snorlax JTG 117",
+   "4 Woobat WHT 36",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Fletchling POR 66",
+   "1 Hop's Snorlax JTG 117",
+   "4 Woobat WHT 36",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Fletchling POR 66",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "discard": [
+   "48 Psychic Energy MEE 5"
+  ],
+  "prizes": [
+   "Hop's Snorlax JTG 117",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chirp"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: search your deck for up to 2 Pokémon with [F] Resistance, reveal them, and put them into your hand"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}
