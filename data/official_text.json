@@ -4443,5 +4443,255 @@
   "name": "Rattata",
   "text": "Rattata\n- Colorless - 40 HP\nPokémon\n- Basic\nC\nTake Down 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/POR/60"
+ },
+ "ASC 153": {
+  "name": "Rayquaza",
+  "text": "Rayquaza\n- Dragon - 120 HP\nPokémon\n- Basic\nLC\nBreakthrough Assault 20+\nIf this Pokémon moved from your Bench to the Active Spot this turn, this attack does 90 more damage.\nRLC\nDragon Claw 130\nWeakness: none\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/153"
+ },
+ "CRI 16": {
+  "name": "Remoraid",
+  "text": "Remoraid\n- Water - 70 HP\nPokémon\n- Basic\nW\nSharp Fin 20\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/16"
+ },
+ "PFL 17": {
+  "name": "Reshiram",
+  "text": "Reshiram\n- Fire - 130 HP\nPokémon\n- Basic\nR\nCombustion 30\nRRRR\nBurning Flare 240\nThis Pokémon also does 60 damage to itself.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/17"
+ },
+ "ASC 118": {
+  "name": "Rolycoly",
+  "text": "Rolycoly\n- Fighting - 80 HP\nPokémon\n- Basic\nF\nMud-Slap 20\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/118"
+ },
+ "BLK 77": {
+  "name": "Rufflet",
+  "text": "Rufflet\n- Colorless - 70 HP\nPokémon\n- Basic\nC\nPeck 10\nCC\nGlide 20\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/77"
+ },
+ "POR 15": {
+  "name": "Salandit",
+  "text": "Salandit\n- Fire - 70 HP\nPokémon\n- Basic\nR\nFire Claws 20\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/15"
+ },
+ "PFL 64": {
+  "name": "Sandile",
+  "text": "Sandile\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nRam 10\nDC\nRear Kick 20\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/64"
+ },
+ "MEG 68": {
+  "name": "Sandshrew",
+  "text": "Sandshrew\n- Fighting - 70 HP\nPokémon\n- Basic\nC\nDig Claws 10\nFC\nMud-Slap 20\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/68"
+ },
+ "SSP 5": {
+  "name": "Scatterbug",
+  "text": "Scatterbug\n- Grass - 40 HP\nPokémon\n- Basic\nC\nCall for Family\nSearch your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SSP/5"
+ },
+ "SCR 26": {
+  "name": "Scorbunny",
+  "text": "Scorbunny\n- Fire - 70 HP\nPokémon\n- Basic\nC\nQuick Attack 10+\nFlip a coin. If heads, this attack does 10 more damage.\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SCR/26"
+ },
+ "MEG 26": {
+  "name": "Scorbunny",
+  "text": "Scorbunny\n- Fire - 70 HP\nPokémon\n- Basic\nC\nWild Kick 30\nFlip a coin. If tails, this attack does nothing.\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/26"
+ },
+ "ASC 134": {
+  "name": "Scraggy",
+  "text": "Scraggy\n- Darkness - 80 HP\nPokémon\n- Basic\nDC\nKnock Off 20\nDiscard a random card from your opponent's hand.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/134"
+ },
+ "WHT 57": {
+  "name": "Scraggy",
+  "text": "Scraggy\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nHeadbutt 10\nDD\nInvade 30\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/57"
+ },
+ "TEF 3": {
+  "name": "Seedot",
+  "text": "Seedot\n- Grass - 60 HP\nPokémon\n- Basic\nG\nRigidify\nDuring your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .\nCC\nHang Down 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/TEF/3"
+ },
+ "MEG 13": {
+  "name": "Seedot",
+  "text": "Seedot\n- Grass - 60 HP\nPokémon\n- Basic\nC\nNap\nHeal 20 damage from this Pokémon.\nGC\nSeed Bomb 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/13"
+ },
+ "POR 18": {
+  "name": "Seel",
+  "text": "Seel\n- Water - 80 HP\nPokémon\n- Basic\nW\nRain Splash 10\nWW\nWave Splash 30\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/POR/18"
+ },
+ "PFL 21": {
+  "name": "Seel",
+  "text": "Seel\n- Water - 80 HP\nPokémon\n- Basic\nWC\nBubble Drain 20\nHeal 20 damage from this Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/21"
+ },
+ "WHT 1": {
+  "name": "Sewaddle",
+  "text": "Sewaddle\n- Grass - 50 HP\nPokémon\n- Basic\nG\nBug Bite 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/1"
+ },
+ "POR 26": {
+  "name": "Shinx",
+  "text": "Shinx\n- Lightning - 70 HP\nPokémon\n- Basic\nL\nDouble Scratch 10×\nFlip 2 coins. This attack does 10 damage for each heads.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/26"
+ },
+ "DRI 5": {
+  "name": "Shroomish",
+  "text": "Shroomish\n- Grass - 60 HP\nPokémon\n- Basic\nCC\nRolling Tackle 30\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/5"
+ },
+ "ASC 90": {
+  "name": "Shuppet",
+  "text": "Shuppet\n- Psychic - 60 HP\nPokémon\n- Basic\nP\nSpooky Shot 20\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/90"
+ },
+ "MEG 29": {
+  "name": "Sizzlipede",
+  "text": "Sizzlipede\n- Fire - 80 HP\nPokémon\n- Basic\nR\nRam 10\nRRC\nCombustion 50\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/29"
+ },
+ "DRI 141": {
+  "name": "Skarmory",
+  "text": "Skarmory\n- Metal - 110 HP\nPokémon\n- Basic\nC\nRoost\nHeal 50 damage from this Pokémon. During your next turn, this Pokémon can't retreat.\nMC\nMetal Claw 60\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/141"
+ },
+ "ASC 165": {
+  "name": "Skitty",
+  "text": "Skitty\n- Colorless - 60 HP\nPokémon\n- Basic\nC\nCat Kick 20\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/165"
+ },
+ "CRI 58": {
+  "name": "Skrelp",
+  "text": "Skrelp\n- Darkness - 70 HP\nPokémon\n- Basic\nC\nHook 10\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/58"
+ },
+ "PRE 61": {
+  "name": "Sneasel",
+  "text": "Sneasel\n- Darkness - 60 HP\nPokémon\n- Basic\nD\nClaw Slash 20\nWeakness: Grass\nResistance: none\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/PRE/61"
+ },
+ "MEP 20": {
+  "name": "Sneasel",
+  "text": "Sneasel\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nDig Claws 10\nDD\nScratch 30\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEP/20"
+ },
+ "BLK 1": {
+  "name": "Snivy",
+  "text": "Snivy\n- Grass - 70 HP\nPokémon\n- Basic\nG\nTackle 10\nGG\nVine Whip 30\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/1"
+ },
+ "POR 4": {
+  "name": "Snivy",
+  "text": "Snivy\n- Grass - 70 HP\nPokémon\n- Basic\nG\nReckless Charge 30\nThis Pokémon also does 10 damage to itself.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/4"
+ },
+ "MEG 42": {
+  "name": "Snom",
+  "text": "Snom\n- Water - 50 HP\nPokémon\n- Basic\nW\nHide\nFlip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/42"
+ },
+ "ASC 52": {
+  "name": "Snom",
+  "text": "Snom\n- Water - 50 HP\nPokémon\n- Basic\nW\nIcicle 20\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/52"
+ },
+ "DRI 59": {
+  "name": "Snover",
+  "text": "Snover\n- Water - 90 HP\nPokémon\n- Basic\nCC\nLight Punch 20\nWCC\nIcicle 50\nWeakness: Metal\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/DRI/59"
+ },
+ "PFL 37": {
+  "name": "Snubbull",
+  "text": "Snubbull\n- Psychic - 70 HP\nPokémon\n- Basic\nPC\nTackle 20\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/37"
+ },
+ "MEG 39": {
+  "name": "Sobble",
+  "text": "Sobble\n- Water - 70 HP\nPokémon\n- Basic\nW\nSurprise Attack 30\nFlip a coin. If tails, this attack does nothing.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/39"
+ },
+ "BLK 37": {
+  "name": "Solosis",
+  "text": "Solosis\n- Psychic - 40 HP\nPokémon\n- Basic\nC\nRollout 10\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/37"
+ },
+ "SSP 43": {
+  "name": "Spheal",
+  "text": "Spheal\n- Water - 70 HP\nPokémon\n- Basic\nW\nPowder Snow 10\nYour opponent's Active Pokémon is now Asleep.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SSP/43"
+ },
+ "POR 1": {
+  "name": "Spinarak",
+  "text": "Spinarak\n- Grass - 60 HP\nPokémon\n- Basic\nG\nGooey Thread 10\nDuring your opponent's next turn, the Defending Pokémon can't retreat.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/1"
+ },
+ "MEG 62": {
+  "name": "Spoink",
+  "text": "Spoink\n- Psychic - 70 HP\nPokémon\n- Basic\nP\nTriple Spin 10×\nFlip 3 coins. This attack does 10 damage for each heads.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/62"
+ },
+ "JTG 16": {
+  "name": "Sprigatito",
+  "text": "Sprigatito\n- Grass - 60 HP\nPokémon\n- Basic\nC\nTons of Treading 10×\nFlip 3 coins. This attack does 10 damage for each heads.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/16"
+ },
+ "POR 35": {
+  "name": "Spritzee",
+  "text": "Spritzee\n- Psychic - 70 HP\nPokémon\n- Basic\nC\nSweet Scent\nHeal 30 damage from 1 of your Pokémon.\nP\nRam 10\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/35"
+ },
+ "DRI 142": {
+  "name": "Steven's Skarmory",
+  "text": "Steven's Skarmory\n- Metal - 120 HP\nPokémon\n- Basic\nCC\nRazor Wing 30\nMMC\nSonic Double\nThis attack does 50 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/142"
+ },
+ "MEG 81": {
+  "name": "Stonjourner",
+  "text": "Stonjourner\n- Fighting - 130 HP\nPokémon\n- Basic\nF\nStony Kick 20\nThis attack also does 20 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nFFC\nBoundless Power 140\nDuring your next turn, this Pokémon can't use attacks.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/81"
+ },
+ "MEG 111": {
+  "name": "Stufful",
+  "text": "Stufful\n- Colorless - 70 HP\nPokémon\n- Basic\nC\nLight Punch 10\nCC\nFlop 20\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/111"
+ },
+ "CRI 53": {
+  "name": "Stunky",
+  "text": "Stunky\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nScratch 20\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/53"
+ },
+ "PFL 23": {
+  "name": "Swinub",
+  "text": "Swinub\n- Water - 70 HP\nPokémon\n- Basic\nC\nStampede 10\nWC\nIcy Snow 20\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/23"
+ },
+ "DRI 156": {
+  "name": "Taillow",
+  "text": "Taillow\n- Colorless - 60 HP\nPokémon\n- Basic\nC\nWing Attack 20\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/156"
+ },
+ "MEG 6": {
+  "name": "Tangela",
+  "text": "Tangela\n- Grass - 80 HP\nPokémon\n- Basic\nG\nPoison Powder\nYour opponent's Active Pokémon is now Poisoned.\nGCC\nHook 30\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/6"
+ },
+ "ASC 67": {
+  "name": "Tapu Koko",
+  "text": "Tapu Koko\n- Lightning - 120 HP\nPokémon\n- Basic\nL\nFast Flight\nIf you go first, you can use this attack during your first turn. Discard your hand and draw 5 cards.\nLLC\nThunder Blast 130\nDiscard 2 Energy from this Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/67"
+ },
+ "DRI 79": {
+  "name": "Team Rocket's Drowzee",
+  "text": "Team Rocket's Drowzee\n- Psychic - 80 HP\nPokémon\n- Basic\nP\nHypnotic Ray 10\nYour opponent's Active Pokémon is now Asleep.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/79"
+ },
+ "ASC 77": {
+  "name": "Team Rocket's Exeggcute",
+  "text": "Team Rocket's Exeggcute\n- Psychic - 60 HP\nPokémon\n- Basic\nP\nFocused Wish 10+\nFlip a coin. If heads, this attack does 20 more damage.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/77"
  }
 }

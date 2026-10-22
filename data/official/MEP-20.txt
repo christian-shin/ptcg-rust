@@ -1,0 +1,11 @@
+Sneasel
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Dig Claws 10
+DD
+Scratch 30
+Weakness: Grass
+Resistance: none
+Retreat: 1

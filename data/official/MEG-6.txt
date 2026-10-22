@@ -1,0 +1,12 @@
+Tangela
+- Grass - 80 HP
+Pokémon
+- Basic
+G
+Poison Powder
+Your opponent's Active Pokémon is now Poisoned.
+GCC
+Hook 30
+Weakness: Fire
+Resistance: none
+Retreat: 2

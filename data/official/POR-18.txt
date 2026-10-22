@@ -1,0 +1,11 @@
+Seel
+- Water - 80 HP
+Pokémon
+- Basic
+W
+Rain Splash 10
+WW
+Wave Splash 30
+Weakness: Lightning
+Resistance: none
+Retreat: 2

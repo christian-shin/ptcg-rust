@@ -1,0 +1,10 @@
+Spoink
+- Psychic - 70 HP
+Pokémon
+- Basic
+P
+Triple Spin 10×
+Flip 3 coins. This attack does 10 damage for each heads.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

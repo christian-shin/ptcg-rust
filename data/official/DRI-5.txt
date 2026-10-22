@@ -1,0 +1,9 @@
+Shroomish
+- Grass - 60 HP
+Pokémon
+- Basic
+CC
+Rolling Tackle 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

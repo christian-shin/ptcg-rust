@@ -1,0 +1,10 @@
+Scorbunny
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Quick Attack 10+
+Flip a coin. If heads, this attack does 10 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 1

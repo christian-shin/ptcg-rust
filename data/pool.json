@@ -9058,5 +9058,505 @@
   "key": "Rattata POR 60",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "153",
+  "name": "Rayquaza",
+  "type": "N Basic",
+  "reg": "I",
+  "key": "Rayquaza ASC 153",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "16",
+  "name": "Remoraid",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Remoraid CRI 16",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "17",
+  "name": "Reshiram",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Reshiram PFL 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "118",
+  "name": "Rolycoly",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Rolycoly ASC 118",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "77",
+  "name": "Rufflet",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Rufflet BLK 77",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "15",
+  "name": "Salandit",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Salandit POR 15",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "64",
+  "name": "Sandile",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Sandile PFL 64",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "68",
+  "name": "Sandshrew",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Sandshrew MEG 68",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "5",
+  "name": "Scatterbug",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Scatterbug SSP 5",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "26",
+  "name": "Scorbunny",
+  "type": "R Basic",
+  "reg": "H",
+  "key": "Scorbunny SCR 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "26",
+  "name": "Scorbunny",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Scorbunny MEG 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "134",
+  "name": "Scraggy",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Scraggy ASC 134",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "57",
+  "name": "Scraggy",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Scraggy WHT 57",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "3",
+  "name": "Seedot",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Seedot TEF 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "13",
+  "name": "Seedot",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Seedot MEG 13",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "18",
+  "name": "Seel",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Seel POR 18",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "21",
+  "name": "Seel",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Seel PFL 21",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "1",
+  "name": "Sewaddle",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Sewaddle WHT 1",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "26",
+  "name": "Shinx",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Shinx POR 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "5",
+  "name": "Shroomish",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Shroomish DRI 5",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "90",
+  "name": "Shuppet",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Shuppet ASC 90",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "29",
+  "name": "Sizzlipede",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Sizzlipede MEG 29",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "141",
+  "name": "Skarmory",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Skarmory DRI 141",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "165",
+  "name": "Skitty",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Skitty ASC 165",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "58",
+  "name": "Skrelp",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Skrelp CRI 58",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "61",
+  "name": "Sneasel",
+  "type": "D Basic",
+  "reg": "H",
+  "key": "Sneasel PRE 61",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEP",
+  "number": "20",
+  "name": "Sneasel",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Sneasel MEP 20",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "1",
+  "name": "Snivy",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Snivy BLK 1",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "4",
+  "name": "Snivy",
+  "type": "G Basic",
+  "reg": "J",
+  "key": "Snivy POR 4",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "42",
+  "name": "Snom",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Snom MEG 42",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "52",
+  "name": "Snom",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Snom ASC 52",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "59",
+  "name": "Snover",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Snover DRI 59",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "37",
+  "name": "Snubbull",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Snubbull PFL 37",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "39",
+  "name": "Sobble",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Sobble MEG 39",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "37",
+  "name": "Solosis",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Solosis BLK 37",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "43",
+  "name": "Spheal",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Spheal SSP 43",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "1",
+  "name": "Spinarak",
+  "type": "G Basic",
+  "reg": "J",
+  "key": "Spinarak POR 1",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "62",
+  "name": "Spoink",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Spoink MEG 62",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "16",
+  "name": "Sprigatito",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Sprigatito JTG 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "35",
+  "name": "Spritzee",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Spritzee POR 35",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "142",
+  "name": "Steven's Skarmory",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Steven's Skarmory DRI 142",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "81",
+  "name": "Stonjourner",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Stonjourner MEG 81",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "111",
+  "name": "Stufful",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Stufful MEG 111",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "53",
+  "name": "Stunky",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Stunky CRI 53",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "23",
+  "name": "Swinub",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Swinub PFL 23",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "156",
+  "name": "Taillow",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Taillow DRI 156",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "6",
+  "name": "Tangela",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Tangela MEG 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "67",
+  "name": "Tapu Koko",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Tapu Koko ASC 67",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "79",
+  "name": "Team Rocket's Drowzee",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Team Rocket's Drowzee DRI 79",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "77",
+  "name": "Team Rocket's Exeggcute",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Team Rocket's Exeggcute ASC 77",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

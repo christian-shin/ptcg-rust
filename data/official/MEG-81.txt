@@ -1,0 +1,13 @@
+Stonjourner
+- Fighting - 130 HP
+Pokémon
+- Basic
+F
+Stony Kick 20
+This attack also does 20 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+FFC
+Boundless Power 140
+During your next turn, this Pokémon can't use attacks.
+Weakness: Grass
+Resistance: none
+Retreat: 2

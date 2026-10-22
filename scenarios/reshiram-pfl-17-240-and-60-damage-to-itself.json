@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Reshiram PFL 17",
+   "4 Dondozo ex DRI 66",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Reshiram PFL 17",
+   "4 Dondozo ex DRI 66",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Reshiram PFL 17",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Burning Flare"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 240,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Reshiram PFL 17",
+   "damage": 60,
+   "cite": "card text: this Pokémon also does 60 damage to itself"
+  }
+ ]
+}

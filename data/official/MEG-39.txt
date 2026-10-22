@@ -1,0 +1,10 @@
+Sobble
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Surprise Attack 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

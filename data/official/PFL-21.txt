@@ -1,0 +1,10 @@
+Seel
+- Water - 80 HP
+Pokémon
+- Basic
+WC
+Bubble Drain 20
+Heal 20 damage from this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

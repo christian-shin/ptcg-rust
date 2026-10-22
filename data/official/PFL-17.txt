@@ -1,0 +1,12 @@
+Reshiram
+- Fire - 130 HP
+Pokémon
+- Basic
+R
+Combustion 30
+RRRR
+Burning Flare 240
+This Pokémon also does 60 damage to itself.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,9 @@
+Taillow
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Wing Attack 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

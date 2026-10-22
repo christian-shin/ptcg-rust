@@ -1,0 +1,9 @@
+Skitty
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Cat Kick 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

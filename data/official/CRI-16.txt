@@ -1,0 +1,9 @@
+Remoraid
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Sharp Fin 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

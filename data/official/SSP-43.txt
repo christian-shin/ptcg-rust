@@ -1,0 +1,10 @@
+Spheal
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Powder Snow 10
+Your opponent's Active Pokémon is now Asleep.
+Weakness: Metal
+Resistance: none
+Retreat: 2

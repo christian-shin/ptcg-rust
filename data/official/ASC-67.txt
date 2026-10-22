@@ -1,0 +1,13 @@
+Tapu Koko
+- Lightning - 120 HP
+Pokémon
+- Basic
+L
+Fast Flight
+If you go first, you can use this attack during your first turn. Discard your hand and draw 5 cards.
+LLC
+Thunder Blast 130
+Discard 2 Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

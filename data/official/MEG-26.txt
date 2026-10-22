@@ -1,0 +1,10 @@
+Scorbunny
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Wild Kick 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Water
+Resistance: none
+Retreat: 1

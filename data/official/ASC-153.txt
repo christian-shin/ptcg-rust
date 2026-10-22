@@ -1,0 +1,12 @@
+Rayquaza
+- Dragon - 120 HP
+Pokémon
+- Basic
+LC
+Breakthrough Assault 20+
+If this Pokémon moved from your Bench to the Active Spot this turn, this attack does 90 more damage.
+RLC
+Dragon Claw 130
+Weakness: none
+Resistance: none
+Retreat: 1

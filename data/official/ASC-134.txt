@@ -1,0 +1,10 @@
+Scraggy
+- Darkness - 80 HP
+Pokémon
+- Basic
+DC
+Knock Off 20
+Discard a random card from your opponent's hand.
+Weakness: Grass
+Resistance: none
+Retreat: 2

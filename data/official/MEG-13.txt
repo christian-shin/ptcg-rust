@@ -1,0 +1,12 @@
+Seedot
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Nap
+Heal 20 damage from this Pokémon.
+GC
+Seed Bomb 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

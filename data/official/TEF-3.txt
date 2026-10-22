@@ -1,0 +1,12 @@
+Seedot
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Rigidify
+During your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+CC
+Hang Down 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

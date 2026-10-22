@@ -903,3 +903,28 @@ Pidove BLK 71	PidoveBLK
 Ponyta DRI 29	PonytaDRI
 Quaxly SSP 50	QuaxlySSP
 Rattata POR 60	RattataPOR
+Rayquaza ASC 153	RayquazaASC
+Reshiram PFL 17	ReshiramPFL
+Scatterbug SSP 5	ScatterbugSSP
+Scorbunny SCR 26	ScorbunnySCR
+Scorbunny MEG 26	ScorbunnyMEG
+Scraggy ASC 134	ScraggyASC
+Seedot TEF 3	SeedotTEF
+Seedot MEG 13	SeedotMEG
+Seel PFL 21	SeelPFL
+Shinx POR 26	ShinxPOR
+Skarmory DRI 141	SkarmoryDRI
+Snivy POR 4	SnivyPOR
+Snom MEG 42	SnomMEG
+Sobble MEG 39	SobbleMEG
+Spheal SSP 43	SphealSSP
+Spinarak POR 1	SpinarakPOR
+Spoink MEG 62	SpoinkMEG
+Sprigatito JTG 16	SprigatitoJTG
+Spritzee POR 35	SpritzeePOR
+Steven's Skarmory DRI 142	StevensSkarmory
+Stonjourner MEG 81	StonjournerMEG
+Tangela MEG 6	TangelaMEG
+Tapu Koko ASC 67	TapuKokoASC
+Team Rocket's Drowzee DRI 79	TeamRocketsDrowzee
+Team Rocket's Exeggcute ASC 77	TeamRocketsExeggcute

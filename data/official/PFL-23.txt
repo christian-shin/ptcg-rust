@@ -1,0 +1,11 @@
+Swinub
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Stampede 10
+WC
+Icy Snow 20
+Weakness: Metal
+Resistance: none
+Retreat: 2

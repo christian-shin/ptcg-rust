@@ -1,0 +1,11 @@
+Snivy
+- Grass - 70 HP
+Pokémon
+- Basic
+G
+Tackle 10
+GG
+Vine Whip 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

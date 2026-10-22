@@ -1,0 +1,9 @@
+Snubbull
+- Psychic - 70 HP
+Pokémon
+- Basic
+PC
+Tackle 20
+Weakness: Metal
+Resistance: none
+Retreat: 1

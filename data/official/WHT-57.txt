@@ -1,0 +1,11 @@
+Scraggy
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Headbutt 10
+DD
+Invade 30
+Weakness: Grass
+Resistance: none
+Retreat: 1
