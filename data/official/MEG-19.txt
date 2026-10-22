@@ -1,0 +1,11 @@
+Vulpix
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Stampede 10
+RC
+Combustion 20
+Weakness: Water
+Resistance: none
+Retreat: 1

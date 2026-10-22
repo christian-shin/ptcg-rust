@@ -5188,5 +5188,245 @@
   "name": "Klang",
   "text": "Klang\n- Metal - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nKlink\nCC\nIron Tackle 60\nThis Pokémon also does 20 damage to itself.\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
   "url": "https://limitlesstcg.com/cards/SCR/100"
+ },
+ "DRI 94": {
+  "name": "Team Rocket's Larvitar",
+  "text": "Team Rocket's Larvitar\n- Fighting - 70 HP\nPokémon\n- Basic\nC\nMountain Munch 10\nDiscard the top card of your opponent's deck.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/94"
+ },
+ "DRI 149": {
+  "name": "Team Rocket's Meowth",
+  "text": "Team Rocket's Meowth\n- Colorless - 70 HP\nPokémon\n- Basic\nC\nPaw-cket Pilfer\nChoose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into their deck.\nCC\nFury Swipes 20×\nFlip 3 coins. This attack does 20 damage for each heads.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/149"
+ },
+ "DRI 114": {
+  "name": "Team Rocket's Nidoran♀",
+  "text": "Team Rocket's Nidoran♀\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nSurprise Attack 30\nFlip a coin. If tails, this attack does nothing.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/114"
+ },
+ "DRI 117": {
+  "name": "Team Rocket's Nidoran♂",
+  "text": "Team Rocket's Nidoran♂\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nPierce 10\nDC\nHammer In 30\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/117"
+ },
+ "DRI 147": {
+  "name": "Team Rocket's Rattata",
+  "text": "Team Rocket's Rattata\n- Colorless - 50 HP\nPokémon\n- Basic\nC\nDangerous Incisors 10\nYour opponent's Active Pokémon is now Poisoned.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/147"
+ },
+ "DRI 120": {
+  "name": "Team Rocket's Zubat",
+  "text": "Team Rocket's Zubat\n- Darkness - 50 HP\nPokémon\n- Basic\nD\nPoison Spray\nYour opponent's Active Pokémon is now Poisoned.\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/120"
+ },
+ "WHT 11": {
+  "name": "Tepig",
+  "text": "Tepig\n- Fire - 70 HP\nPokémon\n- Basic\nR\nTackle 10\nRR\nRollout 30\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/11"
+ },
+ "ASC 29": {
+  "name": "Tepig",
+  "text": "Tepig\n- Fire - 80 HP\nPokémon\n- Basic\nR\nSteady Firebreathing 20\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/29"
+ },
+ "BLK 33": {
+  "name": "Thundurus",
+  "text": "Thundurus\n- Lightning - 120 HP\nPokémon\n- Basic\nC\nCharge\nSearch your deck for a Basic [ L ] Energy card and attach it to this Pokémon. Then, shuffle your deck.\nLCC\nDisaster Volt 110\nDiscard an Energy from this Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/33"
+ },
+ "PFL 73": {
+  "name": "Togedemaru",
+  "text": "Togedemaru\n- Metal - 80 HP\nPokémon\n- Basic\nC\nFind a Friend\nSearch your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.\nM\nGnaw 30\nWeakness: Fire\nResistance: Grass\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/73"
+ },
+ "ASC 41": {
+  "name": "Totodile",
+  "text": "Totodile\n- Water - 80 HP\nPokémon\n- Basic\nWW\nSlight Intrusion 40\nThis Pokémon also does 10 damage to itself.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/41"
+ },
+ "SSP 104": {
+  "name": "Trapinch",
+  "text": "Trapinch\n- Fighting - 60 HP\nPokémon\n- Basic\nC\nCall for Family\nSearch your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.\nFC\nBite 20\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SSP/104"
+ },
+ "PFL 51": {
+  "name": "Trapinch",
+  "text": "Trapinch\n- Fighting - 70 HP\nPokémon\n- Basic\nF\nDouble Headbutt 10×\nFlip 2 coins. This attack does 10 damage for each heads.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/51"
+ },
+ "WHT 59": {
+  "name": "Trubbish",
+  "text": "Trubbish\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nDrool 10\nDC\nSludge Bomb 20\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/59"
+ },
+ "PBL 69": {
+  "name": "Type: Null",
+  "text": "Type: Null\n- Colorless - 110 HP\nPokémon\n- Basic\nCC\nPower Edge 40\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PBL/69"
+ },
+ "WHT 27": {
+  "name": "Vanillite",
+  "text": "Vanillite\n- Water - 60 HP\nPokémon\n- Basic\nC\nBeat 10\nWC\nIce Edge 20+\nFlip a coin. If heads, this attack does 20 more damage.\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/27"
+ },
+ "SCR 45": {
+  "name": "Veluza",
+  "text": "Veluza\n- Water - 130 HP\nPokémon\n- Basic\nAbility:\nFood Prep\nAttacks used by this Pokémon cost [ C ] less for each Kofu card in your discard pile.\nCCCC\nSonic Edge 110\nThis attack's damage isn't affected by any effects on your opponent's Active Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SCR/45"
+ },
+ "BLK 54": {
+  "name": "Venipede",
+  "text": "Venipede\n- Darkness - 80 HP\nPokémon\n- Basic\nC\nPoison Spray\nYour opponent's Active Pokémon is now Poisoned.\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/54"
+ },
+ "TWM 115": {
+  "name": "Venipede",
+  "text": "Venipede\n- Darkness - 80 HP\nPokémon\n- Basic\nD\nSpit Poison\nYour opponent's Active Pokémon is now Poisoned.\nDCC\nSpinning Attack 40\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/TWM/115"
+ },
+ "ASC 58": {
+  "name": "Voltorb ex",
+  "text": "Voltorb ex\n- Lightning - 170 HP\nPokémon\n- Basic\nCCC\nHundred-Hitting Ball 100+\nFlip a coin until you get tails. This attack does 100 more damage for each heads.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/58"
+ },
+ "ASC 138": {
+  "name": "Vullaby",
+  "text": "Vullaby\n- Darkness - 70 HP\nPokémon\n- Basic\nCC\nFlap 20\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/138"
+ },
+ "PBL 49": {
+  "name": "Vullaby",
+  "text": "Vullaby\n- Darkness - 70 HP\nPokémon\n- Basic\nD\nFlap 10\nDC\nGust 20\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PBL/49"
+ },
+ "MEG 19": {
+  "name": "Vulpix",
+  "text": "Vulpix\n- Fire - 70 HP\nPokémon\n- Basic\nC\nStampede 10\nRC\nCombustion 20\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/19"
+ },
+ "CRI 8": {
+  "name": "Vulpix",
+  "text": "Vulpix\n- Fire - 70 HP\nPokémon\n- Basic\nR\nSinge\nYour opponent's Active Pokémon is now Burned.\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/8"
+ },
+ "JTG 40": {
+  "name": "Wailmer",
+  "text": "Wailmer\n- Water - 130 HP\nPokémon\n- Basic\nCCC\nSurf 60\nWeakness: Lightning\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/JTG/40"
+ },
+ "PBL 15": {
+  "name": "Wailmer",
+  "text": "Wailmer\n- Water - 130 HP\nPokémon\n- Basic\nWW\nWater Gun 40\nWWW\nWave Splash 80\nWeakness: Lightning\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/PBL/15"
+ },
+ "CRI 25": {
+  "name": "Wimpod",
+  "text": "Wimpod\n- Water - 70 HP\nPokémon\n- Basic\nW\nGnaw 10\nCC\nCorkscrew Punch 20\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/25"
+ },
+ "WHT 36": {
+  "name": "Woobat",
+  "text": "Woobat\n- Psychic - 60 HP\nPokémon\n- Basic\nC\nHeart Stamp 10\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/36"
+ },
+ "ASC 11": {
+  "name": "Wurmple",
+  "text": "Wurmple\n- Grass - 60 HP\nPokémon\n- Basic\nG\nBug Bite 20\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/11"
+ },
+ "CRI 42": {
+  "name": "Xerneas",
+  "text": "Xerneas\n- Psychic - 130 HP\nPokémon\n- Basic\nPPP\nGeo Storm 30×\nThis attack does 30 damage for each [ P ] Energy attached to all of your Pokémon.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/42"
+ },
+ "SVP 179": {
+  "name": "Xerneas ex",
+  "text": "Xerneas ex\n- Psychic - 210 HP\nPokémon\n- Basic\nPC\nAurora Beam 50\nPPC\nRising Horns 120+\nIf your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SVP/179"
+ },
+ "SSP 82": {
+  "name": "Yamask",
+  "text": "Yamask\n- Psychic - 70 HP\nPokémon\n- Basic\nP\nMumble 10\nPC\nPetty Grudge 20\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SSP/82"
+ },
+ "WHT 39": {
+  "name": "Yamask",
+  "text": "Yamask\n- Psychic - 70 HP\nPokémon\n- Basic\nPC\nFocused Wish 20+\nFlip a coin. If heads, this attack does 20 more damage.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/39"
+ },
+ "PFL 30": {
+  "name": "Yamper",
+  "text": "Yamper\n- Lightning - 70 HP\nPokémon\n- Basic\nLC\nPlay Rough 20+\nFlip a coin. If heads, this attack does 20 more damage.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/30"
+ },
+ "ASC 167": {
+  "name": "Zangoose ex",
+  "text": "Zangoose ex\n- Colorless - 200 HP\nPokémon\n- Basic\nC\nSpike Draw 20\nDraw 2 cards.\nCCC\nWild Scissors 180\nThis Pokémon also does 30 damage to itself.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/167"
+ },
+ "SVP 157": {
+  "name": "Zapdos",
+  "text": "Zapdos\n- Lightning - 110 HP\nPokémon\n- Basic\nLC\nFollow-Up Bolt 20+\nThis attack does 10 more damage for each damage counter on your opponent's Active Pokémon.\nLCC\nDrill Peck 80\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SVP/157"
+ },
+ "PFL 81": {
+  "name": "Zigzagoon",
+  "text": "Zigzagoon\n- Colorless - 70 HP\nPokémon\n- Basic\nC\nSurprise Attack 30\nFlip a coin. If tails, this attack does nothing.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/81"
+ },
+ "CRI 49": {
+  "name": "Zubat",
+  "text": "Zubat\n- Darkness - 40 HP\nPokémon\n- Basic\nD\nSupersonic\nYour opponent's Active Pokémon is now Confused.\nWeakness: Lightning\nResistance: Fighting\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/CRI/49"
+ },
+ "POR 66": {
+  "name": "Fletchling",
+  "text": "Fletchling\n- Colorless - 60 HP\nPokémon\n- Basic\nC\nChirp\nSearch your deck for up to 2 Pokémon with [ F ] Resistance, reveal them, and put them into your hand. Then, shuffle your deck.\nCC\nPeck 20\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/66"
+ },
+ "DRI 44": {
+  "name": "Hearthflame Mask Ogerpon",
+  "text": "Hearthflame Mask Ogerpon\n- Fire - 110 HP\nPokémon\n- Basic\nC\nFire Kagura\nSearch your deck for a Basic [ R ] Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.\nRRC\nSearing Flame 80\nYour opponent's Active Pokémon is now Burned.\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/44"
+ },
+ "DRI 43": {
+  "name": "Heat Rotom",
+  "text": "Heat Rotom\n- Fire - 80 HP\nPokémon\n- Basic\nR\nSinge\nYour opponent's Active Pokémon is now Burned.\nCC\nGadget Show 30×\nThis attack does 30 damage for each Pokémon Tool attached to all of your Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/43"
+ },
+ "PBL 7": {
+  "name": "Heatran",
+  "text": "Heatran\n- Fire - 140 HP\nPokémon\n- Basic\nR\nSinge\nYour opponent's Active Pokémon is now Burned.\nRRC\nLava Wall 120\nDuring your opponent's next turn, prevent all damage done to this Pokémon by attacks from Burned Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/PBL/7"
+ },
+ "JTG 86": {
+  "name": "Hop's Silicobra",
+  "text": "Hop's Silicobra\n- Fighting - 80 HP\nPokémon\n- Basic\nC\nTurf Maker\nSearch your deck for a Stadium card, reveal it, and put it into your hand. Then, shuffle your deck.\nFC\nGnaw 20\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/JTG/86"
+ },
+ "PBL 51": {
+  "name": "Inkay",
+  "text": "Inkay\n- Darkness - 60 HP\nPokémon\n- Basic\nD\nProcurement\nSearch your deck for an Item card, reveal it, and put it into your hand. Then, shuffle your deck.\nDD\nSpinning Attack 30\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PBL/51"
+ },
+ "SSP 132": {
+  "name": "Iron Crown",
+  "text": "Iron Crown\n- Metal - 130 HP\nPokémon\n- Basic\nMC\nDeleting Slash 40+\nIf your opponent has 3 or more Benched Pokémon, this attack does 80 more damage.\nMCC\nSlicing Blade 100\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SSP/132"
+ },
+ "BLK 9": {
+  "name": "Karrablast",
+  "text": "Karrablast\n- Grass - 60 HP\nPokémon\n- Basic\nAbility:\nStimulated Evolution\nIf you have Shelmet in play, this Pokémon can evolve during your first turn or the turn you play it.\nC\nHorn Attack 10\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/9"
+ },
+ "BLK 28": {
+  "name": "Kyurem ex",
+  "text": "Kyurem ex\n- Water - 230 HP\nPokémon\n- Basic\nCC\nSlash 50\nWWC\nBlizzard Burst 130\nThis attack also does 10 damage to each of your opponent's Benched Pokémon for each Prize card your opponent has taken. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/28"
+ },
+ "BLK 53": {
+  "name": "Landorus",
+  "text": "Landorus\n- Fighting - 130 HP\nPokémon\n- Basic\nC\nAbundant Harvest\nAttach a Basic [ F ] Energy card from your discard pile to this Pokémon.\nFCC\nEarthquake 110\nThis attack also does 10 damage to each of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/53"
  }
 }

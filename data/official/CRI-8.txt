@@ -1,0 +1,10 @@
+Vulpix
+- Fire - 70 HP
+Pokémon
+- Basic
+R
+Singe
+Your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 1

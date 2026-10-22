@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Voltorb ex ASC 58",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Voltorb ex ASC 58",
+   "4 Bouffalant ex WHT 77",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Voltorb ex ASC 58",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hundred-Hitting Ball"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 170,
+   "cite": "card text: 100 + 100 for 1 heads, minus 30 from Bouffalant ex (after Weakness and Resistance)"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+Trubbish
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Drool 10
+DC
+Sludge Bomb 20
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Fletchling
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Chirp
+Search your deck for up to 2 Pokémon with [ F ] Resistance, reveal them, and put them into your hand. Then, shuffle your deck.
+CC
+Peck 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

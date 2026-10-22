@@ -1711,6 +1711,8 @@ pub const TERA_RULE: PreventSpec = PreventSpec::on(
 /// The attacking Pokémon a `DamageSource` names, where the attacker is read: "from Evolution Pokémon" / "from Basic Pokémon that
 /// aren't [C]" (the type the attacking Pokémon has now, APR D-07, a checked read). `DamageSource::attacker` is the one table of them.
 pub const ATTACKER_EVOLUTION: SlotPred = SlotPred::Not(&SlotPred::Basic);
+/// "from Burned Pokémon": the attacking Pokémon is affected by the Special Condition now.
+pub const ATTACKER_BURNED: SlotPred = SlotPred::Condition(SpecialCondition::Burned);
 pub const ATTACKER_BASIC_NON_COLORLESS: SlotPred = SlotPred::All(&[SlotPred::Basic, SlotPred::Not(&SlotPred::TypeIs(crate::types::ct::COLORLESS))]);
 
 /// The lasting "during your opponent's next turn, prevent all damage done to this Pokémon by attacks (from <these>
@@ -1731,15 +1733,24 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = Preven
         super::event::EventPred::Cause(super::event::CausePred::Pokemon(ATTACKER_BASIC_NON_COLORLESS)),
     ]),
 );
+/// "Burned Pokémon": the attacking Pokémon is affected by the Special Condition now.
+pub static LASTING_PREVENT_DAMAGE_FROM_BURNED: PreventSpec = PreventSpec::on(
+    SlotPred::Any,
+    super::event::EventPred::All(&[
+        DAMAGE_BY_OPP_ATTACKS,
+        super::event::EventPred::Cause(super::event::CausePred::Pokemon(ATTACKER_BURNED)),
+    ]),
+);
 
 /// Every lasting `Prevent` an attack can leave on a Pokémon (a `LastingWhat::Prevent` stores an index into it).
-pub static LASTING_PREVENTS: [&PreventSpec; 6] = [
+pub static LASTING_PREVENTS: [&PreventSpec; 7] = [
     &LASTING_PREVENT_EFFECTS,
     &LASTING_PREVENT_DAMAGE,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC,
     &LASTING_PREVENT_DAMAGE_FROM_EVOLUTION,
     &LASTING_PREVENT_DAMAGE_FROM_ABILITY,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
+    &LASTING_PREVENT_DAMAGE_FROM_BURNED,
 ];
 
 /// The index of a lasting `Prevent` in [`LASTING_PREVENTS`].
@@ -3791,7 +3802,7 @@ mod attached_lock_tests {
             P::All(qs) | P::OneOf(qs) => qs.iter().all(layout_pred),
             P::Any | P::False | P::Pokemon | P::Basic | P::Energy | P::BasicEnergy | P::Trainer | P::Item | P::Supporter
             | P::Tool | P::Stadium | P::Name(_) | P::Tag(_) | P::Stage(_) | P::NameContains(_) | P::StageIs(_)
-            | P::PokemonType(_) | P::RuleBox | P::PokemonEx | P::PokemonV | P::SpecialEnergy | P::PrintsAbility | P::HasAbilityNamed(_) => true,
+            | P::PokemonType(_) | P::HasResistance(_) | P::RuleBox | P::PokemonEx | P::PokemonV | P::SpecialEnergy | P::PrintsAbility | P::HasAbilityNamed(_) => true,
             _ => false,
         }
     }

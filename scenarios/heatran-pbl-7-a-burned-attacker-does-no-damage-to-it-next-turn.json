@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Heatran PBL 7",
+   "4 Dondozo ex DRI 66",
+   "4 Water Energy MEE 3",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Heatran PBL 7",
+   "4 Dondozo ex DRI 66",
+   "4 Water Energy MEE 3",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Heatran PBL 7",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "active_conditions": [
+   "BURNED"
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lava Wall"
+  },
+  {
+   "a": "attack",
+   "name": "Avenging Billow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Heatran PBL 7",
+   "damage": 0,
+   "cite": "card text: prevent all damage done to this Pokémon by attacks from Burned Pokémon"
+  }
+ ]
+}

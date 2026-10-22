@@ -1,0 +1,13 @@
+Zangoose ex
+- Colorless - 200 HP
+Pokémon
+- Basic
+C
+Spike Draw 20
+Draw 2 cards.
+CCC
+Wild Scissors 180
+This Pokémon also does 30 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

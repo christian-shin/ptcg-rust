@@ -1,0 +1,10 @@
+Zubat
+- Darkness - 40 HP
+Pokémon
+- Basic
+D
+Supersonic
+Your opponent's Active Pokémon is now Confused.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 0

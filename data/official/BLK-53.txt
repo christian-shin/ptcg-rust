@@ -1,0 +1,13 @@
+Landorus
+- Fighting - 130 HP
+Pokémon
+- Basic
+C
+Abundant Harvest
+Attach a Basic [ F ] Energy card from your discard pile to this Pokémon.
+FCC
+Earthquake 110
+This attack also does 10 damage to each of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 2

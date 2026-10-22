@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Heatran PBL 7",
+   "4 Koraidon TEF 119",
+   "4 Fighting Energy MEE 6",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Heatran PBL 7",
+   "4 Koraidon TEF 119",
+   "4 Fighting Energy MEE 6",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Heatran PBL 7",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true,
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lava Wall"
+  },
+  {
+   "a": "attack",
+   "name": "Primordial Beatdown"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Heatran PBL 7",
+   "damage": 30,
+   "turn": 2,
+   "cite": "card text: only attacks from Burned Pokémon are prevented"
+  }
+ ]
+}

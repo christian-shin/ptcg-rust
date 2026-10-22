@@ -1,0 +1,9 @@
+Type: Null
+- Colorless - 110 HP
+Pokémon
+- Basic
+CC
+Power Edge 40
+Weakness: Fighting
+Resistance: none
+Retreat: 2

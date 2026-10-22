@@ -1,0 +1,12 @@
+Zapdos
+- Lightning - 110 HP
+Pokémon
+- Basic
+LC
+Follow-Up Bolt 20+
+This attack does 10 more damage for each damage counter on your opponent's Active Pokémon.
+LCC
+Drill Peck 80
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

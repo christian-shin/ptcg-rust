@@ -1,0 +1,10 @@
+Team Rocket's Zubat
+- Darkness - 50 HP
+Pokémon
+- Basic
+D
+Poison Spray
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

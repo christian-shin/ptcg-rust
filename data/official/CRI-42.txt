@@ -1,0 +1,10 @@
+Xerneas
+- Psychic - 130 HP
+Pokémon
+- Basic
+PPP
+Geo Storm 30×
+This attack does 30 damage for each [ P ] Energy attached to all of your Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 2

@@ -49,6 +49,8 @@ pub enum DamageSource {
     // --- S3-4 appends ---
     /// Basic Pokémon that are not [C] (Crown Opal).
     BasicNonColorless,
+    /// Pokémon that are Burned ("prevent all damage done to this Pokémon by attacks from Burned Pokémon").
+    Burned,
 }
 
 impl DamageSource {
@@ -61,6 +63,7 @@ impl DamageSource {
             DamageSource::Stage(_) | DamageSource::Evolution => &crate::spec::passive::ATTACKER_EVOLUTION,
             DamageSource::HasAbility => &SlotPred::HasAbility,
             DamageSource::BasicNonColorless => &crate::spec::passive::ATTACKER_BASIC_NON_COLORLESS,
+            DamageSource::Burned => &crate::spec::passive::ATTACKER_BURNED,
         }
     }
 
@@ -74,6 +77,7 @@ impl DamageSource {
             DamageSource::Stage(_) | DamageSource::Evolution => &ps::LASTING_PREVENT_DAMAGE_FROM_EVOLUTION,
             DamageSource::HasAbility => &ps::LASTING_PREVENT_DAMAGE_FROM_ABILITY,
             DamageSource::BasicNonColorless => &ps::LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
+            DamageSource::Burned => &ps::LASTING_PREVENT_DAMAGE_FROM_BURNED,
         }
     }
 }

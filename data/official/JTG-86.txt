@@ -1,0 +1,12 @@
+Hop's Silicobra
+- Fighting - 80 HP
+Pokémon
+- Basic
+C
+Turf Maker
+Search your deck for a Stadium card, reveal it, and put it into your hand. Then, shuffle your deck.
+FC
+Gnaw 20
+Weakness: Grass
+Resistance: none
+Retreat: 2
