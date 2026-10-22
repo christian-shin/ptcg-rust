@@ -1,0 +1,11 @@
+Fletchinder
+- Fire - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Fletchling
+RR
+Flare 60
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,15 @@
+Breloom
+- Grass - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Shroomish
+CC
+Damage Rush 30+
+Flip a coin until you get tails. This attack does 50 more damage for each heads.
+GCC
+Mega Drain 90
+Heal 30 damage from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 2

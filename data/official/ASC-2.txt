@@ -1,0 +1,12 @@
+Erika's Gloom
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Erika's Oddish
+GC
+Poison Spray 50
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fire
+Resistance: none
+Retreat: 1

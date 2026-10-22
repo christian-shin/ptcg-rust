@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Sandaconda JTG 87",
+   "4 Dondozo ex DRI 66",
+   "4 Koraidon TEF 119",
+   "24 Fighting Energy MEE 6",
+   "24 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Hop's Sandaconda JTG 87",
+   "4 Dondozo ex DRI 66",
+   "4 Koraidon TEF 119",
+   "24 Fighting Energy MEE 6",
+   "24 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Sandaconda JTG 87",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true,
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rumble"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokémon can't retreat"
+  }
+ ]
+}

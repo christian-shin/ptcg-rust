@@ -1,0 +1,14 @@
+Barraskewda
+- Water - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Arrokuda
+W
+Sharp Fin 40
+WW
+Dive 60
+Flip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Centiskorch PBL 10",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Centiskorch PBL 10",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Centiskorch PBL 10",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Heat Tackle"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 160,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Centiskorch PBL 10",
+   "damage": 30,
+   "cite": "card text: this Pokémon also does 30 damage to itself"
+  }
+ ]
+}

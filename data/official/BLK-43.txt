@@ -1,0 +1,14 @@
+Golurk
+- Psychic - 160 HP
+Pokémon
+- Stage 1
+- Evolves from
+Golett
+CCC
+Double Smash 80×
+Flip 2 coins. This attack does 80 damage for each heads.
+PPCCC
+Golurk Hammer 200
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 4

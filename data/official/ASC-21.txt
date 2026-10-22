@@ -1,0 +1,11 @@
+Charmeleon
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charmander
+RC
+Heat Blast 50
+Weakness: Water
+Resistance: none
+Retreat: 1

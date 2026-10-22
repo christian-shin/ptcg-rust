@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggutor MEG 5",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Exeggutor MEG 5",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Exeggutor MEG 5",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Guard Press"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Exeggutor MEG 5",
+   "damage": 30,
+   "cite": "card text: Chewtle's 60 (doubled by Weakness for a Fire Pokémon) minus 30 (after Weakness and Resistance)",
+   "turn": 2
+  }
+ ]
+}

@@ -4938,5 +4938,255 @@
   "name": "Amulet of Hope",
   "text": "Amulet of Hope\nTrainer\n- Tool\nIf the Pokémon this card is attached to is Knocked Out by damage from an attack from your opponent's Pokémon, search your deck for up to 3 cards and put them into your hand. Then, shuffle your deck.",
   "url": "https://limitlesstcg.com/cards/SSP/162"
+ },
+ "DRI 110": {
+  "name": "Arven's Toedscruel",
+  "text": "Arven's Toedscruel\n- Fighting - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nArven's Toedscool\nC\nPull\nSwitch in 1 of your opponent's Benched Pokémon to the Active Spot.\nCCC\nReckless Charge 120\nThis Pokémon also does 30 damage to itself.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/110"
+ },
+ "DRI 63": {
+  "name": "Barraskewda",
+  "text": "Barraskewda\n- Water - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nArrokuda\nW\nSharp Fin 40\nWW\nDive 60\nFlip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/63"
+ },
+ "BLK 41": {
+  "name": "Beheeyem",
+  "text": "Beheeyem\n- Psychic - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nElgyem\nP\nCalm Mind\nHeal 40 damage from this Pokémon.\nCCC\nPsychic 80+\nThis attack does 30 more damage for each Energy attached to your opponent's Active Pokémon.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/41"
+ },
+ "BLK 65": {
+  "name": "Bisharp",
+  "text": "Bisharp\n- Metal - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nPawniard\nM\nCut Up 40\nMC\nFinishing Blow 60+\nIf your opponent's Active Pokémon already has any damage counters on it, this attack does 60 more damage.\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/65"
+ },
+ "ASC 147": {
+  "name": "Bisharp",
+  "text": "Bisharp\n- Metal - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nPawniard\nM\nRapid Draw 50\nDraw 2 cards.\nWeakness: Fire\nResistance: Grass\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/147"
+ },
+ "PFL 31": {
+  "name": "Boltund",
+  "text": "Boltund\n- Lightning - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nYamper\nLC\nElectric Run 70+\nFlip a coin. If heads, this attack does 70 more damage.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/31"
+ },
+ "CRI 12": {
+  "name": "Braixen",
+  "text": "Braixen\n- Fire - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nFennekin\nRR\nFlamethrower 80\nDiscard an Energy from this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/12"
+ },
+ "BLK 78": {
+  "name": "Braviary",
+  "text": "Braviary\n- Colorless - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nRufflet\nC\nAerial Ace 40+\nFlip a coin. If heads, this attack does 40 more damage.\nCCCC\nSpeed Wing 130\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/78"
+ },
+ "DRI 6": {
+  "name": "Breloom",
+  "text": "Breloom\n- Grass - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nShroomish\nCC\nDamage Rush 30+\nFlip a coin until you get tails. This attack does 50 more damage for each heads.\nGCC\nMega Drain 90\nHeal 30 damage from this Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/6"
+ },
+ "PBL 19": {
+  "name": "Brionne",
+  "text": "Brionne\n- Water - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nPopplio\nW\nHyper Voice 40\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PBL/19"
+ },
+ "ASC 119": {
+  "name": "Carkol",
+  "text": "Carkol\n- Fighting - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nRolycoly\nF\nGuard Press 20\nDuring your opponent's next turn, this Pokémon takes 20 less damage from attacks (after applying Weakness and Resistance) .\nFCC\nPower Gem 60\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/119"
+ },
+ "ASC 14": {
+  "name": "Cascoon",
+  "text": "Cascoon\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nWurmple\nG\nTrading Places\nSwitch this Pokémon with 1 of your Benched Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/14"
+ },
+ "PBL 10": {
+  "name": "Centiskorch",
+  "text": "Centiskorch\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nSizzlipede\nR\nControlled Burn\nDiscard the top 2 cards of your opponent's deck.\nRCCC\nHeat Tackle 160\nThis Pokémon also does 30 damage to itself.\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/PBL/10"
+ },
+ "PBL 25": {
+  "name": "Charjabug",
+  "text": "Charjabug\n- Lightning - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nGrubbin\nL\nVise Grip 30\nLL\nRam 50\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PBL/25"
+ },
+ "ASC 21": {
+  "name": "Charmeleon",
+  "text": "Charmeleon\n- Fire - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nCharmander\nRC\nHeat Blast 50\nWeakness: Water\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/21"
+ },
+ "BLK 76": {
+  "name": "Cinccino",
+  "text": "Cinccino\n- Colorless - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nMinccino\nC\nDo the Wave 20+\nThis attack does 20 more damage for each of your Benched Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/76"
+ },
+ "PBL 44": {
+  "name": "Cranidos",
+  "text": "Cranidos\n- Fighting - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nAntique Skull Fossil\nFF\nPush Down 70\nSwitch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PBL/44"
+ },
+ "SSP 30": {
+  "name": "Crocalor",
+  "text": "Crocalor\n- Fire - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nFuecoco\nRC\nHeat Breath 30+\nFlip a coin. If heads, this attack does 50 more damage.\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/SSP/30"
+ },
+ "ASC 42": {
+  "name": "Croconaw",
+  "text": "Croconaw\n- Water - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nTotodile\nWW\nCrunch 50\nFlip a coin. If heads, discard an Energy from your opponent's Active Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/42"
+ },
+ "DRI 53": {
+  "name": "Cynthia's Milotic",
+  "text": "Cynthia's Milotic\n- Water - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nCynthia's Feebas\nWC\nAqua Split 60\nThis attack also does 30 damage to 2 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/53"
+ },
+ "BLK 14": {
+  "name": "Darmanitan",
+  "text": "Darmanitan\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nDarumaka\nRC\nSearing Flame 50\nYour opponent's Active Pokémon is now Burned.\nRCCC\nSmashing Headbutt 180\nDiscard 2 Energy from this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/14"
+ },
+ "PFL 16": {
+  "name": "Darmanitan",
+  "text": "Darmanitan\n- Fire - 150 HP\nPokémon\n- Stage 1\n- Evolves from\nDarumaka\nCCCC\nBlaze Ball 40+\nThis attack does 40 more damage for each [ R ] Energy attached to this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/PFL/16"
+ },
+ "ASC 166": {
+  "name": "Delcatty",
+  "text": "Delcatty\n- Colorless - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nSkitty\nC\nCat Kick 40\nCC\nEnergy Crush 40×\nThis attack does 40 damage for each Energy attached to all of your opponent's Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/166"
+ },
+ "WHT 22": {
+  "name": "Dewott",
+  "text": "Dewott\n- Water - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nOshawott\nW\nEnergized Shell 30×\nThis attack does 30 damage for each Energy attached to this Pokémon.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/22"
+ },
+ "POR 65": {
+  "name": "Diggersby",
+  "text": "Diggersby\n- Colorless - 150 HP\nPokémon\n- Stage 1\n- Evolves from\nBunnelby\nC\nEarthquake 140\nThis attack also does 30 damage to each of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nCCC\nWhap Down 100\nWeakness: Fighting\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/POR/65"
+ },
+ "MEG 40": {
+  "name": "Drizzile",
+  "text": "Drizzile\n- Water - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nSobble\nW\nDouble Stab 30×\nFlip 2 coins. This attack does 30 damage for each heads.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/40"
+ },
+ "DRI 69": {
+  "name": "Electivire ex",
+  "text": "Electivire ex\n- Lightning - 280 HP\nPokémon\n- Stage 1\n- Evolves from\nElectabuzz\nLC\nDual Bolt\nThis attack does 50 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nLLC\nHigh-Voltage Press 180+\nIf this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost) , this attack does 100 more damage.\nWeakness: Fighting\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/DRI/69"
+ },
+ "ASC 2": {
+  "name": "Erika's Gloom",
+  "text": "Erika's Gloom\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nErika's Oddish\nGC\nPoison Spray 50\nYour opponent's Active Pokémon is now Poisoned.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/2"
+ },
+ "ASC 5": {
+  "name": "Erika's Weepinbell",
+  "text": "Erika's Weepinbell\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nErika's Bellsprout\nG\nMelt 30\nGC\nLeafy Cyclone 70\nDuring your next turn, this Pokémon can't use attacks.\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/5"
+ },
+ "BLK 60": {
+  "name": "Escavalier",
+  "text": "Escavalier\n- Metal - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nKarrablast\nM\nWild Lances 90\nThis Pokémon also does 30 damage to itself.\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/60"
+ },
+ "TEF 86": {
+  "name": "Excadrill",
+  "text": "Excadrill\n- Fighting - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nDrilbur\nC\nMud Shot 20\nFFC\nWild Tackle 180\nThis Pokémon also does 50 damage to itself.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/TEF/86"
+ },
+ "MEG 5": {
+  "name": "Exeggutor",
+  "text": "Exeggutor\n- Grass - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nExeggcute\nG\nGuard Press 30\nDuring your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .\nCCC\nStomping Wood 60+\nThis attack does 30 more damage for each [ G ] Energy attached to this Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/5"
+ },
+ "MEG 103": {
+  "name": "Fearow",
+  "text": "Fearow\n- Colorless - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nSpearow\nC\nRepeating Drill 30×\nFlip 5 coins. This attack does 30 damage for each heads.\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/103"
+ },
+ "WHT 69": {
+  "name": "Ferrothorn",
+  "text": "Ferrothorn\n- Metal - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nFerroseed\nM\nPower Whip\nThis attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nMCCC\nMetal Claw 130\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/WHT/69"
+ },
+ "CRI 28": {
+  "name": "Flaaffy",
+  "text": "Flaaffy\n- Lightning - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nMareep\nLC\nDisconnect 40\nDuring your opponent's next turn, they can't play any Item cards from their hand.\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/28"
+ },
+ "POR 13": {
+  "name": "Fletchinder",
+  "text": "Fletchinder\n- Fire - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nFletchling\nRR\nFlare 60\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/13"
+ },
+ "DRI 58": {
+  "name": "Floatzel",
+  "text": "Floatzel\n- Water - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nBuizel\nCC\nWhirlpool 30\nDiscard an Energy from your opponent's Active Pokémon.\nWCC\nAqua Slash 140\nDuring your next turn, this Pokémon can't attack.\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/58"
+ },
+ "BLK 69": {
+  "name": "Fraxure",
+  "text": "Fraxure\n- Dragon - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nAxew\nC\nBite 30\nFM\nBoundless Power 90\nDuring your next turn, this Pokémon can't use attacks.\nWeakness: none\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/69"
+ },
+ "ASC 131": {
+  "name": "Galarian Linoone",
+  "text": "Galarian Linoone\n- Darkness - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nGalarian Zigzagoon\nD\nGnaw 20\nDC\nClaw Slash 50\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/131"
+ },
+ "WHT 60": {
+  "name": "Garbodor",
+  "text": "Garbodor\n- Darkness - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nTrubbish\nD\nSuffocating Gas 40\nDDC\nGunk Shot 120\nYour opponent's Active Pokémon is now Poisoned.\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/WHT/60"
+ },
+ "PFL 50": {
+  "name": "Gliscor",
+  "text": "Gliscor\n- Fighting - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nGligar\nF\nPoison Ring 50\nYour opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/50"
+ },
+ "CRI 50": {
+  "name": "Golbat",
+  "text": "Golbat\n- Darkness - 80 HP\nPokémon\n- Stage 1\n- Evolves from\nZubat\nD\nCovert Flight 30\nDuring your opponent's next turn, prevent all damage done to this Pokémon by attacks from Basic Pokémon.\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/50"
+ },
+ "BLK 43": {
+  "name": "Golurk",
+  "text": "Golurk\n- Psychic - 160 HP\nPokémon\n- Stage 1\n- Evolves from\nGolett\nCCC\nDouble Smash 80×\nFlip 2 coins. This attack does 80 damage for each heads.\nPPCCC\nGolurk Hammer 200\nWeakness: Darkness\nResistance: Fighting\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/BLK/43"
+ },
+ "PFL 38": {
+  "name": "Granbull",
+  "text": "Granbull\n- Psychic - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nSnubbull\nPC\nBite 50\nPPC\nFinishing Blow 90+\nIf your opponent's Active Pokémon already has any damage counters on it, this attack does 90 more damage.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/38"
+ },
+ "MEG 53": {
+  "name": "Heliolisk",
+  "text": "Heliolisk\n- Lightning - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nHelioptile\nC\nDazzle Blast 20\nYour opponent's Active Pokémon is now Confused.\nLC\nHead Bolt 70\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/53"
+ },
+ "WHT 75": {
+  "name": "Herdier",
+  "text": "Herdier\n- Colorless - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nLillipup\nC\nRoar\nSwitch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)\nCCC\nLunge Out 70\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/75"
+ },
+ "PFL 58": {
+  "name": "Honchkrow",
+  "text": "Honchkrow\n- Darkness - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nMurkrow\nD\nWind of Darkness 30\nDDC\nSniping Feathers\nDiscard 2 Energy from this Pokémon, and this attack does 120 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/58"
+ },
+ "JTG 134": {
+  "name": "Hop's Corvisquire",
+  "text": "Hop's Corvisquire\n- Colorless - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nHop's Rookidee\nC\nSpeed Dive 30\nCCC\nRazor Wing 80\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/134"
+ },
+ "JTG 87": {
+  "name": "Hop's Sandaconda",
+  "text": "Hop's Sandaconda\n- Fighting - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nHop's Silicobra\nFC\nRumble 30\nDuring your opponent's next turn, the Defending Pokémon can't retreat.\nFCC\nBreak Ground 140\nThis attack also does 20 damage to each of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/JTG/87"
+ },
+ "SCR 100": {
+  "name": "Klang",
+  "text": "Klang\n- Metal - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nKlink\nCC\nIron Tackle 60\nThis Pokémon also does 20 damage to itself.\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/SCR/100"
  }
 }

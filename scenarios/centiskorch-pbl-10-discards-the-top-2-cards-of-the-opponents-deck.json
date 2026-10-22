@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Centiskorch PBL 10",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Centiskorch PBL 10",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Centiskorch PBL 10",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Controlled Burn"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 2,
+   "cite": "card text: discard the top 2 cards of your opponent's deck"
+  }
+ ]
+}

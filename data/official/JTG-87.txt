@@ -1,0 +1,15 @@
+Hop's Sandaconda
+- Fighting - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hop's Silicobra
+FC
+Rumble 30
+During your opponent's next turn, the Defending Pokémon can't retreat.
+FCC
+Break Ground 140
+This attack also does 20 damage to each of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 3

@@ -1,0 +1,15 @@
+Arven's Toedscruel
+- Fighting - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Arven's Toedscool
+C
+Pull
+Switch in 1 of your opponent's Benched Pokémon to the Active Spot.
+CCC
+Reckless Charge 120
+This Pokémon also does 30 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 2

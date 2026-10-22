@@ -1,0 +1,14 @@
+Delcatty
+- Colorless - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Skitty
+C
+Cat Kick 40
+CC
+Energy Crush 40×
+This attack does 40 damage for each Energy attached to all of your opponent's Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

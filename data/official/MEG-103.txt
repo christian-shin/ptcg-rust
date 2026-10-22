@@ -1,0 +1,12 @@
+Fearow
+- Colorless - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Spearow
+C
+Repeating Drill 30×
+Flip 5 coins. This attack does 30 damage for each heads.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

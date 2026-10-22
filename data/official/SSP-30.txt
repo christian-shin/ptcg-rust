@@ -1,0 +1,12 @@
+Crocalor
+- Fire - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Fuecoco
+RC
+Heat Breath 30+
+Flip a coin. If heads, this attack does 50 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 3

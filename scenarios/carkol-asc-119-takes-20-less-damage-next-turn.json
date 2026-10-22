@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carkol ASC 119",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Carkol ASC 119",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Carkol ASC 119",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Guard Press"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Carkol ASC 119",
+   "damage": 40,
+   "cite": "card text: Chewtle's 60 (doubled by Weakness for a Fire Pokémon) minus 20 (after Weakness and Resistance)",
+   "turn": 2
+  }
+ ]
+}

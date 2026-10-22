@@ -1,0 +1,15 @@
+Floatzel
+- Water - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Buizel
+CC
+Whirlpool 30
+Discard an Energy from your opponent's Active Pokémon.
+WCC
+Aqua Slash 140
+During your next turn, this Pokémon can't attack.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

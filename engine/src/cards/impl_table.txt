@@ -928,3 +928,47 @@ Tangela MEG 6	TangelaMEG
 Tapu Koko ASC 67	TapuKokoASC
 Team Rocket's Drowzee DRI 79	TeamRocketsDrowzee
 Team Rocket's Exeggcute ASC 77	TeamRocketsExeggcute
+Arven's Toedscruel DRI 110	ArvensToedscruel
+Barraskewda DRI 63	Barraskewda
+Beheeyem BLK 41	BeheeyemBLK
+Bisharp BLK 65	BisharpBLK
+Bisharp ASC 147	BisharpASC
+Boltund PFL 31	Boltund
+Braixen CRI 12	Braixen
+Braviary BLK 78	Braviary
+Breloom DRI 6	Breloom
+Carkol ASC 119	Carkol
+Cascoon ASC 14	Cascoon
+Centiskorch PBL 10	CentiskorchPBL
+Cinccino BLK 76	CinccinoBLK
+Cranidos PBL 44	Cranidos
+Crocalor SSP 30	Crocalor
+Croconaw ASC 42	CroconawASC
+Cynthia's Milotic DRI 53	CynthiasMilotic
+Darmanitan BLK 14	DarmanitanBLK
+Darmanitan PFL 16	DarmanitanPFL
+Delcatty ASC 166	Delcatty
+Dewott WHT 22	Dewott
+Diggersby POR 65	Diggersby
+Drizzile MEG 40	Drizzile
+Electivire ex DRI 69	ElectivireEx
+Erika's Gloom ASC 2	ErikasGloom
+Erika's Weepinbell ASC 5	ErikasWeepinbell
+Escavalier BLK 60	Escavalier
+Excadrill TEF 86	Excadrill
+Exeggutor MEG 5	Exeggutor
+Fearow MEG 103	Fearow
+Ferrothorn WHT 69	Ferrothorn
+Flaaffy CRI 28	Flaaffy
+Floatzel DRI 58	Floatzel
+Fraxure BLK 69	Fraxure
+Garbodor WHT 60	Garbodor
+Gliscor PFL 50	Gliscor
+Golbat CRI 50	Golbat
+Golurk BLK 43	Golurk
+Granbull PFL 38	Granbull
+Heliolisk MEG 53	Heliolisk
+Herdier WHT 75	Herdier
+Honchkrow PFL 58	Honchkrow
+Hop's Sandaconda JTG 87	HopsSandaconda
+Klang SCR 100	Klang

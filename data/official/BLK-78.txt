@@ -1,0 +1,14 @@
+Braviary
+- Colorless - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Rufflet
+C
+Aerial Ace 40+
+Flip a coin. If heads, this attack does 40 more damage.
+CCCC
+Speed Wing 130
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

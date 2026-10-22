@@ -1,0 +1,14 @@
+Carkol
+- Fighting - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Rolycoly
+F
+Guard Press 20
+During your opponent's next turn, this Pokémon takes 20 less damage from attacks (after applying Weakness and Resistance) .
+FCC
+Power Gem 60
+Weakness: Grass
+Resistance: none
+Retreat: 3

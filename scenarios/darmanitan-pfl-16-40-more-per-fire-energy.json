@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Darmanitan PFL 16",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "22 Fire Energy MEE 2",
+   "22 Water Energy MEE 3"
+  ],
+  [
+   "4 Darmanitan PFL 16",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "22 Fire Energy MEE 2",
+   "22 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Darmanitan PFL 16",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Blaze Ball"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 200,
+   "cite": "card text: 40 + 40 x 4 [R] Energy (the Water Energy does not count)"
+  }
+ ]
+}

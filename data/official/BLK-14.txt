@@ -1,0 +1,15 @@
+Darmanitan
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Darumaka
+RC
+Searing Flame 50
+Your opponent's Active Pokémon is now Burned.
+RCCC
+Smashing Headbutt 180
+Discard 2 Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

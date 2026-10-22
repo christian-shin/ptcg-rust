@@ -1,0 +1,12 @@
+Cranidos
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Antique Skull Fossil
+FF
+Push Down 70
+Switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 2

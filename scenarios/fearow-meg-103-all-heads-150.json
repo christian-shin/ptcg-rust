@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fearow MEG 103",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Fearow MEG 103",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Fearow MEG 103",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true,
+  true,
+  true,
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Repeating Drill"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 150,
+   "cite": "card text"
+  }
+ ]
+}

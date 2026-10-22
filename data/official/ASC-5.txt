@@ -1,0 +1,14 @@
+Erika's Weepinbell
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Erika's Bellsprout
+G
+Melt 30
+GC
+Leafy Cyclone 70
+During your next turn, this Pokémon can't use attacks.
+Weakness: Fire
+Resistance: none
+Retreat: 2

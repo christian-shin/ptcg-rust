@@ -1,0 +1,14 @@
+Bisharp
+- Metal - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pawniard
+M
+Cut Up 40
+MC
+Finishing Blow 60+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 60 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

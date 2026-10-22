@@ -1,0 +1,12 @@
+Dewott
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Oshawott
+W
+Energized Shell 30×
+This attack does 30 damage for each Energy attached to this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1
