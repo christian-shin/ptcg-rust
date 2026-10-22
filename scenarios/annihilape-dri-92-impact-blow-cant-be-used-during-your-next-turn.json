@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Impact Blow",
+   "is": false,
+   "cite": "card text: during your next turn this Pokemon can't use Impact Blow; APR C-15"
+  }
+ ]
+}

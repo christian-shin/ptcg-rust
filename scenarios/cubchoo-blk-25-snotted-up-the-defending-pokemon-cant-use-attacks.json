@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cubchoo BLK 25",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Cubchoo BLK 25",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Cubchoo BLK 25",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Snotted Up"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "legal": "attack",
+   "name": "Beat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn the Defending Pokemon can't use attacks; APR C-15"
+  }
+ ]
+}

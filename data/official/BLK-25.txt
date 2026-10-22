@@ -1,0 +1,10 @@
+Cubchoo
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Snotted Up 10
+During your opponent's next turn, the Defending Pokémon can't use attacks.
+Weakness: Metal
+Resistance: none
+Retreat: 2

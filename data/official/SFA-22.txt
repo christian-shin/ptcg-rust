@@ -1,0 +1,15 @@
+Sylveon
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+P
+Mystical Return
+Flip a coin. If heads, choose 1 of your opponent's Benched Pokémon. Shuffle that Pokémon and all attached cards into their deck.
+PCC
+Disarming Voice 90
+Your opponent's Active Pokémon is now Confused.
+Weakness: Metal
+Resistance: none
+Retreat: 1

@@ -167,7 +167,7 @@ pub fn num(n: &Num) -> ReadSet {
         Num::ToolCount(e) => ReadSet::st(BOARD).or(slot_expr(*e)),
         Num::DamageSum(sel, sp) => ReadSet::st(COUNTERS).or(slot_sel(sel)).or(slot_pred(sp)),
         // The attack being used, the program's registers and coins, a "last turn" record.
-        Num::PrintedCost | Num::RegCount(_) | Num::Heads | Num::DamageTakenLastTurn(_) | Num::CostNow | Num::Last => ReadSet::st(ANY),
+        Num::PrintedCost | Num::RegCount(_) | Num::Heads | Num::DamageTakenLastTurn(_) | Num::PrizesTakenLastTurn(_) | Num::CostNow | Num::Last => ReadSet::st(ANY),
     }
 }
 
@@ -256,7 +256,7 @@ pub fn fact_modifier(ps: &Passive) -> Option<ReadSet> {
     let common = located(o).or(blocked(o)).or(reaches(o));
     Some(match &ps.modifier {
         Modifier::HpBonus(_) => common,
-        Modifier::HpMod(h) => common.or(slot_pred(&h.subject)).or(cond(&h.guard)),
+        Modifier::HpMod(h) => common.or(slot_pred(&h.subject)).or(cond(&h.guard)).or(num(&h.amount)),
         Modifier::TypeOverride(t) => common.or(slot_pred(&t.subject)),
         // Read for the Energy card on the spot, whatever its origin (`passive::provides_energy_into`).
         Modifier::ProvidesEnergy(pe) => ReadSet::st(BOARD).or(all(pe.entries, |e| slot_pred(&e.when))),

@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi ASC 122",
+   "4 Snover MEG 35",
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "40 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Okidogi ASC 122",
+   "4 Snover MEG 35",
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "40 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "active_damage": 80,
+  "bench": [
+   {
+    "card": "Okidogi ASC 122",
+    "energy": [
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Settle the Score"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 140,
+   "cite": "card text: 80 + 60 more for each Prize card your opponent took during their last turn (1)",
+   "at": "turn_end",
+   "turn": 2
+  }
+ ]
+}

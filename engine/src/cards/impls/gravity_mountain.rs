@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         Passive {
             origin: RuleSource::Stadium,
-            modifier: Modifier::HpMod(HpModSpec { amount: -30, subject: SlotPred::StageIs(Stage::Stage2), guard: Cond::True }),
+            modifier: Modifier::HpMod(HpModSpec { amount: Num::Lit(-30), subject: SlotPred::StageIs(Stage::Stage2), guard: Cond::True }),
         },
     ],
     ..CardSpec::NONE

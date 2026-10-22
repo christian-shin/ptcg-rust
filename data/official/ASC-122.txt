@@ -1,0 +1,12 @@
+Okidogi
+- Fighting - 140 HP
+Pokémon
+- Basic
+F
+Light Punch 20
+FFC
+Settle the Score 80+
+This attack does 60 more damage for each Prize card your opponent took during their last turn.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

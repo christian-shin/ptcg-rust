@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad BLK 21",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad BLK 21",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Tympole EVS 42",
+   "Palpitoad OBF 51",
+   "Seismitoad BLK 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Tympole EVS 42",
+     "Palpitoad OBF 51",
+     "Seismitoad BLK 21"
+    ]
+   },
+   {
+    "card": "Mega Abomasnow ex MEG 36"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Round"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 140,
+   "cite": "card text: 70 damage for each of your Pokemon in play that has the Round attack (2); APR B-02",
+   "at": "turn_end"
+  }
+ ]
+}

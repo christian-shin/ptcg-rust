@@ -1,0 +1,9 @@
+Litleo
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Tackle 10
+Weakness: Water
+Resistance: none
+Retreat: 1

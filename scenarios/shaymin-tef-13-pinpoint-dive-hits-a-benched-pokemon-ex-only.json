@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Shaymin TEF 13",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Shaymin TEF 13",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Shaymin TEF 13",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   },
+   {
+    "card": "Pikachu ex PRE 28"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pinpoint Dive"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "card": "Pikachu ex PRE 28",
+   "damage": 60,
+   "cite": "card text: 60 damage to 1 of your opponent's Benched Pokemon ex (the only legal choice), no Weakness and Resistance for the Bench: APR B-08",
+   "at": "turn_end"
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: only the chosen Benched Pokemon ex is damaged",
+   "at": "turn_end"
+  }
+ ]
+}

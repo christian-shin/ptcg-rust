@@ -84,6 +84,9 @@ pub enum Num {
     // --- F-passive appends ---
     /// Prize cards the player has taken.
     PrizesTaken(Who),
+    /// Prize cards the player took during their last turn ("for each Prize card your opponent took during their last turn":
+    /// the Prize cards taken during that player's own turn, kept when their turn ended).
+    PrizesTakenLastTurn(Who),
     /// Cards in card register `r`.
     RegCount(u8),
     /// Pokémon in play (top card matching the predicate).
@@ -423,6 +426,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::EnergyOn(..) => panic!("Num::EnergyOn needs a checked read (num_m)"),
         Num::PrintedCost => printed_cost(g, f),
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
+        Num::PrizesTakenLastTurn(w) => g.st.players[f.who(*w)].prizes_taken_last_turn,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,

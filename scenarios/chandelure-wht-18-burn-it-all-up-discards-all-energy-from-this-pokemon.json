@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Litwick WHT 16",
+   "4 Lampent TWM 37",
+   "4 Chandelure WHT 18",
+   "4 Mega Abomasnow ex MEG 36",
+   "3 Water Energy MEE 3",
+   "41 Fire Energy MEE 2"
+  ],
+  [
+   "4 Litwick WHT 16",
+   "4 Lampent TWM 37",
+   "4 Chandelure WHT 18",
+   "4 Mega Abomasnow ex MEG 36",
+   "3 Water Energy MEE 3",
+   "41 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Litwick WHT 16",
+   "Lampent TWM 37",
+   "Chandelure WHT 18"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Burn It All Up"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: discard all Energy from this Pokemon",
+   "at": "turn_end"
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 180,
+   "cite": "card text: 180 damage",
+   "at": "turn_end"
+  }
+ ]
+}

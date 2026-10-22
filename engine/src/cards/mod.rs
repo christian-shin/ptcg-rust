@@ -144,7 +144,8 @@ mod tests {
                     assert_eq!(d.behavior, key, "{}: behavior key", d.full_name);
                     assert_eq!(got, Some(key), "{}: implementation", d.full_name);
                 }
-                None => assert!(d.behavior.is_empty() && got.is_none(), "{}: not in the frozen table", d.full_name),
+                // A card ported after the rename isn't in the table: its behavior key is the key of its implementation.
+                None => assert!(d.behavior.is_empty() == got.is_none() && got.map_or(true, |class| class == d.behavior), "{}: not in the frozen table", d.full_name),
             }
         }
     }

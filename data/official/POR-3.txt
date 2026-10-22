@@ -1,0 +1,12 @@
+Shaymin
+- Grass - 70 HP
+Pokémon
+- Basic
+G
+Send Flowers
+Search your deck for an Energy card and attach it to 1 of your Benched [ G ] Pokémon. Then, shuffle your deck.
+G
+Leaf Step 30
+Weakness: Fire
+Resistance: none
+Retreat: 0

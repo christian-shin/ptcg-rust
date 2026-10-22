@@ -1,0 +1,12 @@
+Galvantula
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Joltik
+L
+Discharge 50×
+Discard all [ L ] Energy from this Pokémon. This attack does 50 damage for each card you discarded in this way.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

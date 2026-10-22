@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Timburr BLK 47",
+   "4 Gurdurr BLK 48",
+   "4 Conkeldurr BLK 49",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Timburr BLK 47",
+   "4 Gurdurr BLK 48",
+   "4 Conkeldurr BLK 49",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Timburr BLK 47",
+   "Gurdurr BLK 48",
+   "Conkeldurr BLK 49"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "slot": "active",
+   "hp_left": 260,
+   "cite": "card text + id2179: +40 HP for each [F] Energy attached (3): 140 + 120"
+  }
+ ]
+}

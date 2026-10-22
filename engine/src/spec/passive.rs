@@ -781,9 +781,10 @@ pub struct AttackTwiceSpec {
     pub guard: Cond,
 }
 
-/// +/- HP to the Pokémon matching `subject` while the card is in place.
+/// +/- HP to the Pokémon matching `subject` while the card is in place: `amount` is a literal ("gets +100 HP") or a count
+/// ("+40 HP for each [F] Energy attached to it"), read as the game checks it.
 pub struct HpModSpec {
-    pub amount: i32,
+    pub amount: Num,
     pub subject: SlotPred,
     pub guard: Cond,
 }
@@ -1048,7 +1049,7 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
 
 /// The HP `HpBonus` / `HpMod` of `me` gives the Pokémon in `target` (0 when it doesn't apply): the derived layer's `hp`
 /// adds them up.
-pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
+pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, amount: &Num, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(0) };
     if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin) || !guard_ok_m(g, me, origin, at.owner, guard)? {
         return Ok(0);
@@ -1056,7 +1057,13 @@ pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, orig
     if !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
         return Ok(0);
     }
-    Ok(n)
+    match amount {
+        Num::Lit(n) => Ok(*n),
+        _ => {
+            let f = run::Frame::passive(g.g(), me, at.owner, origin);
+            num_m(g, me, &f, amount)
+        }
+    }
 }
 
 /// An attack's damage to one Pokémon being calculated (the Damage routine's steps 2 and 5, `engine::damage::deal`): what

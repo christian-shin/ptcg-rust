@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "active_damage": 10,
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: Lose Cool needs 2 or more damage counters",
+   "at": "turn_end"
+  }
+ ]
+}

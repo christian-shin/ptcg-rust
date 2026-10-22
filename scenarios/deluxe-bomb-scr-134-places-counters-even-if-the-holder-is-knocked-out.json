@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Deluxe Bomb SCR 134",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "3 Fire Energy MEE 2",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "1 Deluxe Bomb SCR 134",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "3 Fire Energy MEE 2",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pikachu ex PRE 28",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_tool": "Deluxe Bomb SCR 134",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder"
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "damage": 150,
+   "cite": "card text: even if this Pokemon is Knocked Out, 12 damage counters (120) plus Thunder's 30 to itself; id2028",
+   "at": "turn_end"
+  }
+ ]
+}

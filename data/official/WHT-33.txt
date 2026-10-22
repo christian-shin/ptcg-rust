@@ -1,0 +1,10 @@
+Joltik
+- Lightning - 40 HP
+Pokémon
+- Basic
+L
+Surprise Attack 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

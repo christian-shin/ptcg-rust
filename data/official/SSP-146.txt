@@ -1,0 +1,11 @@
+Vigoroth
+- Colorless - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Slakoth
+CC
+Slashing Claw 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

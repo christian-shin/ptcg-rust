@@ -1,0 +1,13 @@
+Sealeo
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Spheal
+W
+Lunge Out 30
+WW
+Ice Ball 60
+Weakness: Metal
+Resistance: none
+Retreat: 3

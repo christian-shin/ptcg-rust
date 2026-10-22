@@ -1,0 +1,10 @@
+Litwick
+- Fire - 60 HP
+Pokémon
+- Basic
+R
+Brighten and Burn
+Look at the top card of your deck. You may discard that card.
+Weakness: Water
+Resistance: none
+Retreat: 1

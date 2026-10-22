@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Relicanth PBL 17",
+   "4 Antique Cover Fossil SCR 129",
+   "4 Antique Root Fossil SCR 130",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Relicanth PBL 17",
+   "4 Antique Cover Fossil SCR 129",
+   "4 Antique Root Fossil SCR 130",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Relicanth PBL 17",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Antique Cover Fossil SCR 129"
+   },
+   {
+    "card": "Antique Root Fossil SCR 130"
+   },
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fossil Beatdown"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "card text: 10 + 30 more for each of your Benched Pokemon that has \"Antique\" in its name (2); APR B-01",
+   "at": "turn_end"
+  }
+ ]
+}

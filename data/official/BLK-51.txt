@@ -1,0 +1,12 @@
+Dwebble
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Flail 10×
+This attack does 10 damage for each damage counter on this Pokémon.
+CC
+Dig Claws 20
+Weakness: Grass
+Resistance: none
+Retreat: 2

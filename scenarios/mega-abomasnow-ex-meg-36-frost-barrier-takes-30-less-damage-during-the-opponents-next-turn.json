@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snover MEG 35",
+   "4 Mega Abomasnow ex MEG 36",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Snover MEG 35",
+   "4 Mega Abomasnow ex MEG 36",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Snover MEG 35",
+   "Mega Abomasnow ex MEG 36"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Snover MEG 35",
+   "Mega Abomasnow ex MEG 36"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Frost Barrier"
+  },
+  {
+   "a": "attack",
+   "name": "Frost Barrier"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "damage": 170,
+   "cite": "card text: takes 30 less damage from attacks (200 - 30) after Weakness and Resistance",
+   "at": "next_turn_end"
+  }
+ ]
+}

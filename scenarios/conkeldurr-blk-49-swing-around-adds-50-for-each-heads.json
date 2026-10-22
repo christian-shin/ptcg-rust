@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Timburr BLK 47",
+   "4 Gurdurr BLK 48",
+   "4 Conkeldurr BLK 49",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Timburr BLK 47",
+   "4 Gurdurr BLK 48",
+   "4 Conkeldurr BLK 49",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Timburr BLK 47",
+   "Gurdurr BLK 48",
+   "Conkeldurr BLK 49"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "coins": [
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Swing Around"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 200,
+   "cite": "card text: 100 + 50 more for each heads (2); APR B-01",
+   "at": "turn_end"
+  }
+ ]
+}

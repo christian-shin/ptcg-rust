@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee SFA 50",
+   "4 Sylveon SFA 22",
+   "4 Mega Abomasnow ex MEG 36",
+   "4 Fire Energy MEE 2",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee SFA 50",
+   "4 Sylveon SFA 22",
+   "4 Mega Abomasnow ex MEG 36",
+   "4 Fire Energy MEE 2",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee SFA 50",
+   "Sylveon SFA 22"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "CONFUSED"
+   ],
+   "damage": 90,
+   "cite": "card text: 90 damage; your opponent's Active Pokemon is now Confused",
+   "at": "turn_end"
+  }
+ ]
+}

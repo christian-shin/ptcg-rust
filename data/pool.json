@@ -7718,5 +7718,355 @@
   "key": "Capsakid SSP 12",
   "tier": "data",
   "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "87",
+  "name": "Crabrawler",
+  "type": "F Basic",
+  "reg": "H",
+  "key": "Crabrawler SCR 87",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "150",
+  "name": "Dratini",
+  "type": "N Basic",
+  "reg": "I",
+  "key": "Dratini ASC 150",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "14",
+  "name": "Litleo",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Litleo CRI 14",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "43",
+  "name": "Primeape",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Primeape PBL 43",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "147",
+  "name": "Raboot",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Raboot SCR 147",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "44",
+  "name": "Sealeo",
+  "type": "W Stage 1",
+  "reg": "H",
+  "key": "Sealeo SSP 44",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "146",
+  "name": "Vigoroth",
+  "type": "C Stage 1",
+  "reg": "H",
+  "key": "Vigoroth SSP 146",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "113",
+  "name": "Shelgon",
+  "type": "N Stage 1",
+  "reg": "I",
+  "key": "Shelgon JTG 113",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "33",
+  "name": "Torracat",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Torracat TEF 33",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "129",
+  "name": "Antique Cover Fossil",
+  "type": "Item",
+  "reg": "H",
+  "key": "Antique Cover Fossil SCR 129",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "12",
+  "name": "Armarouge",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Armarouge PBL 12",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "13",
+  "name": "Shaymin",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Shaymin TEF 13",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "3",
+  "name": "Shaymin",
+  "type": "G Basic",
+  "reg": "J",
+  "key": "Shaymin POR 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "51",
+  "name": "Dwebble",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Dwebble BLK 51",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "17",
+  "name": "Dipplin",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Dipplin DRI 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "17",
+  "name": "Relicanth",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Relicanth PBL 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "48",
+  "name": "Paldean Tauros",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Paldean Tauros PFL 48",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "92",
+  "name": "Annihilape",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Annihilape DRI 92",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "47",
+  "name": "Brambleghast",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Brambleghast PFL 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "46",
+  "name": "Bramblin",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Bramblin PFL 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "49",
+  "name": "Conkeldurr",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Conkeldurr BLK 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "14",
+  "name": "Seaking",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Seaking PBL 14",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "122",
+  "name": "Okidogi",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Okidogi ASC 122",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "25",
+  "name": "Cubchoo",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Cubchoo BLK 25",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "215",
+  "name": "Waitress",
+  "type": "Supporter",
+  "reg": "J",
+  "key": "Waitress ASC 215",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "18",
+  "name": "Chandelure",
+  "type": "R Stage 2",
+  "reg": "I",
+  "key": "Chandelure WHT 18",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "16",
+  "name": "Litwick",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Litwick WHT 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "33",
+  "name": "Joltik",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Joltik WHT 33",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "28",
+  "name": "Pikachu ex",
+  "type": "L Basic",
+  "reg": "H",
+  "key": "Pikachu ex PRE 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "134",
+  "name": "Deluxe Bomb",
+  "type": "Tool",
+  "reg": "H",
+  "key": "Deluxe Bomb SCR 134",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SFA",
+  "number": "22",
+  "name": "Sylveon",
+  "type": "P Stage 1",
+  "reg": "H",
+  "key": "Sylveon SFA 22",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "36",
+  "name": "Mega Abomasnow ex",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Mega Abomasnow ex MEG 36",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "21",
+  "name": "Seismitoad",
+  "type": "W Stage 2",
+  "reg": "I",
+  "key": "Seismitoad BLK 21",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "34",
+  "name": "Galvantula",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Galvantula WHT 34",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "35",
+  "name": "Snover",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Snover MEG 35",
+  "tier": "data",
+  "print_match": "exact"
  }
 ]

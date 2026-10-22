@@ -1,0 +1,13 @@
+Paldean Tauros
+- Fighting - 130 HP
+Pokémon
+- Basic
+F
+Raging Charge 40×
+This attack does 40 damage for each of your Pokémon that has "Tauros" in its name that has any damage counters on it.
+FF
+Double-Edge 70
+This Pokémon also does 20 damage to itself.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

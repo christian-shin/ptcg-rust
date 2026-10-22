@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble BLK 51",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Dwebble BLK 51",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Dwebble BLK 51",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "active_damage": 40,
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flail"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: 10 damage for each damage counter on this Pokemon (4); APR B-02",
+   "at": "turn_end"
+  }
+ ]
+}

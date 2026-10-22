@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Paldean Tauros PFL 48",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Paldean Tauros PFL 48",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Paldean Tauros PFL 48",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Double-Edge"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "damage": 20,
+   "cite": "card text: this Pokemon also does 20 damage to itself",
+   "at": "turn_end"
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "card text: 70 damage",
+   "at": "turn_end"
+  }
+ ]
+}

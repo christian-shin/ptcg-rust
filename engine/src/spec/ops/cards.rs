@@ -842,7 +842,8 @@ pub(crate) fn pick_outcome(steps: &[Step], pick: &Op, into: u8) -> Option<Prompt
 /// (an unset register, a Pokémon not in play) or the card is nowhere. A random choice uses the game RNG.
 fn select(g: &mut Game, me: CardId, f: &Frame, from: ZoneRef, sel: &CardSel) -> Option<(ListRef, Vec<CardId>)> {
     match sel {
-        CardSel::This => g.st.locate(me).map(|l| (l, vec![me])),
+        // This card wherever it is: a Tool attached to a Pokémon is in the Pokémon's spot (`State::tool_spot`).
+        CardSel::This => g.st.locate(me).or_else(|| g.st.tool_spot(me).map(|(p, s)| ListRef::Slot(p as u8, s))).map(|l| (l, vec![me])),
         sel => {
             if zone_is_unset(f, from) {
                 return None;
@@ -2419,6 +2420,8 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
                 }
             }
             discard_cards_from_slots(g, me, f, &cards)?;
+            // "... for each card you discarded in this way" (`Num::Last`).
+            f.last = cards.len() as i32;
         }
         EnergySelection::Register(r) => {
             let cards: Vec<CardId> = reg_list(g, f, *r).to_vec();
@@ -3311,7 +3314,7 @@ mod pick_purpose_tests {
                 }
             }
         }
-        assert_eq!(n, 23, "the pool has 23 PickSlot steps");
+        assert_eq!(n, 24, "the pool has 24 PickSlot steps");
     }
 
     fn outcomes(class: &str) -> Vec<PromptPurpose> {

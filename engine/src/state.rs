@@ -791,6 +791,8 @@ pub struct Player {
     pub used_vstar: bool,
     pub used_gx: bool,
     pub prizes_taken: i32,
+    /// Prize cards the player took during their own turn so far, and during their last turn (kept when their turn
+    /// ended: `Num::PrizesTakenLastTurn`).
     pub prizes_taken_this_turn: i32,
     pub prizes_taken_last_turn: i32,
     pub moved_to_active_this_turn: SVec<CardId, 64>,

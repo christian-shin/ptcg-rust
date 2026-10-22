@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Waitress ASC 215",
+   "4 Snover MEG 35",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Waitress ASC 215",
+   "4 Snover MEG 35",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Waitress ASC 215"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Waitress ASC 215"
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text: attach a Basic Energy card you find there to 1 of your Pokemon",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Armarouge
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charcadet
+R
+Flame Legion 40+
+This attack does 40 more damage for each of your Benched Pokémon that has any [ R ] Energy attached.
+Weakness: Water
+Resistance: none
+Retreat: 2

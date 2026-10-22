@@ -1,0 +1,12 @@
+Dipplin
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Applin
+G
+Energy Loop 50
+Put an Energy attached to this Pokémon into your hand.
+Weakness: Fire
+Resistance: none
+Retreat: 3

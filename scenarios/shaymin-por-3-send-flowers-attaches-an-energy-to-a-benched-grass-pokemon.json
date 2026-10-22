@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Shaymin POR 3",
+   "4 Snover MEG 35",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Shaymin POR 3",
+   "4 Snover MEG 35",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Shaymin POR 3",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   },
+   {
+    "card": "Shaymin POR 3"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Send Flowers"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "bench": 0,
+   "energy": 0,
+   "cite": "card text: only a Benched [G] Pokemon can receive the Energy (Snover is [W])",
+   "at": "turn_end"
+  },
+  {
+   "who": "me",
+   "bench": 1,
+   "energy": 1,
+   "cite": "card text: search your deck for an Energy card and attach it to 1 of your Benched [G] Pokemon (the only one)",
+   "at": "turn_end"
+  }
+ ]
+}

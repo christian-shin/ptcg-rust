@@ -1,0 +1,15 @@
+Conkeldurr
+- Fighting - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Gurdurr
+Ability:
+Craftsmanship
+This Pokémon gets +40 HP for each [ F ] Energy attached to it.
+FCCC
+Swing Around 100+
+Flip 2 coins. This attack does 50 more damage for each heads.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

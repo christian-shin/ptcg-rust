@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Joltik WHT 33",
+   "4 Galvantula WHT 34",
+   "4 Mega Abomasnow ex MEG 36",
+   "3 Fire Energy MEE 2",
+   "45 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Joltik WHT 33",
+   "4 Galvantula WHT 34",
+   "4 Mega Abomasnow ex MEG 36",
+   "3 Fire Energy MEE 2",
+   "45 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Joltik WHT 33",
+   "Galvantula WHT 34"
+  ],
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Discharge"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "card text: discard all [L] Energy from this Pokemon, 50 damage for each card discarded in this way (2); APR B-02",
+   "at": "turn_end"
+  },
+  {
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text: only the [L] Energy is discarded",
+   "at": "turn_end"
+  }
+ ]
+}

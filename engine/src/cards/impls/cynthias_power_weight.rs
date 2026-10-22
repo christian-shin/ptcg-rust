@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "CynthiasPowerWeight",
     passives: &[Passive {
         origin: RuleSource::Tool,
-        modifier: Modifier::HpMod(HpModSpec { amount: 70, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Tag(tag::CYNTHIAS)]), guard: Cond::True }),
+        modifier: Modifier::HpMod(HpModSpec { amount: Num::Lit(70), subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Tag(tag::CYNTHIAS)]), guard: Cond::True }),
     }],
     ..CardSpec::NONE
 };

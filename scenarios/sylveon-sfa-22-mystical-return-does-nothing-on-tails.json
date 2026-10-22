@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee SFA 50",
+   "4 Sylveon SFA 22",
+   "4 Snover MEG 35",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee SFA 50",
+   "4 Sylveon SFA 22",
+   "4 Snover MEG 35",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee SFA 50",
+   "Sylveon SFA 22"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mystical Return"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "bench_count": 1,
+   "cite": "card text: only on heads",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+Relicanth
+- Water - 100 HP
+Pokémon
+- Basic
+C
+Fossil Beatdown 10+
+This attack does 30 more damage for each of your Benched Pokémon that has "Antique" in its name.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

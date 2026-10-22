@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::HpMod(HpModSpec {
-            amount: 250,
+            amount: Num::Lit(250),
             subject: SlotPred::Holder,
             guard: Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::This), EnergyUnit::Provided(ct::GRASS)), CmpOp::Ge, Num::Lit(6)),
         }),

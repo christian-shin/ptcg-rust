@@ -1,0 +1,15 @@
+Annihilape
+- Fighting - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Primeape
+Ability:
+Lose Cool
+If this Pokémon has 2 or more damage counters on it, attacks used by this Pokémon do 120 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+FF
+Impact Blow 160
+During your next turn, this Pokémon can't use Impact Blow.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

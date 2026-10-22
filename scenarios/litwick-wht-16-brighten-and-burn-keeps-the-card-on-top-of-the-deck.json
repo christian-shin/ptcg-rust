@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Litwick WHT 16",
+   "4 Snover MEG 35",
+   "8 Darkness Energy MEE 7",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Litwick WHT 16",
+   "4 Snover MEG 35",
+   "8 Darkness Energy MEE 7",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Litwick WHT 16",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "deck_top": [
+   "Snover MEG 35"
+  ],
+  "reset": true,
+  "prizes": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true,
+  "prizes": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Brighten and Burn"
+  },
+  false
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Snover MEG 35"
+   ],
+   "cite": "id2189: if you don't discard it you put it back on top of your deck",
+   "at": "turn_end"
+  }
+ ]
+}

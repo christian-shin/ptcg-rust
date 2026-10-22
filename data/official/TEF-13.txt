@@ -1,0 +1,12 @@
+Shaymin
+- Grass - 70 HP
+Pokémon
+- Basic
+G
+Pinpoint Dive
+This attack does 60 damage to 1 of your opponent's Benched Pokémon ex or Benched Pokémon V. (Don't apply Weakness and Resistance for Benched Pokémon.)
+CC
+Rear Kick 50
+Weakness: Fire
+Resistance: none
+Retreat: 0

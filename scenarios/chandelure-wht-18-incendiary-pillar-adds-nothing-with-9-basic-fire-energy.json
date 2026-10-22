@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Litwick WHT 16",
+   "4 Lampent TWM 37",
+   "4 Chandelure WHT 18",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Litwick WHT 16",
+   "4 Lampent TWM 37",
+   "4 Chandelure WHT 18",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Litwick WHT 16",
+   "Lampent TWM 37",
+   "Chandelure WHT 18"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "9 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Incendiary Pillar"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 50,
+   "cite": "card text: only 9 Basic [R] Energy cards in the discard pile",
+   "at": "turn_end"
+  }
+ ]
+}

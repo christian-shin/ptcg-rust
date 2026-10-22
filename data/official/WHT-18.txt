@@ -1,0 +1,15 @@
+Chandelure
+- Fire - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Lampent
+R
+Incendiary Pillar 50+
+If you have 10 or more Basic [ R ] Energy cards in your discard pile, this attack does 100 more damage.
+RR
+Burn It All Up 180
+Discard all Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

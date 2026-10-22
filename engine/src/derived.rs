@@ -1026,8 +1026,8 @@ pub fn compute_hp<F: Facts>(g: &mut F, p: usize, s: crate::state::SlotId) -> R<i
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 bonus += match &ps.modifier {
-                    Modifier::HpBonus(n) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, *n, &crate::spec::SlotPred::Holder, &crate::spec::Cond::True, target)?,
-                    Modifier::HpMod(h) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, h.amount, &h.subject, &h.guard, target)?,
+                    Modifier::HpBonus(n) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, &crate::spec::Num::Lit(*n), &crate::spec::SlotPred::Holder, &crate::spec::Cond::True, target)?,
+                    Modifier::HpMod(h) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, &h.amount, &h.subject, &h.guard, target)?,
                     _ => 0,
                 };
             }

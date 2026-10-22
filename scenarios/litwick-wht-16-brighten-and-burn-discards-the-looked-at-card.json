@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Litwick WHT 16",
+   "4 Snover MEG 35",
+   "8 Darkness Energy MEE 7",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Litwick WHT 16",
+   "4 Snover MEG 35",
+   "8 Darkness Energy MEE 7",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Litwick WHT 16",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "deck_top": [
+   "Snover MEG 35"
+  ],
+  "reset": true,
+  "prizes": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true,
+  "prizes": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Brighten and Burn"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Snover MEG 35"
+   ],
+   "cite": "card text: look at the top card of your deck, you may discard that card",
+   "at": "turn_end"
+  }
+ ]
+}

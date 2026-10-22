@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         Passive {
             origin: RuleSource::Ability,
-            modifier: Modifier::HpMod(HpModSpec { amount: 100, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Provides(ct::DARK)]), guard: Cond::True }),
+            modifier: Modifier::HpMod(HpModSpec { amount: Num::Lit(100), subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Provides(ct::DARK)]), guard: Cond::True }),
         },
         Passive {
             origin: RuleSource::Ability,

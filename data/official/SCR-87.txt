@@ -1,0 +1,11 @@
+Crabrawler
+- Fighting - 90 HP
+Pokémon
+- Basic
+CC
+Vise Grip 20
+CCC
+Crabhammer 50
+Weakness: Psychic
+Resistance: none
+Retreat: 3

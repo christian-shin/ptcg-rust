@@ -1,0 +1,14 @@
+Torracat
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Litten
+R
+Bite 30
+RCC
+Flare Strike 80
+During your next turn, this Pokémon can't use Flare Strike.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "1 Mega Abomasnow ex MEG 36",
+   "5 Water Energy MEE 3",
+   "3 Fire Energy MEE 2",
+   "6 Darkness Energy MEE 7",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "1 Snover MEG 35",
+   "1 Mega Abomasnow ex MEG 36",
+   "5 Water Energy MEE 3",
+   "3 Fire Energy MEE 2",
+   "6 Darkness Energy MEE 7",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Snover MEG 35",
+   "Mega Abomasnow ex MEG 36"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "44 Grass Energy MEE 1"
+  ],
+  "prizes": [
+   "6 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hammer-lanche"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 300,
+   "cite": "card text: discard the top 6 cards, 100 damage for each Basic [W] Energy card discarded in this way (3 of the 6: the deck is 3 Water, 3 Fire); APR B-02",
+   "at": "turn_end"
+  },
+  {
+   "who": "me",
+   "zone": "discard",
+   "count": 6,
+   "cite": "card text: discard the top 6 cards of your deck",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         // Automatically active: it can't be announced and used.
         // Each Basic Pokémon in play (both yours and your opponent's) gets +30 HP.
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::HpMod(HpModSpec { amount: 30, subject: SlotPred::Basic, guard: Cond::True }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::HpMod(HpModSpec { amount: Num::Lit(30), subject: SlotPred::Basic, guard: Cond::True }) },
     ],
     ..CardSpec::NONE
 };

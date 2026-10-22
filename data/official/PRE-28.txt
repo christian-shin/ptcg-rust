@@ -1,0 +1,12 @@
+Pikachu ex
+- Lightning - 190 HP
+Pokémon
+- Basic
+C
+Tail Whap 30
+LLC
+Thunder 220
+This Pokémon also does 30 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,15 @@
+Mega Abomasnow ex
+- Water - 350 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snover
+WW
+Hammer-lanche 100×
+Discard the top 6 cards of your deck, and this attack does 100 damage for each Basic [ W ] Energy card that you discarded in this way.
+WWW
+Frost Barrier 200
+During your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Metal
+Resistance: none
+Retreat: 4

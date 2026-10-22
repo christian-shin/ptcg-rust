@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Armarouge PBL 12",
+   "4 Charcadet SCR 29",
+   "4 Mega Abomasnow ex MEG 36",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Armarouge PBL 12",
+   "4 Charcadet SCR 29",
+   "4 Mega Abomasnow ex MEG 36",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Charcadet SCR 29",
+   "Armarouge PBL 12"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Charcadet SCR 29",
+    "energy": [
+     "Fire Energy MEE 2"
+    ]
+   },
+   {
+    "card": "Charcadet SCR 29",
+    "energy": [
+     "Fire Energy MEE 2"
+    ]
+   },
+   {
+    "card": "Charcadet SCR 29"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flame Legion"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: 40 + 40 more for each of your Benched Pokemon that has any [R] Energy attached (2); APR B-01",
+   "at": "turn_end"
+  }
+ ]
+}

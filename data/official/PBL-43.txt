@@ -1,0 +1,11 @@
+Primeape
+- Fighting - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Mankey
+CC
+Corkscrew Punch 50
+Weakness: Psychic
+Resistance: none
+Retreat: 2

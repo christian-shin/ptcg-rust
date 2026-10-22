@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape PBL 43",
+   "4 Annihilape DRI 92",
+   "4 Mega Abomasnow ex MEG 36",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "active_damage": 20,
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 280,
+   "cite": "card text: with 2 or more damage counters attacks used by this Pokemon do 120 more damage (160 + 120); APR B-04",
+   "at": "turn_end"
+  }
+ ]
+}

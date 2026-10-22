@@ -1198,7 +1198,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             for &i in prizes.iter() {
                 g.move_to(ListRef::Prize(p as u8, i), ListRef::Hand(p as u8), None);
                 g.st.players[p].prizes_taken += 1;
-                g.st.players[p].prizes_taken_this_turn += 1;
+                // "During their last turn" is that player's own turn: Prize cards taken between turns (Pokémon Checkup) or
+                // during the other player's turn aren't counted (`Num::PrizesTakenLastTurn`).
+                if crate::spec::event::whose_turn(g) == p as u8 {
+                    g.st.players[p].prizes_taken_this_turn += 1;
+                }
             }
             Ok(())
         }

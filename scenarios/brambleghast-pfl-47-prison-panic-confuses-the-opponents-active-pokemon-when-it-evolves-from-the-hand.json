@@ -1,0 +1,54 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Bramblin PFL 46",
+   "4 Brambleghast PFL 47",
+   "4 Snover MEG 35",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Bramblin PFL 46",
+   "4 Brambleghast PFL 47",
+   "4 Snover MEG 35",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Bramblin PFL 46",
+  "hand": [
+   "Brambleghast PFL 47"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Brambleghast PFL 47",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text: when you play this Pokemon from your hand to evolve 1 of your Pokemon you may use this Ability: Make your opponent's Active Pokemon Confused",
+   "at": "turn_end"
+  }
+ ]
+}

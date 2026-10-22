@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi ASC 122",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Okidogi ASC 122",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Okidogi ASC 122",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Settle the Score"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: no Prize card taken during their last turn",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bramblin PFL 46",
+   "4 Snover MEG 35",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Bramblin PFL 46",
+   "4 Snover MEG 35",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Bramblin PFL 46",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sneaky Placement"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "bench": 0,
+   "damage": 10,
+   "cite": "card text: place 1 damage counter on 1 of your opponent's Pokemon",
+   "at": "turn_end"
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: only the chosen Pokemon gets the counter",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Paldean Tauros PFL 48",
+   "1 Paldean Tauros SSP 39",
+   "1 Paldean Tauros SSP 18",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "2 Paldean Tauros PFL 48",
+   "1 Paldean Tauros SSP 39",
+   "1 Paldean Tauros SSP 18",
+   "4 Snover MEG 35",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Paldean Tauros PFL 48",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Paldean Tauros SSP 39",
+    "damage": 10
+   },
+   {
+    "card": "Paldean Tauros SSP 18"
+   },
+   {
+    "card": "Snover MEG 35",
+    "damage": 10
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Raging Charge"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text + id2255: 40 for each damaged Pokemon with \"Tauros\" in its name (this one and Paldean Tauros SSP 39); APR B-02",
+   "at": "turn_end"
+  }
+ ]
+}

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::GRASS])] }) },
         Passive {
             origin: RuleSource::Energy,
-            modifier: Modifier::HpMod(HpModSpec { amount: 20, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::GRASS)]), guard: Cond::True }),
+            modifier: Modifier::HpMod(HpModSpec { amount: Num::Lit(20), subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::GRASS)]), guard: Cond::True }),
         },
     ],
     ..CardSpec::NONE

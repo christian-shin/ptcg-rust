@@ -1,0 +1,12 @@
+Seaking
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Goldeen
+CCC
+Hydro Jet
+This attack does 30 damage to 1 of your opponent's Pokémon for each [ W ] Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin DRI 16",
+   "4 Dipplin DRI 17",
+   "4 Snover MEG 35",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin DRI 16",
+   "4 Dipplin DRI 17",
+   "4 Snover MEG 35",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Applin DRI 16",
+   "Dipplin DRI 17"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energy Loop"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "cite": "card text: put an Energy attached to this Pokemon into your hand",
+   "at": "turn_end"
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "damage": 50,
+   "cite": "card text: 50 damage",
+   "at": "turn_end"
+  }
+ ]
+}
