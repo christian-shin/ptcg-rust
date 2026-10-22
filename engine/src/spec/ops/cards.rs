@@ -3314,7 +3314,7 @@ mod pick_purpose_tests {
                 }
             }
         }
-        assert_eq!(n, 24, "the pool has 24 PickSlot steps");
+        assert_eq!(n, 25, "the pool has 25 PickSlot steps");
     }
 
     fn outcomes(class: &str) -> Vec<PromptPurpose> {
