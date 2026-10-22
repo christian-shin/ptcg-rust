@@ -1529,8 +1529,11 @@ mod deferred_tests {
     //! `Done` when queued: no attack may read "if you do" after one, or it would read the queued answer.
     use super::*;
 
+    /// `Op::DiscardEnergy` is the op whose removal of attached Energy waits (`discard_cards_from_slots`); `Op::Discard` of cards
+    /// attached to a Pokémon is an immediate LeavePlay (no window: `cards::move_cards_event`), so "if you do" may read it (N's Joltik's
+    /// Zapping Short, Team Rocket's Moltres ex's Evil Incineration).
     fn defers(op: &Op) -> bool {
-        matches!(op, Op::DiscardEnergy(_)) || matches!(op, Op::Discard(DiscardSpec { from: ZoneRef(_, Zone::Attached(_) | Zone::AttachedEnergy(_) | Zone::Tools(_)), .. }))
+        matches!(op, Op::DiscardEnergy(_))
     }
 
     fn reads_done_after(steps: &[Step], seen: &mut bool) -> bool {

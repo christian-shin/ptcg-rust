@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::PerTurn,
         // You can't use this Ability during your first turn.
-        needs: &[Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2))],
+        needs: &[Cond::Printed(&Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2)))],
         steps: &[
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Hand),
