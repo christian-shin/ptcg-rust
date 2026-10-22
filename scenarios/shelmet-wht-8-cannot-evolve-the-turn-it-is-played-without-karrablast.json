@@ -49,11 +49,7 @@
    "who": "me",
    "legal": "play",
    "name": "Accelgor",
-   "on": {
-    "player": 2,
-    "slot": 2,
-    "index": 0
-   },
+   "on": 0,
    "is": false,
    "cite": "APR A-05: a Pokémon put into play this turn can't evolve; Stimulated Evolution needs Karrablast in play"
   }
