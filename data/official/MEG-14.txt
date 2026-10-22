@@ -1,0 +1,13 @@
+Nuzleaf
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Seedot
+G
+Pound 30
+GC
+Low Kick 50
+Weakness: Fire
+Resistance: none
+Retreat: 2

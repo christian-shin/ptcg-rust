@@ -1,0 +1,11 @@
+Simisage
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pansage
+CC
+Gentle Slap 70
+Weakness: Fire
+Resistance: none
+Retreat: 1

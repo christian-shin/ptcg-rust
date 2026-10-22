@@ -1,0 +1,14 @@
+Lurantis
+- Grass - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Fomantis
+C
+Razor Leaf 30
+G
+Petal Blade Dance 130
+Discard 2 Basic [ G ] Energy cards from your hand. If you can't discard 2 cards in this way, this attack does nothing.
+Weakness: Fire
+Resistance: none
+Retreat: 1

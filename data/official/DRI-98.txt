@@ -1,0 +1,14 @@
+Probopass
+- Fighting - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Nosepass
+F
+Power Gem 40
+CCC
+Mountain Drop 70+
+If a Stadium is in play, this attack does 70 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 3

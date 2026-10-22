@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lombre JTG 36",
+   "4 Koraidon TEF 119",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Lombre JTG 36",
+   "4 Koraidon TEF 119",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Lombre JTG 36",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aqua Slash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 70,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Aqua Slash",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't attack"
+  }
+ ]
+}

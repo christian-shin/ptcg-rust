@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lombre PFL 6",
+   "4 Koraidon TEF 119",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Lombre PFL 6",
+   "4 Koraidon TEF 119",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Lombre PFL 6",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "active_damage": 50,
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mega Drain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 30,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Lombre PFL 6",
+   "damage": 20,
+   "cite": "card text: heal 30 damage from this Pokemon"
+  }
+ ]
+}

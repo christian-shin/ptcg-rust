@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lileep SCR 5",
+   "4 Dondozo ex DRI 66",
+   "4 Koraidon TEF 119",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Lileep SCR 5",
+   "4 Dondozo ex DRI 66",
+   "4 Koraidon TEF 119",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Lileep SCR 5",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokemon can't retreat"
+  }
+ ]
+}

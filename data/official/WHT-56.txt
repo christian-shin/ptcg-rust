@@ -1,0 +1,12 @@
+Liepard
+- Darkness - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Purrloin
+D
+Knock Off 50
+Discard a random card from your opponent's hand.
+Weakness: Grass
+Resistance: none
+Retreat: 1

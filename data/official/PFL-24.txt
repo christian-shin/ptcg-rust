@@ -1,0 +1,14 @@
+Piloswine
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Swinub
+CC
+Rising Lunge 30+
+Flip a coin. If heads, this attack does 30 more damage.
+WCC
+Frost Smash 70
+Weakness: Metal
+Resistance: none
+Retreat: 3

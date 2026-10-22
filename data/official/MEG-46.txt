@@ -1,0 +1,12 @@
+Magneton
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Magnemite
+L
+Thunder Shock 30
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

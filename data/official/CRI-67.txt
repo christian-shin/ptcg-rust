@@ -1,0 +1,11 @@
+Sliggoo
+- Dragon - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Goomy
+WP
+Gentle Slap 70
+Weakness: none
+Resistance: none
+Retreat: 3

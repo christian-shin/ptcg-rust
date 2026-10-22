@@ -1,0 +1,15 @@
+Mandibuzz ex
+- Darkness - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Vullaby
+CC
+Bone Shot
+This attack does 50 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+DCC
+Vulture Claw 160
+Discard a random card from your opponent's hand.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

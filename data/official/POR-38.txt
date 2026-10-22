@@ -1,0 +1,14 @@
+Probopass
+- Fighting - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Nosepass
+FF
+Rolling Rocks 60
+FFFC
+Obliterating Nose 260
+Discard 3 Energy from this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 3

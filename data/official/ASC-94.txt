@@ -1,0 +1,13 @@
+Slurpuff
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Swirlix
+P
+Tackle 40
+PC
+Magical Shot 70
+Weakness: Metal
+Resistance: none
+Retreat: 2

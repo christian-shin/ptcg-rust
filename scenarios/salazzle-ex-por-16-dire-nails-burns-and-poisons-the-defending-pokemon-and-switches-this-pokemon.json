@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Salazzle ex POR 16",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Salazzle ex POR 16",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Salazzle ex POR 16",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dire Nails"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 100,
+   "cite": "card text",
+   "conditions": [
+    "BURNED",
+    "POISONED"
+   ]
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "cite": "card text: switch this Pokemon with 1 of your Benched Pokemon"
+  }
+ ]
+}

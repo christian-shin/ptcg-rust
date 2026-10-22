@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Spewpa SSP 6",
+   "4 Koraidon TEF 119",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Spewpa SSP 6",
+   "4 Koraidon TEF 119",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Spewpa SSP 6",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wander About"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "cite": "card text: switch this Pokemon with 1 of your Benched Pokemon"
+  }
+ ]
+}
