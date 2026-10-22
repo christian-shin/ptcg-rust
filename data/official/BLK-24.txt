@@ -1,0 +1,12 @@
+Alomomola
+- Water - 110 HP
+Pokémon
+- Basic
+Ability:
+Gentle Fin
+Once during your turn, if this Pokémon is in the Active Spot, you may put a Basic Pokémon with 70 HP or less from your discard pile onto your Bench.
+WCC
+Waterfall 70
+Weakness: Lightning
+Resistance: none
+Retreat: 1

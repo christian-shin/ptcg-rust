@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ampharos CRI 29",
+   "3 Snover MEG 35",
+   "1 Lightning Energy MEE 4",
+   "1 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Ampharos CRI 29",
+   "3 Snover MEG 35",
+   "1 Lightning Energy MEE 4",
+   "1 Water Energy MEE 3",
+   "1 Mega Zygarde ex POR 47",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Ampharos CRI 29",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Water Energy MEE 3"
+  ],
+  "hand_to_deck": true,
+  "hand": [
+   "3 Snover MEG 35"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Zygarde ex POR 47",
+  "hand_to_deck": true,
+  "hand": [
+   "3 Snover MEG 35"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flashing Bolt"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "cite": "card text: 140 + 80 more with the same number of cards in your hand as your opponent"
+  },
+  {
+   "at": "next_turn",
+   "who": "me",
+   "turn": 2,
+   "legal": "attack",
+   "name": "Flashing Bolt",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't use Flashing Bolt"
+  }
+ ]
+}

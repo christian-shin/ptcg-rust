@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "ConkeldurrBLK",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(2), per_heads: PerHeads::DamageAdd(50), ..CoinSpec::DEFAULT }))],
+        steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(Num::Lit(2)), per_heads: PerHeads::DamageAdd(50), ..CoinSpec::DEFAULT }))],
     }],
     passives: &[Passive {
         origin: RuleSource::Ability,

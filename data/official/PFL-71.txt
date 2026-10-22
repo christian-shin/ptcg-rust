@@ -1,0 +1,12 @@
+Bronzor
+- Metal - 80 HP
+Pokémon
+- Basic
+C
+Iron Defense
+Flip a coin. If heads, during your opponent's next turn, prevent all damage done to this Pokémon by attacks.
+CCC
+Rollout 30
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

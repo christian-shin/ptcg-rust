@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tauros DRI 152",
+   "2 Water Energy MEE 3",
+   "1 Mankey SSP 98",
+   "1 Primeape PBL 43",
+   "1 Annihilape DRI 92",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "1 Tauros DRI 152",
+   "2 Water Energy MEE 3",
+   "1 Mankey SSP 98",
+   "1 Primeape PBL 43",
+   "1 Annihilape DRI 92",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tauros DRI 152",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape DRI 92"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Clean Hit"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "card text: 50 + 50 more against an Evolution Pokemon"
+  }
+ ]
+}

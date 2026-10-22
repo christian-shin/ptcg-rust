@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Chien-Pao POR 54",
+   "2 Darkness Energy MEE 7",
+   "1 Water Energy MEE 3",
+   "1 Pikachu ex PRE 28",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Chien-Pao POR 54",
+   "2 Darkness Energy MEE 7",
+   "1 Water Energy MEE 3",
+   "1 Pikachu ex PRE 28",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chien-Pao POR 54",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pikachu ex PRE 28",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rising Blade"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: 80 + 80 more against a Pokemon ex"
+  }
+ ]
+}

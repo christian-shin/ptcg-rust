@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Absol PFL 63",
+   "1 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Absol PFL 63",
+   "1 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Absol PFL 63",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "hand_to_deck": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Allure"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: draw 2 cards"
+  }
+ ]
+}

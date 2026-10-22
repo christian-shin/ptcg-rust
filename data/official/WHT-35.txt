@@ -1,0 +1,12 @@
+Stunfisk
+- Lightning - 110 HP
+Pokémon
+- Basic
+C
+Muddy Bolt 20+
+If this Pokémon has any [ F ] Energy attached, this attack does 20 more damage.
+LC
+Flop 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

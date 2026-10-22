@@ -701,7 +701,7 @@ pub enum LastingWhat {
     /// declared lock, the turns it still lasts, and its place among the player's (the order they are read in).
     PlayerLock { decl: &'static crate::spec::passive::LockDecl, turns: i8, pos: u8 },
     /// "This Pokémon takes N less damage from attacks."
-    TakesLessDamage(i16),
+    TakesLessDamage(i16, crate::spec::ops::state::DamageSource),
     /// "Attacks used by the Defending Pokémon do N less damage."
     DealsLessDamage(i16),
     /// "The Defending Pokémon takes N more damage from attacks" (by the attacking player's attacks).
@@ -748,7 +748,7 @@ impl LastingWhat {
     pub fn is_spent(&self) -> bool {
         match *self {
             LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => false,
-            LastingWhat::TakesLessDamage(n) | LastingWhat::DealsLessDamage(n) => n == 0,
+            LastingWhat::TakesLessDamage(n, _) | LastingWhat::DealsLessDamage(n) => n == 0,
             LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
             LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),
             LastingWhat::NoWeakness { armed, pending } => !armed && !pending,

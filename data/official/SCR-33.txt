@@ -1,0 +1,9 @@
+Marill
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Rollout 10
+Weakness: Lightning
+Resistance: none
+Retreat: 1

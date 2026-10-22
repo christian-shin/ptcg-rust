@@ -52,6 +52,18 @@ pub enum DamageSource {
 }
 
 impl DamageSource {
+    /// The attacking Pokémon these attacks come from, read where it is when the damage is done.
+    pub const fn attacker(self) -> &'static crate::spec::value::SlotPred {
+        use crate::spec::value::SlotPred;
+        match self {
+            DamageSource::Any => &SlotPred::Any,
+            DamageSource::Stage(Stage::Basic) => &SlotPred::Basic,
+            DamageSource::Stage(_) | DamageSource::Evolution => &crate::spec::passive::ATTACKER_EVOLUTION,
+            DamageSource::HasAbility => &SlotPred::HasAbility,
+            DamageSource::BasicNonColorless => &crate::spec::passive::ATTACKER_BASIC_NON_COLORLESS,
+        }
+    }
+
     /// The lasting `Prevent` "during your opponent's next turn, prevent all damage done to this Pokémon by attacks from
     /// <these> Pokémon" (the attacking Pokémon where it is now: `CausePred::Pokemon`).
     pub const fn spec(self) -> &'static crate::spec::passive::PreventSpec {
@@ -74,8 +86,9 @@ pub enum Lasting {
     /// Pokémon can't attack during your next turn", "can't use [Attack Name]" (APR C-15), "the Defending Pokémon can't
     /// retreat", "your opponent can't play Item cards from their hand" (APR C-19), Seismitoad's coin-gated one.
     Lock(LastingLockSpec),
-    /// During the opponent's next turn, this Pokémon takes n less damage from attacks.
-    TakesLessDamage(i32),
+    /// During the opponent's next turn, this Pokémon takes n less damage from attacks (only those from `source`'s Pokémon:
+    /// "from Evolution Pokémon"; `DamageSource::Any` for every attack).
+    TakesLessDamage(i32, DamageSource),
     /// During the opponent's next turn, attacks used by the Defending Pokémon do n less damage.
     DealsLessDamage(i32),
     /// During the opponent's next turn, the Defending Pokémon takes n more damage from attacks.

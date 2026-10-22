@@ -9558,5 +9558,495 @@
   "key": "Team Rocket's Exeggcute ASC 77",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "10",
+  "name": "Ho-Oh",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Ho-Oh CRI 10",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "17",
+  "name": "Lampent",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Lampent WHT 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "72",
+  "name": "Bronzong",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Bronzong PFL 72",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "64",
+  "name": "Bronzong",
+  "type": "M Stage 1",
+  "reg": "J",
+  "key": "Bronzong PBL 64",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "71",
+  "name": "Bronzor",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Bronzor PFL 71",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "63",
+  "name": "Bronzor",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Bronzor PBL 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "53",
+  "name": "Iono's Bellibolt ex",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Iono's Bellibolt ex JTG 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "52",
+  "name": "Iono's Tadbulb",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Iono's Tadbulb JTG 52",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "47",
+  "name": "Iono's Voltorb",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Iono's Voltorb JTG 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "8",
+  "name": "Maractus",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Maractus BLK 8",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "152",
+  "name": "Tauros",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Tauros DRI 152",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "69",
+  "name": "Tauros",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Tauros CRI 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "17",
+  "name": "Turtonator",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Turtonator POR 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "214",
+  "name": "Urbain",
+  "type": "Supporter",
+  "reg": "J",
+  "key": "Urbain ASC 214",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "34",
+  "name": "Kyogre",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Kyogre MEG 34",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "54",
+  "name": "Chien-Pao",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Chien-Pao POR 54",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "69",
+  "name": "Eternatus",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Eternatus PFL 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "102",
+  "name": "Gastly",
+  "type": "D Basic",
+  "reg": "H",
+  "key": "Gastly TEF 102",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "48",
+  "name": "Gastly",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Gastly POR 48",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "103",
+  "name": "Haunter",
+  "type": "D Stage 1",
+  "reg": "H",
+  "key": "Haunter TEF 103",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "49",
+  "name": "Haunter",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Haunter POR 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "102",
+  "name": "Hitmontop",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Hitmontop ASC 102",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "59",
+  "name": "Klefki",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Klefki POR 59",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "64",
+  "name": "Marill",
+  "type": "P Basic",
+  "reg": "H",
+  "key": "Marill TEF 64",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "33",
+  "name": "Marill",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Marill SCR 33",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "47",
+  "name": "Mega Zygarde ex",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Mega Zygarde ex POR 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "143",
+  "name": "Pecharunt",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Pecharunt ASC 143",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "59",
+  "name": "Sableye",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Sableye PFL 59",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "38",
+  "name": "Sigilyph",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Sigilyph WHT 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "63",
+  "name": "Snorlax",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Snorlax POR 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "35",
+  "name": "Stunfisk",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Stunfisk WHT 35",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "89",
+  "name": "Swirlix",
+  "type": "P Basic",
+  "reg": "H",
+  "key": "Swirlix TWM 89",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "93",
+  "name": "Swirlix",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Swirlix ASC 93",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "175",
+  "name": "Team Rocket's Great Ball",
+  "type": "Item",
+  "reg": "I",
+  "key": "Team Rocket's Great Ball DRI 175",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "72",
+  "name": "Team Rocket's Mareep",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Team Rocket's Mareep DRI 72",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "71",
+  "name": "Tyrogue",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Tyrogue MEG 71",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "60",
+  "name": "Abomasnow",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Abomasnow DRI 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "63",
+  "name": "Absol",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Absol PFL 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "9",
+  "name": "Accelgor",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Accelgor WHT 9",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "58",
+  "name": "Aegislash",
+  "type": "M Stage 2",
+  "reg": "J",
+  "key": "Aegislash POR 58",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "78",
+  "name": "Aipom",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Aipom PFL 78",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "44",
+  "name": "Alcremie",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Alcremie PFL 44",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "24",
+  "name": "Alomomola",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Alomomola BLK 24",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "134",
+  "name": "Altaria",
+  "type": "N Stage 1",
+  "reg": "H",
+  "key": "Altaria SSP 134",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "93",
+  "name": "Amarys",
+  "type": "Supporter",
+  "reg": "H",
+  "key": "Amarys PRE 93",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "23",
+  "name": "Amaura",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Amaura POR 23",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "79",
+  "name": "Ambipom",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Ambipom PFL 79",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "29",
+  "name": "Ampharos",
+  "type": "L Stage 2",
+  "reg": "J",
+  "key": "Ampharos CRI 29",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "162",
+  "name": "Amulet of Hope",
+  "type": "Tool",
+  "reg": "H",
+  "key": "Amulet of Hope SSP 162",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

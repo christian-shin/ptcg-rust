@@ -1,0 +1,13 @@
+Chien-Pao
+- Darkness - 120 HP
+Pokémon
+- Basic
+D
+Strafe 20
+You may switch this Pokémon with 1 of your Benched Pokémon.
+DDC
+Rising Blade 80+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 80 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 1

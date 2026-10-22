@@ -1,0 +1,14 @@
+Bronzong
+- Metal - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Bronzor
+M
+Gentle Slap 40
+MMC
+Metal Block 120
+During your opponent's next turn, this Pokémon takes 100 less damage from attacks from Evolution Pokémon (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

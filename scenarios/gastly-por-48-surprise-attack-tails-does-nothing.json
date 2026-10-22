@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Gastly POR 48",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Gastly POR 48",
+   "1 Darkness Energy MEE 7",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Gastly POR 48",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Surprise Attack"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: tails: this attack does nothing"
+  }
+ ]
+}

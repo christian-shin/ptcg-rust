@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Snover MEG 35",
+   "1 Amarys PRE 93",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Snover MEG 35",
+   "1 Amarys PRE 93",
+   "1 Hop's Snorlax JTG 117",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand_to_deck": true,
+  "hand": [
+   "Amarys PRE 93"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Amarys PRE 93"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 4,
+   "cite": "card text: with 4 cards in your hand at the end of the turn nothing is discarded"
+  }
+ ]
+}

@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Zygarde ex POR 47",
+   "5 Fighting Energy MEE 6",
+   "1 Mega Abomasnow ex MEG 36",
+   "2 Pikachu ex PRE 28",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "1 Mega Zygarde ex POR 47",
+   "5 Fighting Energy MEE 6",
+   "1 Mega Abomasnow ex MEG 36",
+   "2 Pikachu ex PRE 28",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Abomasnow ex MEG 36",
+  "bench": [
+   {
+    "card": "Pikachu ex PRE 28"
+   },
+   {
+    "card": "Pikachu ex PRE 28"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  true,
+  false,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nullifying Zero"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 150,
+   "cite": "card text: heads on the Active Pokemon: 150 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 0,
+   "cite": "card text: tails on the first Benched Pokemon: no damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "damage": 150,
+   "cite": "card text: heads on the second Benched Pokemon: 150 damage, no Weakness on the Bench (id2316)"
+  }
+ ]
+}

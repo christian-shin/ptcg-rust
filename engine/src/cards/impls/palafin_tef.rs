@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
                 when: Cond::True,
             }))],
         },
-        AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(2), per_heads: PerHeads::DamageIs(90), ..CoinSpec::DEFAULT }))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(Num::Lit(2)), per_heads: PerHeads::DamageIs(90), ..CoinSpec::DEFAULT }))] },
     ],
     ..CardSpec::NONE
 };

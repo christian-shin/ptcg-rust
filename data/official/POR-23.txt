@@ -1,0 +1,12 @@
+Amaura
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Antique Sail Fossil
+WC
+Icy Wind 50
+Your opponent's Active Pokémon is now Asleep.
+Weakness: Metal
+Resistance: none
+Retreat: 3

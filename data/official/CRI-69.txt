@@ -1,0 +1,10 @@
+Tauros
+- Colorless - 130 HP
+Pokémon
+- Basic
+CC
+Target Together
+Choose 1 of your opponent's Pokémon and flip a coin for each of your Pokémon in play that has "Tauros" in its name. This attack does 50 damage to the chosen Pokémon for each heads. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fighting
+Resistance: none
+Retreat: 2

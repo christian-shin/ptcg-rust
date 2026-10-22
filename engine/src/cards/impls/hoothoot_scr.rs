@@ -4,7 +4,7 @@
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HoothootSCR",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(3), per_heads: PerHeads::DamageIs(10), ..CoinSpec::DEFAULT }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(Num::Lit(3)), per_heads: PerHeads::DamageIs(10), ..CoinSpec::DEFAULT }))] }],
     ..CardSpec::NONE
 };
 

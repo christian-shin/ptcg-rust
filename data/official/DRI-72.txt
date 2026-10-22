@@ -1,0 +1,12 @@
+Team Rocket's Mareep
+- Lightning - 60 HP
+Pokémon
+- Basic
+C
+Procurement
+Search your deck for an Item card, reveal it, and put it into your hand. Then, shuffle your deck.
+L
+Tiny Bolt 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

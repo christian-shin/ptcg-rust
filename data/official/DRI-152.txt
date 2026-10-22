@@ -1,0 +1,12 @@
+Tauros
+- Colorless - 130 HP
+Pokémon
+- Basic
+C
+Horn Attack 30
+CC
+Clean Hit 50+
+If your opponent's Active Pokémon is an Evolution Pokémon, this attack does 50 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

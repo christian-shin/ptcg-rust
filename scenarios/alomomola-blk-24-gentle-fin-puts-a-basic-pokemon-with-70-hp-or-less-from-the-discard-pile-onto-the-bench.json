@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Alomomola BLK 24",
+   "1 Swablu SSP 148",
+   "1 Snover MEG 35",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Alomomola BLK 24",
+   "1 Swablu SSP 148",
+   "1 Snover MEG 35",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Alomomola BLK 24",
+  "discard": [
+   "Swablu SSP 148",
+   "Snover MEG 35"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Gentle Fin",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Gentle Fin",
+   "on": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   },
+   "is": true,
+   "cite": "card text: once during your turn, if this Pokemon is in the Active Spot, you may use this Ability"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Swablu SSP 148",
+   "cite": "card text: a Basic Pokemon with 70 HP or less from your discard pile onto your Bench (Snover has 90)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Snover MEG 35"
+   ],
+   "cite": "card text: Snover (90 HP) can't be chosen and stays in the discard pile"
+  }
+ ]
+}

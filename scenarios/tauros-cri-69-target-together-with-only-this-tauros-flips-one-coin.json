@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tauros CRI 69",
+   "2 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "1 Snover MEG 35",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Tauros CRI 69",
+   "2 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "1 Snover MEG 35",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tauros CRI 69",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Target Together"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: one Tauros: one flip, tails: no damage"
+  }
+ ]
+}

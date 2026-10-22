@@ -1,0 +1,10 @@
+Klefki
+- Metal - 70 HP
+Pokémon
+- Basic
+M
+Memory Lock 30
+Choose 1 of your opponent's Active Pokémon's attacks. During your opponent's next turn, that Pokémon can't use that attack.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

@@ -1,0 +1,13 @@
+Kyogre
+- Water - 150 HP
+Pokémon
+- Basic
+W
+Riptide 20×
+This attack does 20 damage for each Basic [ W ] Energy card in your discard pile. Then, shuffle those cards into your deck.
+WWC
+Swirling Waves 130
+Discard 2 Energy from this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 3

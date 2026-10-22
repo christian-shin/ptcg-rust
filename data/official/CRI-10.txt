@@ -1,0 +1,13 @@
+Ho-Oh
+- Fire - 130 HP
+Pokémon
+- Basic
+R
+Flames of Revival
+Put up to 3 Basic Pokémon from your discard pile onto your Bench.
+RRR
+Bright Wing 130
+Discard a [ R ] Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Aipom
+- Colorless - 70 HP
+Pokémon
+- Basic
+CC
+Astonish 20
+Choose a random card from your opponent's hand, and your opponent reveals that card and shuffles it into their deck.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

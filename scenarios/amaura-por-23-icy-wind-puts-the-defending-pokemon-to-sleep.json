@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Amaura POR 23",
+   "2 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Amaura POR 23",
+   "2 Water Energy MEE 3",
+   "1 Hop's Snorlax JTG 117",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Amaura POR 23",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Icy Wind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 50,
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "card text: 50 damage; your opponent's Active Pokemon is now Asleep"
+  }
+ ]
+}
