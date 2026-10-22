@@ -411,14 +411,14 @@ impl Game {
         }
     }
 
-    fn turn_select(&self, p: u8) -> SelectData {
+    fn turn_select(&mut self, p: u8) -> SelectData {
         let mut s = SelectData::default();
         self.turn_select_into(p, &mut s);
         s
     }
 
     /// The turn decision of `p` as a select, into `out` (its lists reused).
-    fn turn_select_into(&self, p: u8, out: &mut SelectData) {
+    fn turn_select_into(&mut self, p: u8, out: &mut SelectData) {
         out.vals.clear();
         crate::options::legal_actions_into(self, &mut out.actions);
         let SelectData { options, actions, .. } = &mut *out;

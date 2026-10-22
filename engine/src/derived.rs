@@ -161,7 +161,7 @@ impl Default for Derived {
 /// The key fact `f`'s memo entries are good at: the sum of the counters of the classes it reads, or the version when it
 /// reads anything (`DeclIndex::reads`). Never 0 (an empty entry).
 #[inline]
-fn key(g: &Game, f: usize) -> u32 {
+pub(crate) fn key(g: &Game, f: usize) -> u32 {
     let m = g.decls.reads[f];
     if m & reads::ANY != 0 {
         return g.st.version;
@@ -590,16 +590,14 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
 /// The HP of the Pokémon in slot `s` of player `p` (every HP modifier applied).
 #[inline]
 pub fn hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    let (k, v) = (key(g, fact::HP), g.st.version);
-    if g.derived.hp_v[p][s as usize] == k {
-        let m = g.derived.hp[p][s as usize];
+    let k = key(g, fact::HP);
+    if let Some(m) = peek_hp(g, k, p, s) {
         return Ok(hit(g, fact::HP, "hp", m, |g| game_hp(g, p, s).unwrap_or(i32::MIN)));
     }
+    let v = g.st.version;
     let r = game_hp(g, p, s)?;
     if g.st.version == v {
-        stored(g, fact::HP);
-        g.derived.hp_v[p][s as usize] = k;
-        g.derived.hp[p][s as usize] = r;
+        keep_hp(g, k, p, s, &r);
     }
     Ok(r)
 }
@@ -607,18 +605,14 @@ pub fn hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
 /// The Energy the Pokémon in `source` provides, per attached card (asked by `p`; APR C-01).
 #[inline]
 pub fn provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    let (k, v) = (key(g, fact::PROVIDES), g.st.version);
-    let (q, s) = (source.p as usize, source.s as usize);
-    if g.derived.pe_v[q][s] == k && g.derived.pe_p[q][s] == p as u8 {
-        let m = g.derived.pe[q][s];
+    let k = key(g, fact::PROVIDES);
+    if let Some(m) = peek_provided_energy(g, k, p, source) {
         return Ok(hit(g, fact::PROVIDES, "provided_energy", m, |g| game_provided_energy(g, p, source).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_provided_energy(g, p, source)?;
     if g.st.version == v {
-        stored(g, fact::PROVIDES);
-        g.derived.pe_v[q][s] = k;
-        g.derived.pe_p[q][s] = p as u8;
-        g.derived.pe[q][s] = r;
+        keep_provided_energy(g, k, p, source, &r);
     }
     Ok(r)
 }
@@ -626,17 +620,14 @@ pub fn provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> 
 /// The types of the Pokémon in `target`, as the game checks them (`TypeOverride` and the like applied).
 #[inline]
 pub fn types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    let (k, v) = (key(g, fact::TYPES), g.st.version);
-    let (q, s) = (target.p as usize, target.s as usize);
-    if g.derived.types_v[q][s] == k {
-        let m = g.derived.types[q][s];
+    let k = key(g, fact::TYPES);
+    if let Some(m) = peek_types(g, k, target) {
         return Ok(hit(g, fact::TYPES, "types", m, |g| game_types(g, target).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_types(g, target)?;
     if g.st.version == v {
-        stored(g, fact::TYPES);
-        g.derived.types_v[q][s] = k;
-        g.derived.types[q][s] = r;
+        keep_types(g, k, target, &r);
     }
     Ok(r)
 }
@@ -649,16 +640,14 @@ pub fn weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 
 /// Player `p`'s Active Pokémon's Retreat Cost.
 #[inline]
 pub fn retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    let (k, v) = (key(g, fact::RETREAT), g.st.version);
-    if g.derived.retreat_v[p] == k {
-        let m = g.derived.retreat[p];
+    let k = key(g, fact::RETREAT);
+    if let Some(m) = peek_retreat_cost(g, k, p) {
         return Ok(hit(g, fact::RETREAT, "retreat_cost", m, |g| game_retreat_cost(g, p).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_retreat_cost(g, p)?;
     if g.st.version == v {
-        stored(g, fact::RETREAT);
-        g.derived.retreat_v[p] = k;
-        g.derived.retreat[p] = r;
+        keep_retreat_cost(g, k, p, &r);
     }
     Ok(r)
 }
@@ -666,16 +655,14 @@ pub fn retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
 /// The attacks player `p`'s Active Pokémon may use, and those copied from the Bench.
 #[inline]
 pub fn attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
-    let (k, v) = (key(g, fact::ATTACKS), g.st.version);
-    if g.derived.attacks_v[p] == k {
-        let m = g.derived.attacks[p];
+    let k = key(g, fact::ATTACKS);
+    if let Some(m) = peek_attacks(g, k, p) {
         return Ok(hit(g, fact::ATTACKS, "attacks", m, |g| game_attacks(g, p).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_attacks(g, p)?;
     if g.st.version == v {
-        stored(g, fact::ATTACKS);
-        g.derived.attacks_v[p] = k;
-        g.derived.attacks[p] = r;
+        keep_attacks(g, k, p, &r);
     }
     Ok(r)
 }
@@ -683,21 +670,14 @@ pub fn attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks>
 /// The current cost of `attack` (asked by `p`, the attacking player).
 #[inline]
 pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    let (k, v) = (key(g, fact::ATTACK_COST), g.st.version);
-    for i in 0..COST_MEMO {
-        if g.derived.cost_v[i] == k && g.derived.cost_key[i] == (p as u8, attack) {
-            let m = g.derived.cost[i];
-            return Ok(hit(g, fact::ATTACK_COST, "attack_cost", m, |g| game_attack_cost(g, p, attack).unwrap_or_default()));
-        }
+    let k = key(g, fact::ATTACK_COST);
+    if let Some(m) = peek_attack_cost(g, k, p, attack) {
+        return Ok(hit(g, fact::ATTACK_COST, "attack_cost", m, |g| game_attack_cost(g, p, attack).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_attack_cost(g, p, attack)?;
     if g.st.version == v {
-        stored(g, fact::ATTACK_COST);
-        let i = g.derived.cost_next as usize % COST_MEMO;
-        g.derived.cost_next = g.derived.cost_next.wrapping_add(1);
-        g.derived.cost_v[i] = k;
-        g.derived.cost_key[i] = (p as u8, attack);
-        g.derived.cost[i] = r;
+        keep_attack_cost(g, k, p, attack, &r);
     }
     Ok(r)
 }
@@ -705,17 +685,14 @@ pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
 /// The powers the Pokémon card `card` has now: its printed ones, less those an Ability lock removes.
 #[inline]
 pub fn powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
-    let (k, v) = (key(g, fact::ABILITY), g.st.version);
-    let c = card as usize;
-    if g.derived.powers_v[c] == k {
-        let m = g.derived.powers[c];
+    let k = key(g, fact::ABILITY);
+    if let Some(m) = peek_powers(g, k, card) {
         return Ok(hit(g, fact::ABILITY, "powers", m, |g| game_powers(g, card).unwrap_or_default()));
     }
+    let v = g.st.version;
     let r = game_powers(g, card)?;
     if g.st.version == v {
-        stored(g, fact::ABILITY);
-        g.derived.powers_v[c] = k;
-        g.derived.powers[c] = r;
+        keep_powers(g, k, card, &r);
     }
     Ok(r)
 }
@@ -725,40 +702,178 @@ pub fn powers(g: &mut Game, card: CardId) -> R<SVec<PowerRef, 8>> {
 /// no Ability of its own); a stamp changed by `lock_sync` is a write (a version bump, an `EFFECTS` bump).
 #[inline]
 pub fn has_no_ability(g: &mut Game, card: CardId, power_index: Option<u8>) -> bool {
-    if g.deleg.is_some() || card as usize >= MAX_CARDS {
-        return game_has_no_ability(g, card, power_index);
+    let k = key(g, fact::ABILITY);
+    if let Some(m) = peek_has_no_ability(g, k, card, power_index) {
+        return hit(g, fact::ABILITY, "has_no_ability", m, |g| game_has_no_ability(g, card, power_index));
     }
-    let bit = match power_index {
-        Some(i) if i < 7 => 1u8 << i,
-        Some(_) => return game_has_no_ability(g, card, power_index),
-        None => 1u8 << 7,
-    };
-    let (k, v) = (key(g, fact::ABILITY), g.st.version);
+    let v = g.st.version;
+    let r = game_has_no_ability(g, card, power_index);
+    if g.st.version == v {
+        keep_has_no_ability(g, k, card, power_index, r);
+    }
+    r
+}
+
+// ---------------------------------------------------------------------------
+// Legality's reads of the memo: legality's context (`legal::Ctx`) reads a `&Game`, so it reads the memo through
+// `peek_*` (an entry at the game's current key) and the legal scan hands the facts it computed to `keep_*` when it is
+// done (the state is the one they were computed in: `k` is the fact's current key, [`key`]; an entry already at the key is
+// left as it is).
+
+/// The memoized HP of the Pokémon in spot `s` of player `p`, if its entry is at the current key.
+#[inline]
+pub fn peek_hp(g: &Game, k: u32, p: usize, s: crate::state::SlotId) -> Option<i32> {
+    (g.derived.hp_v[p][s as usize] == k).then(|| g.derived.hp[p][s as usize])
+}
+
+/// Keep `r`, the HP of the Pokémon in spot `s` of player `p` in the current state.
+pub fn keep_hp(g: &mut Game, k: u32, p: usize, s: crate::state::SlotId, r: &i32) {
+    if g.derived.hp_v[p][s as usize] != k {
+        stored(g, fact::HP);
+        g.derived.hp_v[p][s as usize] = k;
+        g.derived.hp[p][s as usize] = *r;
+    }
+}
+
+/// The memoized types of the Pokémon in `target`, if at the current key.
+#[inline]
+pub fn peek_types(g: &Game, k: u32, target: SlotRef) -> Option<SVec<CardType, 4>> {
+    let (q, s) = (target.p as usize, target.s as usize);
+    (g.derived.types_v[q][s] == k).then(|| g.derived.types[q][s])
+}
+
+/// Keep `r`, the types of the Pokémon in `target` in the current state.
+pub fn keep_types(g: &mut Game, k: u32, target: SlotRef, r: &SVec<CardType, 4>) {
+    let (q, s) = (target.p as usize, target.s as usize);
+    if g.derived.types_v[q][s] != k {
+        stored(g, fact::TYPES);
+        g.derived.types_v[q][s] = k;
+        g.derived.types[q][s] = *r;
+    }
+}
+
+/// The memoized Energy the Pokémon in `source` provides (asked by `p`), if at the current key.
+#[inline]
+pub fn peek_provided_energy(g: &Game, k: u32, p: usize, source: SlotRef) -> Option<EnergyMap> {
+    let (q, s) = (source.p as usize, source.s as usize);
+    (g.derived.pe_v[q][s] == k && g.derived.pe_p[q][s] == p as u8).then(|| g.derived.pe[q][s])
+}
+
+/// Keep `r`, the Energy the Pokémon in `source` provides (asked by `p`) in the current state.
+pub fn keep_provided_energy(g: &mut Game, k: u32, p: usize, source: SlotRef, r: &EnergyMap) {
+    let (q, s) = (source.p as usize, source.s as usize);
+    if g.derived.pe_v[q][s] != k || g.derived.pe_p[q][s] != p as u8 {
+        stored(g, fact::PROVIDES);
+        g.derived.pe_v[q][s] = k;
+        g.derived.pe_p[q][s] = p as u8;
+        g.derived.pe[q][s] = *r;
+    }
+}
+
+/// The memoized Retreat Cost of player `p`'s Active Pokémon, if at the current key.
+#[inline]
+pub fn peek_retreat_cost(g: &Game, k: u32, p: usize) -> Option<Cost> {
+    (g.derived.retreat_v[p] == k).then(|| g.derived.retreat[p])
+}
+
+/// Keep `r`, the Retreat Cost of player `p`'s Active Pokémon in the current state.
+pub fn keep_retreat_cost(g: &mut Game, k: u32, p: usize, r: &Cost) {
+    if g.derived.retreat_v[p] != k {
+        stored(g, fact::RETREAT);
+        g.derived.retreat_v[p] = k;
+        g.derived.retreat[p] = *r;
+    }
+}
+
+/// The memoized attacks of player `p`'s Active Pokémon, if at the current key.
+#[inline]
+pub fn peek_attacks(g: &Game, k: u32, p: usize) -> Option<crate::engine::turn::CheckedAttacks> {
+    (g.derived.attacks_v[p] == k).then(|| g.derived.attacks[p])
+}
+
+/// Keep `r`, the attacks of player `p`'s Active Pokémon in the current state.
+pub fn keep_attacks(g: &mut Game, k: u32, p: usize, r: &crate::engine::turn::CheckedAttacks) {
+    if g.derived.attacks_v[p] != k {
+        stored(g, fact::ATTACKS);
+        g.derived.attacks_v[p] = k;
+        g.derived.attacks[p] = *r;
+    }
+}
+
+/// The memoized cost of `attack` (asked by `p`), if at the current key.
+#[inline]
+pub fn peek_attack_cost(g: &Game, k: u32, p: usize, attack: AttackRef) -> Option<Cost> {
+    (0..COST_MEMO).find(|&i| g.derived.cost_v[i] == k && g.derived.cost_key[i] == (p as u8, attack)).map(|i| g.derived.cost[i])
+}
+
+/// Keep `r`, the cost of `attack` (asked by `p`) in the current state.
+pub fn keep_attack_cost(g: &mut Game, k: u32, p: usize, attack: AttackRef, r: &Cost) {
+    if (0..COST_MEMO).any(|i| g.derived.cost_v[i] == k && g.derived.cost_key[i] == (p as u8, attack)) {
+        return;
+    }
+    stored(g, fact::ATTACK_COST);
+    let i = g.derived.cost_next as usize % COST_MEMO;
+    g.derived.cost_next = g.derived.cost_next.wrapping_add(1);
+    g.derived.cost_v[i] = k;
+    g.derived.cost_key[i] = (p as u8, attack);
+    g.derived.cost[i] = *r;
+}
+
+/// The memoized powers of `card`, if at the current key.
+#[inline]
+pub fn peek_powers(g: &Game, k: u32, card: CardId) -> Option<SVec<PowerRef, 8>> {
     let c = card as usize;
-    if g.derived.abil_v[c] == k {
-        if g.derived.abil_known[c] & bit != 0 {
-            let m = g.derived.abil_off[c] & bit != 0;
-            return hit(g, fact::ABILITY, "has_no_ability", m, |g| game_has_no_ability(g, card, power_index));
-        }
-    } else {
-        // A new key: start this card's entry afresh.
+    (g.derived.powers_v[c] == k).then(|| g.derived.powers[c])
+}
+
+/// Keep `r`, the powers `card` has in the current state.
+pub fn keep_powers(g: &mut Game, k: u32, card: CardId, r: &SVec<PowerRef, 8>) {
+    let c = card as usize;
+    if g.derived.powers_v[c] != k {
+        stored(g, fact::ABILITY);
+        g.derived.powers_v[c] = k;
+        g.derived.powers[c] = *r;
+    }
+}
+
+/// The bit of the "has no Ability" memo for `power_index` (`None`: the generic probe); `None` when it isn't memoized.
+#[inline]
+fn abil_bit(g: &Game, card: CardId, power_index: Option<u8>) -> Option<u8> {
+    if g.deleg.is_some() || card as usize >= MAX_CARDS {
+        return None;
+    }
+    match power_index {
+        Some(i) if i < 7 => Some(1u8 << i),
+        Some(_) => None,
+        None => Some(1u8 << 7),
+    }
+}
+
+/// The memoized "has no Ability" of `card` (power `power_index`, or the generic probe), if at the current key.
+#[inline]
+pub fn peek_has_no_ability(g: &Game, k: u32, card: CardId, power_index: Option<u8>) -> Option<bool> {
+    let bit = abil_bit(g, card, power_index)?;
+    let c = card as usize;
+    (g.derived.abil_v[c] == k && g.derived.abil_known[c] & bit != 0).then(|| g.derived.abil_off[c] & bit != 0)
+}
+
+/// Keep `r`, "has no Ability" of `card` (power `power_index`, or the generic probe) in the current state.
+pub fn keep_has_no_ability(g: &mut Game, k: u32, card: CardId, power_index: Option<u8>, r: bool) {
+    let Some(bit) = abil_bit(g, card, power_index) else { return };
+    let c = card as usize;
+    if g.derived.abil_v[c] == k && g.derived.abil_known[c] & bit != 0 {
+        return;
+    }
+    stored(g, fact::ABILITY);
+    if g.derived.abil_v[c] != k {
+        g.derived.abil_v[c] = k;
         g.derived.abil_known[c] = 0;
         g.derived.abil_off[c] = 0;
     }
-    let r = game_has_no_ability(g, card, power_index);
-    if g.st.version == v {
-        stored(g, fact::ABILITY);
-        if g.derived.abil_v[c] != k {
-            g.derived.abil_known[c] = 0;
-            g.derived.abil_off[c] = 0;
-        }
-        g.derived.abil_v[c] = k;
-        g.derived.abil_known[c] |= bit;
-        if r {
-            g.derived.abil_off[c] |= bit;
-        }
+    g.derived.abil_known[c] |= bit;
+    if r {
+        g.derived.abil_off[c] |= bit;
     }
-    r
 }
 
 /// The Special Conditions the Pokémon in `target` keeps when it evolves (APR A-05: it recovers from all of them, unless a
