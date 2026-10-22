@@ -1,0 +1,10 @@
+Larvesta
+- Fire - 60 HP
+Pokémon
+- Basic
+C
+Peck Off 10
+Before doing damage, discard all Pokémon Tools from your opponent's Active Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

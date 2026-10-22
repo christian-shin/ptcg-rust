@@ -711,7 +711,11 @@ pub enum LastingWhat {
     Prevent { spec: u8, pending: bool },
     /// A lasting trigger: "if this Pokémon is damaged by an attack, put N damage counters on the Attacking Pokémon"
     /// (the source's attack `attack`, by player `attacker`).
-    Retaliate { amount: i16, attack: AttackRef, attacker: u8, pending: bool },
+    Retaliate { amount: crate::spec::ops::state::PutOnAttacker, attack: AttackRef, attacker: u8, pending: bool },
+    /// A lasting trigger on the Defending Pokémon: "whenever they attach an Energy card from their hand to it, place N damage
+    /// counters on it" (`hp`, the HP they stand for; the source's attack `attack`, by player `attacker`). It ends with the owner's
+    /// next turn and with the Pokémon's effects.
+    AttachTrap { hp: i16, attack: AttackRef, attacker: u8 },
     /// A lasting trigger: "if this Pokémon is Knocked Out by damage from an attack, discard an Energy from the Attacking
     /// Pokémon" (the source's attack `attack`, by player `attacker`; e.g. Little Grudge).
     DiscardAttackerEnergy { attack: AttackRef, attacker: u8, armed: bool, pending: bool },
@@ -747,7 +751,7 @@ impl LastingWhat {
     /// Nothing in force nor pending: the entry is removed.
     pub fn is_spent(&self) -> bool {
         match *self {
-            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => false,
+            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::AttachTrap { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => false,
             LastingWhat::TakesLessDamage(n, _) | LastingWhat::DealsLessDamage(n) => n == 0,
             LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
             LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),

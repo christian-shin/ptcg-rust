@@ -217,6 +217,9 @@ pub struct SwitchWithActiveSpec {
 pub struct RemoveFromPlaySpec {
     pub slot: SlotExpr,
     pub destination: ZoneRef,
+    /// "Put this Pokémon on top of your deck": its cards go to the top of the destination deck (the printed order of the stack),
+    /// instead of the end.
+    pub top: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -410,7 +413,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     return Ok(Flow::Next);
                 }
                 let dst = zone_ref(f, r.destination);
-                crate::engine::knockout::leave_play(g, slot, dst, f.cause, me)?;
+                let stack = g.st.slot_pokemons(slot.p as usize, slot.s);
+                if crate::engine::knockout::leave_play(g, slot, dst, f.cause, me)? && r.top {
+                    crate::engine::cards_zone::put_on_top(g, dst, stack.as_slice());
+                }
             }
             Ok(Flow::Next)
         }
@@ -501,12 +507,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::Evolve(EvolveSpec { how: EvolveHow::FromRegister { chooser, card } }) => evolve_reg_exec(g, me, f, *chooser, *card),
         Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot, card } }) => {
+            f.outcome = Outcome::Impossible;
             let (Some(slot), Some(&card)) = (slot_of(g, me, f, *slot), reg_list(g, f, *card).first()) else { return Ok(Flow::Next) };
             if g.st.locate(card).is_none() {
                 return Ok(Flow::Next);
             }
-            // Put onto the Pokémon by the effect: the effect path.
-            crate::engine::enter::evolve(g, card, slot, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, f.cause)?;
+            // Put onto the Pokémon by the effect: the effect path ("if you do" reads whether it happened).
+            f.outcome = Outcome::of(crate::engine::enter::evolve(g, card, slot, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, f.cause)?);
             Ok(Flow::Next)
         }
         Op::Devolve(d) if d.chooser.is_some() => devolve_exec(g, me, f, d),

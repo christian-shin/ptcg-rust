@@ -1,0 +1,12 @@
+Bombirdier
+- Colorless - 100 HP
+Pokémon
+- Basic
+CC
+Challenging Delivery
+Flip 2 coins. If both of them are heads, search your deck for a Pokémon and put it onto your Bench. Then, shuffle your deck.
+CCC
+Speed Wing 100
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

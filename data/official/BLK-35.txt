@@ -1,0 +1,12 @@
+Munna
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Rest
+This Pokémon is now Asleep. Heal 30 damage from it.
+P
+Mumble 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

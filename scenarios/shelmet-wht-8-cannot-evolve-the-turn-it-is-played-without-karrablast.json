@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Shelmet WHT 8",
+   "4 Accelgor WHT 9",
+   "4 Hop's Snorlax JTG 117",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Shelmet WHT 8",
+   "4 Accelgor WHT 9",
+   "4 Hop's Snorlax JTG 117",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Shelmet WHT 8",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Shelmet WHT 8",
+    "played": "this_turn"
+   }
+  ],
+  "hand": [
+   "Accelgor WHT 9"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Headbutt Bounce"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Accelgor",
+   "on": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   },
+   "is": false,
+   "cite": "APR A-05: a Pokémon put into play this turn can't evolve; Stimulated Evolution needs Karrablast in play"
+  }
+ ]
+}

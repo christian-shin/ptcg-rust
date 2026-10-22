@@ -1,0 +1,10 @@
+Skarmory
+- Metal - 120 HP
+Pokémon
+- Basic
+M
+Steel Cutter 40×
+Discard up to 2 Basic [ M ] Energy cards from your hand, and this attack does 40 damage for each card you discarded in this way.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

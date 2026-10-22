@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bombirdier PBL 71",
+   "4 Chewtle SCR 43",
+   "1 Hop's Snorlax JTG 117",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Bombirdier PBL 71",
+   "4 Chewtle SCR 43",
+   "1 Hop's Snorlax JTG 117",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Bombirdier PBL 71",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "prizes": [
+   "Hop's Snorlax JTG 117",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "47 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Challenging Delivery"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 0,
+   "cite": "card text: only if both are heads"
+  }
+ ]
+}

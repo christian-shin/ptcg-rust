@@ -1,0 +1,12 @@
+Sandygast
+- Psychic - 90 HP
+Pokémon
+- Basic
+P
+Sand Attack 10
+During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.
+PCC
+Spooky Shot 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

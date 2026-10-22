@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mesprit SSP 79",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mesprit SSP 79",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mesprit SSP 79",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Full Heart"
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 1
+    }
+   },
+   {
+    "index": 1,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 1
+    }
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Mesprit SSP 79",
+   "energy": 3,
+   "cite": "card text: attach up to 2 Basic [P] Energy cards from your hand to your Pokémon in any way you like"
+  }
+ ]
+}

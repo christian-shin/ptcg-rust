@@ -10048,5 +10048,475 @@
   "key": "Amulet of Hope SSP 162",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "145",
+  "name": "Registeel ex",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Registeel ex ASC 145",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "79",
+  "name": "Mesprit",
+  "type": "P Basic",
+  "reg": "H",
+  "key": "Mesprit SSP 79",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "8",
+  "name": "Mow Rotom",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Mow Rotom SCR 8",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "158",
+  "name": "Arven's Skwovet",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Arven's Skwovet DRI 158",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "15",
+  "name": "Larvesta",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Larvesta BLK 15",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "49",
+  "name": "N's Joltik",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "N's Joltik JTG 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "102",
+  "name": "Spearow",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Spearow MEG 102",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "38",
+  "name": "Phantump",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Phantump CRI 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "29",
+  "name": "Dedenne",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Dedenne POR 29",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "9",
+  "name": "Mow Rotom",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Mow Rotom DRI 9",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "16",
+  "name": "Deerling",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Deerling TEF 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "31",
+  "name": "Team Rocket's Moltres ex",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Team Rocket's Moltres ex DRI 31",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "25",
+  "name": "Ducklett",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Ducklett WHT 25",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "60",
+  "name": "Skarmory",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Skarmory PBL 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "32",
+  "name": "Mawile",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Mawile POR 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "176",
+  "name": "Drampa",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Drampa ASC 176",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "39",
+  "name": "Hippopotas",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Hippopotas POR 39",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "91",
+  "name": "Sandygast",
+  "type": "P Basic",
+  "reg": "H",
+  "key": "Sandygast TWM 91",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "146",
+  "name": "Zamazenta",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Zamazenta DRI 146",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "46",
+  "name": "Roggenrola",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Roggenrola WHT 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "51",
+  "name": "Pachirisu",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Pachirisu MEG 51",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "18",
+  "name": "Delibird",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Delibird CRI 18",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "25",
+  "name": "Volcanion",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Volcanion POR 25",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "82",
+  "name": "Lugia ex",
+  "type": "C Basic",
+  "reg": "H",
+  "key": "Lugia ex PRE 82",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "100",
+  "name": "Team Rocket's Diglett",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Team Rocket's Diglett ASC 100",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "10",
+  "name": "Virizion",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Virizion WHT 10",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "35",
+  "name": "Mega Floette ex",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Mega Floette ex CRI 35",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "35",
+  "name": "Munna",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Munna BLK 35",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "40",
+  "name": "Meloetta",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Meloetta PFL 40",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "106",
+  "name": "Miltank",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Miltank MEG 106",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "71",
+  "name": "Bombirdier",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Bombirdier PBL 71",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "15",
+  "name": "Wo-Chien",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Wo-Chien SSP 15",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "70",
+  "name": "Durant",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Durant WHT 70",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "66",
+  "name": "Cobalion",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Cobalion BLK 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "49",
+  "name": "Bruxish",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Bruxish SSP 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "125",
+  "name": "Team Rocket's Koffing",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Team Rocket's Koffing DRI 125",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "28",
+  "name": "Miraidon",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Miraidon PBL 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "110",
+  "name": "Orthworm ex",
+  "type": "M Basic",
+  "reg": "H",
+  "key": "Orthworm ex SCR 110",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "149",
+  "name": "Togedemaru ex",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Togedemaru ex ASC 149",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "45",
+  "name": "Misty's Psyduck",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Misty's Psyduck DRI 45",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "18",
+  "name": "Dhelmise",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Dhelmise MEG 18",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "25",
+  "name": "Entei",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Entei ASC 25",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "48",
+  "name": "Raikou",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Raikou MEG 48",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "26",
+  "name": "Suicune",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Suicune PFL 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "65",
+  "name": "Tapu Koko",
+  "type": "L Basic",
+  "reg": "H",
+  "key": "Tapu Koko SSP 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "12",
+  "name": "Victini",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Victini BLK 12",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "8",
+  "name": "Shelmet",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Shelmet WHT 8",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

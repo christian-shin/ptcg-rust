@@ -1,0 +1,10 @@
+Mawile
+- Psychic - 110 HP
+Pokémon
+- Basic
+PC
+Double Eater 60×
+Discard up to 2 Energy cards from your hand, and this attack does 60 damage for each card you discarded in this way.
+Weakness: Metal
+Resistance: none
+Retreat: 2

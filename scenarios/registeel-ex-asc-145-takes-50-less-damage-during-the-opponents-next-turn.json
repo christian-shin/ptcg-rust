@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Registeel ex ASC 145",
+   "4 Bouffalant ex WHT 77",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Registeel ex ASC 145",
+   "4 Bouffalant ex WHT 77",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Registeel ex ASC 145",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Protecting Steel"
+  },
+  {
+   "a": "attack",
+   "name": "Gold Breaker"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Registeel ex ASC 145",
+   "damage": 150,
+   "turn": 2,
+   "cite": "card text: Gold Breaker 100 + 100 against a Pokémon ex = 200, 50 less = 150"
+  }
+ ]
+}

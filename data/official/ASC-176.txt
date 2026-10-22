@@ -1,0 +1,12 @@
+Drampa
+- Colorless - 130 HP
+Pokémon
+- Basic
+CC
+Gentle Slap 50
+CCC
+Dragon Strike 120
+During your next turn, this Pokémon can't use Dragon Strike.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

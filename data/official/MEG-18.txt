@@ -1,0 +1,10 @@
+Dhelmise
+- Grass - 120 HP
+Pokémon
+- Basic
+GC
+Earthen Power 30+
+If you have a Stadium in play, this attack does 50 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 2

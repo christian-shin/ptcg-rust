@@ -1,0 +1,12 @@
+Miltank
+- Colorless - 120 HP
+Pokémon
+- Basic
+CC
+Bellyful of Milk
+Flip 2 coins. If both of them are heads, heal all damage from 1 of your Pokémon.
+CCC
+Tackle 60
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,13 @@
+Cobalion
+- Metal - 120 HP
+Pokémon
+- Basic
+M
+Righteous Edge 20
+Discard a Special Energy from your opponent's Active Pokémon.
+MMC
+Metal Arms 80+
+If this Pokémon has a Pokémon Tool attached, this attack does 40 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Registeel ex ASC 145",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Registeel ex ASC 145",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Registeel ex ASC 145",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true,
+  "discard": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Regi Charge"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Registeel ex ASC 145",
+   "energy": 3,
+   "cite": "card text: attach up to 2 Basic [M] Energy cards from your discard pile to this Pokémon; id2304 (up to: any number)"
+  }
+ ]
+}

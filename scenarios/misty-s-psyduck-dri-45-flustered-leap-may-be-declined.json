@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Misty's Psyduck DRI 45",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Misty's Psyduck DRI 45",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chewtle SCR 43",
+  "bench": [
+   {
+    "card": "Misty's Psyduck DRI 45",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Flustered Leap",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  },
+  false,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 1,
+   "cite": "card text: you may discard the bottom card of your deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "card text: nothing is discarded"
+  }
+ ]
+}

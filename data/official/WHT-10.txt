@@ -1,0 +1,13 @@
+Virizion
+- Grass - 120 HP
+Pokémon
+- Basic
+G
+Giga Drain 30
+Heal from this Pokémon the same amount of damage you did to your opponent's Active Pokémon.
+GGC
+Emerald Blade 130
+During your next turn, this Pokémon can't use attacks.
+Weakness: Fire
+Resistance: none
+Retreat: 1

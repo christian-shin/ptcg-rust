@@ -78,6 +78,30 @@ impl DamageSource {
     }
 }
 
+/// The damage counters a lasting trigger puts on the Attacking Pokémon (`Lasting::Retaliate`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PutOnAttacker {
+    /// "Put N damage counters" (the HP they stand for).
+    Counters(i16),
+    /// "Put damage counters equal to the damage done to this Pokémon" (the damage as done, not capped by its HP: id2165).
+    DamageDone,
+}
+
+/// The damage a lasting "prevent all damage ... if that damage is N or less" covers: one entry per printed cap (each is a static
+/// `Prevent` of the lasting table, `passive::LASTING_PREVENTS`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DamageCap {
+    AtMost40,
+}
+
+impl DamageCap {
+    pub const fn spec(self) -> &'static crate::spec::passive::PreventSpec {
+        match self {
+            DamageCap::AtMost40 => &crate::spec::passive::LASTING_PREVENT_DAMAGE_AT_MOST_40,
+        }
+    }
+}
+
 /// A lasting attack effect (vocabulary v1 `Lasting`). The core owns the
 /// pending-to-active roll-over at the end of the turn and the expiry.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -95,9 +119,14 @@ pub enum Lasting {
     TakesMoreDamage(i32),
     /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks from `source`.
     PreventDamage(DamageSource),
-    /// During the opponent's next turn, if this Pokémon is damaged by an attack
-    /// (even if Knocked Out), put n damage counters on the Attacking Pokémon.
-    Retaliate(i32),
+    /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is at most this much.
+    PreventDamageAtMost(DamageCap),
+    /// During the opponent's next turn, if this Pokémon is damaged by an attack (even if Knocked Out), put damage counters on the
+    /// Attacking Pokémon: a number of them, or as many as the damage done.
+    Retaliate(PutOnAttacker),
+    /// During the opponent's next turn, whenever they attach an Energy card from their hand to the Defending Pokémon, place n damage
+    /// counters on that Pokémon (the HP they stand for).
+    CountersOnEnergyAttached(i32),
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
     /// During the opponent's next turn, the Defending Pokémon's Retreat Cost is [C] more.

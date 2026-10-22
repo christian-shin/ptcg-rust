@@ -1,0 +1,13 @@
+Miraidon
+- Lightning - 120 HP
+Pokémon
+- Basic
+Ability:
+Photon Cord
+If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, move up to 2 Basic [ L ] Energy cards from this Pokémon to 1 of your Benched Pokémon.
+LL
+Thunder 90
+This Pokémon also does 30 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

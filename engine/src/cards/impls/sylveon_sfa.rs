@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
                     Step::new(Op::If(IfSpec {
                         cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any),
                         yes: &[
-                            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Opp, Zone::Deck) })),
+                            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Opp, Zone::Deck), top: false })),
                             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: true })),
                         ],
                         no: &[],

@@ -221,7 +221,23 @@ pub fn attach(g: &mut Game, card: CardId, target: SlotRef, cause: Cause) -> R<bo
 pub(crate) fn run_attach(g: &mut Game, card: CardId, target: SlotRef, manual: bool, cause: Cause) -> R {
     let Some((from, source)) = crate::engine::enter::source_of(g, card) else { return Ok(()) };
     let p = g.st.owner(card) as u8;
-    g.run_fx_unit(Effect::Attach { p, card, target, from, source, manual, cause })
+    g.run_fx_unit(Effect::Attach { p, card, target, from, source, manual, cause })?;
+    attach_trap(g, card, target, source)
+}
+
+/// An Energy card from the hand was attached to a Pokémon an attack left "whenever they attach an Energy card from their hand to
+/// the Defending Pokémon, place N damage counters on that Pokémon" on: the counters are a PlaceCounters event by that attack
+/// (Pachirisu's Electrified Incisors). Every attachment from the hand counts, the turn's own and an effect's (id25, id230).
+fn attach_trap(g: &mut Game, card: CardId, target: SlotRef, source: RulesZone) -> R {
+    if g.st.lasting.is_empty() || source != RulesZone::Hand || !g.st.cdef(card).is_energy() {
+        return Ok(());
+    }
+    let Some((hp, attack, attacker, from)) = crate::engine::lasting::attach_trap(&g.st, target.p as usize, target.s) else { return Ok(()) };
+    if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
+        return Ok(());
+    }
+    crate::engine::damage::place(g, target, hp, Cause::attack(attacker, Some(from), attack))?;
+    Ok(())
 }
 
 /// An attached card moves from the Pokémon in `from` to the one in `to`: an Energy (MoveEnergy) or a Tool

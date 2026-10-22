@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hippopotas POR 39",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Hippopotas POR 39",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hippopotas POR 39",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sand Attack"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Hippopotas POR 39",
+   "damage": 0,
+   "cite": "card text: during your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen"
+  }
+ ]
+}

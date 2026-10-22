@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::PickSlot(PickSlotOp { pick: PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Me) }, purpose: PromptPurpose::PutIntoHand })),
-            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Me, Zone::Hand) })),
+            Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Me, Zone::Hand), top: false })),
         ],
     }),
     ..CardSpec::NONE

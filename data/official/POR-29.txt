@@ -1,0 +1,13 @@
+Dedenne
+- Lightning - 70 HP
+Pokémon
+- Basic
+L
+Tail Generator
+Choose Basic [ L ] Energy cards from your discard pile up to the amount of Energy attached to all of your opponent's Pokémon and attach them to your [ L ] Pokémon in any way you like.
+LC
+Thunder Shock 30
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

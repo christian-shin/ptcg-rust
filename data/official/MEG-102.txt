@@ -1,0 +1,10 @@
+Spearow
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Pluck 10
+Before doing damage, discard all Pokémon Tools from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

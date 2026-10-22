@@ -1,0 +1,10 @@
+Mow Rotom
+- Grass - 90 HP
+Pokémon
+- Basic
+C
+Reaping Dash 30
+Before doing damage, discard all Pokémon Tools and Special Energy from your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

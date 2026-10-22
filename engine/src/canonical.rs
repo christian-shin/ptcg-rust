@@ -83,10 +83,18 @@ impl Game {
                         o.insert("pending".into(), json!(pending));
                     }
                     LastingWhat::Retaliate { amount, attack: a, attacker, pending } => {
-                        o.insert("retaliate".into(), json!(amount));
+                        o.insert("retaliate".into(), match amount {
+                            crate::spec::ops::state::PutOnAttacker::Counters(n) => json!(n),
+                            crate::spec::ops::state::PutOnAttacker::DamageDone => json!("damageDone"),
+                        });
                         o.insert("attack".into(), attack(a));
                         o.insert("attacker".into(), player(attacker));
                         o.insert("pending".into(), json!(pending));
+                    }
+                    LastingWhat::AttachTrap { hp, attack: a, attacker } => {
+                        o.insert("attachTrap".into(), json!(hp));
+                        o.insert("attack".into(), attack(a));
+                        o.insert("attacker".into(), player(attacker));
                     }
                     LastingWhat::DiscardAttackerEnergy { attack: a, attacker, armed, pending } => {
                         o.insert("discardAttackerEnergy".into(), json!(armed));

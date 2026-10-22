@@ -1,0 +1,13 @@
+Orthworm ex
+- Metal - 220 HP
+Pokémon
+- Basic
+Ability:
+Pummeling Payback
+If this Pokémon is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , put 2 damage counters on the Attacking Pokémon for each [ M ] Energy attached to this Pokémon.
+CCCC
+Rock Tomb 150
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

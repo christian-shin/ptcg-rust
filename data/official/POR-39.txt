@@ -1,0 +1,12 @@
+Hippopotas
+- Fighting - 100 HP
+Pokémon
+- Basic
+F
+Sand Attack 10
+During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.
+FCC
+Bite 60
+Weakness: Grass
+Resistance: none
+Retreat: 4

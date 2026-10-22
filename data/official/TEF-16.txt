@@ -1,0 +1,12 @@
+Deerling
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Flop 10
+GCC
+Leaf Litter Tackle 40
+Discard a [ G ] Energy from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

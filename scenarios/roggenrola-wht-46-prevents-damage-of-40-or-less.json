@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Roggenrola WHT 46",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Roggenrola WHT 46",
+   "4 Koraidon TEF 119",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Roggenrola WHT 46",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true,
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Harden"
+  },
+  {
+   "a": "attack",
+   "name": "Primordial Beatdown"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Roggenrola WHT 46",
+   "damage": 0,
+   "cite": "card text: prevent all damage done to this Pokémon by attacks if that damage is 40 or less (Primordial Beatdown 30)"
+  }
+ ]
+}

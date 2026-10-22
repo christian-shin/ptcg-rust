@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bruxish SSP 49",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Bruxish SSP 49",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bruxish SSP 49",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Big Bite"
+  },
+  {
+   "a": "attack",
+   "name": "Gold Breaker"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 50,
+   "cite": "card text: put 3 damage counters on the Attacking Pokémon (Big Bite 50 less 30 from its Ability = 20, + 30)"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Bruxish SSP 49",
+   "damage": 100,
+   "cite": "Gold Breaker 100 (Bruxish is not a Pokémon ex)"
+  }
+ ]
+}

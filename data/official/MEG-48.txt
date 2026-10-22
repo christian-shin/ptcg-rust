@@ -1,0 +1,10 @@
+Raikou
+- Lightning - 120 HP
+Pokémon
+- Basic
+LL
+Electro Fall 30+
+If you have at least 4 [ L ] Energy in play, this attack does 90 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

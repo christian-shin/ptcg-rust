@@ -1,0 +1,12 @@
+Ducklett
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Firefighting
+Discard a [ R ] Energy from your opponent's Active Pokémon.
+CC
+Wing Attack 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

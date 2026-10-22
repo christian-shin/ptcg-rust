@@ -1,0 +1,13 @@
+Togedemaru ex
+- Metal - 190 HP
+Pokémon
+- Basic
+M
+Stun Needle 20
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+MC
+Spiky Rolling 80+
+If this Pokémon used Spiky Rolling during your last turn, this attack does 80 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

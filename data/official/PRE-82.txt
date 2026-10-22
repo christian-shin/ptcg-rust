@@ -1,0 +1,10 @@
+Lugia ex
+- Colorless - 220 HP
+Pokémon
+- Basic
+CCC
+Hyper Whirlpool 140
+Flip a coin until you get tails. For each heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2
