@@ -1,0 +1,11 @@
+Quaxwell
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Quaxly
+W
+Aqua Edge 40
+Weakness: Lightning
+Resistance: none
+Retreat: 1

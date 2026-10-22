@@ -11028,5 +11028,495 @@
   "key": "Landorus BLK 53",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "62",
+  "name": "Klang",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Klang BLK 62",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "65",
+  "name": "Krokorok",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Krokorok PFL 65",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "174",
+  "name": "Larry's Braviary",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Larry's Braviary ASC 174",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "169",
+  "name": "Larry's Staravia",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Larry's Staravia ASC 169",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "56",
+  "name": "Liepard",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Liepard WHT 56",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "5",
+  "name": "Lileep",
+  "type": "G Stage 1",
+  "reg": "H",
+  "key": "Lileep SCR 5",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "36",
+  "name": "Lombre",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Lombre JTG 36",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "6",
+  "name": "Lombre",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Lombre PFL 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "14",
+  "name": "Lurantis",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Lurantis DRI 14",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "46",
+  "name": "Magneton",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Magneton MEG 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "139",
+  "name": "Mandibuzz ex",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Mandibuzz ex ASC 139",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "76",
+  "name": "Manectric",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Manectric DRI 76",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "131",
+  "name": "Marnie's Liepard",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Marnie's Liepard DRI 131",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "133",
+  "name": "Marnie's Scrafty",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Marnie's Scrafty DRI 133",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "117",
+  "name": "Melmetal",
+  "type": "M Stage 1",
+  "reg": "H",
+  "key": "Melmetal TEF 117",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "34",
+  "name": "Meowstic",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Meowstic POR 34",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "62",
+  "name": "Metang",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Metang JTG 62",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "60",
+  "name": "Metang",
+  "type": "M Stage 1",
+  "reg": "J",
+  "key": "Metang CRI 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "53",
+  "name": "Mienshao",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Mienshao WHT 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "47",
+  "name": "Misty's Starmie",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Misty's Starmie DRI 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "108",
+  "name": "Mudsdale",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Mudsdale DRI 108",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "104",
+  "name": "N's Klang",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "N's Klang JTG 104",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "83",
+  "name": "Naclstack",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Naclstack MEG 83",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "4",
+  "name": "Nuzleaf",
+  "type": "G Stage 1",
+  "reg": "H",
+  "key": "Nuzleaf TEF 4",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "14",
+  "name": "Nuzleaf",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Nuzleaf MEG 14",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "33",
+  "name": "Pawmo",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Pawmo PFL 33",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "12",
+  "name": "Pignite",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Pignite WHT 12",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "30",
+  "name": "Pignite",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Pignite ASC 30",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "24",
+  "name": "Piloswine",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Piloswine PFL 24",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "98",
+  "name": "Probopass",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Probopass DRI 98",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "38",
+  "name": "Probopass",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Probopass POR 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "81",
+  "name": "Pupitar",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Pupitar JTG 81",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "51",
+  "name": "Quaxwell",
+  "type": "W Stage 1",
+  "reg": "H",
+  "key": "Quaxwell SSP 51",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "6",
+  "name": "Quilladin",
+  "type": "G Stage 1",
+  "reg": "J",
+  "key": "Quilladin CRI 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "27",
+  "name": "Raboot",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Raboot SCR 27",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "27",
+  "name": "Raboot",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Raboot MEG 27",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "30",
+  "name": "Rapidash",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Rapidash DRI 30",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "16",
+  "name": "Salazzle ex",
+  "type": "R Stage 1",
+  "reg": "J",
+  "key": "Salazzle ex POR 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "7",
+  "name": "Sawsbuck",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Sawsbuck WHT 7",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "2",
+  "name": "Servine",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Servine BLK 2",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "5",
+  "name": "Servine",
+  "type": "G Stage 1",
+  "reg": "J",
+  "key": "Servine POR 5",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "61",
+  "name": "Shieldon",
+  "type": "M Stage 1",
+  "reg": "J",
+  "key": "Shieldon PBL 61",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "18",
+  "name": "Simipour",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Simipour BLK 18",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "5",
+  "name": "Simisage",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Simisage BLK 5",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "15",
+  "name": "Simisear",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Simisear WHT 15",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "54",
+  "name": "Skuntank",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Skuntank CRI 54",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "67",
+  "name": "Sliggoo",
+  "type": "N Stage 1",
+  "reg": "J",
+  "key": "Sliggoo CRI 67",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "94",
+  "name": "Slurpuff",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Slurpuff ASC 94",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "6",
+  "name": "Spewpa",
+  "type": "G Stage 1",
+  "reg": "H",
+  "key": "Spewpa SSP 6",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

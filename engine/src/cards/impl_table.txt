@@ -1006,3 +1006,37 @@ Iron Crown SSP 132	IronCrownSSP
 Karrablast BLK 9	KarrablastBLK
 Kyurem ex BLK 28	KyuremEx
 Landorus BLK 53	LandorusBLK
+Klang BLK 62	KlangBLK
+Larry's Braviary ASC 174	LarrysBraviary
+Liepard WHT 56	Liepard
+Lileep SCR 5	Lileep
+Lombre JTG 36	LombreJTG
+Lombre PFL 6	LombrePFL
+Lurantis DRI 14	Lurantis
+Magneton MEG 46	MagnetonMEG
+Mandibuzz ex ASC 139	MandibuzzEx
+Manectric DRI 76	ManectricDRI
+Marnie's Liepard DRI 131	MarniesLiepard
+Marnie's Scrafty DRI 133	MarniesScrafty
+Meowstic POR 34	MeowsticPOR
+Metang CRI 60	MetangCRI
+Mienshao WHT 53	Mienshao
+Misty's Starmie DRI 47	MistysStarmie
+Mudsdale DRI 108	Mudsdale
+N's Klang JTG 104	NsKlang
+Naclstack MEG 83	Naclstack
+Nuzleaf TEF 4	NuzleafTEF
+Pignite ASC 30	PigniteASC
+Piloswine PFL 24	PiloswinePFL
+Probopass DRI 98	ProbopassDRI
+Probopass POR 38	ProbopassPOR
+Pupitar JTG 81	PupitarJTG
+Quilladin CRI 6	Quilladin
+Raboot MEG 27	RabootMEG
+Rapidash DRI 30	Rapidash
+Salazzle ex POR 16	SalazzleEx
+Sawsbuck WHT 7	Sawsbuck
+Servine BLK 2	ServineBLK
+Shieldon PBL 61	Shieldon
+Skuntank CRI 54	Skuntank
+Spewpa SSP 6	SpewpaSSP

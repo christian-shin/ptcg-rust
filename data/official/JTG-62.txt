@@ -1,0 +1,13 @@
+Metang
+- Psychic - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Beldum
+P
+Psypunch 30
+PP
+Zen Headbutt 50
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

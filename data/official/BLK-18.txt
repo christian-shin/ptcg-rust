@@ -1,0 +1,11 @@
+Simipour
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Panpour
+CC
+Gentle Slap 70
+Weakness: Lightning
+Resistance: none
+Retreat: 1

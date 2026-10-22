@@ -1,0 +1,13 @@
+Krokorok
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Sandile
+D
+Bite 30
+DCC
+Confront 60
+Weakness: Grass
+Resistance: none
+Retreat: 2

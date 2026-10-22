@@ -1,0 +1,14 @@
+Spewpa
+- Grass - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Scatterbug
+C
+Wander About
+Switch this Pokémon with 1 of your Benched Pokémon.
+G
+Tackle 30
+Weakness: Fire
+Resistance: none
+Retreat: 3

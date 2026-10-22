@@ -1,0 +1,12 @@
+Lombre
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Lotad
+WW
+Aqua Slash 70
+During your next turn, this Pokémon can't attack.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

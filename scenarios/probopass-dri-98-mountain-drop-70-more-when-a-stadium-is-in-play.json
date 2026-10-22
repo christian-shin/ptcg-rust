@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Probopass DRI 98",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Festival Grounds PRE 108",
+   "40 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Probopass DRI 98",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Festival Grounds PRE 108",
+   "40 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Probopass DRI 98",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "stadium": "Festival Grounds PRE 108",
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mountain Drop"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 140,
+   "cite": "card text: 70 + 70 more if a Stadium is in play"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "card text: the Stadium stays in play"
+  }
+ ]
+}

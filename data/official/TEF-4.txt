@@ -1,0 +1,14 @@
+Nuzleaf
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Seedot
+G
+Corkscrew Punch 20
+CC
+Comet Slap 30×
+Flip 3 coins. This attack does 30 damage for each heads.
+Weakness: Fire
+Resistance: none
+Retreat: 1

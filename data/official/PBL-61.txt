@@ -1,0 +1,12 @@
+Shieldon
+- Metal - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Antique Armor Fossil
+MC
+Smithereen Smash 50
+Discard an Energy from your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

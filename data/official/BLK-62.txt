@@ -1,0 +1,12 @@
+Klang
+- Metal - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Klink
+MC
+Hard Gears 50
+During your opponent's next turn, this Pokémon takes 20 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rapidash DRI 30",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Rapidash DRI 30",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Rapidash DRI 30",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "deck_left": 0,
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Hurried Gait",
+   "is": false,
+   "cite": "id2231: an Ability that draws can't be used with no card in the deck"
+  }
+ ]
+}

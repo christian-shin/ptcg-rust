@@ -1,0 +1,14 @@
+Manectric
+- Lightning - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Electrike
+C
+Zap Kick 30
+LC
+Flash Impact 120
+This attack also does 40 damage to 1 of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fighting
+Resistance: none
+Retreat: 1

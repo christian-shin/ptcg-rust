@@ -1,0 +1,14 @@
+Marnie's Scrafty
+- Darkness - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Marnie's Scraggy
+D
+Rear Kick 40
+DDC
+Wild Tackle 160
+This Pokémon also does 30 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 2

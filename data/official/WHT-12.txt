@@ -1,0 +1,13 @@
+Pignite
+- Fire - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Tepig
+R
+Combustion 30
+RRC
+Heat Crash 80
+Weakness: Water
+Resistance: none
+Retreat: 3

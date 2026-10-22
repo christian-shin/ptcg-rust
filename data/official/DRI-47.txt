@@ -1,0 +1,12 @@
+Misty's Starmie
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Misty's Staryu
+W
+Abrupt Flash 60+
+If this Pokémon evolved from Misty's Staryu during this turn, this attack does 80 more damage.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,11 @@
+Simisear
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pansear
+CC
+Gentle Slap 70
+Weakness: Water
+Resistance: none
+Retreat: 1

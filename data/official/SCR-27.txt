@@ -1,0 +1,13 @@
+Raboot
+- Fire - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Scorbunny
+R
+Low Sweep 30
+RCC
+Combustion 60
+Weakness: Water
+Resistance: none
+Retreat: 1

@@ -1,0 +1,14 @@
+Rapidash
+- Fire - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Ponyta
+Ability:
+Hurried Gait
+Once during your turn, you may draw a card.
+RC
+Fire Mane 60
+Weakness: Water
+Resistance: none
+Retreat: 1

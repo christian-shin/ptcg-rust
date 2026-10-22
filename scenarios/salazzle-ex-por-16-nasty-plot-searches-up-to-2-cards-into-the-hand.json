@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Salazzle ex POR 16",
+   "1 Koraidon TEF 119",
+   "58 Fire Energy MEE 2"
+  ],
+  [
+   "1 Salazzle ex POR 16",
+   "1 Koraidon TEF 119",
+   "58 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Salazzle ex POR 16",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "prizes": [
+   "Koraidon TEF 119"
+  ],
+  "hand": [],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nasty Plot"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: search your deck for up to 2 cards and put them into your hand"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text; APR E-19"
+  }
+ ]
+}

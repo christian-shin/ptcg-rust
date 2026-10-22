@@ -1,0 +1,12 @@
+Pupitar
+- Fighting - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Larvitar
+CC
+Take Down 60
+This Pokémon also does 20 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 1
