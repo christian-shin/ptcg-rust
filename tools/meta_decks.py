@@ -10,7 +10,9 @@ import json, os, re, subprocess, collections
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
 arch = json.load(open(os.path.join(ROOT, 'data/meta/archetypes.json')))
-ported = set(subprocess.run([os.path.join(ROOT, 'engine/target/release/diff'), '--list-ported'], capture_output=True, text=True).stdout.split('\n'))
+_diff = [p for p in (os.path.join(ROOT, 'engine/target/release/diff'), os.path.join(ROOT, 'engine/target/iter/diff')) if os.path.exists(p)]
+_diff = max(_diff, key=os.path.getmtime) if _diff else os.path.join(ROOT, 'engine/target/release/diff')  # the newer build
+ported = set(subprocess.run([_diff, '--list-ported'], capture_output=True, text=True).stdout.split('\n'))
 byk = {(r['set'], r['number']): r for r in pool}
 byname = collections.defaultdict(list)
 for r in pool:

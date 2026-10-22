@@ -16,8 +16,14 @@ Exit status 1 on any failure.
 import argparse, collections, json, os, random, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIFF = os.environ.get('PTCG_DIFF') or os.path.join(ROOT, 'engine/target/release/diff')
-FUZZ = os.path.join(ROOT, 'engine/target/release/fuzz')
+def _bin(name):
+    # the newer of the release and iter builds (agents build `--profile iter`; a stale release binary must not win)
+    have = [p for p in (os.path.join(ROOT, 'engine/target/release', name), os.path.join(ROOT, 'engine/target/iter', name)) if os.path.exists(p)]
+    return max(have, key=os.path.getmtime) if have else os.path.join(ROOT, 'engine/target/release', name)
+
+
+DIFF = os.environ.get('PTCG_DIFF') or _bin('diff')
+FUZZ = _bin('fuzz')
 
 
 def ported():
