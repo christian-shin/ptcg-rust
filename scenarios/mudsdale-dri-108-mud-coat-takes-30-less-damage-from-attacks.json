@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mudsdale DRI 108",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mudsdale DRI 108",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mudsdale DRI 108",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Mudsdale DRI 108",
+   "damage": 30,
+   "turn": 2,
+   "cite": "card text: Chewtle's Headbutt 60 minus 30 (after Weakness and Resistance)"
+  }
+ ]
+}

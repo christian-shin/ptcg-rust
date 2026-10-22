@@ -1,0 +1,14 @@
+Metang
+- Metal - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Beldum
+M
+Metal Claw 30
+MMC
+Guard Press 70
+During your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

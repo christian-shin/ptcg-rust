@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Klang BLK 62",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Klang BLK 62",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Klang BLK 62",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hard Gears"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Klang BLK 62",
+   "damage": 40,
+   "turn": 2,
+   "cite": "card text: Chewtle's Headbutt 60 (no Weakness: Klang is weak to Fire) minus 20 (after Weakness and Resistance)"
+  }
+ ]
+}

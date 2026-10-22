@@ -1,0 +1,12 @@
+Lombre
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Lotad
+GC
+Mega Drain 30
+Heal 30 damage from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

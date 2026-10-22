@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Misty's Starmie DRI 47",
+   "4 Misty's Staryu DRI 46",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Misty's Starmie DRI 47",
+   "4 Misty's Staryu DRI 46",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "4 Mega Dragonite ex ASC 152",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Misty's Staryu DRI 46",
+   "Misty's Starmie DRI 47"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "active_played": "this_turn",
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151",
+   "Mega Dragonite ex ASC 152"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Abrupt Flash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 140,
+   "cite": "card text: 60 + 80 more if this Pokemon evolved from Misty's Staryu during this turn"
+  }
+ ]
+}

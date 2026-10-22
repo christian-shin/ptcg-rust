@@ -1,0 +1,15 @@
+Salazzle ex
+- Fire - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Salandit
+R
+Nasty Plot
+Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.
+RR
+Dire Nails 100
+Your opponent's Active Pokémon is now Burned and Poisoned. Switch this Pokémon with 1 of your Benched Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

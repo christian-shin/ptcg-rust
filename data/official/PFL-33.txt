@@ -1,0 +1,11 @@
+Pawmo
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pawmi
+LL
+Electric Punch 60
+Weakness: Fighting
+Resistance: none
+Retreat: 1

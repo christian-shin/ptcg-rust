@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Larry's Braviary ASC 174",
+   "4 Koraidon TEF 119",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Larry's Braviary ASC 174",
+   "4 Koraidon TEF 119",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Larry's Braviary ASC 174",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Brave Bird"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 120,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Larry's Braviary ASC 174",
+   "damage": 30,
+   "cite": "card text: this Pokemon also does 30 damage to itself"
+  }
+ ]
+}

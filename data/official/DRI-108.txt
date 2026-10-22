@@ -1,0 +1,14 @@
+Mudsdale
+- Fighting - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Mudbray
+Ability:
+Mud Coat
+This Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+FFC
+Heavy Impact 130
+Weakness: Grass
+Resistance: none
+Retreat: 3

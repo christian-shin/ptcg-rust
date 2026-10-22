@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Liepard WHT 56",
+   "4 Koraidon TEF 119",
+   "4 Switch 30C 127",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Liepard WHT 56",
+   "4 Koraidon TEF 119",
+   "4 Switch 30C 127",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Liepard WHT 56",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "hand": [
+   "Switch 30C 127",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Knock Off"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 50,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: discard a random card from your opponent's hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text"
+  }
+ ]
+}

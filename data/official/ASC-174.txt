@@ -1,0 +1,15 @@
+Larry's Braviary
+- Colorless - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Larry's Rufflet
+CC
+Clutch 50
+During your opponent's next turn, the Defending Pokémon can't retreat.
+CCC
+Brave Bird 120
+This Pokémon also does 30 damage to itself.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,13 @@
+Melmetal
+- Metal - 160 HP
+Pokémon
+- Stage 1
+- Evolves from
+Meltan
+MMC
+Hammer In 120
+MMMMC
+Iron Bash 230
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

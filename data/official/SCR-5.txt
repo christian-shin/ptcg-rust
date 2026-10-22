@@ -1,0 +1,11 @@
+Lileep
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+G
+Bind Down 50
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fire
+Resistance: none
+Retreat: 2

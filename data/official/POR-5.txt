@@ -1,0 +1,11 @@
+Servine
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snivy
+G
+Solar Cutter 40
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rapidash DRI 30",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Rapidash DRI 30",
+   "4 Koraidon TEF 119",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Rapidash DRI 30",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Hurried Gait",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: you may draw a card"
+  }
+ ]
+}

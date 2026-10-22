@@ -1,0 +1,14 @@
+Mienshao
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Mienfoo
+F
+Low Sweep 40
+FF
+Smash Uppercut 80
+This attack's damage isn't affected by Resistance.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

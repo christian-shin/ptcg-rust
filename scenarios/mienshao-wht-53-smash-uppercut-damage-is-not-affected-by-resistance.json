@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mienshao WHT 53",
+   "4 Larry's Braviary ASC 174",
+   "4 Larry's Rufflet ASC 173",
+   "4 Koraidon TEF 119",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mienshao WHT 53",
+   "4 Larry's Braviary ASC 174",
+   "4 Larry's Rufflet ASC 173",
+   "4 Koraidon TEF 119",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mienshao WHT 53",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Larry's Rufflet ASC 173",
+   "Larry's Braviary ASC 174"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smash Uppercut"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Larry's Braviary ASC 174",
+   "damage": 80,
+   "cite": "card text: this attack's damage isn't affected by Resistance (Braviary resists Fighting)"
+  }
+ ]
+}

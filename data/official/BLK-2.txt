@@ -1,0 +1,14 @@
+Servine
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snivy
+G
+Wrap 20
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+GCC
+Vine Whip 60
+Weakness: Fire
+Resistance: none
+Retreat: 1

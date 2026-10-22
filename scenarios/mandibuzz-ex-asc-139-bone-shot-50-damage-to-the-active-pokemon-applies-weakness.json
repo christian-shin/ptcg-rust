@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mandibuzz ex ASC 139",
+   "4 Dhelmise JTG 70",
+   "4 Koraidon TEF 119",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Mandibuzz ex ASC 139",
+   "4 Dhelmise JTG 70",
+   "4 Koraidon TEF 119",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Mandibuzz ex ASC 139",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dhelmise JTG 70",
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bone Shot"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dhelmise JTG 70",
+   "damage": 100,
+   "cite": "card text; Dhelmise is weak to Darkness: 50 doubled"
+  }
+ ]
+}
