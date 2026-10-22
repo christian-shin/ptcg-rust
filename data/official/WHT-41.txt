@@ -1,0 +1,9 @@
+Gothita
+- Psychic - 70 HP
+Pokémon
+- Basic
+P
+Super Psy Bolt 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

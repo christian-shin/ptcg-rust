@@ -1,0 +1,9 @@
+Galarian Zigzagoon
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Gnaw 10
+Weakness: Grass
+Resistance: none
+Retreat: 1

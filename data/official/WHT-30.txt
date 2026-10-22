@@ -1,0 +1,13 @@
+Keldeo ex
+- Water - 210 HP
+Pokémon
+- Basic
+WC
+Gale Thrust 30+
+If this Pokémon moved from your Bench to the Active Spot this turn, this attack does 90 more damage.
+WCC
+Sonic Edge 120
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

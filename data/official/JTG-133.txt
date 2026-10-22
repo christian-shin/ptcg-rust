@@ -1,0 +1,12 @@
+Hop's Rookidee
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Intimidating Stare
+During your opponent's next turn, attacks used by the Defending Pokémon do 20 less damage (before applying Weakness and Resistance) .
+CC
+Peck 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

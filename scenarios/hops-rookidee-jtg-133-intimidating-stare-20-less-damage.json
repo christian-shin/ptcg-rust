@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Rookidee JTG 133",
+   "4 Chewtle SCR 43",
+   "26 Grass Energy MEE 1",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Rookidee JTG 133",
+   "4 Chewtle SCR 43",
+   "26 Grass Energy MEE 1",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Rookidee JTG 133",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Intimidating Stare"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Hop's Rookidee JTG 133",
+   "damage": 40,
+   "cite": "card text: the Defending Pokémon's attacks do 20 less damage (Chewtle's 60 is 40)",
+   "turn": 2
+  }
+ ]
+}

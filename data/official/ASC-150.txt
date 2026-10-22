@@ -1,0 +1,9 @@
+Dratini
+- Dragon - 80 HP
+Pokémon
+- Basic
+WL
+Headbutt 30
+Weakness: none
+Resistance: none
+Retreat: 2

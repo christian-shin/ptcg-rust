@@ -1,0 +1,13 @@
+Landorus
+- Fighting - 120 HP
+Pokémon
+- Basic
+FF
+Rock Tumble 50
+This attack's damage isn't affected by Resistance.
+FFC
+Screw Knuckle 120
+Put an Energy attached to this Pokémon into your hand.
+Weakness: Grass
+Resistance: none
+Retreat: 1

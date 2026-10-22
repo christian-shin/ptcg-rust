@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Keldeo ex WHT 30",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Keldeo ex WHT 30",
+   "4 Bouffalant ex WHT 77",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Keldeo ex WHT 30",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Bouffalant ex WHT 77",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sonic Edge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Bouffalant ex WHT 77",
+   "damage": 120,
+   "cite": "card text: Bouffer's 30 less isn't applied (Water vs Bouffalant ex, no Weakness)"
+  }
+ ]
+}

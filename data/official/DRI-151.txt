@@ -1,0 +1,12 @@
+Kangaskhan
+- Colorless - 120 HP
+Pokémon
+- Basic
+CC
+Gentle Slap 50
+CCC
+Dizzy Punch 90×
+Flip 2 coins. This attack does 90 damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

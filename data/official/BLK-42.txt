@@ -1,0 +1,10 @@
+Golett
+- Psychic - 90 HP
+Pokémon
+- Basic
+CC
+Best Punch 60
+Flip a coin. If tails, this attack does nothing.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

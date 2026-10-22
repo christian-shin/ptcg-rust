@@ -1,0 +1,10 @@
+Lillipup
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Play Rough 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

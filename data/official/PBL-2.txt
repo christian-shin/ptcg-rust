@@ -1,0 +1,10 @@
+Grubbin
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+String Shot 10
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fire
+Resistance: none
+Retreat: 2

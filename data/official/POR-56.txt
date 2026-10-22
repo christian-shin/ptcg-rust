@@ -1,0 +1,9 @@
+Honedge
+- Metal - 70 HP
+Pokémon
+- Basic
+C
+Cut 10
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

@@ -1,0 +1,9 @@
+Lotad
+- Grass - 70 HP
+Pokémon
+- Basic
+GC
+Headbutt 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

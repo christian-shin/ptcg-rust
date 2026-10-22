@@ -1,0 +1,9 @@
+Helioptile
+- Lightning - 70 HP
+Pokémon
+- Basic
+LC
+Zap Kick 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

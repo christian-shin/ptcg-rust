@@ -1,0 +1,10 @@
+Mareep
+- Lightning - 70 HP
+Pokémon
+- Basic
+LC
+Thunder Wave 20
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

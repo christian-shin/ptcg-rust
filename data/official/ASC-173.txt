@@ -1,0 +1,10 @@
+Larry's Rufflet
+- Colorless - 70 HP
+Pokémon
+- Basic
+CC
+Peck the Wound 20+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 80 more damage.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

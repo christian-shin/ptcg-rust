@@ -1,0 +1,10 @@
+Klink
+- Metal - 60 HP
+Pokémon
+- Basic
+M
+Hard Gears 10
+During your opponent's next turn, this Pokémon takes 10 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

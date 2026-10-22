@@ -1,0 +1,10 @@
+Mankey
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Wild Kick 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

@@ -7718,5 +7718,525 @@
   "key": "Capsakid SSP 12",
   "tier": "data",
   "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "11",
+  "name": "Fennekin",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Fennekin CRI 11",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "68",
+  "name": "Ferroseed",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Ferroseed WHT 68",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "62",
+  "name": "Ferroseed",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Ferroseed CRI 62",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "21",
+  "name": "Finizen",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Finizen PBL 21",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "13",
+  "name": "Fomantis",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Fomantis DRI 13",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "3",
+  "name": "Fomantis",
+  "type": "G Basic",
+  "reg": "J",
+  "key": "Fomantis PBL 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "10",
+  "name": "Foongus",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Foongus BLK 10",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "130",
+  "name": "Galarian Zigzagoon",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Galarian Zigzagoon ASC 130",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "54",
+  "name": "Glastrier",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Glastrier ASC 54",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "49",
+  "name": "Gligar",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Gligar PFL 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "42",
+  "name": "Golett",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Golett BLK 42",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "66",
+  "name": "Goomy",
+  "type": "N Basic",
+  "reg": "J",
+  "key": "Goomy CRI 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "41",
+  "name": "Gothita",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Gothita WHT 41",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "65",
+  "name": "Greavard",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Greavard MEG 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "108",
+  "name": "Groudon",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Groudon ASC 108",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "27",
+  "name": "Growlithe",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Growlithe DRI 27",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "2",
+  "name": "Grubbin",
+  "type": "G Basic",
+  "reg": "J",
+  "key": "Grubbin PBL 2",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "46",
+  "name": "Hawlucha",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Hawlucha POR 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "19",
+  "name": "Heatmor",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Heatmor WHT 19",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "52",
+  "name": "Helioptile",
+  "type": "L Basic",
+  "reg": "I",
+  "key": "Helioptile MEG 52",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "63",
+  "name": "Helioptile",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Helioptile ASC 63",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "70",
+  "name": "Helioptile",
+  "type": "L Basic",
+  "reg": "H",
+  "key": "Helioptile TWM 70",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "105",
+  "name": "Hippopotas",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Hippopotas DRI 105",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "56",
+  "name": "Honedge",
+  "type": "M Basic",
+  "reg": "J",
+  "key": "Honedge POR 56",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "141",
+  "name": "Hoopa",
+  "type": "D Basic",
+  "reg": "J",
+  "key": "Hoopa ASC 141",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "133",
+  "name": "Hop's Rookidee",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Hop's Rookidee JTG 133",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "76",
+  "name": "Jigglypuff",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Jigglypuff PFL 76",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "57",
+  "name": "Jynx",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Jynx MEG 57",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "151",
+  "name": "Kangaskhan",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Kangaskhan DRI 151",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "19",
+  "name": "Keldeo",
+  "type": "W Basic",
+  "reg": "J",
+  "key": "Keldeo CRI 19",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "30",
+  "name": "Keldeo ex",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Keldeo ex WHT 30",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "99",
+  "name": "Klink",
+  "type": "M Basic",
+  "reg": "H",
+  "key": "Klink SCR 99",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "61",
+  "name": "Klink",
+  "type": "M Basic",
+  "reg": "I",
+  "key": "Klink BLK 61",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "47",
+  "name": "Koraidon",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Koraidon PBL 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "41",
+  "name": "Landorus",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Landorus POR 41",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "163",
+  "name": "Larry's Dunsparce",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Larry's Dunsparce ASC 163",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "173",
+  "name": "Larry's Rufflet",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Larry's Rufflet ASC 173",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "168",
+  "name": "Larry's Starly",
+  "type": "C Basic",
+  "reg": "J",
+  "key": "Larry's Starly ASC 168",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "24",
+  "name": "Larvesta",
+  "type": "R Basic",
+  "reg": "H",
+  "key": "Larvesta SSP 24",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "66",
+  "name": "Lillie's Cutiefly",
+  "type": "P Basic",
+  "reg": "I",
+  "key": "Lillie's Cutiefly JTG 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "74",
+  "name": "Lillipup",
+  "type": "C Basic",
+  "reg": "I",
+  "key": "Lillipup WHT 74",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "23",
+  "name": "Litleo",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Litleo MEG 23",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "14",
+  "name": "Litleo",
+  "type": "R Basic",
+  "reg": "J",
+  "key": "Litleo CRI 14",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "35",
+  "name": "Lotad",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Lotad JTG 35",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "5",
+  "name": "Lotad",
+  "type": "G Basic",
+  "reg": "I",
+  "key": "Lotad PFL 5",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "20",
+  "name": "Magmar",
+  "type": "R Basic",
+  "reg": "I",
+  "key": "Magmar JTG 20",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "90",
+  "name": "Mankey",
+  "type": "F Basic",
+  "reg": "I",
+  "key": "Mankey DRI 90",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "42",
+  "name": "Mankey",
+  "type": "F Basic",
+  "reg": "J",
+  "key": "Mankey PBL 42",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "32",
+  "name": "Mantine",
+  "type": "W Basic",
+  "reg": "I",
+  "key": "Mantine MEG 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "27",
+  "name": "Mareep",
+  "type": "L Basic",
+  "reg": "J",
+  "key": "Mareep CRI 27",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "87",
+  "name": "Crabrawler",
+  "type": "F Basic",
+  "reg": "H",
+  "key": "Crabrawler SCR 87",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "150",
+  "name": "Dratini",
+  "type": "N Basic",
+  "reg": "J",
+  "key": "Dratini ASC 150",
+  "tier": "data",
+  "print_match": "exact"
  }
 ]

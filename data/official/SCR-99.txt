@@ -1,0 +1,12 @@
+Klink
+- Metal - 60 HP
+Pokémon
+- Basic
+C
+Allure
+Draw a card.
+CC
+Beam 20
+Weakness: Fire
+Resistance: Grass
+Retreat: 2
