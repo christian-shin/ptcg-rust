@@ -1,0 +1,9 @@
+Stunky
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Scratch 20
+Weakness: Fighting
+Resistance: none
+Retreat: 2

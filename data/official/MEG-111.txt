@@ -1,0 +1,11 @@
+Stufful
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Light Punch 10
+CC
+Flop 20
+Weakness: Fighting
+Resistance: none
+Retreat: 2

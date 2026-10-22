@@ -1,0 +1,9 @@
+Rolycoly
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Mud-Slap 20
+Weakness: Grass
+Resistance: none
+Retreat: 3

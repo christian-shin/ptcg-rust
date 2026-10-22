@@ -1,0 +1,12 @@
+Steven's Skarmory
+- Metal - 120 HP
+Pokémon
+- Basic
+CC
+Razor Wing 30
+MMC
+Sonic Double
+This attack does 50 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

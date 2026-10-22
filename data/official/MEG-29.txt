@@ -1,0 +1,11 @@
+Sizzlipede
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Ram 10
+RRC
+Combustion 50
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Sprigatito
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Tons of Treading 10×
+Flip 3 coins. This attack does 10 damage for each heads.
+Weakness: Fire
+Resistance: none
+Retreat: 1

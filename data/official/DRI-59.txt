@@ -1,0 +1,11 @@
+Snover
+- Water - 90 HP
+Pokémon
+- Basic
+CC
+Light Punch 20
+WCC
+Icicle 50
+Weakness: Metal
+Resistance: none
+Retreat: 3

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Stonjourner MEG 81",
+   "4 Dondozo ex DRI 66",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Stonjourner MEG 81",
+   "4 Dondozo ex DRI 66",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Stonjourner MEG 81",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dondozo ex DRI 66",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Boundless Power"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dondozo ex DRI 66",
+   "damage": 140,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Boundless Power",
+   "is": false,
+   "cite": "card text: during your next turn this Pokémon can't use attacks"
+  }
+ ]
+}

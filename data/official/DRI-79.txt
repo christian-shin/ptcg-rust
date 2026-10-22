@@ -1,0 +1,10 @@
+Team Rocket's Drowzee
+- Psychic - 80 HP
+Pokémon
+- Basic
+P
+Hypnotic Ray 10
+Your opponent's Active Pokémon is now Asleep.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

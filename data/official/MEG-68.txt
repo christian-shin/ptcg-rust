@@ -1,0 +1,11 @@
+Sandshrew
+- Fighting - 70 HP
+Pokémon
+- Basic
+C
+Dig Claws 10
+FC
+Mud-Slap 20
+Weakness: Grass
+Resistance: none
+Retreat: 1

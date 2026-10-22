@@ -1,0 +1,9 @@
+Salandit
+- Fire - 70 HP
+Pokémon
+- Basic
+R
+Fire Claws 20
+Weakness: Water
+Resistance: none
+Retreat: 1

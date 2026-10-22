@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snom MEG 42",
+   "4 Sewaddle WHT 1",
+   "4 Grass Energy MEE 1",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Snom MEG 42",
+   "4 Sewaddle WHT 1",
+   "4 Grass Energy MEE 1",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snom MEG 42",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Sewaddle WHT 1",
+  "reset": true,
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hide"
+  },
+  {
+   "a": "attack",
+   "name": "Bug Bite"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Snom MEG 42",
+   "damage": 0,
+   "cite": "card text; APR C-17 (heads: prevent all damage from and effects of attacks done to this Pokémon during your opponent's next turn)"
+  }
+ ]
+}

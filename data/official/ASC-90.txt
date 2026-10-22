@@ -1,0 +1,9 @@
+Shuppet
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Spooky Shot 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

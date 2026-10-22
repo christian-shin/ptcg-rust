@@ -1,0 +1,11 @@
+Sandile
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Ram 10
+DC
+Rear Kick 20
+Weakness: Grass
+Resistance: none
+Retreat: 2

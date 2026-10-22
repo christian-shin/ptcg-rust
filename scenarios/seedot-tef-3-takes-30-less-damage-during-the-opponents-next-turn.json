@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Seedot TEF 3",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Seedot TEF 3",
+   "4 Chewtle SCR 43",
+   "4 Water Energy MEE 3",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Seedot TEF 3",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rigidify"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Seedot TEF 3",
+   "damage": 30,
+   "cite": "card text: Chewtle's 60 is 30 after 30 less damage",
+   "turn": 2
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Skarmory
+- Metal - 110 HP
+Pokémon
+- Basic
+C
+Roost
+Heal 50 damage from this Pokémon. During your next turn, this Pokémon can't retreat.
+MC
+Metal Claw 60
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,10 @@
+Team Rocket's Exeggcute
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Focused Wish 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

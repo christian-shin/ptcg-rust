@@ -1,0 +1,11 @@
+Rufflet
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Peck 10
+CC
+Glide 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

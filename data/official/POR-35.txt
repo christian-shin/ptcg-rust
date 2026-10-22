@@ -1,0 +1,12 @@
+Spritzee
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Sweet Scent
+Heal 30 damage from 1 of your Pokémon.
+P
+Ram 10
+Weakness: Metal
+Resistance: none
+Retreat: 1

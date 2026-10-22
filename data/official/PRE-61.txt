@@ -1,0 +1,9 @@
+Sneasel
+- Darkness - 60 HP
+Pokémon
+- Basic
+D
+Claw Slash 20
+Weakness: Grass
+Resistance: none
+Retreat: 0

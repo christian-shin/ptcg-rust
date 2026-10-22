@@ -1,0 +1,9 @@
+Snom
+- Water - 50 HP
+Pokémon
+- Basic
+W
+Icicle 20
+Weakness: Metal
+Resistance: none
+Retreat: 1

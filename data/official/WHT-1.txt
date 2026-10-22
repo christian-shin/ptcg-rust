@@ -1,0 +1,9 @@
+Sewaddle
+- Grass - 50 HP
+Pokémon
+- Basic
+G
+Bug Bite 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

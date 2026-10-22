@@ -1,0 +1,9 @@
+Skrelp
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Hook 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

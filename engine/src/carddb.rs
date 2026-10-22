@@ -355,7 +355,7 @@ mod declaration_tests {
     }
 
     /// "If you go first, you can use this attack during your first turn" is `AttackFlags { first_turn: Attack(i) }`: on
-    /// Quick Gift, Quick Sign and Precocious Evolution, and on no other attack.
+    /// Quick Gift, Quick Sign, Precocious Evolution and Fast Flight, and on no other attack.
     #[test]
     fn the_first_turn_attacks_are_declared() {
         let mut marked: Vec<String> = Vec::new();
@@ -368,7 +368,7 @@ mod declaration_tests {
             }
         }
         marked.sort();
-        assert_eq!(marked, ["Delibird MEG 105 Quick Gift", "Exeggcute SSP 1 Precocious Evolution", "Volbeat TWM 9 Quick Sign"]);
+        assert_eq!(marked, ["Delibird MEG 105 Quick Gift", "Exeggcute SSP 1 Precocious Evolution", "Tapu Koko ASC 67 Fast Flight", "Volbeat TWM 9 Quick Sign"]);
     }
 
     /// "If you go first, you can use this card during your first turn" is a `Permit` lifting `Limit::GoingFirst` on the card:
