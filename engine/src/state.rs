@@ -689,6 +689,16 @@ pub struct LastingEffect {
     pub what: LastingWhat,
 }
 
+/// How many damage counters a Retaliate trigger puts on the Attacking Pokémon.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RetaliateAmount {
+    /// A number of HP of counters ("put 8 damage counters": 80).
+    Fixed(i16),
+    /// Counters equal to the damage done to the damaged Pokémon ("put damage counters on the Attacking Pokémon equal to the
+    /// damage done to this Pokémon": the amount of the Damage event the trigger reacts to).
+    DamageDone,
+}
+
 /// What a lasting effect does, with the state of its timing ("pending": put during this turn, in force from the end of
 /// it; "armed": in force).
 #[derive(Clone, Copy, Debug)]
@@ -711,7 +721,7 @@ pub enum LastingWhat {
     Prevent { spec: u8, pending: bool },
     /// A lasting trigger: "if this Pokémon is damaged by an attack, put N damage counters on the Attacking Pokémon"
     /// (the source's attack `attack`, by player `attacker`).
-    Retaliate { amount: i16, attack: AttackRef, attacker: u8, pending: bool },
+    Retaliate { amount: RetaliateAmount, attack: AttackRef, attacker: u8, pending: bool },
     /// A lasting trigger: "if this Pokémon is Knocked Out by damage from an attack, discard an Energy from the Attacking
     /// Pokémon" (the source's attack `attack`, by player `attacker`; e.g. Little Grudge).
     DiscardAttackerEnergy { attack: AttackRef, attacker: u8, armed: bool, pending: bool },

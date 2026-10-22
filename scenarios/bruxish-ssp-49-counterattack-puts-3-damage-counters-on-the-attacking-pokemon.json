@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bruxish SSP 49",
+   "1 Wailmer PBL 15",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Bruxish SSP 49",
+   "1 Wailmer PBL 15",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Bruxish SSP 49",
+  "active_energy": [],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Wailmer PBL 15",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Water Gun"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Bruxish SSP 49",
+   "damage": 40,
+   "cite": "card text: Water Gun does 40 to this Pokémon"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Wailmer PBL 15",
+   "damage": 30,
+   "cite": "card text: if this Pokémon is damaged by an attack in the Active Spot, put 3 damage counters on the Attacking Pokémon"
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+Carnivine
+- Grass - 110 HP
+Pokémon
+- Basic
+CCC
+Chomp Whole 80+
+If your opponent's Active Pokémon has no Retreat Cost, this attack does 80 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 2

@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Moltres ex DRI 31",
+   "1 Dratini ASC 150",
+   "1 Snover MEG 35",
+   "4 Fire Energy MEE 2",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Team Rocket's Moltres ex DRI 31",
+   "1 Dratini ASC 150",
+   "1 Snover MEG 35",
+   "4 Fire Energy MEE 2",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Moltres ex DRI 31",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true,
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evil Incineration"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dratini ASC 150",
+   "damage": 0,
+   "cite": "card text: nothing is discarded without a Team Rocket's Energy attached to this Pokémon"
+  }
+ ]
+}

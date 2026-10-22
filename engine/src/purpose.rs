@@ -82,6 +82,8 @@ purposes! {
     TakePrize => "CHOOSE_PRIZE_CARD",
     /// Turn a Prize card face up.
     TurnPrizeFaceUp => "CHOOSE_PRIZE_CARD_TO_TURN_FACE_UP",
+    /// Choose a Prize card to look at (it stays face down).
+    LookAtPrize => "CHOOSE_PRIZE_CARD_TO_LOOK_AT",
     // Discard
     /// Discard a card (from a hand, a Pokémon's attached cards, a Bench slot).
     DiscardCard => "CHOOSE_CARD_TO_DISCARD",
@@ -209,6 +211,7 @@ mod tests {
             (P::SwitchPokemon, C::Switch),
             (P::TakePrize, C::ToHand),
             (P::TurnPrizeFaceUp, C::Look),
+            (P::LookAtPrize, C::Look),
             (P::DiscardCard, C::Discard),
             (P::DiscardEnergy, C::DiscardEnergy),
             (P::PutIntoHand, C::ToHand),

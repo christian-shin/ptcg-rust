@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Cornerstone Mask Ogerpon DRI 111",
+   "1 Raging Bolt ex PRE 166",
+   "3 Fighting Energy MEE 6",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Cornerstone Mask Ogerpon DRI 111",
+   "1 Raging Bolt ex PRE 166",
+   "3 Fighting Energy MEE 6",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Cornerstone Mask Ogerpon DRI 111",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mountain Ramming"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: discard the top card of your opponent's deck"
+  }
+ ]
+}

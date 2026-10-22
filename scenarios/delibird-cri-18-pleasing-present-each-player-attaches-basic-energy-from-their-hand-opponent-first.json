@@ -1,0 +1,124 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Delibird CRI 18",
+   "1 Hop's Snorlax JTG 117",
+   "1 Snover MEG 35",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Delibird CRI 18",
+   "1 Hop's Snorlax JTG 117",
+   "1 Snover MEG 35",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Delibird CRI 18",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true,
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pleasing Present"
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 1
+   }
+  ],
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 1
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 2
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": 1,
+   "cite": "card text: each player may attach up to 3 Basic Energy cards from their hand; the opponent does this first"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "energy": 1,
+   "cite": "card text: to their Pokémon in any way they like"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 4,
+   "cite": "card text: you attach up to 3 Basic Energy cards from your hand"
+  }
+ ]
+}

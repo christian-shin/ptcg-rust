@@ -168,7 +168,7 @@ pub fn num(n: &Num) -> ReadSet {
         Num::ToolCount(sel) => ReadSet::st(BOARD).or(slot_sel(sel)),
         Num::DamageSum(sel, sp) => ReadSet::st(COUNTERS).or(slot_sel(sel)).or(slot_pred(sp)),
         // The attack being used, the program's registers and coins, a "last turn" record.
-        Num::PrintedCost | Num::RegCount(_) | Num::Heads | Num::DamageTakenLastTurn(_) | Num::PrizesTakenLastTurn(_) | Num::CostNow | Num::Last => ReadSet::st(ANY),
+        Num::PrintedCost | Num::RegCount(_) | Num::Heads | Num::DamageTakenLastTurn(_) | Num::PrizesTakenLastTurn(_) | Num::CostNow | Num::Last | Num::DamageDone => ReadSet::st(ANY),
     }
 }
 

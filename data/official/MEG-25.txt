@@ -1,0 +1,13 @@
+Volcanion
+- Fire - 130 HP
+Pokémon
+- Basic
+R
+Singe
+Your opponent's Active Pokémon is now Burned.
+RRC
+Backfire 130
+Put 2 [ R ] Energy attached to this Pokémon into your hand.
+Weakness: Water
+Resistance: none
+Retreat: 2

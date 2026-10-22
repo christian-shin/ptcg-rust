@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Togedemaru ex ASC 149",
+   "1 Mega Latias ex MEG 100",
+   "2 Metal Energy MEE 8",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Togedemaru ex ASC 149",
+   "1 Mega Latias ex MEG 100",
+   "2 Metal Energy MEE 8",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Togedemaru ex ASC 149",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Mega Latias ex MEG 100",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spiky Rolling"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 80,
+   "cite": "card text: 80 without a Spiky Rolling last turn"
+  }
+ ]
+}

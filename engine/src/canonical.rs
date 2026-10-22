@@ -83,7 +83,13 @@ impl Game {
                         o.insert("pending".into(), json!(pending));
                     }
                     LastingWhat::Retaliate { amount, attack: a, attacker, pending } => {
-                        o.insert("retaliate".into(), json!(amount));
+                        o.insert(
+                            "retaliate".into(),
+                            match amount {
+                                crate::state::RetaliateAmount::Fixed(n) => json!(n),
+                                crate::state::RetaliateAmount::DamageDone => json!("damageDone"),
+                            },
+                        );
                         o.insert("attack".into(), attack(a));
                         o.insert("attacker".into(), player(attacker));
                         o.insert("pending".into(), json!(pending));

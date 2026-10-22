@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             steps: &[
                 // Can't be used if 1 of your Pokémon used Angelite during your last turn.
-                Step::before_damage(Op::Fail(FailSpec { unless: Cond::Not(&Cond::AttackedLastTurn { who: Who::Me, by: Pred::Any, other: false, attack: AttackPred::Named("Angelite") }), error: "BLOCKED_BY_EFFECT" })),
+                Step::before_damage(Op::Fail(FailSpec { unless: Cond::Not(&Cond::AttackedLastTurn { who: Who::Me, by: Pred::Any, attacker: LastAttacker::Any, attack: AttackPred::Named("Angelite") }), error: "BLOCKED_BY_EFFECT" })),
                 // Choose 2 of your opponent's Benched Pokémon; they shuffle those Pokémon and all attached cards into their deck.
                 Step::after_damage(Op::EachSlot(EachSlotSpec {
                     among: SlotSel::Bench(Who::Opp),

@@ -1,0 +1,13 @@
+Bruxish
+- Water - 110 HP
+Pokémon
+- Basic
+Ability:
+Counterattack
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , put 3 damage counters on the Attacking Pokémon.
+WC
+Big Bite 50
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

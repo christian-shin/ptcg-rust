@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Teal Mask Ogerpon DRI 26",
+   "1 Raging Bolt ex PRE 166",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Teal Mask Ogerpon DRI 26",
+   "1 Raging Bolt ex PRE 166",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Teal Mask Ogerpon DRI 26",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ogre's Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 120,
+   "cite": "card text: 120 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Ogre's Hammer",
+   "cite": "card text: during your next turn, this Pokémon can't use Ogre's Hammer; APR C-15",
+   "is": false
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Grass Kagura",
+   "cite": "APR C-15: the other attack can still be used",
+   "is": true
+  }
+ ]
+}

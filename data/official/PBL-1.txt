@@ -1,0 +1,12 @@
+Tropius
+- Grass - 110 HP
+Pokémon
+- Basic
+C
+Fruity Aroma
+Look at the top 6 cards of your deck, and you may reveal any number of Pokémon you find there and put them into your hand. Shuffle the other cards back into your deck.
+GC
+Solar Beam 60
+Weakness: Fire
+Resistance: none
+Retreat: 1

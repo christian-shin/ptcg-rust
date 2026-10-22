@@ -1,0 +1,13 @@
+Yveltal ex
+- Darkness - 210 HP
+Pokémon
+- Basic
+DDC
+Soul Destroyer
+Knock Out each of your opponent's Pokémon that has 50 HP or less remaining.
+DDC
+Dark Strike 210
+During your next turn, this Pokémon can't use Dark Strike.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

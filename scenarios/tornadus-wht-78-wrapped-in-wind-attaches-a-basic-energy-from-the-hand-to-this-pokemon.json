@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tornadus WHT 78",
+   "1 Hop's Snorlax JTG 117",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Tornadus WHT 78",
+   "1 Hop's Snorlax JTG 117",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tornadus WHT 78",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wrapped in Wind"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "card text: attach a Basic Energy card from your hand to this Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text: the card leaves the hand"
+  }
+ ]
+}

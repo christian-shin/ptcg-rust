@@ -401,8 +401,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                     if !la.damaged.contains(&t) {
                         la.damaged.push(t);
                     }
-                    if g.st.players[tp].active == ts && !la.damaged_active.contains(&t) {
-                        la.damaged_active.push(t);
+                    if g.st.players[tp].active == ts {
+                        la.damage_done += amount;
+                        if !la.damaged_active.contains(&t) {
+                            la.damaged_active.push(t);
+                        }
                     }
                 }
             }
@@ -431,22 +434,35 @@ pub struct Retaliation {
     pub source_pokemon: Option<crate::list::CardId>,
     /// The lasting trigger (`LastingWhat::Retaliate`).
     pub lasting: crate::state::LastingEffect,
+    /// The damage (HP) the Damage event did to the damaged Pokémon.
+    pub damage: i32,
+}
+
+impl Retaliation {
+    /// The damage (HP) of counters the trap puts (0: none).
+    fn counters(&self) -> i32 {
+        match self.lasting.what {
+            crate::state::LastingWhat::Retaliate { amount: crate::state::RetaliateAmount::Fixed(n), .. } => n as i32,
+            crate::state::LastingWhat::Retaliate { amount: crate::state::RetaliateAmount::DamageDone, .. } => self.damage,
+            _ => 0,
+        }
+    }
 }
 
 /// The Damage event `id` is done: the damaged Pokémon's lasting trigger records itself with the attack's other
 /// "is damaged" effects (the cards' triggers recorded first, `run::fire_on`; APR E-03), or applies at once when no window is
 /// open.
 pub fn record_retaliation(g: &mut Game, id: EffId) -> R {
-    let Effect::Damage { b, .. } = *g.e(id) else { return Ok(()) };
+    let Effect::Damage { b, amount, .. } = *g.e(id) else { return Ok(()) };
     let t = b.target;
     if t.p == b.player || g.st.phase != crate::types::GamePhase::Attack {
         return Ok(());
     }
     let Some(r) = crate::engine::lasting::armed_retaliate(&g.st, t.p as usize, t.s) else { return Ok(()) };
-    if !matches!(r.what, crate::state::LastingWhat::Retaliate { amount, .. } if amount > 0) {
+    let rec = Retaliation { target: t, source: b.source, source_pokemon: g.st.slot_pokemon(b.source.p as usize, b.source.s), lasting: r, damage: amount };
+    if rec.counters() <= 0 {
         return Ok(());
     }
-    let rec = Retaliation { target: t, source: b.source, source_pokemon: g.st.slot_pokemon(b.source.p as usize, b.source.s), lasting: r };
     if g.triggers_open(b.attack_effect) {
         crate::engine::order::record(g, crate::engine::order::Tag::Damaged(b.attack_effect), crate::engine::order::Item::Retaliation(rec));
         return Ok(());
@@ -463,17 +479,16 @@ fn retaliation_holds(g: &Game, t: &Retaliation) -> bool {
 
 /// Does the trap apply now: it puts counters (APR E-03: the effects that apply are ordered)?
 pub fn retaliation_applies(g: &Game, t: &Retaliation) -> bool {
-    let crate::state::LastingWhat::Retaliate { amount, .. } = t.lasting.what else { return false };
-    amount > 0 && retaliation_holds(g, t)
+    t.counters() > 0 && retaliation_holds(g, t)
 }
 
 /// Resolve the trap: the counters go on the Attacking Pokémon wherever it is (rulings 482, 1839), an effect of the damaged
 /// Pokémon's own earlier attack (id2408, id1958: a PlaceCounters by that attack, so Mist Energy stops it).
 pub fn retaliate(g: &mut Game, t: &Retaliation) -> R {
-    let crate::state::LastingWhat::Retaliate { amount, attack, .. } = t.lasting.what else { return Ok(()) };
+    let crate::state::LastingWhat::Retaliate { attack, .. } = t.lasting.what else { return Ok(()) };
     if retaliation_applies(g, t) {
         let cause = Cause::attack(t.target.p, Some(t.lasting.source), attack);
-        place(g, t.source, amount as i32, cause)?;
+        place(g, t.source, t.counters(), cause)?;
     }
     Ok(())
 }
@@ -529,7 +544,7 @@ mod tests {
         let attack = crate::state::AttackRef { card, index: 0 };
         let atk = g.new_fx(Effect::Attack { p: p as u8, opp: (1 - p) as u8, attack, damage: 0, ignore_weakness: true, ignore_resistance: true, ignore_defender_effects: false, source, second_attack: false });
         g.st.set_phase(GamePhase::Attack);
-        g.last_attack = Some(crate::game::LastAttack { p: p as u8, effect: atk, attack, source, pokemon: Some(card), damaged_active: SVec::new(), damaged: SVec::new() });
+        g.last_attack = Some(crate::game::LastAttack { p: p as u8, effect: atk, attack, source, pokemon: Some(card), damaged_active: SVec::new(), damaged: SVec::new(), damage_done: 0 });
         AtkBase { attack_effect: atk, player: p as u8, opponent: (1 - p) as u8, attack, source, target, cause: Cause::of_attack_at(g, p as u8, attack, source) }
     }
 

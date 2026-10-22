@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Diglett ASC 100",
+   "1 Raging Bolt ex PRE 166",
+   "1 Fighting Energy MEE 6",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Team Rocket's Diglett ASC 100",
+   "1 Raging Bolt ex PRE 166",
+   "1 Fighting Energy MEE 6",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Diglett ASC 100",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Relentless Burrowing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 0,
+   "cite": "card text: no heads, no card discarded"
+  }
+ ]
+}

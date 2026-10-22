@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ducklett WHT 25",
+   "1 Dratini ASC 150",
+   "57 Water Energy MEE 3",
+   "1 Fire Energy MEE 2"
+  ],
+  [
+   "1 Ducklett WHT 25",
+   "1 Dratini ASC 150",
+   "57 Water Energy MEE 3",
+   "1 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Ducklett WHT 25",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true,
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Firefighting"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: discard a [R] Energy from your opponent's Active Pokémon"
+  }
+ ]
+}

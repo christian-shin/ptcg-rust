@@ -1,0 +1,102 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tapu Koko ex JTG 51",
+   "1 Hop's Snorlax JTG 117",
+   "1 Cobalion ex CRI 64",
+   "1 Snover MEG 35",
+   "1 Metal Energy MEE 8",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Tapu Koko ex JTG 51",
+   "1 Hop's Snorlax JTG 117",
+   "1 Cobalion ex CRI 64",
+   "1 Snover MEG 35",
+   "1 Metal Energy MEE 8",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tapu Koko ex JTG 51",
+  "active_energy": [],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Cobalion ex CRI 64"
+   },
+   {
+    "card": "Snover MEG 35",
+    "energy": [
+     "Metal Energy MEE 8",
+     "Water Energy MEE 3"
+    ]
+   }
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  true,
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 1
+    },
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 1
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Cobalion ex CRI 64",
+   "energy": [
+    "Metal Energy MEE 8"
+   ],
+   "cite": "card text: when this Pokémon moves from your Bench to the Active Spot, you may move any amount of [M] Energy from your other Pokémon to it"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "energy": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: only [M] Energy moves; the [W] Energy stays"
+  }
+ ]
+}

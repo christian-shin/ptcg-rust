@@ -1,0 +1,13 @@
+Erika's Tangela
+- Grass - 80 HP
+Pokémon
+- Basic
+Ability:
+Gathering of Blossoms
+Once during your turn, you may use this Ability. Search your deck for an Erika's Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+GC
+Bind 50
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fire
+Resistance: none
+Retreat: 2

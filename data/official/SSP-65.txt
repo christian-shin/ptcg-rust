@@ -1,0 +1,13 @@
+Tapu Koko
+- Lightning - 120 HP
+Pokémon
+- Basic
+C
+Summon Lightning
+Search your deck for up to 2 [ L ] Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+LLC
+Prize Count 90+
+If you have more Prize cards remaining than your opponent, this attack does 90 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Throh BLK 50",
+   "1 Yveltal MEG 88",
+   "2 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Throh BLK 50",
+   "1 Yveltal MEG 88",
+   "2 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Throh BLK 50",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Yveltal MEG 88",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shoulder Throw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Yveltal MEG 88",
+   "damage": 90,
+   "cite": "card text: 120 with no Retreat Cost; Yveltal's Resistance to Fighting takes 30 (APR B-08: Weakness and Resistance apply to the Active Pokémon)"
+  }
+ ]
+}

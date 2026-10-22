@@ -103,9 +103,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
             // The two lasting triggers (they fire in the Damage routine's step-7 window and in the KnockOut routine): an
             // attack's only.
-            Lasting::Retaliate(n) => {
+            Lasting::Retaliate(amount) => {
                 if let Some(attack) = attack {
-                    l::set_retaliate(st, tp, ts, n, attack, p as u8, card)
+                    l::set_retaliate(st, tp, ts, amount, attack, p as u8, card)
                 }
             }
             Lasting::DiscardAttackerEnergyIfKnockedOut => {

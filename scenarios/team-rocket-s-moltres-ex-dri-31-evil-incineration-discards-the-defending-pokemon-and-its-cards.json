@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Moltres ex DRI 31",
+   "1 Dratini ASC 150",
+   "1 Snover MEG 35",
+   "3 Fire Energy MEE 2",
+   "1 Team Rocket's Energy ASC 217",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Team Rocket's Moltres ex DRI 31",
+   "1 Dratini ASC 150",
+   "1 Snover MEG 35",
+   "3 Fire Energy MEE 2",
+   "1 Team Rocket's Energy ASC 217",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Moltres ex DRI 31",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Team Rocket's Energy ASC 217"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evil Incineration"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Dratini ASC 150",
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: discard a Team Rocket's Energy from this Pokémon. If you do, discard your opponent's Active Pokémon and all attached cards"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "card text: the Team Rocket's Energy is discarded from this Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "APR: a discarded Pokémon isn't Knocked Out, no Prize card is taken"
+  }
+ ]
+}

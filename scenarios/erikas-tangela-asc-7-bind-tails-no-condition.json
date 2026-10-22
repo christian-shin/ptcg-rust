@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Erika's Tangela ASC 7",
+   "1 Hop's Snorlax JTG 117",
+   "2 Grass Energy MEE 1",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Erika's Tangela ASC 7",
+   "1 Hop's Snorlax JTG 117",
+   "2 Grass Energy MEE 1",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Erika's Tangela ASC 7",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 50,
+   "conditions": [],
+   "cite": "card text: tails, nothing more happens"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+Teal Mask Ogerpon
+- Grass - 110 HP
+Pokémon
+- Basic
+C
+Grass Kagura
+Search your deck for a Basic [ G ] Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.
+GGC
+Ogre's Hammer 120
+During your next turn, this Pokémon can't use Ogre's Hammer.
+Weakness: Fire
+Resistance: none
+Retreat: 1

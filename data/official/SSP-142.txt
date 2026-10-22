@@ -1,0 +1,15 @@
+Tatsugiri ex
+- Dragon - 160 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+RW
+Surprise Pump 100
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+RWD
+Cinnabar Lure
+Look at the top 10 cards of your deck. You may put any number of Pokémon you find there onto your Bench. Shuffle the other cards back into your deck.
+Weakness: none
+Resistance: none
+Retreat: 1

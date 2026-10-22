@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Volcanion POR 25",
+   "1 Raging Bolt ex PRE 166",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Volcanion POR 25",
+   "1 Raging Bolt ex PRE 166",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Volcanion POR 25",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "coins": [
+  true,
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Powerful Steam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 180,
+   "cite": "card text: flip a coin for each [W] Energy attached (3); 90 damage for each heads (2)"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Cryogonal
+- Water - 90 HP
+Pokémon
+- Basic
+W
+Drag Off
+Switch in 1 of your opponent's Benched Pokémon to the Active Spot. This attack does 20 damage to the new Active Pokémon.
+W
+Icicle 30
+Weakness: Metal
+Resistance: none
+Retreat: 1

@@ -170,6 +170,9 @@ pub struct LastAttack {
     pub damaged_active: SVec<SlotRef, 4>,
     /// Every Pokémon (any zone) that took damage, not counters, from the attack (`RECORD_DAMAGED`).
     pub damaged: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
+    /// The damage (HP) the attack did to the opponent's Active Pokémon, the amounts of its Damage events ("heal from this
+    /// Pokémon the same amount of damage you did to your opponent's Active Pokémon": `Num::DamageDone`).
+    pub damage_done: i32,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -1138,6 +1141,7 @@ impl Game {
                 pokemon: self.st.slot_pokemon(source.p as usize, source.s),
                 damaged_active: SVec::new(),
                 damaged: SVec::new(),
+                damage_done: 0,
             });
         }
         if self.trace_effects {

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Virizion WHT 10",
+   "1 Raging Bolt ex PRE 166",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Virizion WHT 10",
+   "1 Raging Bolt ex PRE 166",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Virizion WHT 10",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Emerald Blade"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 130,
+   "cite": "card text: 130 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Giga Drain",
+   "cite": "card text: during your next turn, this Pokémon can't use attacks; APR C-15",
+   "is": false
+  }
+ ]
+}

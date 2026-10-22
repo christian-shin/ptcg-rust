@@ -1006,3 +1006,52 @@ Iron Crown SSP 132	IronCrownSSP
 Karrablast BLK 9	KarrablastBLK
 Kyurem ex BLK 28	KyuremEx
 Landorus BLK 53	LandorusBLK
+Azelf SSP 80	Azelf
+Basculin WHT 24	Basculin
+Bombirdier PBL 71	Bombirdier
+Bruxish SSP 49	Bruxish
+Carbink ASC 117	Carbink
+Carnivine CRI 4	Carnivine
+Cobalion BLK 66	Cobalion
+Cobalion ex CRI 64	CobalionEx
+Cornerstone Mask Ogerpon DRI 111	CornerstoneMaskOgerpon
+Cryogonal BLK 27	Cryogonal
+Dedenne POR 29	DedennePOR
+Deerling TEF 16	DeerlingTEF
+Delibird CRI 18	DelibirdCRI
+Dhelmise MEG 18	DhelmiseMEG
+Drampa ASC 176	Drampa
+Ducklett WHT 25	Ducklett
+Durant WHT 70	Durant
+Entei ASC 25	Entei
+Erika's Tangela ASC 7	ErikasTangela
+Espurr CRI 36	EspurrCRI
+Steven's Carbink DRI 86	StevensCarbink
+Sudowoodo CRI 43	Sudowoodo
+Suicune PFL 26	Suicune
+Tapu Koko SSP 65	TapuKokoSSP
+Tatsugiri ex SSP 142	TatsugiriEx
+Teal Mask Ogerpon DRI 26	TealMaskOgerponDRI
+Team Rocket's Blipbug DRI 15	TeamRocketsBlipbug
+Team Rocket's Diglett ASC 100	TeamRocketsDiglett
+Team Rocket's Koffing DRI 125	TeamRocketsKoffing
+Team Rocket's Moltres ex DRI 31	TeamRocketsMoltresEx
+Terapagos SSP 161	Terapagos
+Throh BLK 50	Throh
+Togedemaru ex ASC 149	TogedemaruEx
+Tornadus WHT 78	Tornadus
+Tropius PBL 1	Tropius
+Tympole BLK 19	TympoleBLK
+Uxie SSP 78	Uxie
+Victini BLK 12	VictiniBLK
+Virizion WHT 10	Virizion
+Volcanion MEG 25	VolcanionMEG
+Volcanion POR 25	VolcanionPOR
+Wash Rotom DRI 61	WashRotom
+Wellspring Mask Ogerpon DRI 67	WellspringMaskOgerpon
+Wiglett TEF 47	Wiglett
+Wo-Chien SSP 15	WoChien
+Xerneas MEG 64	XerneasMEG
+Yveltal ex POR 53	YveltalEx
+Zamazenta DRI 146	Zamazenta
+Zarude PBL 56	ZarudePBL

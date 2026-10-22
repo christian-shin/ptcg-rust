@@ -1,0 +1,12 @@
+Steven's Carbink
+- Psychic - 80 HP
+Pokémon
+- Basic
+Ability:
+Stone Palace
+As long as this Pokémon is on your Bench, all of your Steven's Pokémon take 30 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) . The effect of Stone Palace doesn't stack.
+PCC
+Magical Shot 80
+Weakness: Metal
+Resistance: none
+Retreat: 2

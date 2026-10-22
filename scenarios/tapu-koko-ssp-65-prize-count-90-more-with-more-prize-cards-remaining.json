@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Tapu Koko SSP 65",
+   "1 Raging Bolt ex PRE 166",
+   "3 Lightning Energy MEE 4",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Tapu Koko SSP 65",
+   "1 Raging Bolt ex PRE 166",
+   "3 Lightning Energy MEE 4",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Tapu Koko SSP 65",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true,
+  "prizes_left": 5
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Prize Count"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 180,
+   "cite": "card text: 90 + 90 when you have more Prize cards remaining than your opponent (6 against 5)"
+  }
+ ]
+}

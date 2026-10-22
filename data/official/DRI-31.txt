@@ -1,0 +1,13 @@
+Team Rocket's Moltres ex
+- Fire - 220 HP
+Pokémon
+- Basic
+RCC
+Flame Screen 110
+During your opponent's next turn, this Pokémon takes 50 less damage from attacks (after applying Weakness and Resistance) .
+RCCC
+Evil Incineration
+Discard a Team Rocket's Energy from this Pokémon. If you do, discard your opponent's Active Pokémon and all attached cards.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2

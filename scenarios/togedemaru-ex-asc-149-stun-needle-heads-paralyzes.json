@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Togedemaru ex ASC 149",
+   "1 Mega Latias ex MEG 100",
+   "1 Metal Energy MEE 8",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Togedemaru ex ASC 149",
+   "1 Mega Latias ex MEG 100",
+   "1 Metal Energy MEE 8",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Togedemaru ex ASC 149",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Mega Latias ex MEG 100",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Stun Needle"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "card text: 20 damage; flip a coin, if heads Paralyzed"
+  }
+ ]
+}

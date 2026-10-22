@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Volcanion MEG 25",
+   "1 Hop's Snorlax JTG 117",
+   "1 Fire Energy MEE 2",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Volcanion MEG 25",
+   "1 Hop's Snorlax JTG 117",
+   "1 Fire Energy MEE 2",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Volcanion MEG 25",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Singe"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "BURNED"
+   ],
+   "cite": "card text: your opponent's Active Pokémon is now Burned"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+Tornadus
+- Colorless - 120 HP
+Pokémon
+- Basic
+C
+Wrapped in Wind
+Attach a Basic Energy card from your hand to this Pokémon.
+CCC
+Hurricane 100
+Move a Basic Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Virizion WHT 10",
+   "1 Wailmer PBL 15",
+   "1 Grass Energy MEE 1",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Virizion WHT 10",
+   "1 Wailmer PBL 15",
+   "1 Grass Energy MEE 1",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Virizion WHT 10",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "active_damage": 70,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Wailmer PBL 15",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Giga Drain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Wailmer PBL 15",
+   "damage": 30,
+   "cite": "card text: 30 damage (Wailmer has no Weakness to Grass)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: heal 30 damage, the damage done"
+  }
+ ]
+}

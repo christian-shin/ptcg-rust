@@ -1,0 +1,12 @@
+Team Rocket's Koffing
+- Darkness - 70 HP
+Pokémon
+- Basic
+Ability:
+Smog Signals
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , search your deck for up to 2 Pokémon that have "Koffing" in their name and put them onto your Bench. Then, shuffle your deck.
+DC
+Leaking Gas 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

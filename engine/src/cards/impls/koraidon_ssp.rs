@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "KoraidonSSP",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::before_damage(more_damage_if(150, Cond::AttackedLastTurn { who: Who::Me, by: Pred::Tag(crate::types::tag::ANCIENT), other: true, attack: AttackPred::Any })),
+            Step::before_damage(more_damage_if(150, Cond::AttackedLastTurn { who: Who::Me, by: Pred::Tag(crate::types::tag::ANCIENT), attacker: LastAttacker::Other, attack: AttackPred::Any })),
         ] },
     ],
     ..CardSpec::NONE

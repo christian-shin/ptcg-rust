@@ -360,9 +360,9 @@ pub fn rearm_takes_more_after_attack(st: &mut State, o: usize) {
 }
 
 /// A Retaliate trigger put this turn (pending).
-pub fn set_retaliate(st: &mut State, p: usize, s: SlotId, amount: i32, attack: AttackRef, attacker: u8, source: CardId) {
+pub fn set_retaliate(st: &mut State, p: usize, s: SlotId, amount: crate::state::RetaliateAmount, attack: AttackRef, attacker: u8, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    set(st, on, Kind::RetaliatePending, Some(LastingEffect { on, source, what: LastingWhat::Retaliate { amount: amount as i16, attack, attacker, pending: true } }));
+    set(st, on, Kind::RetaliatePending, Some(LastingEffect { on, source, what: LastingWhat::Retaliate { amount, attack, attacker, pending: true } }));
 }
 
 /// The "when this Pokémon is Knocked Out, discard an Energy from the Attacking Pokémon" trigger put this turn.

@@ -13,6 +13,8 @@ use crate::list::CardId;
 use crate::prompts::Res;
 use crate::types::Stage;
 
+pub use crate::state::RetaliateAmount;
+
 // ---------------------------------------------------------------------------
 // AttackFlag
 
@@ -100,8 +102,9 @@ pub enum Lasting {
     /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks from `source`.
     PreventDamage(DamageSource),
     /// During the opponent's next turn, if this Pokémon is damaged by an attack
-    /// (even if Knocked Out), put n damage counters on the Attacking Pokémon.
-    Retaliate(i32),
+    /// (even if Knocked Out), put damage counters on the Attacking Pokémon: a number of them, or as many as the damage done
+    /// to this Pokémon (`RetaliateAmount`).
+    Retaliate(RetaliateAmount),
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
     /// During the opponent's next turn, the Defending Pokémon's Retreat Cost is [C] more.

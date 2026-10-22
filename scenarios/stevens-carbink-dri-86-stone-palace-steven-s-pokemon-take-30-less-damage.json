@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Steven's Beldum DRI 143",
+   "1 Wailmer PBL 15",
+   "1 Steven's Carbink DRI 86",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Steven's Beldum DRI 143",
+   "1 Wailmer PBL 15",
+   "1 Steven's Carbink DRI 86",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Steven's Beldum DRI 143",
+  "active_energy": [],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Steven's Carbink DRI 86"
+   }
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Wailmer PBL 15",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Water Gun"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Steven's Beldum DRI 143",
+   "damage": 10,
+   "cite": "card text: all of your Steven's Pokémon take 30 less damage from attacks from your opponent's Pokémon (40 - 30)"
+  }
+ ]
+}

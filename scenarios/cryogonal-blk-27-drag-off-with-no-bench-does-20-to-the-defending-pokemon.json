@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Cryogonal BLK 27",
+   "1 Dratini ASC 150",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Cryogonal BLK 27",
+   "1 Dratini ASC 150",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Cryogonal BLK 27",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drag Off"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dratini ASC 150",
+   "damage": 20,
+   "cite": "card text: 20 damage to the Active Pokémon (no Benched Pokémon to switch in)"
+  }
+ ]
+}

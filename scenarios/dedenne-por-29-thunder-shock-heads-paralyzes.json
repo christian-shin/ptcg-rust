@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dedenne POR 29",
+   "1 Hop's Snorlax JTG 117",
+   "2 Lightning Energy MEE 4",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Dedenne POR 29",
+   "1 Hop's Snorlax JTG 117",
+   "2 Lightning Energy MEE 4",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Dedenne POR 29",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Shock"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "card text: 30 damage; flip a coin, if heads Paralyzed"
+  }
+ ]
+}

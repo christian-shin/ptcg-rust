@@ -112,6 +112,10 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
+    /// The damage (HP) the attack in progress has done to the opponent's Active Pokémon so far: the amounts of its Damage
+    /// events, after Weakness, Resistance and every effect ("heal from this Pokémon the same amount of damage you did to your
+    /// opponent's Active Pokémon"; damage a prevention stopped is not done, 0 outside an attack).
+    DamageDone,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -215,8 +219,8 @@ pub enum Cond {
     /// "If 1 of your [other] [Ancient] Pokémon used [an attack / name] during your last turn" (Koraidon SSP 116, Sylveon ex's
     /// Angelite): the attack the player used during their previous turn (the player's last-attack record: a turn without an
     /// attack, a failed attack and a Knock Out reset leave none) matches `attack` and was used by a Pokémon card matching `by`,
-    /// other than this card when `other`. A copied attack counts for the copycat that used it (id2402).
-    AttackedLastTurn { who: Who, by: Pred, other: bool, attack: AttackPred },
+    /// by this card or another card as `attacker` says. A copied attack counts for the copycat that used it (id2402).
+    AttackedLastTurn { who: Who, by: Pred, attacker: LastAttacker, attack: AttackPred },
     /// The Ability of this card is blocked for the player the program runs for (a checked read).
     AbilityBlocked,
     /// Some Basic Pokémon the player has in play can evolve now into a card in the game (a checked read).
@@ -225,6 +229,16 @@ pub enum Cond {
     ToolBlocked,
     /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
     HasEvolutionInPool(Who),
+}
+
+/// Which Pokémon used the attack in a last-attack read (`Cond::AttackedLastTurn`): any Pokémon of the player, this Pokémon
+/// ("if this Pokémon used Spiky Rolling during your last turn"), or another one ("if 1 of your other Ancient Pokémon used an
+/// attack during your last turn").
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LastAttacker {
+    Any,
+    This,
+    Other,
 }
 
 /// An attack predicate: which printed attack was used.
@@ -436,6 +450,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::Last => f.last,
+        Num::DamageDone => crate::spec::ops::board::frame_attack(g, f).and_then(|_| g.last_attack.as_ref()).map_or(0, |la| la.damage_done),
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -548,14 +563,18 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
         Cond::CanEvolveBasic(_) => panic!("Cond::CanEvolveBasic needs a checked read (cond_m)"),
         Cond::ToolBlocked => panic!("Cond::ToolBlocked needs a checked read (cond_m)"),
-        Cond::AttackedLastTurn { who, by, other, attack } => {
+        Cond::AttackedLastTurn { who, by, attacker, attack } => {
             // The player's previous turn is two turns ago (turns alternate: no card in the pool skips a turn); an attack
             // that failed (Confusion) isn't used (its stamp is voided).
             let p = f.who(*who);
             match g.st.player_last_attack[p] {
                 Some((a, src)) => {
                     g.st.player_last_attack_turn[p] == g.st.turn - 2
-                        && (!*other || src != me)
+                        && match attacker {
+                            LastAttacker::Any => true,
+                            LastAttacker::This => src == me,
+                            LastAttacker::Other => src != me,
+                        }
                         && pred(g, src, by)
                         && match attack {
                             AttackPred::Any => true,

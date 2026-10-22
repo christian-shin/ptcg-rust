@@ -1,0 +1,10 @@
+Victini
+- Fire - 80 HP
+Pokémon
+- Basic
+RR
+V-Force 120
+If you have 4 or fewer Benched Pokémon, this attack does nothing.
+Weakness: Water
+Resistance: none
+Retreat: 1

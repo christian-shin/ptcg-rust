@@ -1,0 +1,13 @@
+Xerneas
+- Psychic - 120 HP
+Pokémon
+- Basic
+P
+Geo Gate
+Search your deck for up to 3 Basic [ P ] Pokémon and put them onto your Bench. Then, shuffle your deck.
+PPC
+Bright Horns 120
+During your next turn, this Pokémon can't use Bright Horns.
+Weakness: Metal
+Resistance: none
+Retreat: 1
