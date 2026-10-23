@@ -944,13 +944,30 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
     })
 }
 
+/// Which types of a Pokémon `SlotPred::TypeIs` reads ([`slot_pred_view_m`]).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TypeView {
+    /// Its type as the game checks it, every effect applied (`derived::types`; APR D-07).
+    Current,
+    /// The type that decides whether its own Abilities work: every type effect except those of its own Abilities
+    /// (`derived::compute_types_without_own_abilities`), read by an Ability lock's condition on the Pokémon it covers. An
+    /// Ability can't turn itself off or on through its own effect (RULES.md, events batch 10 E29).
+    DecidingOwnAbilities,
+}
+
 /// Slot predicate with checked reads.
+#[inline]
 pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
+    slot_pred_view_m(g, me, s, sp, TypeView::Current)
+}
+
+/// [`slot_pred_m`] with the types its `TypeIs` reads chosen by `view`.
+pub fn slot_pred_view_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, sp: &SlotPred, view: TypeView) -> R<bool> {
     Ok(match sp {
-        SlotPred::Not(q) => !slot_pred_m(g, me, s, q)?,
+        SlotPred::Not(q) => !slot_pred_view_m(g, me, s, q, view)?,
         SlotPred::All(qs) => {
             for q in qs.iter() {
-                if !slot_pred_m(g, me, s, q)? {
+                if !slot_pred_view_m(g, me, s, q, view)? {
                     return Ok(false);
                 }
             }
@@ -958,13 +975,16 @@ pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, 
         }
         SlotPred::OneOf(qs) => {
             for q in qs.iter() {
-                if slot_pred_m(g, me, s, q)? {
+                if slot_pred_view_m(g, me, s, q, view)? {
                     return Ok(true);
                 }
             }
             false
         }
-        SlotPred::TypeIs(t) => g.types(s)?.contains(t),
+        SlotPred::TypeIs(t) => match view {
+            TypeView::Current => g.types(s)?.contains(t),
+            TypeView::DecidingOwnAbilities => crate::derived::compute_types_without_own_abilities(g, s)?.contains(t),
+        },
         SlotPred::Provides(t) => g.provided_energy(s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
         SlotPred::NoEnergyProvided => g.provided_energy(s.p as usize, s)?.is_empty(),
         SlotPred::RemainingHpAtMost(n) => {

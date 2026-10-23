@@ -1177,12 +1177,30 @@ pub fn compute_provided_energy<F: Facts>(g: &mut F, p: usize, source: SlotRef) -
 /// The types of the Pokémon in `target`: its printed types, replaced by each in-place `TypeOverride` that applies (the
 /// last one wins).
 pub fn compute_types<F: Facts>(g: &mut F, target: SlotRef) -> R<SVec<CardType, 4>> {
+    types_from(g, target, None)
+}
+
+/// The types of the Pokémon in `target` that decide whether its own Abilities work (an Ability lock's condition on it,
+/// `spec::value::TypeView::DecidingOwnAbilities`): [`compute_types`] without the `TypeOverride`s of its own Abilities,
+/// so an Ability can't turn itself off or on through its own effect (RULES.md, events batch 10 E29). Whether such an
+/// override applies asks the lock pass for its own Pokémon, which reads this: the order is well founded. Not memoized
+/// (read only by a lock whose condition reads a type).
+pub fn compute_types_without_own_abilities<F: Facts>(g: &mut F, target: SlotRef) -> R<SVec<CardType, 4>> {
+    let own = g.g().st.slot_pokemon(target.p as usize, target.s);
+    types_from(g, target, own)
+}
+
+/// [`compute_types`], leaving out the Ability declarations of `without` (the Pokémon in `target`) when given.
+fn types_from<F: Facts>(g: &mut F, target: SlotRef, without: Option<CardId>) -> R<SVec<CardType, 4>> {
     use crate::spec::passive::Modifier;
     let mut types = crate::engine::game_effect::pokemon_types(g.g(), target);
     g.undelegated(|g| -> R {
         let ds = declarers(g, crate::decl::fam::TYPE);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
+                if Some(me) == without && ps.origin == crate::spec::RuleSource::Ability {
+                    continue;
+                }
                 if let Modifier::TypeOverride(t) = &ps.modifier {
                     if let Some(set) = crate::spec::passive::type_override(g, me, ps.origin, t, target)? {
                         types.clear();

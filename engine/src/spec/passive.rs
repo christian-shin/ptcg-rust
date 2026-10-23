@@ -1588,6 +1588,14 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
     lockable_power(g, power) && (!lp.only_knocks_out_self || run::power_knocks_out_self(g, power))
 }
 
+/// An Ability lock's condition `sp` (of the lock source `me`) on the Pokémon in `slot` whose Abilities it decides: a
+/// type is read without the effects of that Pokémon's own Abilities (`TypeView::DecidingOwnAbilities`), so a type-changing
+/// Ability can't turn itself off or on through its own effect (RULES.md, events batch 10 E29; Carbink's Double Type under
+/// Team Rocket's Watchtower, for example).
+fn lock_condition<F: crate::derived::Facts>(g: &mut F, me: CardId, slot: SlotRef, sp: &SlotPred) -> R<bool> {
+    slot_pred_view_m(g, me, slot, sp, TypeView::DecidingOwnAbilities)
+}
+
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
 fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
     if locker_owner(g.g(), me, l.locker).is_none() {
@@ -1612,12 +1620,12 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
     }
     match l.probe {
         LockerProbe::Generic => {
-            if !slot_pred_m(g, me, slot, &l.slot)? || g.has_no_ability(me, None) {
+            if !lock_condition(g, me, slot, &l.slot)? || g.has_no_ability(me, None) {
                 return Ok(false);
             }
         }
         LockerProbe::OwnPower(i) => {
-            if !slot_pred_m(g, me, slot, &l.slot)? {
+            if !lock_condition(g, me, slot, &l.slot)? {
                 return Ok(false);
             }
             let power = crate::effects::PowerRef { card: me, index: i };
@@ -1626,7 +1634,7 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
                 return Ok(false);
             }
         }
-        LockerProbe::Stadium => match slot_pred_m(g, me, slot, &l.slot) {
+        LockerProbe::Stadium => match lock_condition(g, me, slot, &l.slot) {
             Ok(true) => {}
             Ok(false) => return Ok(false),
             // The type check failed: the printed data decides.
@@ -2993,7 +3001,7 @@ fn active_lock_covers<F: crate::derived::Facts>(g: &mut F, me: CardId, l: &Activ
         Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
         _ => return Ok(false),
     };
-    Ok(slot_pred_m(g, me, slot, &l.locked)? && !pred(g.g(), card, &l.except))
+    Ok(lock_condition(g, me, slot, &l.locked)? && !pred(g.g(), card, &l.except))
 }
 
 /// Is `card`'s Ability locked by `me` (the lock's source in place, the card covered, and the lock winning: the precedence
@@ -3596,6 +3604,41 @@ mod play_lock_tests {
         assert_eq!(ability_off(&g, active(&g, me)), Some(true));
         assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
         assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(false), "a Metal Pokémon");
+    }
+
+    /// A type-changing Ability under a lock whose condition reads the type (RULES.md, events batch 10 E29): the lock reads
+    /// the Pokémon's type without its own Abilities' effects, so Carbink's Double Type ([F] -> [F] and [P]) works under
+    /// Team Rocket's Watchtower ([C] Pokémon have no Abilities), and the derived type is the same with and without the
+    /// Stadium (before the rule: a stack overflow, types -> the lock pass -> types).
+    #[test]
+    fn type_changing_ability_under_a_type_reading_lock() {
+        let names = ["Carbink ASC 117", "Hoothoot PRE 77", "Team Rocket's Watchtower ASC 210"];
+        let mut deck: Vec<u16> = names.iter().flat_map(|n| [*n; 3]).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        while deck.len() < 60 {
+            deck.push(crate::carddb::def_by_full_name("Fighting Energy MEE 6").unwrap());
+        }
+        let board = |stadium: bool| {
+            let mut g = Game::new(7);
+            g.start([&deck, &deck]).unwrap();
+            g.settle().ok();
+            let mut me = json!({"reset": true, "active": "Carbink ASC 117", "bench": [{"card": "Hoothoot PRE 77"}]});
+            if stadium {
+                me["stadium"] = json!("Team Rocket's Watchtower ASC 210");
+            }
+            crate::scenario::apply(&mut g, &json!({"me": me, "opp": {"reset": true, "active": "Hoothoot PRE 77"}})).unwrap();
+            g
+        };
+        for stadium in [false, true] {
+            let mut g = board(stadium);
+            let me = g.st.active_player as usize;
+            let carbink = SlotRef::new(me, g.st.players[me].active);
+            let types = crate::derived::types(&mut g, carbink).unwrap();
+            assert_eq!(types.as_slice(), &[ct::FIGHTING, ct::PSYCHIC], "Double Type works (Watchtower in play: {stadium})");
+            assert_eq!(crate::derived::compute_types_without_own_abilities(&mut g, carbink).unwrap().as_slice(), &[ct::FIGHTING], "its printed type");
+            assert_eq!(ability_off(&g, active(&g, me)), Some(false), "Carbink keeps its Ability (Watchtower in play: {stadium})");
+            assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(stadium), "a [C] Pokémon has no Ability under Watchtower");
+            assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(stadium), "either player's");
+        }
     }
 }
 

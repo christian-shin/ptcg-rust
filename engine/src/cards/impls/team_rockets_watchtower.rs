@@ -2,7 +2,8 @@
 //!
 //! An Ability lock (`Modifier::AbilityLock`, the Stadium in play as the locker): it strips and blocks the Abilities of every Pokémon in
 //! play whose type, read after effects, is [C]; the Stadium's own effect must not be blocked on that Pokémon's spot
-//! (`LockerProbe::Stadium`).
+//! (`LockerProbe::Stadium`). The type is read without the effects of the Pokémon's own Abilities (the lock's condition,
+//! `TypeView::DecidingOwnAbilities`): Carbink ASC 117's Double Type neither turns itself off nor on (RULES.md, batch 10 E29).
 use crate::spec::prelude::*;
 use crate::types::ct;
 
