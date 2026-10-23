@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "N's Reshiram ASC 154",
+  "hand": [
+   "Dragon Elixir SSP 172"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Dragon Elixir SSP 172",
+   "cite": "id925: nothing to heal"
+  }
+ ]
+}

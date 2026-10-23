@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Arven's Sandwich DRI 161",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Arven's Sandwich DRI 161",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Arven's Sandwich DRI 161"
+  ],
+  "bench": [
+   {
+    "card": "Snover MEG 35",
+    "damage": 40
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Arven's Sandwich DRI 161",
+   "cite": "id925: the Item heals the Active Pok\u00e9mon only; nothing to heal, can't be played"
+  }
+ ]
+}

@@ -282,6 +282,7 @@ pub fn fact_modifier(ps: &Passive) -> Option<ReadSet> {
         | Modifier::AttackFlags(_)
         | Modifier::StatOverride(_)
         | Modifier::Recover(_)
+        | Modifier::KeepConditions(_)
         | Modifier::AttachGuard(_)
         | Modifier::BenchSize(_)
         | Modifier::AttackTwice(_)

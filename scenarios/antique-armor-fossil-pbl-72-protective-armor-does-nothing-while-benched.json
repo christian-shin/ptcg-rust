@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Armor Fossil PBL 72",
+   "4 Cramorant TWM 58",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Antique Armor Fossil PBL 72",
+   "4 Cramorant TWM 58",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Cramorant TWM 58",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Antique Armor Fossil PBL 72"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spit Shot"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: as long as this Pok\u00e9mon is in the Active Spot (it is on the Bench: no reduction)"
+  }
+ ]
+}

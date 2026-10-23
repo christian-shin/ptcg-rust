@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Sail Fossil POR 69",
+   "4 Boss's Orders ASC 183",
+   "4 Duraludon PRE 69",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Antique Sail Fossil POR 69",
+   "4 Boss's Orders ASC 183",
+   "4 Duraludon PRE 69",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Boss's Orders ASC 183"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Antique Sail Fossil POR 69"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Boss's Orders ASC 183"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Snover MEG 35",
+   "cite": "card text: whenever your opponent plays a Supporter card from their hand, prevent all effects of that card done to this Pok\u00e9mon (Boss's Orders doesn't bring it to the Active Spot)"
+  }
+ ]
+}

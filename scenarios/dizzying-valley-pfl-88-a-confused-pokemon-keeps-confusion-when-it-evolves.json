@@ -1,0 +1,58 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Dizzying Valley PFL 88",
+   "4 Snover MEG 35",
+   "4 Abomasnow DRI 60",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Dizzying Valley PFL 88",
+   "4 Snover MEG 35",
+   "4 Abomasnow DRI 60",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "active_conditions": [
+   "CONFUSED"
+  ],
+  "hand": [
+   "Abomasnow DRI 60"
+  ],
+  "stadium": "Dizzying Valley PFL 88",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Abomasnow DRI 60",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Abomasnow DRI 60",
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text: Confused Pok\u00e9mon don't recover from that Special Condition when they evolve"
+  }
+ ]
+}

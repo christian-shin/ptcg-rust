@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Lumiose City POR 77",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Lumiose City POR 77",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Ange Floette CRI 75"
+  ],
+  "stadium": "Lumiose City POR 77",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Ange Floette CRI 75",
+   "cite": "card text: only if you discard a Prism Tower in play"
+  }
+ ]
+}

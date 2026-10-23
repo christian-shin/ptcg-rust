@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Nitro Fire Energy CRI 86",
+   "4 Cramorant TWM 58",
+   "4 Snover MEG 35",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Nitro Fire Energy CRI 86",
+   "4 Cramorant TWM 58",
+   "4 Snover MEG 35",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Cramorant TWM 58",
+  "active_energy": [
+   "Nitro Fire Energy CRI 86",
+   "Nitro Fire Energy CRI 86",
+   "Nitro Fire Energy CRI 86"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spit Shot"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Nitro Fire Energy CRI 86"
+   ],
+   "cite": "card text: the [R] Pok\u00e9mon this card is attached to (Cramorant is [W]): the card stays discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Nitro Fire Energy CRI 86"
+   ],
+   "cite": "card text: not put into the hand"
+  }
+ ]
+}

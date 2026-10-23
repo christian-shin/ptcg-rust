@@ -12728,5 +12728,255 @@
   "key": "Octillery CRI 17",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "75",
+  "name": "Ange Floette",
+  "type": "Stadium",
+  "reg": "J",
+  "key": "Ange Floette CRI 75",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "182",
+  "name": "Anthea & Concordia",
+  "type": "Supporter",
+  "reg": "I",
+  "key": "Anthea & Concordia ASC 182",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "72",
+  "name": "Antique Armor Fossil",
+  "type": "Item",
+  "reg": "J",
+  "key": "Antique Armor Fossil PBL 72",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "68",
+  "name": "Antique Jaw Fossil",
+  "type": "Item",
+  "reg": "J",
+  "key": "Antique Jaw Fossil POR 68",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "79",
+  "name": "Antique Plume Fossil",
+  "type": "Item",
+  "reg": "I",
+  "key": "Antique Plume Fossil WHT 79",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "69",
+  "name": "Antique Sail Fossil",
+  "type": "Item",
+  "reg": "J",
+  "key": "Antique Sail Fossil POR 69",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "73",
+  "name": "Antique Skull Fossil",
+  "type": "Item",
+  "reg": "J",
+  "key": "Antique Skull Fossil PBL 73",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "161",
+  "name": "Arven's Sandwich",
+  "type": "Item",
+  "reg": "I",
+  "key": "Arven's Sandwich DRI 161",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "142",
+  "name": "Billy & O'Nare",
+  "type": "Supporter",
+  "reg": "H",
+  "key": "Billy & O'Nare JTG 142",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "166",
+  "name": "Chill Teaser Toy",
+  "type": "Item",
+  "reg": "H",
+  "key": "Chill Teaser Toy SSP 166",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "70",
+  "name": "Core Memory",
+  "type": "Trainer - Tool",
+  "reg": "J",
+  "key": "Core Memory POR 70",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "171",
+  "name": "Deduction Kit",
+  "type": "Item",
+  "reg": "H",
+  "key": "Deduction Kit SSP 171",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "88",
+  "name": "Dizzying Valley",
+  "type": "Stadium",
+  "reg": "I",
+  "key": "Dizzying Valley PFL 88",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "172",
+  "name": "Dragon Elixir",
+  "type": "Item",
+  "reg": "H",
+  "key": "Dragon Elixir SSP 172",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "163",
+  "name": "Emcee's Hype",
+  "type": "Supporter",
+  "reg": "I",
+  "key": "Emcee's Hype DRI 163",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "77",
+  "name": "Emma",
+  "type": "Supporter",
+  "reg": "J",
+  "key": "Emma CRI 77",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "81",
+  "name": "Energy Coin",
+  "type": "Item",
+  "reg": "I",
+  "key": "Energy Coin BLK 81",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "76",
+  "name": "Fossil Quarry",
+  "type": "Stadium",
+  "reg": "J",
+  "key": "Fossil Quarry PBL 76",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "166",
+  "name": "Granite Cave",
+  "type": "Stadium",
+  "reg": "I",
+  "key": "Granite Cave DRI 166",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "74",
+  "name": "Hole-Digging Shovel",
+  "type": "Item",
+  "reg": "I",
+  "key": "Hole-Digging Shovel POR 74",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "80",
+  "name": "Misty's Vitality",
+  "type": "Supporter",
+  "reg": "J",
+  "key": "Misty's Vitality PBL 80",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "86",
+  "name": "Nitro Fire Energy",
+  "type": "Special Energy",
+  "reg": "J",
+  "key": "Nitro Fire Energy CRI 86",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "160",
+  "name": "Perrin",
+  "type": "Supporter",
+  "reg": "H",
+  "key": "Perrin TWM 160",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "206",
+  "name": "Team Rocket's Hypnotizer",
+  "type": "Trainer - Tool",
+  "reg": "I",
+  "key": "Team Rocket's Hypnotizer ASC 206",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "82",
+  "name": "Tremendous Bomb",
+  "type": "Trainer - Tool",
+  "reg": "J",
+  "key": "Tremendous Bomb PBL 82",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

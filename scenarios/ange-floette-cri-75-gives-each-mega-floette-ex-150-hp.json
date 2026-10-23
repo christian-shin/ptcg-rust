@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Floette ex CRI 35",
+  "active_damage": 300,
+  "stadium": "Ange Floette CRI 75",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "slot": "active",
+   "hp_left": 100,
+   "cite": "card text: each Mega Floette ex in play (both yours and your opponent's) gets +150 HP (250 + 150 - 300 = 100 left)"
+  }
+ ]
+}

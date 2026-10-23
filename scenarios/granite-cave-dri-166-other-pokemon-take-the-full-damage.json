@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Granite Cave DRI 166",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "4 Snover MEG 35",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Granite Cave DRI 166",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "4 Snover MEG 35",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "stadium": "Granite Cave DRI 166",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Raging Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: only Steven's Pok\u00e9mon"
+  }
+ ]
+}

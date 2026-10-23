@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Antique Sail Fossil POR 69",
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Snover MEG 35",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Antique Sail Fossil POR 69",
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Snover MEG 35",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "stadium": "Fossil Quarry PBL 76",
+  "deck_top": [
+   "Antique Jaw Fossil POR 68",
+   "Antique Sail Fossil POR 69"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "stadium"
+  },
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 2,
+   "cite": "card text: search your deck for up to 2 Item cards that have \"Antique\" in their name and put them onto your Bench (scripted to take 2)"
+  }
+ ]
+}

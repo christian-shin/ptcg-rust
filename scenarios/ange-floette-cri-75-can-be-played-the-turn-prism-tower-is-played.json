@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Prism Tower CRI 80",
+   "Ange Floette CRI 75"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Prism Tower CRI 80"
+  },
+  {
+   "a": "play",
+   "card": "Ange Floette CRI 75"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "play",
+   "name": "Ange Floette CRI 75",
+   "cite": "card text: you can put this card into play during the same turn you play Prism Tower (JP FAQ Prism Tower CRI 80: yes)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Prism Tower CRI 80"
+   ],
+   "cite": "card text: Prism Tower was discarded by Ange Floette"
+  }
+ ]
+}

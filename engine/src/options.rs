@@ -90,7 +90,8 @@ struct Gates {
     /// `turn::can_attach_energy`): no Energy card can be attached.
     energy: bool,
     /// A Supporter / a Stadium was played this turn (`play_trainer::played_kind_this_turn`, read by
-    /// `play_trainer::turn_rules`): no other card of the type can be played.
+    /// `play_trainer::turn_rules` and `check_with`): no other card of the type can be played (a Stadium: unless a card declares
+    /// the permission `Limit::OneStadiumPerTurn`).
     supporter: bool,
     stadium: bool,
     /// No card in the game can lift "evolves from" (`enter::may_permit` of `Limit::EvolvesFrom`, read by
@@ -104,7 +105,8 @@ impl Gates {
             on: true,
             energy: crate::engine::turn::energy_attached_this_turn(g, p),
             supporter: crate::engine::play_trainer::played_kind_this_turn(g, p, TrainerType::Supporter),
-            stadium: crate::engine::play_trainer::played_kind_this_turn(g, p, TrainerType::Stadium),
+            // A permission can lift the one-Stadium rule for a card (`Limit::OneStadiumPerTurn`): the gate is open in a game with one.
+            stadium: crate::engine::play_trainer::played_kind_this_turn(g, p, TrainerType::Stadium) && !crate::engine::enter::may_permit(g, crate::spec::event::Limit::OneStadiumPerTurn),
             evolves_from: !crate::engine::enter::may_permit(g, crate::spec::event::Limit::EvolvesFrom),
         }
     }

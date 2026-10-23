@@ -1,0 +1,8 @@
+Antique Jaw Fossil
+Trainer
+- Item
+Play this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.
+At any time during your turn, you may discard this card from play.
+Ability:
+Intimidating Jaw
+As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon do 30 less damage (before applying Weakness and Resistance) .

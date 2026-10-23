@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Skull Fossil PBL 73",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Antique Skull Fossil PBL 73",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pikachu ex PRE 28",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Antique Skull Fossil PBL 73",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text: even if this Pok\u00e9mon is Knocked Out: Thunder's 30 to itself + 3 counters"
+  }
+ ]
+}

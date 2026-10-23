@@ -1,0 +1,39 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Chill Teaser Toy SSP 166",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Chill Teaser Toy SSP 166",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Chill Teaser Toy SSP 166"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Chill Teaser Toy SSP 166",
+   "cite": "card text: you can use this card only if you go second, and only during your first turn (turn 3 is the first player's second turn)"
+  }
+ ]
+}

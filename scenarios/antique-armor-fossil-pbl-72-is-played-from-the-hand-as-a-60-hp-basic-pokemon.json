@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Armor Fossil PBL 72",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Antique Armor Fossil PBL 72",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Antique Armor Fossil PBL 72"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Antique Armor Fossil PBL 72"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 1,
+   "cite": "card text: play this card as if it were a 60-HP Basic [C] Pok\u00e9mon (RULES.md Fossils)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "card": "Antique Armor Fossil PBL 72",
+   "hp_left": 60,
+   "cite": "card text: 60 HP"
+  }
+ ]
+}

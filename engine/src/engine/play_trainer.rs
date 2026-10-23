@@ -63,6 +63,9 @@ pub trait PlayChecks {
     fn tool_attach(&mut self, card: CardId, target: SlotRef) -> R<Option<&'static str>>;
     /// Is the rule's `limit` lifted for the play by a permission (`enter::permitted`)?
     fn permitted(&mut self, v: &EventView, limit: Limit) -> R<bool>;
+    /// The checks of the card's own play program (`spec::run::trainer_play_check`: its printed conditions, the effect it must be
+    /// able to have) for player `p` playing it from the hand.
+    fn play_program(&mut self, card: CardId, p: usize) -> R;
 }
 
 impl PlayChecks for Game {
@@ -79,11 +82,14 @@ impl PlayChecks for Game {
     fn permitted(&mut self, v: &EventView, limit: Limit) -> R<bool> {
         crate::engine::enter::permitted(self, v, limit)
     }
+    fn play_program(&mut self, card: CardId, p: usize) -> R {
+        crate::spec::run::trainer_play_check(self, card, p, [NO_CARD; 2])
+    }
 }
 
 /// The turn's rules for playing `card` from the hand (a plain read): a Supporter one per turn (the first player's first
-/// turn is [`Limit::GoingFirst`], asked in [`check_with`]); a Stadium one per turn and not with the name of the
-/// Stadium in play (APR B-03, B-04).
+/// turn is [`Limit::GoingFirst`], asked in [`check_with`]); a Stadium not with the name of the Stadium in play (APR
+/// B-03; one per turn is [`Limit::OneStadiumPerTurn`], asked in [`check_with`]).
 pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
     let d = g.st.cdef(card);
     match d.trainer_type() {
@@ -93,9 +99,7 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
             }
         }
         TrainerType::Stadium => {
-            if played_kind_this_turn(g, p, TrainerType::Stadium) {
-                return Some("STADIUM_ALREADY_PLAYED");
-            }
+            // (One Stadium per turn is `Limit::OneStadiumPerTurn`, asked in `check_with`: a permission of the card lifts it.)
             if let Some(s) = g.st.stadium_card() {
                 if g.st.cdef(s).name == d.name {
                     return Some("SAME_STADIUM_ALREADY_IN_PLAY");
@@ -108,7 +112,8 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
 }
 
 /// Has player `p` played a Trainer card of type `kind` from the hand this turn? For a Supporter or a Stadium no other card
-/// of the type can be played this turn ([`turn_rules`]; no card lifts that rule).
+/// of the type can be played this turn ([`turn_rules`], [`Limit::OneStadiumPerTurn`]; only a Stadium's own permission lifts
+/// that rule).
 pub fn played_kind_this_turn(g: &Game, p: usize, kind: TrainerType) -> bool {
     played_this_turn(g, p, |c| c.trainer_type == kind as u8)
 }
@@ -138,6 +143,18 @@ pub fn check_with<C: PlayChecks + ?Sized>(c: &mut C, v: &EventView, target: Opti
     }
     if let Some(code) = turn_rules(c.game(), p, card) {
         return Ok(Some(code));
+    }
+    // A Stadium's printed conditions of its play ("you can put this card into play only if ...") are read before it replaces the
+    // Stadium in play.
+    if c.game().st.cdef(card).trainer_type() == TrainerType::Stadium && crate::cards::spec_for(c.game().st.cards[card as usize].def).map_or(false, |s| s.play.is_some()) && c.play_program(card, p).is_err() {
+        return Ok(Some("CANNOT_PLAY_THIS_CARD"));
+    }
+    // One Stadium per turn (APR B-04), unless a permission of the card played lifts it.
+    if c.game().st.cdef(card).trainer_type() == TrainerType::Stadium
+        && played_kind_this_turn(c.game(), p, TrainerType::Stadium)
+        && !c.permitted(v, Limit::OneStadiumPerTurn)?
+    {
+        return Ok(Some(crate::engine::enter::limit_error(Limit::OneStadiumPerTurn)));
     }
     if needs_companion(c.game(), card) {
         let Some(w) = companion(c.game(), p, card) else { return Ok(Some("CANNOT_PLAY_THIS_CARD")) };

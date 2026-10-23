@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Perrin TWM 160",
+   "4 Snover MEG 35",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Perrin TWM 160",
+   "4 Snover MEG 35",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Perrin TWM 160",
+   "Snover MEG 35",
+   "Duraludon PRE 69"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Perrin TWM 160"
+  },
+  [
+   0,
+   1
+  ],
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: reveal up to 2 Pok\u00e9mon in your hand and put them into your deck; if you do, search your deck for up to that many Pok\u00e9mon and put them into your hand (scripted: 2 and 2)"
+  }
+ ]
+}

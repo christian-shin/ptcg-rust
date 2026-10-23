@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Misty's Vitality PBL 80",
+   "1 Duraludon PRE 69",
+   "58 Water Energy MEE 3"
+  ],
+  [
+   "1 Misty's Vitality PBL 80",
+   "1 Duraludon PRE 69",
+   "58 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Misty's Vitality PBL 80"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Duraludon PRE 69",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Misty's Vitality PBL 80"
+  },
+  [
+   0,
+   1,
+   2,
+   3
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 4,
+   "cite": "card text: attach them to 1 of your Pok\u00e9mon (the Pok\u00e9mon is picked after the cards; every game is scripted to take 4)"
+  }
+ ]
+}

@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "active_damage": 60,
+  "hand": [
+   "Dragon Elixir SSP 172"
+  ],
+  "bench": [
+   {
+    "card": "N's Reshiram ASC 154",
+    "damage": 60
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Dragon Elixir SSP 172",
+   "cite": "id925: only the Active [N] Pok\u00e9mon is healed; a damaged Dragon on the Bench doesn't count, the Item can't be played"
+  }
+ ]
+}

@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dizzying Valley PFL 88",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Strange Timepiece MEG 128",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dizzying Valley PFL 88",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Strange Timepiece MEG 128",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_conditions": [
+   "CONFUSED"
+  ],
+  "hand": [
+   "Strange Timepiece MEG 128"
+  ],
+  "stadium": "Dizzying Valley PFL 88",
+  "reset": true
+ },
+ "opp": {
+  "active": "Bronzor TEF 68",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Strange Timepiece MEG 128"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  [
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Bronzor TEF 68",
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text: Confused Pok\u00e9mon don't recover from that Special Condition when they evolve or devolve (Strange Timepiece devolves Bronzong)"
+  }
+ ]
+}

@@ -495,6 +495,9 @@ impl crate::engine::play_trainer::PlayChecks for Ctx<'_> {
     fn permitted(&mut self, v: &crate::spec::event::EventView, limit: crate::spec::event::Limit) -> crate::game::R<bool> {
         crate::engine::enter::permitted(self, v, limit)
     }
+    fn play_program(&mut self, card: CardId, p: usize) -> crate::game::R {
+        crate::spec::run::trainer_play_check(self, card, p, [NO_CARD; 2])
+    }
 }
 
 /// The checks of a turn action (`engine::turn_action`: UseAttack, UseAbility, UseStadium), the functions execution calls:

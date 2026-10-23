@@ -1,0 +1,9 @@
+Antique Plume Fossil
+- 60 HP
+Trainer
+- Item
+Play this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.
+At any time during your turn, you may discard this card from play.
+Ability:
+Plume Protection
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks from your opponent's Pokémon.

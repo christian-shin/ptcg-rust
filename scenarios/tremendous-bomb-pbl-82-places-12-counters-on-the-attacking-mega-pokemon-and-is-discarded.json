@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tremendous Bomb PBL 82",
+   "4 Mega Zygarde ex POR 47",
+   "4 Hop's Snorlax JTG 117",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Tremendous Bomb PBL 82",
+   "4 Mega Zygarde ex POR 47",
+   "4 Hop's Snorlax JTG 117",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_tool": "Tremendous Bomb PBL 82",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gaia Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: takes 240 or more damage (Gaia Wave 200, doubled by the Fighting Weakness) from an attack from your opponent's Mega Evolution Pok\u00e9mon ex (even if Knocked Out): 12 damage counters on the Attacking Pok\u00e9mon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Tremendous Bomb PBL 82"
+   ],
+   "cite": "card text: if you placed any damage counters in this way, discard this card"
+  }
+ ]
+}

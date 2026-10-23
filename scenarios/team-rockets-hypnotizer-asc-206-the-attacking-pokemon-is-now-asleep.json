@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Hypnotizer ASC 206",
+   "4 Team Rocket's Nidorino DRI 118",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Team Rocket's Hypnotizer ASC 206",
+   "4 Team Rocket's Nidorino DRI 118",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pikachu ex PRE 28",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Team Rocket's Nidorino DRI 118",
+  "active_tool": "Team Rocket's Hypnotizer ASC 206",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tail Whap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "card text: if the Team Rocket's Pok\u00e9mon this card is attached to is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon, the Attacking Pok\u00e9mon is now Asleep"
+  }
+ ]
+}

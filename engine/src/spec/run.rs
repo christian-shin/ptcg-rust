@@ -513,7 +513,11 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(play) = &spec.play {
         if let Some(p) = trainer_played(g, e, me) {
             let f = Frame::start(g, me, Prog::Play, Phase::Use, e, p, trainer_via_attack(g, e));
-            check_play(g, me, play, &f)?;
+            // A Stadium's conditions are read by the PlayTrainer's own checks, before it replaces the Stadium in play
+            // (`engine::play_trainer::check_with`): it is in play now.
+            if play.kind != PlayKind::Stadium {
+                check_play(g, me, play, &f)?;
+            }
             run(g, me, f)?;
         }
     }

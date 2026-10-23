@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Dragon Elixir SSP 172",
+   "4 N's Reshiram ASC 154",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "N's Reshiram ASC 154",
+  "active_damage": 100,
+  "hand": [
+   "Dragon Elixir SSP 172"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Dragon Elixir SSP 172"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: heal 60 damage from your Active [N] Pok\u00e9mon"
+  }
+ ]
+}

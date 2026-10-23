@@ -1,0 +1,4 @@
+Fossil Quarry
+Trainer
+- Stadium
+Once during each player's turn, that player may search their deck for up to 2 Item cards that have "Antique" in their name and put them onto their Bench. Then, that player shuffles their deck.
