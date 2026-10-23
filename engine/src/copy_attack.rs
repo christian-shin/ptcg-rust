@@ -437,12 +437,13 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
                 Effect::Attack { damage, .. } => damage,
                 _ => 0,
             };
+            let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
+            let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target, cause: crate::cause::Cause::of_attack_at(g, p, f.attack, f.src_slot) };
             if damage > 0 {
-                let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-                let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target, cause: crate::cause::Cause::of_attack_at(g, p, f.attack, f.src_slot) };
                 let r = crate::engine::damage::deal(g, b, damage, true);
                 return finish_step(g, f, r, wait_if_prompts);
             }
+            crate::engine::damage::base_damage_zero(g, &b);
             next_stage(g, f)
         }
         CopyStage::AfterDeal => {

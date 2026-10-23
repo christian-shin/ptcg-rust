@@ -19,7 +19,14 @@
 //!   player, the Pokémon put down face down at setup turned face up), the setup check for a Basic Pokémon (a Mulligan
 //!   entry with [`Detail::BasicCheck`]) and GameEnd.
 //!
-//! An event that doesn't happen (refused by its checks, prevented) records nothing; a turn action or an answer that
+//! - a damage, damage counters or a heal that comes out 0 (RULES.md "Events batch 10, E14": no event happens, nothing
+//!   reacts, nothing changes) has a record-only entry of the event's kind with amount 0 ([`comes_out_zero`]), for a host
+//!   that shows it: an attack's damage that the calculation brings to 0 or that a prevention stops (the base damage of
+//!   an attack with printed damage brought to 0, "takes N less", "prevent all damage", Dig), damage counters a lock or a
+//!   prevention keeps off a Pokémon, a heal that removes nothing (no damage to heal, nothing to heal by, "can't be
+//!   healed").
+//!
+//! Any other event that doesn't happen (refused by its checks, prevented) records nothing; a turn action or an answer that
 //! fails and is rolled back takes its entries with it (`Game::copy_from` rewinds the buffer). Legality trials and
 //! every other copy made by `Game::fork` never record.
 //!
@@ -84,7 +91,7 @@ pub struct RecordEntry {
     /// The other Pokémon of a move between two: the one an attached card or counters leave, the one a Swap replaces, the
     /// other Pokémon of a ChangeActive.
     pub other: Option<CardId>,
-    /// Damage, damage counters (HP), the HP healed.
+    /// Damage, damage counters (HP), the HP healed; 0 for one that comes out 0 ([`comes_out_zero`]: no event happened).
     pub amount: i32,
     pub detail: Detail,
     /// Who sees what the entry says (the card's identity for a card entry), by player index.
@@ -673,6 +680,18 @@ pub(crate) fn basic_check(g: &mut Game, p: usize, found: bool) {
     }
     let e = RecordEntry { detail: Detail::BasicCheck { found }, ..entry(EventKind::Mulligan, p as u8, Some(Cause::rule(RuleWhich::Setup, p as u8))) };
     push(g, e, false);
+}
+
+/// A damage (`EventKind::Damage`), damage counters (`PlaceCounters`) or a heal (`RemoveCounters`) to the Pokémon in
+/// `target` comes out 0 or is refused: no event happens (RULES.md "Events batch 10, E14"); the record shows it as an entry
+/// of that kind with amount 0, made like the entry of one that happens (the Pokémon as `card` and `target`, public).
+#[inline]
+pub(crate) fn comes_out_zero(g: &mut Game, kind: EventKind, target: crate::effects::SlotRef, cause: Cause) {
+    if !g.record.on {
+        return;
+    }
+    let Some(c) = top(g, target) else { return };
+    push(g, RecordEntry { card: Some(c), target: Some(c), ..entry(kind, target.p, Some(cause)) }, false);
 }
 
 /// Player `p`'s deck is shuffled (a ShuffleDeck prompt is answered).
