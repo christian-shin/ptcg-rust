@@ -119,6 +119,15 @@ pub struct TableRules {
     /// Rare Candy can't be used while an evolution-preventing Ability is in effect; id925, APR B-01: a card whose effect
     /// would not change the game can't be played).
     pub play_evolving_trainer_under_evolution_lock: bool,
+    /// A heal that names its Pokémon by choice ("heal 30 damage from 1 of your Pokémon": Spritzee's Sweet Scent, Jacinthe)
+    /// offers only the Pokémon with damage counters on them; with none, nothing is chosen and nothing is healed.
+    /// `spec::ops::board::exec` (the `Op::Heal` pick).
+    ///
+    /// Off (the rulings): any Pokémon the text allows can be chosen, an undamaged one too (compendium id1775: a heal of
+    /// 40 from 1 of your Pokémon can be used with a Pokémon without damage as "a valid target"); healing it does nothing
+    /// (RULES.md: "Healing a Pokémon with no damage counters isn't healing it"). A card that needs damage to be played
+    /// (Jacinthe, a damaged [P] Pokémon) keeps that condition either way.
+    pub heal_chooses_only_damaged_pokemon: bool,
 }
 
 impl TableRules {
@@ -134,6 +143,7 @@ impl TableRules {
         "ability_attach_targets_unread",
         "attack_choices_asked_when_their_effect_runs",
         "play_evolving_trainer_under_evolution_lock",
+        "heal_chooses_only_damaged_pokemon",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -149,6 +159,7 @@ impl TableRules {
             "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
             "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
+            "heal_chooses_only_damaged_pokemon" => &mut self.heal_chooses_only_damaged_pokemon,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;

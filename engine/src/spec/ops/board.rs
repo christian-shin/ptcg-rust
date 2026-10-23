@@ -407,6 +407,16 @@ fn guard(g: &mut Game, me: CardId, f: &Frame, op: &Op) -> R<bool> {
     }
 }
 
+/// The Pokémon the player may pick as the target of `op` (a heal, damage or counters): `candidates`, and for a heal at a table
+/// with `TableRules::heal_chooses_only_damaged_pokemon` only those with damage on them.
+fn target_candidates(g: &mut Game, me: CardId, f: &Frame, op: &Op, pick: &PickSlotSpec) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
+    let mut cands = candidates(g, me, f, pick)?;
+    if g.st.rules.heal_chooses_only_damaged_pokemon && matches!(op, Op::Heal(_)) {
+        cands.retain(|s| g.st.slot(s.p as usize, s.s).damage > 0);
+    }
+    Ok(cands)
+}
+
 /// The Pokémon the player may pick.
 pub(crate) fn candidates(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
     slots_m(g, me, f, &pick.among)
@@ -475,7 +485,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     if !guard(g, me, f, op)? {
                         return Ok(Flow::Next);
                     }
-                    let cands = candidates(g, me, f, pick)?;
+                    let cands = target_candidates(g, me, f, op, pick)?;
                     if cands.is_empty() {
                         return Ok(Flow::Next);
                     }
@@ -712,7 +722,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
             }
-            let cands = candidates(g, me, f, pick)?;
+            let cands = target_candidates(g, me, f, op, pick)?;
             if cands.is_empty() {
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
