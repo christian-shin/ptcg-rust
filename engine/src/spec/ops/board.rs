@@ -315,7 +315,8 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
 fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
-        SlotSel::One(SlotExpr::This | SlotExpr::Recorded) => f.p as usize,
+        // A chosen card the program put into play is its player's (a search of its own deck).
+        SlotSel::One(SlotExpr::This | SlotExpr::Recorded | SlotExpr::Chosen(_)) => f.p as usize,
         SlotSel::One(SlotExpr::Picked) => (f.slot >> 4) as usize,
         SlotSel::One(SlotExpr::Attached) => (f.attached_to >> 4) as usize,
         // The program's own player's view of the opponent's Attacking Pokémon (the event's cause).

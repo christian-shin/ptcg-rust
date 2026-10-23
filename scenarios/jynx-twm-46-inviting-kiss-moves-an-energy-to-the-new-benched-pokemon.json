@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jynx TWM 46",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Jynx TWM 46",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jynx TWM 46",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "deck_top": [
+   "Chewtle SCR 43"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Inviting Kiss"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 1,
+   "cite": "card text: search your deck for a Basic Pokémon and put it onto your Bench"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Chewtle SCR 43",
+   "energy": 1,
+   "cite": "card text: move an Energy from this Pokémon to the new Benched Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Jynx TWM 46",
+   "energy": 1,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck",
+    "ChooseCards"
+   ],
+   "cite": "card text: the Energy is chosen after the search and the shuffle (APR E-19, E-20)"
+  }
+ ]
+}

@@ -54,6 +54,9 @@ pub enum SlotExpr {
     /// The Pokémon whose attack or Ability caused the event the program reacts to ("the Attacking Pokémon"), where it is
     /// now (none when it left play).
     CausePokemon,
+    /// The Pokémon in play that a card of register `r` is (a card the program chose and put into play: "the new Benched
+    /// Pokémon"); none when no card there is a Pokémon in play.
+    Chosen(u8),
 }
 
 pub enum Num {
@@ -383,6 +386,10 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
             (g.st.slot_pokemon(q, s) == Some(c)).then(|| SlotRef::new(q, s))
         }
         SlotExpr::Recorded => crate::engine::lasting::recorded_slot(&g.st, me).map(|(p, s)| SlotRef::new(p, s)),
+        SlotExpr::Chosen(r) => reg_list(g, f, r).iter().find_map(|&c| {
+            let (q, s) = g.st.find_pokemon_slot(c)?;
+            (g.st.slot_pokemon(q, s) == Some(c)).then(|| SlotRef::new(q, s))
+        }),
         SlotExpr::This => {
             for p in 0..2 {
                 let pl = &g.st.players[p];

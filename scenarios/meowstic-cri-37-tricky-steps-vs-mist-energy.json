@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Espurr CRI 36",
+   "4 Meowstic CRI 37",
+   "4 Snorlax POR 63",
+   "1 Mist Energy TEF 161",
+   "47 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Espurr CRI 36",
+   "4 Meowstic CRI 37",
+   "4 Snorlax POR 63",
+   "1 Mist Energy TEF 161",
+   "47 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Espurr CRI 36",
+   "Meowstic CRI 37"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorlax POR 63",
+  "active_energy": [
+   "Mist Energy TEF 161",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Espurr CRI 36"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tricky Steps"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Snorlax POR 63",
+   "energy": 2,
+   "cite": "id2375 (Slight Shift can't move a Mist Energy off the Defending Pokémon); APR C-17: Mist Energy prevents the attack's effects on the Pokémon it is attached to, its Energy stays"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "energy": 0,
+   "cite": "id2375"
+  }
+ ]
+}

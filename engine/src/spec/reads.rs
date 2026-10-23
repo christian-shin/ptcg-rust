@@ -87,7 +87,7 @@ pub fn slot_expr(e: SlotExpr) -> ReadSet {
         SlotExpr::This | SlotExpr::Active(_) => ReadSet::st(BOARD),
         // The records cards keep of Pokémon are lasting entries.
         SlotExpr::Recorded => ReadSet::st(BOARD | EFFECTS),
-        SlotExpr::Picked | SlotExpr::Attached | SlotExpr::CausePokemon => ReadSet::st(ANY),
+        SlotExpr::Picked | SlotExpr::Attached | SlotExpr::CausePokemon | SlotExpr::Chosen(_) => ReadSet::st(ANY),
     }
 }
 

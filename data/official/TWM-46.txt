@@ -1,0 +1,12 @@
+Jynx
+- Water - 90 HP
+Pokémon
+- Basic
+C
+Inviting Kiss
+Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck. If you put any Pokémon onto your Bench in this way, move an Energy from this Pokémon to the new Benched Pokémon.
+W
+Icy Snow 30
+Weakness: Metal
+Resistance: none
+Retreat: 1

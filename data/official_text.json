@@ -6433,5 +6433,15 @@
   "name": "Metapod",
   "text": "Metapod\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nCaterpie\nG\nHarden\nDuring your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 60 or less.\nWeakness: Fire\nResistance: none\nRetreat: 3",
   "url": "https://limitlesstcg.com/cards/JTG/2"
+ },
+ "TWM 46": {
+  "name": "Jynx",
+  "text": "Jynx\n- Water - 90 HP\nPokémon\n- Basic\nC\nInviting Kiss\nSearch your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck. If you put any Pokémon onto your Bench in this way, move an Energy from this Pokémon to the new Benched Pokémon.\nW\nIcy Snow 30\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/TWM/46"
+ },
+ "CRI 37": {
+  "name": "Meowstic",
+  "text": "Meowstic\n- Psychic - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nEspurr\nPC\nTricky Steps 80\nYou may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/37"
  }
 }

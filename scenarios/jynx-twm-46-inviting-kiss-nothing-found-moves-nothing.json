@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jynx TWM 46",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Jynx TWM 46",
+   "4 Chewtle SCR 43",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jynx TWM 46",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Inviting Kiss"
+  },
+  []
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 0,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Jynx TWM 46",
+   "energy": 2,
+   "cite": "card text: if you put any Pokémon onto your Bench in this way (APR E-20)"
+  }
+ ]
+}

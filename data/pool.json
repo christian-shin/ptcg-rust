@@ -13038,5 +13038,25 @@
   "key": "Metapod JTG 2",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "46",
+  "name": "Jynx",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Jynx TWM 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "37",
+  "name": "Meowstic",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Meowstic CRI 37",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

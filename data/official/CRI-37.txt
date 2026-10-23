@@ -1,0 +1,12 @@
+Meowstic
+- Psychic - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Espurr
+PC
+Tricky Steps 80
+You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1
