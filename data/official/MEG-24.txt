@@ -1,0 +1,15 @@
+Pyroar
+- Fire - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Litleo
+Ability:
+Intimidating Fang
+As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon do 30 less damage (before applying Weakness and Resistance) .
+RCC
+Searing Flame 70
+Your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 2

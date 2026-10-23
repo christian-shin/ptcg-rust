@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Vanillish ASC 50",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Water Energy MEE 3",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 N's Vanillish ASC 50",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Water Energy MEE 3",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "N's Vanillish ASC 50",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sheer Cold"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 60,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "attack",
+   "name": "Avenging Billow",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokémon can't use attacks"
+  }
+ ]
+}

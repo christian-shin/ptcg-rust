@@ -1,0 +1,15 @@
+Mega Dragalge ex
+- Dragon - 330 HP
+Pokémon
+- Stage 1
+- Evolves from
+Skrelp
+CC
+Corrosive Liquid
+Discard all Pokémon Tools and Special Energy from all of your opponent's Pokémon.
+WD
+Pernicious Poison
+Your opponent's Active Pokémon is now Poisoned. During Pokémon Checkup, place 16 damage counters on that Pokémon instead of 1.
+Weakness: none
+Resistance: none
+Retreat: 2

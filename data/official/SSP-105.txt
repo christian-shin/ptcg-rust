@@ -1,0 +1,14 @@
+Vibrava
+- Fighting - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Trapinch
+C
+Screech
+During your next turn, the Defending Pokémon takes 50 more damage from attacks (after applying Weakness and Resistance) .
+FC
+Cutting Wind 50
+Weakness: Grass
+Resistance: none
+Retreat: 1

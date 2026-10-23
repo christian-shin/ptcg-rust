@@ -1729,11 +1729,33 @@ fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec)
     };
     let mut filter = Filter::super_type(SuperType::Trainer);
     filter.trainer_type = Some(ty as u8);
-    let mut opts = ChooseCardsOpts::new(0, 1, false);
+    let mut opts = ChooseCardsOpts::new(if u.required { 1 } else { 0 }, 1, false);
     let cards: Vec<CardId> = g.lst(list).to_vec();
+    let mut usable: Vec<CardId> = Vec::new();
     for (i, c) in cards.iter().enumerate() {
-        if g.st.cdef(*c).trainer_type == ty as u8 && !crate::spec::run::used_trainer_conditions(g, *c, p, f.eff)? {
+        if g.st.cdef(*c).trainer_type != ty as u8 {
+            continue;
+        }
+        if crate::spec::run::used_trainer_conditions(g, *c, p, f.eff)? {
+            usable.push(*c);
+        } else {
             opts.blocked.push(i as u8);
+        }
+    }
+    // "Use the effect of that card" (not "you may"; id2227): the one Trainer of the kind that can be used is used without
+    // asking, none is nothing.
+    if u.required {
+        match usable.as_slice() {
+            [] => {
+                f.outcome = Outcome::Impossible;
+                return Ok(Flow::Next);
+            }
+            [card] => {
+                crate::engine::play_trainer::use_effect(g, p, *card, f.cause)?;
+                f.outcome = Outcome::Done;
+                return Ok(Flow::Next);
+            }
+            _ => {}
         }
     }
     choose_cards(g, p, PromptPurpose::CopyEffect, list, filter, opts, Provenance::by(me), f.cont(me, 1));
@@ -3228,13 +3250,17 @@ pub struct BotherBotSpec {
 pub struct UseTrainerSpec {
     pub from: ZoneRef,
     pub kind: PlayKind,
+    /// "Use the effect of that card" (Ninetales' Supernatural Shapeshifter: "if that card is a Supporter card, use the effect
+    /// of that card"; id2227, you can't choose not to when able) instead of "you may use": nothing is asked when one Trainer of
+    /// the kind can be used, and at least one is chosen when several can.
+    pub required: bool,
 }
 
 #[cfg(test)]
 mod attach_target_tests {
-    //! The attach target is read as the Pokémon is now (APR D-07). The pool has no type changer (Iron Treads' Dual Core needs a
-    //! Future Booster Energy Capsule, which is in neither data/cards.json nor the pool; no Scovillain ex), so the checked read
-    //! can only be shown to give the printed type of an ordinary Pokémon, through both scans, and to be asked as a checked read.
+    //! The attach target is read as the Pokémon is now (APR D-07). The only type changer these tests' board holds is none (Iron Treads' Dual Core needs a
+    //! Future Booster Energy Capsule, which is in neither data/cards.json nor the pool; Scovillain ex's Double Type changes its own
+    //! Pokémon's type, which is no Attach target here), so the checked read can only be shown to give the printed type of an ordinary Pokémon, through both scans, and to be asked as a checked read.
     use super::*;
     use crate::types::ct;
 

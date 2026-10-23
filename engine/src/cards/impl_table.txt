@@ -1114,3 +1114,47 @@ Wiglett TEF 47	Wiglett
 Xerneas MEG 64	XerneasMEG
 Yveltal ex POR 53	YveltalEx
 Zarude PBL 56	ZarudePBL
+Swellow DRI 157	Swellow
+Tangrowth MEG 7	Tangrowth
+Team Rocket's Flaaffy DRI 73	TeamRocketsFlaaffy
+Team Rocket's Nidorino DRI 118	TeamRocketsNidorino
+Team Rocket's Pupitar DRI 95	TeamRocketsPupitar
+Thievul MEG 90	ThievulMEG
+Tinkatuff MEG 97	Tinkatuff
+Toxicroak MEG 79	ToxicroakMEG
+Tranquill BLK 72	Tranquill
+Tyrunt POR 44	Tyrunt
+Vanillish WHT 28	Vanillish
+Vibrava SSP 105	VibravaSSP
+Wailord JTG 41	Wailord
+Wailord ex PBL 16	WailordEx
+Whirlipede TWM 116	WhirlipedeTWM
+Zebstrika WHT 32	Zebstrika
+Zweilous WHT 66	ZweilousWHT
+Pyroar MEG 24	PyroarMEG
+Mismagius ex PFL 36	MismagiusEx
+Scovillain ex SSP 37	ScovillainEx
+Leafeon TWM 11	Leafeon
+Clawitzer MEG 38	Clawitzer
+Garbodor CRI 57	GarbodorCRI
+Raticate POR 61	Raticate
+Gorebyss DRI 56	Gorebyss
+Raichu ASC 56	RaichuASC
+Mega Dragalge ex CRI 65	MegaDragalgeEx
+Magcargo ex TWM 29	MagcargoEx
+Fraxure SFA 45	FraxureSFA
+Ninetales MEG 20	NinetalesMEG
+Avalugg CRI 24	Avalugg
+Misty's Gyarados DRI 49	MistysGyarados
+Revavroom ex SFA 15	RevavroomEx
+Wugtrio ex TEF 60	WugtrioEx
+Sinistcha TWM 22	SinistchaTWM
+Donphan CRI 45	Donphan
+Watchog WHT 73	WatchogWHT
+Trevenant CRI 39	Trevenant
+Beartic BLK 26	Beartic
+N's Vanillish ASC 50	NsVanillish
+Mabosstiff PBL 58	Mabosstiff
+Frosmoth ASC 53	FrosmothASC
+Heliolisk ASC 64	HelioliskASC
+Larry's Dudunsparce ex ASC 164	LarrysDudunsparceEx

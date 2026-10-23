@@ -1,0 +1,14 @@
+Whirlipede
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Venipede
+D
+Poison Ring
+Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, the Defending Pokémon can't retreat.
+DCC
+Spinning Attack 60
+Weakness: Fighting
+Resistance: none
+Retreat: 3

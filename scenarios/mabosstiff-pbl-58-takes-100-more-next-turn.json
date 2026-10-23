@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mabosstiff PBL 58",
+   "4 Wailmer JTG 40",
+   "4 Wailord JTG 41",
+   "24 Darkness Energy MEE 7",
+   "24 Fire Energy MEE 2"
+  ],
+  [
+   "4 Mabosstiff PBL 58",
+   "4 Wailmer JTG 40",
+   "4 Wailord JTG 41",
+   "24 Darkness Energy MEE 7",
+   "24 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Mabosstiff PBL 58",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Wailmer JTG 40",
+   "Wailord JTG 41"
+  ],
+  "reset": true,
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Plunging Headbutt"
+  },
+  {
+   "a": "attack",
+   "name": "Hydro Pump"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "card": "Mabosstiff PBL 58",
+   "damage": 110,
+   "cite": "card text: during your opponent's next turn, this Pokémon takes 100 more damage (Wailord's Hydro Pump 10 + 100; no [W] Energy attached)",
+   "turn": 2
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+Gorebyss
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Clamperl
+W
+Crescendo Wave 30×
+This attack does 30 damage for each [ W ] Energy attached to this Pokémon. Before doing damage, you may attach any number of Basic [ W ] Energy cards from your hand to this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

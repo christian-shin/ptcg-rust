@@ -1,0 +1,14 @@
+Garbodor
+- Darkness - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Trubbish
+Ability:
+Gloomy Garbage
+Attacks used by your opponent's Active Pokémon that has a Pokémon Tool attached do 20 less damage (before applying Weakness and Resistance) .
+DDC
+Sludge Bomb 100
+Weakness: Fighting
+Resistance: none
+Retreat: 3

@@ -1,0 +1,12 @@
+Tyrunt
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Antique Jaw Fossil
+FC
+Get Angry 20×
+This attack does 20 damage for each damage counter on this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 3

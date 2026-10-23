@@ -1,0 +1,14 @@
+Zweilous
+- Darkness - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Deino
+CC
+Double Hit 40×
+Flip 2 coins. This attack does 40 damage for each heads.
+DDCC
+Pitch-Black Fangs 100
+Weakness: Grass
+Resistance: none
+Retreat: 3

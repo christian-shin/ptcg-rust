@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Swellow DRI 157",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Swellow DRI 157",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Swellow DRI 157",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "hand_to_deck": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Add On"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 3,
+   "cite": "card text: draw 3 cards"
+  }
+ ]
+}

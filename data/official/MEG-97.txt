@@ -1,0 +1,14 @@
+Tinkatuff
+- Metal - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Tinkatink
+Ability:
+Haphazard Hammer
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+M
+Light Punch 30
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

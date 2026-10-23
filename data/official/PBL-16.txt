@@ -1,0 +1,14 @@
+Wailord ex
+- Water - 380 HP
+Pokémon
+- Stage 1
+- Evolves from
+Wailmer
+WWW
+Surf 120
+WWWWW
+Falling Down 270
+This Pokémon is now Asleep.
+Weakness: Lightning
+Resistance: none
+Retreat: 4
