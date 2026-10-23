@@ -1,0 +1,14 @@
+Mabosstiff
+- Darkness - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Maschiff
+DD
+Bite 60
+DDD
+Plunging Headbutt 210
+During your opponent's next turn, this Pokémon takes 100 more damage from attacks (after applying Weakness and Resistance) .
+Weakness: Grass
+Resistance: none
+Retreat: 3

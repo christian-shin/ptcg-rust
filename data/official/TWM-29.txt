@@ -1,0 +1,17 @@
+Magcargo ex
+- Fire - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Slugma
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent's) .
+RC
+Hot Magma 70
+Your opponent's Active Pokémon is now Burned.
+RRC
+Ground Burn 140+
+Discard the top card of each player's deck. This attack does 140 more damage for each Energy card discarded in this way.
+Weakness: Water
+Resistance: none
+Retreat: 3

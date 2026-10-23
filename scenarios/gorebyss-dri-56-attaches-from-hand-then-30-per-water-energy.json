@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gorebyss DRI 56",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Water Energy MEE 3",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Gorebyss DRI 56",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Water Energy MEE 3",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Gorebyss DRI 56",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "hand_to_deck": true,
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crescendo Wave"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 90,
+   "cite": "card text: 30 x 3 [W] Energy (1 attached + 2 attached before the damage)"
+  }
+ ]
+}

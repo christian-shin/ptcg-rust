@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Avalugg CRI 24",
+   "1 Mega Dragalge ex CRI 65",
+   "1 Skrelp CRI 58",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Avalugg CRI 24",
+   "1 Mega Dragalge ex CRI 65",
+   "1 Skrelp CRI 58",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Avalugg CRI 24",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "prizes": [
+   "Mega Dragalge ex CRI 65",
+   "Skrelp CRI 58"
+  ],
+  "deck_left": 3
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iceberg Breaker"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 180,
+   "cite": "card text: 60 x 3 Basic [W] Energy cards discarded (the deck holds only 3 cards, all [W] Energy)"
+  }
+ ]
+}

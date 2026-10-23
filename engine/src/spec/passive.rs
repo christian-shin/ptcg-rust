@@ -171,9 +171,11 @@ pub struct DamageDealtSpec {
     pub amount: i32,
     /// The attacking Pokémon.
     pub attacker: SlotPred,
-    /// The attacking player is the card's owner (`Side::Owner`).
+    /// Whose attacks: the card owner's (`Side::Owner`), the owner's opponent's (`Side::Opponent`: "attacks used by your
+    /// opponent's Active Pokémon do N less damage"), or either's.
     pub side: Side,
-    /// The damaged Pokémon: only the opponent's Active when true.
+    /// The damaged Pokémon: only the defending player's Active Pokémon when true; any Pokémon the attack damages when
+    /// false (a Benched Pokémon, the attacker itself: "attacks ... do N less damage", id158, id2213, id2345).
     pub opp_active_only: bool,
     /// The damaged Pokémon.
     pub target: SlotPred,
@@ -780,14 +782,48 @@ pub enum FirstTurnAttack {
     /// (Delibird's Quick Gift, Volbeat's Quick Sign, Exeggcute's Precocious Evolution).
     Attack(u8),
 }
-/// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3): using the attack arms the
-/// bonus on the Pokémon (a lasting entry that names the card and the attack; it rolls over at the end of the turn and ends
-/// when the Pokémon's effects end, APR C-15), and the next use of that attack by that card applies it.
+/// "During your next turn, this Pokémon's [attack] attack does N more damage" / "attacks used by this Pokémon do N more damage
+/// to your opponent's Active Pokémon" / "this Pokémon's [attack] attack's base damage is N" (S3 agent 3): using the attack
+/// `attack` arms the effect on the Pokémon (a lasting entry that names the card and the attack; it rolls over at the end of the
+/// turn and ends when the Pokémon's effects end, APR C-15), and the next use by that card of an attack `applies_to` names
+/// applies it, before Weakness and Resistance, to an attack that does damage.
 #[derive(Debug)]
 pub struct NextTurnBonusSpec {
-    /// The printed attack (its index in the card's attacks) whose use arms the bonus and which the bonus is for.
+    /// The printed attack (its index in the card's attacks) whose use arms the effect.
     pub attack: u8,
-    pub bonus: i32,
+    /// The attacks of this card the armed effect changes.
+    pub applies_to: BonusFor,
+    pub change: BonusChange,
+}
+
+/// The attacks a [`NextTurnBonusSpec`] changes.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum BonusFor {
+    /// The attack that armed it ("this Pokémon's Meteor Mash attack does 60 more damage").
+    Armer,
+    /// This printed attack of the card, which isn't the one that armed it ("during your next turn, this Pokémon's Hyper
+    /// Fang attack's base damage is 240": armed by Focus Energy).
+    Attack(u8),
+    /// Every attack of the card ("attacks used by this Pokémon do 120 more damage").
+    Any,
+}
+
+/// What an armed [`NextTurnBonusSpec`] does to the attack's damage.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum BonusChange {
+    /// "N more damage".
+    More(i32),
+    /// "Base damage is N": the attack's printed damage is N instead (what the attack's text then does is applied on it).
+    BaseDamage(i32),
+}
+
+impl BonusChange {
+    /// The amount, for the canonical form of the state.
+    pub const fn amount(self) -> i32 {
+        match self {
+            BonusChange::More(n) | BonusChange::BaseDamage(n) => n,
+        }
+    }
 }
 pub struct StatOverrideSpec {}
 /// "Recovers from all Special Conditions": the Pokémon matching `subject` recover from `conds` (empty: all of
@@ -1103,7 +1139,7 @@ pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, orig
 pub struct DamageAcc {
     pub b: AtkBase,
     pub damage: i32,
-    /// The damage was calculated in full (the attacker-side modifiers, and Weakness and Resistance when in an Active Spot).
+    /// The damage was calculated in full (Weakness and Resistance apply when the target is in an Active Spot).
     pub weakness_applied: bool,
     /// A survive-on-10 replacement of a full-HP Pokémon is armed.
     pub survive: bool,
@@ -1232,8 +1268,10 @@ pub(crate) fn declared_prize_adjust(g: &mut Game, e: EffId) -> R {
 #[allow(clippy::too_many_arguments)]
 fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, at: Located, only: Option<SlotRef>, player: usize, source: SlotRef, target: Option<SlotRef>, attack: AttackRef, damage_now: &mut i32, flags: &mut u8) -> R {
     let damage = *damage_now;
-    if d.side == Side::Owner && at.owner != player {
-        return Ok(());
+    match d.side {
+        Side::Owner if at.owner != player => return Ok(()),
+        Side::Opponent if at.owner == player => return Ok(()),
+        _ => {}
     }
     if only.is_some_and(|o| o != source) {
         return Ok(());
@@ -2593,14 +2631,21 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonus
     if g.deleg.is_some() {
         return Ok(());
     }
-    // The armed bonus is for this card's use of that attack: the lasting entry names both.
+    // The armed effect is for this card's use of an attack its declaration names: the lasting entry names the card and the
+    // attack that armed it.
     let armed = match crate::engine::lasting::armed_bonus(&g.st, source.p as usize, source.s) {
-        Some((a, for_card, armed_attack)) if for_card == me && armed_attack == attack => a.bonus,
-        _ => 0,
+        Some((a, for_card, armed_attack)) if for_card == me && applies(a, armed_attack, attack, me) => Some(a.change),
+        _ => None,
     };
-    if armed != 0 {
+    if let Some(change) = armed {
         if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage += armed;
+            // Only an attack that does damage is changed.
+            if *damage > 0 {
+                match change {
+                    BonusChange::More(n) => *damage += n,
+                    BonusChange::BaseDamage(n) => *damage = n,
+                }
+            }
         }
     }
     if attack != (AttackRef { card: me, index: b.attack }) {
@@ -2609,6 +2654,15 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonus
     crate::engine::lasting::set_bonus_pending(&mut g.st, source.p as usize, source.s, b, me, attack);
     g.st.bump();
     Ok(())
+}
+
+/// Does the armed effect `a` (armed by `armer`) change the attack `attack` of card `me` now?
+fn applies(a: &NextTurnBonusSpec, armer: AttackRef, attack: AttackRef, me: CardId) -> bool {
+    match a.applies_to {
+        BonusFor::Armer => armer == attack,
+        BonusFor::Attack(i) => attack == (AttackRef { card: me, index: i }),
+        BonusFor::Any => attack.card == me,
+    }
 }
 
 fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &AttackFlagsSpec) -> R {
@@ -3761,9 +3815,9 @@ mod prevent_marker_tests {
         // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
         // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
         // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (23 cards, Miraidon ex ASC 73 and Tatsugiri ex SSP 142 included), Sylveon, Crustle DRI, Shaymin,
-        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin).
+        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin); CW23: Fraxure SFA 45's Unnerve (over the cause) and the Tera rule of Magcargo ex, Revavroom ex and Wugtrio ex.
         // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
-        assert_eq!(n, 52);
+        assert_eq!(n, 56);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
@@ -3899,22 +3953,34 @@ mod attached_lock_tests {
 
 #[cfg(test)]
 mod next_turn_bonus_tests {
-    //! Events batch 9 C2: the next-turn bonus names its attack by index (it compared the attack's name string, and `"*"`
-    //! for any attack). Every declaration's index is the attack its text names.
+    //! Events batch 9 C2: the next-turn bonus names its attacks by index (it compared the attack's name string, and `"*"`
+    //! for any attack). Every declaration's indexes are the attacks its text names.
     use super::*;
 
     #[test]
     fn the_attack_index_is_the_printed_attack_the_text_names() {
-        // (the card's key, the printed attack the bonus is for, its bonus)
-        let printed = [("Metagross TEF 115", "Meteor Mash", 60), ("Meloetta ex BLK 44", "Echoed Voice", 80), ("Pecharunt ASC 143", "Mochi Rush", 50)];
+        // (the card's key, the printed attack whose use arms it, the attack it changes ("*": every attack), the change)
+        let printed = [
+            ("Metagross TEF 115", "Meteor Mash", "Meteor Mash", BonusChange::More(60)),
+            ("Meloetta ex BLK 44", "Echoed Voice", "Echoed Voice", BonusChange::More(80)),
+            ("Pecharunt ASC 143", "Mochi Rush", "Mochi Rush", BonusChange::More(50)),
+            ("Donphan CRI 45", "No Reprieve", "*", BonusChange::More(120)),
+            ("Watchog WHT 73", "Focus Energy", "Hyper Fang", BonusChange::BaseDamage(240)),
+        ];
         let mut found = 0;
         for (id, d) in crate::carddb::cards().iter().enumerate() {
             let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
             for ps in spec.passives {
                 let Modifier::NextTurnBonus(b) = &ps.modifier else { continue };
-                let (_, name, bonus) = printed.iter().find(|(k, _, _)| *k == d.full_name).unwrap_or_else(|| panic!("{}: a next-turn bonus not in the table", d.full_name));
-                assert_eq!(d.attacks[b.attack as usize].name, *name, "{}", d.full_name);
-                assert_eq!(b.bonus, *bonus, "{}", d.full_name);
+                let (_, arms, applies, change) = printed.iter().find(|(k, _, _, _)| *k == d.full_name).unwrap_or_else(|| panic!("{}: a next-turn bonus not in the table", d.full_name));
+                assert_eq!(d.attacks[b.attack as usize].name, *arms, "{}", d.full_name);
+                let applied = match b.applies_to {
+                    BonusFor::Armer => d.attacks[b.attack as usize].name,
+                    BonusFor::Attack(i) => d.attacks[i as usize].name,
+                    BonusFor::Any => "*",
+                };
+                assert_eq!(applied, *applies, "{}", d.full_name);
+                assert_eq!(b.change, *change, "{}", d.full_name);
                 found += 1;
             }
         }

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Donphan CRI 45",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Fighting Energy MEE 6",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Donphan CRI 45",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Fighting Energy MEE 6",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Donphan CRI 45",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "No Reprieve"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Smashing Headbutt"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 3,
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 320,
+   "cite": "card text: No Reprieve 20, then next turn Smashing Headbutt 180 + 120 more"
+  }
+ ]
+}

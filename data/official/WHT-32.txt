@@ -1,0 +1,14 @@
+Zebstrika
+- Lightning - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Blitzle
+C
+Smash Kick 30
+LLC
+Electrobullet 100
+This attack also does 30 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fighting
+Resistance: none
+Retreat: 1

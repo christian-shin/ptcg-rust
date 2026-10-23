@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "PecharuntASC",
-    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, bonus: 50 }) }],
+    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, applies_to: BonusFor::Armer, change: BonusChange::More(50) }) }],
     triggers: &[Trigger {
         origin: RuleSource::Ability,
         event: Event::On(EventPred::All(&[

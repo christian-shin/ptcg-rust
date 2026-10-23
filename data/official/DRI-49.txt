@@ -1,0 +1,14 @@
+Misty's Gyarados
+- Water - 180 HP
+Pokémon
+- Stage 1
+- Evolves from
+Misty's Magikarp
+W
+Splashing Panic 70×
+Discard the top 7 cards of your deck, and this attack does 70 damage for each Misty's Pokémon that you discarded in this way.
+WWC
+Waterfall 120
+Weakness: Lightning
+Resistance: none
+Retreat: 4

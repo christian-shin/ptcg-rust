@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mismagius ex PFL 36",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Mismagius ex PFL 36",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Mismagius ex PFL 36",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "hand_to_deck": true,
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hexa-Magic"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 150,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 6,
+   "cite": "card text: you may draw cards until you have 6 cards in your hand"
+  }
+ ]
+}

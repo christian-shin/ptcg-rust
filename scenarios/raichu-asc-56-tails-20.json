@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raichu ASC 56",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Lightning Energy MEE 4",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Raichu ASC 56",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Lightning Energy MEE 4",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Raichu ASC 56",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quick Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 20,
+   "cite": "card text"
+  }
+ ]
+}

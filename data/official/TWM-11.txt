@@ -1,0 +1,14 @@
+Leafeon
+- Grass - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+C
+Leaflet Blessings
+Attach a Basic [ G ] Energy card from your hand to 1 of your Benched Pokémon. If you do, heal all damage from that Pokémon.
+GC
+Solar Beam 70
+Weakness: Fire
+Resistance: none
+Retreat: 1

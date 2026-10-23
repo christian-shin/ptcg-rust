@@ -1,0 +1,11 @@
+Vibrava
+- Fighting - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Trapinch
+FF
+Super Vibration 60
+Weakness: Grass
+Resistance: none
+Retreat: 1

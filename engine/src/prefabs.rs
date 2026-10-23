@@ -316,7 +316,7 @@ pub fn deal_or_put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef
     crate::engine::damage::deal(g, b, damage, deal)
 }
 
-/// The attack's damage put on `target` (the Damage event without the attacker-side passes).
+/// The attack's damage put on `target` (the Damage event without Weakness and Resistance).
 pub fn put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
     let b = atk_base_for(g, atk, target);
     crate::engine::damage::deal(g, b, damage, false)

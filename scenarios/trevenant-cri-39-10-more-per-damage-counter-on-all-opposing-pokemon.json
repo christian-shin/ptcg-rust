@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Trevenant CRI 39",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Koraidon TEF 119",
+   "44 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Trevenant CRI 39",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Koraidon TEF 119",
+   "44 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Trevenant CRI 39",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true,
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Koraidon TEF 119",
+    "damage": 30
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Overwhelming Pain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 130,
+   "cite": "card text: 60 + 10 x 5 damage counters (the Defending Pokémon has 2, the Benched one 3), plus the 20 it had"
+  }
+ ]
+}

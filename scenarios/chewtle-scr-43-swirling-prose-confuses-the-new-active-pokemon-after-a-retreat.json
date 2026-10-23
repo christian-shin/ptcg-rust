@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chewtle SCR 43",
+   "4 Misdreavus PFL 35",
+   "4 Mismagius ex PFL 36",
+   "4 Koraidon TEF 119",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Chewtle SCR 43",
+   "4 Misdreavus PFL 35",
+   "4 Mismagius ex PFL 36",
+   "4 Koraidon TEF 119",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ]
+ },
+ "opp": {
+  "active": [
+   "Misdreavus PFL 35",
+   "Mismagius ex PFL 36"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text: whenever your opponent's Active Pokémon moves to the Bench during their turn, their new Active Pokémon is now Confused"
+  }
+ ]
+}

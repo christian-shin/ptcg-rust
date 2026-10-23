@@ -700,7 +700,7 @@ pub enum LastingWhat {
     /// "Your opponent can't ..." (APR C-19; Walrein's "Pokémon that have 2 or less Energy attached can't attack"): the
     /// declared lock, the turns it still lasts, and its place among the player's (the order they are read in).
     PlayerLock { decl: &'static crate::spec::passive::LockDecl, turns: i8, pos: u8 },
-    /// "This Pokémon takes N less damage from attacks."
+    /// "This Pokémon takes N less damage from attacks" (negative: "takes N more", `Lasting::ThisTakesMoreDamage`).
     TakesLessDamage(i16, crate::spec::ops::state::DamageSource),
     /// "Attacks used by the Defending Pokémon do N less damage."
     DealsLessDamage(i16),

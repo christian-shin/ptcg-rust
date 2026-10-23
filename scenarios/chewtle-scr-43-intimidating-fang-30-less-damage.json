@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chewtle SCR 43",
+   "4 Pyroar MEG 24",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Chewtle SCR 43",
+   "4 Pyroar MEG 24",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pyroar MEG 24",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Pyroar MEG 24",
+   "damage": 60,
+   "cite": "card text: Chewtle's Headbutt 60 - 30 = 30, doubled by Pyroar's Weakness to [W] (the reduction comes before Weakness)"
+  }
+ ]
+}

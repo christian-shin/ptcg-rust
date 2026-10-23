@@ -1,0 +1,15 @@
+Tangrowth
+- Grass - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Tangela
+GC
+Absorb 30
+Heal 30 damage from this Pokémon.
+GGCC
+Pumped-Up Whip 120+
+If this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost) , this attack does 140 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 4

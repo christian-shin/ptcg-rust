@@ -117,6 +117,9 @@ pub enum Lasting {
     /// During the opponent's next turn, this Pokémon takes n less damage from attacks (only those from `source`'s Pokémon:
     /// "from Evolution Pokémon"; `DamageSource::Any` for every attack).
     TakesLessDamage(i32, DamageSource),
+    /// During the opponent's next turn, this Pokémon takes n more damage from attacks (after applying Weakness and
+    /// Resistance): the mirror of `TakesLessDamage` (the same entry with the amount negated, so the two add up, APR B-05).
+    ThisTakesMoreDamage(i32),
     /// During the opponent's next turn, attacks used by the Defending Pokémon do n less damage.
     DealsLessDamage(i32),
     /// During the opponent's next turn, the Defending Pokémon takes n more damage from attacks.
