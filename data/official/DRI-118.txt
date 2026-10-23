@@ -1,0 +1,14 @@
+Team Rocket's Nidorino
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Nidoran♂
+DC
+Hammer In 30
+DDC
+Horn Rend 60+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 60 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

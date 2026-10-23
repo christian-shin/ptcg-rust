@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snom ASC 52",
+   "4 Frosmoth ASC 53",
+   "4 Koraidon TEF 119",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Snom ASC 52",
+   "4 Frosmoth ASC 53",
+   "4 Koraidon TEF 119",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Frosmoth ASC 53",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true,
+  "hand_to_deck": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true,
+  "hand_to_deck": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Alluring Wings",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: each player draws a card"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: each player draws a card"
+  }
+ ]
+}

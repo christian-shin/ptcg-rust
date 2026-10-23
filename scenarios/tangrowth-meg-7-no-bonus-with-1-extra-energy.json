@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tangrowth MEG 7",
+   "4 Mega Dragalge ex CRI 65",
+   "22 Grass Energy MEE 1",
+   "26 Fire Energy MEE 2",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Tangrowth MEG 7",
+   "4 Mega Dragalge ex CRI 65",
+   "22 Grass Energy MEE 1",
+   "26 Fire Energy MEE 2",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Tangrowth MEG 7",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pumped-Up Whip"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 120,
+   "cite": "card text: 120, +140 with at least 2 extra Energy"
+  }
+ ]
+}

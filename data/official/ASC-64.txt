@@ -1,0 +1,15 @@
+Heliolisk
+- Lightning - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Helioptile
+Ability:
+Frilled Generator
+Once during your turn, if you played Canari from your hand this turn, you may use this Ability. Search your deck for up to 2 Basic [ L ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.
+LCC
+Powerful Bolt 70×
+Flip a coin for each Energy attached to this Pokémon. This attack does 70 damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

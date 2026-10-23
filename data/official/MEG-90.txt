@@ -1,0 +1,14 @@
+Thievul
+- Darkness - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Nickit
+C
+Greedy Hunt 20
+You may draw cards until you have 6 cards in your hand.
+DC
+Pitch-Black Fangs 60
+Weakness: Grass
+Resistance: none
+Retreat: 1

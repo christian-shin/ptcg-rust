@@ -1,0 +1,12 @@
+Team Rocket's Pupitar
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Larvitar
+C
+Explosive Ascension 30
+Search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.
+Weakness: Grass
+Resistance: none
+Retreat: 2

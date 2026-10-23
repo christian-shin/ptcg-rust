@@ -1,0 +1,15 @@
+Scovillain ex
+- Fire - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Capsakid
+Ability:
+Double Type
+As long as this Pokémon is in play, it is [ G ] and [ R ] type.
+RR
+Spicy Rage 10+
+This attack does 70 more damage for each damage counter on this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

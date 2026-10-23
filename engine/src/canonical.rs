@@ -115,7 +115,7 @@ impl Game {
                         o.insert("pending".into(), json!(pending));
                     }
                     LastingWhat::NextTurnBonus { spec, attack: a, pending } => {
-                        o.insert("nextTurnBonus".into(), json!(spec.bonus));
+                        o.insert("nextTurnBonus".into(), json!(spec.change.amount()));
                         o.insert("attack".into(), attack(a));
                         o.insert("pending".into(), json!(pending));
                     }

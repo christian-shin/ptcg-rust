@@ -1,0 +1,15 @@
+Fraxure
+- Dragon - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Axew
+Ability:
+Unnerve
+Whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pokémon.
+FM
+Dragon Pulse 80
+Discard the top card of your deck.
+Weakness: none
+Resistance: none
+Retreat: 2

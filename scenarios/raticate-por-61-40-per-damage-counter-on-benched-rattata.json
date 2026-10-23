@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raticate POR 61",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Rattata POR 60",
+   "44 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Raticate POR 61",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Rattata POR 60",
+   "44 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Raticate POR 61",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Rattata POR 60",
+    "damage": 30
+   }
+  ]
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Retaliatory Incisors"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 120,
+   "cite": "card text: 40 x 3 damage counters on the Benched Rattata"
+  }
+ ]
+}

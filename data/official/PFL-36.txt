@@ -1,0 +1,15 @@
+Mismagius ex
+- Psychic - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Misdreavus
+Ability:
+Swirling Prose
+As long as this Pokémon is in the Active Spot, whenever your opponent's Active Pokémon moves to the Bench during their turn, their new Active Pokémon is now Confused.
+PP
+Hexa-Magic 150
+You may draw cards until you have 6 cards in your hand.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

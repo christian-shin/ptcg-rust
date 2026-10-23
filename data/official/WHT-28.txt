@@ -1,0 +1,14 @@
+Vanillish
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Vanillite
+CC
+Ram 30
+WCC
+Ice Beam 50
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Metal
+Resistance: none
+Retreat: 2

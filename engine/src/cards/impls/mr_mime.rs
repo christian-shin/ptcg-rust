@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "MrMime",
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(Op::UseTrainer(UseTrainerSpec { from: ZoneRef(Who::Opp, Zone::Hand), kind: PlayKind::Supporter, }))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::UseTrainer(UseTrainerSpec { from: ZoneRef(Who::Opp, Zone::Hand), kind: PlayKind::Supporter, required: false }))] },
         AttackSpec { index: 1, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] },
     ],
     ..CardSpec::NONE

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 1,
         steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: crate::types::ct::COLORLESS, up_to: false }, ..DiscardEnergySpec::DEFAULT }))],
     }],
-    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, bonus: 60 }) }],
+    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, applies_to: BonusFor::Armer, change: BonusChange::More(60) }) }],
     ..CardSpec::NONE
 };
 

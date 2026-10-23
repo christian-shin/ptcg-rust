@@ -1,0 +1,15 @@
+Beartic
+- Water - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Cubchoo
+C
+Continuous Headbutt 50×
+Flip a coin until you get tails. This attack does 50 damage for each heads.
+WWWC
+Sheer Cold 150
+During your opponent's next turn, the Defending Pokémon can't use attacks.
+Weakness: Metal
+Resistance: none
+Retreat: 3

@@ -1,0 +1,12 @@
+Team Rocket's Flaaffy
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Mareep
+LC
+Thunder Shock 50
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fighting
+Resistance: none
+Retreat: 2
