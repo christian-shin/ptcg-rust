@@ -6518,5 +6518,105 @@
   "name": "Camerupt",
   "text": "Camerupt\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nNumel\nR\nRoasting Burn 110\nIf your opponent's Active Pokémon isn't Burned, this attack does nothing.\nRCCC\nPower Stomp 170\nDiscard 2 Energy from this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 3",
   "url": "https://limitlesstcg.com/cards/ASC/28"
+ },
+ "SCR 38": {
+  "name": "Carracosta",
+  "text": "Carracosta\n- Water - 160 HP\nPokémon\n- Stage 2\n- Evolves from\nTirtouga\nAbility:\nPrimal Knowledge\nAttacks used by your Pokémon do 30 more damage to your opponent's Active Evolution Pokémon (before applying Weakness and Resistance) .\nWW\nTidal Wave 150\nWeakness: Lightning\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/SCR/38"
+ },
+ "BLK 23": {
+  "name": "Carracosta",
+  "text": "Carracosta\n- Water - 180 HP\nPokémon\n- Stage 2\n- Evolves from\nTirtouga\nAbility:\nMighty Shell\nPrevent all damage from and effects of attacks done to this Pokémon by your opponent's Pokémon that have any Special Energy attached.\nWCC\nBig Bite 150\nDuring your opponent's next turn, the Defending Pokémon can't retreat.\nWeakness: Lightning\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/23"
+ },
+ "MEG 30": {
+  "name": "Centiskorch",
+  "text": "Centiskorch\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nSizzlipede\nCC\nCoiling Crush 50\nFlip 2 coins. For each heads, discard an Energy from your opponent's Active Pokémon.\nRRCC\nHeat Crawler 140\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/MEG/30"
+ },
+ "DRI 65": {
+  "name": "Cetitan ex",
+  "text": "Cetitan ex\n- Water - 300 HP\nPokémon\n- Stage 1\n- Evolves from\nCetoddle\nAbility:\nSnow Camouflage\nWhenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pokémon.\nWWWC\nCrushing Press 140+\nYou may discard a Stadium in play. If you do, this attack does 140 more damage.\nWeakness: Metal\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/DRI/65"
+ },
+ "CRI 7": {
+  "name": "Chesnaught",
+  "text": "Chesnaught\n- Grass - 180 HP\nPokémon\n- Stage 2\n- Evolves from\nQuilladin\nAbility:\nNeedly Armor\nIf this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , place 3 damage counters on the Attacking Pokémon for each [ G ] Energy attached to this Pokémon.\nGGC\nImpound 160\nDuring your opponent's next turn, the Defending Pokémon can't retreat.\nWeakness: Fire\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/CRI/7"
+ },
+ "CRI 73": {
+  "name": "Cinccino ex",
+  "text": "Cinccino ex\n- Colorless - 240 HP\nPokémon\n- Stage 1\n- Evolves from\nMinccino\nAbility:\nSmooth Coat\nIf any damage is done to this Pokémon by attacks, flip a coin. If heads, prevent that damage.\nC\nEnergized Slap 40×\nThis attack does 40 damage for each Energy attached to this Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/73"
+ },
+ "SCR 28": {
+  "name": "Cinderace ex",
+  "text": "Cinderace ex\n- Fire - 320 HP\nPokémon\n- Stage 2\n- Evolves from\nRaboot\nTera\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .\nRCC\nFlare Strike 280\nDuring your next turn, this Pokémon can't use Flare Strike.\nRFD\nGarnet Volley\nThis attack does 180 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Water\nResistance: none\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/SCR/28"
+ },
+ "CRI 47": {
+  "name": "Claydol",
+  "text": "Claydol\n- Fighting - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nBaltoy\nF\nDevolution Ray 50\nIf your opponent's Active Pokémon is an evolved Pokémon, devolve it by putting the highest Stage Evolution card on it into your opponent's hand.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/47"
+ },
+ "ASC 120": {
+  "name": "Coalossal",
+  "text": "Coalossal\n- Fighting - 180 HP\nPokémon\n- Stage 2\n- Evolves from\nCarkol\nF\nTar Cannon\nThis attack does 140 damage to 1 of your opponent's Pokémon. If you don't have 10 or more Basic [ F ] Energy cards in your discard pile, this attack does nothing. (Don't apply Weakness and Resistance for Benched Pokémon.)\nFCCC\nBulky Bump 220\nDiscard 3 Energy from this Pokémon.\nWeakness: Grass\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/ASC/120"
+ },
+ "SCR 6": {
+  "name": "Cradily",
+  "text": "Cradily\n- Grass - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nLileep\nAbility:\nSelective Slime\nOnce during your turn, you may flip a coin. If heads, choose Burned, Confused, or Poisoned. Your opponent's Active Pokémon is now affected by that Special Condition.\nG\nMiasma Wind 100×\nThis attack does 100 damage for each Special Condition affecting your opponent's Active Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/SCR/6"
+ },
+ "MEG 85": {
+  "name": "Crawdaunt",
+  "text": "Crawdaunt\n- Darkness - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nCorphish\nC\nVise Grip 30\nDDC\nCutting Riposte 130\nIf this Pokémon has any damage counters on it, this attack can be used for [ D ] .\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/MEG/85"
+ },
+ "CRI 51": {
+  "name": "Crobat",
+  "text": "Crobat\n- Darkness - 130 HP\nPokémon\n- Stage 2\n- Evolves from\nGolbat\nAbility:\nNighttime Maneuvers\nOnce during your turn, if this Pokémon is in the Active Spot, you may use this Ability. Search your deck for a card. Shuffle your deck, then put that card on top of it.\nD\nPoison Sound Wave 80\nYour opponent's Active Pokémon is now Confused and Poisoned.\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/CRI/51"
+ },
+ "SCR 67": {
+  "name": "Dachsbun ex",
+  "text": "Dachsbun ex\n- Psychic - 250 HP\nPokémon\n- Stage 1\n- Evolves from\nFidough\nAbility:\nTime to Chow Down\nWhen you play this Pokémon from your hand to evolve 1 of your Pokémon during your turn, you may heal all damage from each of your Evolution Pokémon. If you healed any damage in this way, discard all Energy from those Pokémon.\nCC\nWonder Shine 130\nYour opponent's Active Pokémon is now Confused.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SCR/67"
+ },
+ "SFA 5": {
+  "name": "Decidueye",
+  "text": "Decidueye\n- Grass - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nDartrix\nC\nStock Up on Feathers\nDraw cards until you have 7 cards in your hand.\nG\nPower Shot 170\nDiscard a Basic [ G ] Energy card from your hand. If you can't, this attack does nothing.\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SFA/5"
+ },
+ "CRI 13": {
+  "name": "Delphox",
+  "text": "Delphox\n- Fire - 160 HP\nPokémon\n- Stage 2\n- Evolves from\nBraixen\nAbility:\nFlaring Magic\nOnce during your turn, you may discard a Basic [ R ] Energy card from your hand in order to use this Ability. Draw cards until you have 7 cards in your hand.\nRR\nEnergized Storm 30×\nThis attack does 30 damage for each Energy attached to all Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/13"
+ },
+ "PFL 22": {
+  "name": "Dewgong",
+  "text": "Dewgong\n- Water - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nSeel\nAbility:\nThick Fat\nThis Pokémon takes 30 less damage from attacks from your opponent's [ R ] or [ W ] Pokémon (after applying Weakness and Resistance) .\nWC\nSlam 70×\nFlip 2 coins. This attack does 70 damage for each heads.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PFL/22"
+ },
+ "POR 19": {
+  "name": "Dewgong",
+  "text": "Dewgong\n- Water - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nSeel\nAbility:\nWash Out\nAs often as you like during your turn, you may use this Ability. Move a [ W ] Energy from 1 of your Benched Pokémon to your Active Pokémon.\nWW\nWave Splash 60\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/POR/19"
+ },
+ "POR 57": {
+  "name": "Doublade",
+  "text": "Doublade\n- Metal - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nHonedge\nCC\nWeaponized Swords 60×\nReveal any number of Honedge, Doublade, and Aegislash from your hand, and this attack does 60 damage for each card you revealed in this way.\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/POR/57"
+ },
+ "SCR 44": {
+  "name": "Drednaw",
+  "text": "Drednaw\n- Water - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nChewtle\nAbility:\nImpervious Shell\nPrevent all damage done to this Pokémon by attacks from your opponent's Pokémon if that damage is 200 or more.\nCCC\nHard Crunch 80+\nIf your opponent's Active Pokémon already has any damage counters on it, this attack does 80 more damage.\nWeakness: Lightning\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/SCR/44"
+ },
+ "BLK 38": {
+  "name": "Duosion",
+  "text": "Duosion\n- Psychic - 70 HP\nPokémon\n- Stage 1\n- Evolves from\nSolosis\nC\nCellular Evolution\nSearch your deck for a card that evolves from 1 of your Pokémon and put it onto that Pokémon to evolve it. Then, shuffle your deck.\nC\nSpray Fluid 30\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/BLK/38"
  }
 }

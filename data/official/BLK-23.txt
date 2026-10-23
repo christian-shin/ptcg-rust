@@ -1,0 +1,15 @@
+Carracosta
+- Water - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Tirtouga
+Ability:
+Mighty Shell
+Prevent all damage from and effects of attacks done to this Pokémon by your opponent's Pokémon that have any Special Energy attached.
+WCC
+Big Bite 150
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Lightning
+Resistance: none
+Retreat: 3

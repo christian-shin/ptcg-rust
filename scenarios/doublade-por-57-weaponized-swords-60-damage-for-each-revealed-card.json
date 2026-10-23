@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Aegislash POR 58",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Aegislash POR 58",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Doublade POR 57",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "Honedge POR 56",
+   "Honedge POR 56",
+   "Doublade POR 57",
+   "Aegislash POR 58"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Weaponized Swords"
+  },
+  [
+   0,
+   1,
+   2,
+   3
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 240,
+   "cite": "card text: reveal any number of Honedge, Doublade, and Aegislash from your hand, and this attack does 60 damage for each card you revealed (4 cards)"
+  }
+ ]
+}

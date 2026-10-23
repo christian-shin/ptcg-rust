@@ -1,0 +1,15 @@
+Chesnaught
+- Grass - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Quilladin
+Ability:
+Needly Armor
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , place 3 damage counters on the Attacking Pokémon for each [ G ] Energy attached to this Pokémon.
+GGC
+Impound 160
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fire
+Resistance: none
+Retreat: 4

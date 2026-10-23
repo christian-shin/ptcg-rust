@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Archeops WHT 51",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Carracosta SCR 38"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Lileep SCR 5",
+   "Cradily SCR 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rock Throw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Cradily SCR 6",
+   "damage": 130,
+   "cite": "card text: attacks used by your Pokemon (Archeops 100 + 30)"
+  }
+ ]
+}

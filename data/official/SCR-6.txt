@@ -1,0 +1,15 @@
+Cradily
+- Grass - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Lileep
+Ability:
+Selective Slime
+Once during your turn, you may flip a coin. If heads, choose Burned, Confused, or Poisoned. Your opponent's Active Pokémon is now affected by that Special Condition.
+G
+Miasma Wind 100×
+This attack does 100 damage for each Special Condition affecting your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 3

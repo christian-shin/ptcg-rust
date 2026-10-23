@@ -1,0 +1,102 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Dachsbun ex SCR 67",
+   "4 Fidough SCR 66",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "20 Water Energy MEE 3",
+   "20 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dachsbun ex SCR 67",
+   "4 Fidough SCR 66",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "20 Water Energy MEE 3",
+   "20 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fidough SCR 66",
+  "active_damage": 20,
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Dachsbun ex SCR 67"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Stufful MEG 111",
+     "Bewear MEG 112"
+    ],
+    "damage": 30,
+    "energy": [
+     "Psychic Energy MEE 5",
+     "Psychic Energy MEE 5"
+    ]
+   },
+   {
+    "card": "Stufful MEG 111",
+    "damage": 20,
+    "energy": [
+     "Psychic Energy MEE 5"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Dachsbun ex SCR 67",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Dachsbun ex SCR 67",
+   "damage": 0,
+   "energy": 0,
+   "cite": "card text: heal all damage from each of your Evolution Pokemon; discard all Energy from those Pokemon (id2016: the Fidough that evolved is healed too)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Bewear MEG 112",
+   "damage": 0,
+   "energy": 0,
+   "cite": "card text; id2015: all of them that were healed discard their Energy"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "card": "Stufful MEG 111",
+   "damage": 20,
+   "energy": 1,
+   "cite": "Stufful is not an Evolution Pokemon"
+  }
+ ]
+}

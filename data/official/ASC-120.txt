@@ -1,0 +1,15 @@
+Coalossal
+- Fighting - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Carkol
+F
+Tar Cannon
+This attack does 140 damage to 1 of your opponent's Pokémon. If you don't have 10 or more Basic [ F ] Energy cards in your discard pile, this attack does nothing. (Don't apply Weakness and Resistance for Benched Pokémon.)
+FCCC
+Bulky Bump 220
+Discard 3 Energy from this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 4

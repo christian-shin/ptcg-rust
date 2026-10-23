@@ -1,0 +1,17 @@
+Cinderace ex
+- Fire - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Raboot
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+RCC
+Flare Strike 280
+During your next turn, this Pokémon can't use Flare Strike.
+RFD
+Garnet Volley
+This attack does 180 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Water
+Resistance: none
+Retreat: 0

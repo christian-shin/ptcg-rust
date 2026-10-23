@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "20 Water Energy MEE 3",
+   "20 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "20 Water Energy MEE 3",
+   "20 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cinccino ex CRI 73",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energized Slap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 120,
+   "cite": "card text: 40 damage for each Energy attached to this Pokemon (3 Energy)"
+  }
+ ]
+}

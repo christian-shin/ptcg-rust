@@ -1,0 +1,15 @@
+Delphox
+- Fire - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Braixen
+Ability:
+Flaring Magic
+Once during your turn, you may discard a Basic [ R ] Energy card from your hand in order to use this Ability. Draw cards until you have 7 cards in your hand.
+RR
+Energized Storm 30×
+This attack does 30 damage for each Energy attached to all Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

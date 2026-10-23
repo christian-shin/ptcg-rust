@@ -1,0 +1,12 @@
+Doublade
+- Metal - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Honedge
+CC
+Weaponized Swords 60×
+Reveal any number of Honedge, Doublade, and Aegislash from your hand, and this attack does 60 damage for each card you revealed in this way.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

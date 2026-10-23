@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carracosta BLK 23",
+   "4 Ariados POR 2",
+   "4 Spinarak POR 1",
+   "4 Mega Latias ex MEG 100",
+   "4 Growing Grass Energy POR 86",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "4 Carracosta BLK 23",
+   "4 Ariados POR 2",
+   "4 Spinarak POR 1",
+   "4 Mega Latias ex MEG 100",
+   "4 Growing Grass Energy POR 86",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ariados POR 2",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Carracosta BLK 23"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Poison Ring"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Carracosta BLK 23",
+   "damage": 50,
+   "cite": "card text: only attackers with a Special Energy attached are stopped",
+   "conditions": [
+    "POISONED"
+   ]
+  }
+ ]
+}

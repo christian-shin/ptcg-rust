@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "hand": [
+   "Boss's Orders PAL 172"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "bench": [
+   {
+    "card": "Cetitan ex DRI 65"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Boss's Orders PAL 172"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "cite": "card text: whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pokemon (the Benched Cetitan ex is not switched in); id284"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Cetitan ex DRI 65",
+   "cite": "card text"
+  }
+ ]
+}

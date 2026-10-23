@@ -1,0 +1,15 @@
+Drednaw
+- Water - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Chewtle
+Ability:
+Impervious Shell
+Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon if that damage is 200 or more.
+CCC
+Hard Crunch 80+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 80 more damage.
+Weakness: Lightning
+Resistance: none
+Retreat: 3

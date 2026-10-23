@@ -1208,3 +1208,23 @@ Bewear MEG 112	Bewear
 Boldore WHT 47	Boldore
 Butterfree JTG 3	Butterfree
 Camerupt ASC 28	Camerupt
+Carracosta SCR 38	CarracostaSCR
+Carracosta BLK 23	CarracostaBLK
+Centiskorch MEG 30	CentiskorchMEG
+Cetitan ex DRI 65	CetitanEx
+Chesnaught CRI 7	Chesnaught
+Cinccino ex CRI 73	CinccinoEx
+Cinderace ex SCR 28	CinderaceEx
+Claydol CRI 47	Claydol
+Coalossal ASC 120	Coalossal
+Cradily SCR 6	Cradily
+Crawdaunt MEG 85	Crawdaunt
+Crobat CRI 51	Crobat
+Dachsbun ex SCR 67	DachsbunEx
+Decidueye SFA 5	Decidueye
+Delphox CRI 13	Delphox
+Dewgong PFL 22	DewgongPFL
+Dewgong POR 19	DewgongPOR
+Doublade POR 57	Doublade
+Drednaw SCR 44	Drednaw
+Duosion BLK 38	Duosion

@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "4 Mow Rotom DRI 9",
+   "4 Team Rocket's Watchtower ASC 210",
+   "32 Grass Energy MEE 1"
+  ],
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "4 Mow Rotom DRI 9",
+   "4 Team Rocket's Watchtower ASC 210",
+   "32 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mow Rotom DRI 9",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Cinccino ex CRI 73",
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Trimming Mower"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Cinccino ex CRI 73",
+   "damage": 20,
+   "cite": "JP FAQ Team Rocket's Watchtower ASC 210 / Cinccino ex: the damage is calculated before the attack discards the Watchtower, so Smooth Coat (a [C] Pokemon's Ability) does not work for it"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Team Rocket's Watchtower ASC 210"
+   ],
+   "cite": "card text: discard a Stadium in play"
+  }
+ ]
+}

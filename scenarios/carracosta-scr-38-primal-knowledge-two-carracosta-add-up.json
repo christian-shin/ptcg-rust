@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Water Energy MEE 3"
+  ],
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Carracosta SCR 38",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Carracosta SCR 38"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Yanma DRI 2",
+   "Yanmega ex DRI 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tidal Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Yanmega ex DRI 3",
+   "damage": 210,
+   "cite": "card text: the effect is not marked \"doesn't stack\" (150 + 30 + 30)"
+  }
+ ]
+}

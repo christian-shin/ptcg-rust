@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Drednaw SCR 44",
+   "4 Chewtle SCR 43",
+   "4 Arven's Mabosstiff ex DRI 139",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Drednaw SCR 44",
+   "4 Chewtle SCR 43",
+   "4 Arven's Mabosstiff ex DRI 139",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Drednaw SCR 44",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hard Crunch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 80,
+   "cite": "card text: no damage counters, no bonus"
+  }
+ ]
+}

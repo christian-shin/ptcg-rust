@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Claydol CRI 47",
+   "4 Baltoy CRI 46",
+   "4 Seel PFL 21",
+   "4 Dewgong PFL 22",
+   "4 Mega Latias ex MEG 100",
+   "40 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Claydol CRI 47",
+   "4 Baltoy CRI 46",
+   "4 Seel PFL 21",
+   "4 Dewgong PFL 22",
+   "4 Mega Latias ex MEG 100",
+   "40 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Claydol CRI 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Seel PFL 21",
+   "Dewgong PFL 22"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Devolution Ray"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Seel PFL 21",
+   "damage": 50,
+   "cite": "card text: 50 damage; devolve it by putting the highest Stage Evolution card on it into your opponent's hand (the damage counters stay: APR C-13)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "contains": [
+    "Dewgong PFL 22"
+   ],
+   "cite": "card text: into your opponent's hand"
+  }
+ ]
+}

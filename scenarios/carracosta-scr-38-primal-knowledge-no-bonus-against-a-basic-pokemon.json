@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Water Energy MEE 3"
+  ],
+  [
+   "4 Carracosta SCR 38",
+   "4 Archeops WHT 51",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Latias ex MEG 100",
+   "4 Lileep SCR 5",
+   "4 Cradily SCR 6",
+   "32 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Carracosta SCR 38",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tidal Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 150,
+   "cite": "card text: only an Evolution Pokemon takes the 30 more"
+  }
+ ]
+}

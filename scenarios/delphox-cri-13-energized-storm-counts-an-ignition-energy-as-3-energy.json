@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "4 Ignition Energy PFL 124",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "4 Ignition Energy PFL 124",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Delphox CRI 13",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energized Storm"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 150,
+   "cite": "JP FAQ Ignition Energy PFL 124 / Delphox: one Ignition Energy counts as 3 Energy for Energized Storm (2 + 3 = 5 Energy)"
+  }
+ ]
+}

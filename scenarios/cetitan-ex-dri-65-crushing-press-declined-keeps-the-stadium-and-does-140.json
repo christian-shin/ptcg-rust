@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cetitan ex DRI 65",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "stadium": "Full Metal Lab TEF 148"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crushing Press"
+  },
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Kangaskhan ex MEG 104",
+   "damage": 140,
+   "cite": "card text: no discard, no bonus"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 0,
+   "cite": "card text: you may discard"
+  }
+ ]
+}

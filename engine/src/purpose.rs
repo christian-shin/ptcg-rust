@@ -89,6 +89,9 @@ purposes! {
     DiscardCard => "CHOOSE_CARD_TO_DISCARD",
     /// Discard Energy (a cost, a retreat, an effect).
     DiscardEnergy => "CHOOSE_ENERGIES_TO_DISCARD",
+    // Cards that stay where they are
+    /// Choose cards to reveal and nothing more ("reveal any number of ... from your hand": the choice only counts them).
+    RevealCard => "CHOOSE_CARDS_TO_REVEAL",
     // Zones
     /// Put a card (or a Pokémon with its attached cards) into the hand.
     PutIntoHand => "CHOOSE_CARD_TO_HAND",
@@ -212,6 +215,7 @@ mod tests {
             (P::TakePrize, C::ToHand),
             (P::TurnPrizeFaceUp, C::Look),
             (P::LookAtPrize, C::Look),
+            (P::RevealCard, C::NotMove),
             (P::DiscardCard, C::Discard),
             (P::DiscardEnergy, C::DiscardEnergy),
             (P::PutIntoHand, C::ToHand),

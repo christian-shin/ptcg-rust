@@ -802,6 +802,9 @@ enum RegisterUse {
     Does(PromptPurpose),
     /// The op only stages them in another register (a `Look` while the deck is shuffled): the outcome is the next op's.
     Stages(u8),
+    /// The op only reveals them: the outcome when no op after it moves or uses them (Perrin reveals the cards it then puts
+    /// into the deck: that is the outcome there).
+    Shows,
 }
 
 fn register_use(op: &Op, reg: u8) -> RegisterUse {
@@ -821,6 +824,7 @@ fn register_use(op: &Op, reg: u8) -> RegisterUse {
         Op::SwapPokemonCard(s) if s.cards == reg => Does(PromptPurpose::SwapPokemon),
         Op::DiscardEnergy(d) if matches!(d.selection, EnergySelection::Register(r) if r == reg) => Does(d.purpose()),
         Op::Look(l) if takes(&l.cards) || from_reg(&l.from) => Stages(l.into),
+        Op::Reveal(r) if matches!(r.cards, RevealWhat::Chosen(c) if c == reg) => Shows,
         _ => Not,
     }
 }
@@ -828,7 +832,7 @@ fn register_use(op: &Op, reg: u8) -> RegisterUse {
 /// The purpose of the `Pick` `pick` (an op of `steps`, filling register `into`): the outcome of the first op after it, in
 /// program order, that takes the register (`None` when no op does).
 pub(crate) fn pick_outcome(steps: &[Step], pick: &Op, into: u8) -> Option<PromptPurpose> {
-    fn walk(steps: &[Step], pick: &Op, seen: &mut bool, reg: &mut u8) -> Option<PromptPurpose> {
+    fn walk(steps: &[Step], pick: &Op, seen: &mut bool, reg: &mut u8, shown: &mut bool) -> Option<PromptPurpose> {
         for s in steps {
             if std::ptr::eq(&s.op, pick) {
                 *seen = true;
@@ -838,18 +842,20 @@ pub(crate) fn pick_outcome(steps: &[Step], pick: &Op, into: u8) -> Option<Prompt
                 match register_use(&s.op, *reg) {
                     RegisterUse::Does(p) => return Some(p),
                     RegisterUse::Stages(r) => *reg = r,
+                    RegisterUse::Shows => *shown = true,
                     RegisterUse::Not => {}
                 }
             }
             for sel in 0..=8 {
-                if let Some(p) = walk(super::child(&s.op, sel), pick, seen, reg) {
+                if let Some(p) = walk(super::child(&s.op, sel), pick, seen, reg, shown) {
                     return Some(p);
                 }
             }
         }
         None
     }
-    walk(steps, pick, &mut false, &mut { into })
+    let mut shown = false;
+    walk(steps, pick, &mut false, &mut { into }, &mut shown).or(shown.then_some(PromptPurpose::RevealCard))
 }
 
 /// The cards a verb op takes (`sel` of `from`) and the list they physically are in; `None` when the zone names no list
@@ -3461,6 +3467,9 @@ mod pick_purpose_tests {
         assert_eq!(outcomes("Kofu"), [P::PutOnDeckBottom]);
         // Search, shuffle, then the cards go on top of the deck (a Look stages them while the deck is shuffled).
         assert_eq!(outcomes("CiphermaniacsCodebreaking"), [P::PutIntoDeck]);
+        // Cards revealed and then put into the deck: the move is the outcome; cards only revealed (and counted): the reveal.
+        assert_eq!(outcomes("Perrin"), [P::PutIntoDeck]);
+        assert_eq!(outcomes("Doublade"), [P::RevealCard]);
         // An evolution card from the deck.
         assert_eq!(outcomes("Salvatore"), [P::EvolutionCard]);
         // A Pokémon card from the discard pile switched with a Pokémon in play.

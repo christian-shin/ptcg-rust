@@ -1,0 +1,15 @@
+Crobat
+- Darkness - 130 HP
+Pokémon
+- Stage 2
+- Evolves from
+Golbat
+Ability:
+Nighttime Maneuvers
+Once during your turn, if this Pokémon is in the Active Spot, you may use this Ability. Search your deck for a card. Shuffle your deck, then put that card on top of it.
+D
+Poison Sound Wave 80
+Your opponent's Active Pokémon is now Confused and Poisoned.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1
