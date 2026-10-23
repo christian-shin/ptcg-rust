@@ -336,12 +336,12 @@ pub fn add_player_lock(st: &mut State, q: usize, decl: &'static crate::spec::pas
     st.lasting_mut().insert(at, LastingEffect { on, source, what: LastingWhat::PlayerLock { decl, turns, pos } });
 }
 
-/// A prevention on the Pokémon, pending until the end of this turn; a newer one of the same declaration replaces the
-/// older (at the end of the list).
-pub fn add_prevent(st: &mut State, p: usize, s: SlotId, spec: u8, source: CardId) {
+/// A prevention on the Pokémon (with its damage bound), pending until the end of this turn; a newer one of the same declaration
+/// and bound replaces the older (at the end of the list).
+pub fn add_prevent(st: &mut State, p: usize, s: SlotId, spec: u8, at_most: Option<i16>, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { spec: x, .. } if x == spec)));
-    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::Prevent { spec, pending: true } });
+    st.retain_lasting(|l| !(l.on == on && matches!(l.what, LastingWhat::Prevent { spec: x, at_most: b, .. } if x == spec && b == at_most)));
+    st.lasting_mut().push(LastingEffect { on, source, what: LastingWhat::Prevent { spec, pending: true, at_most } });
 }
 
 /// "Takes N less damage": one entry per source card (the same card's again replaces it; different ones add up).

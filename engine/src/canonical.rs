@@ -78,9 +78,12 @@ impl Game {
                         o.insert("pending".into(), json!(pending));
                         o.insert("rearm".into(), json!(rearm));
                     }
-                    LastingWhat::Prevent { spec, pending } => {
+                    LastingWhat::Prevent { spec, pending, at_most } => {
                         o.insert("prevent".into(), json!(spec));
                         o.insert("pending".into(), json!(pending));
+                        if let Some(n) = at_most {
+                            o.insert("atMost".into(), json!(n));
+                        }
                     }
                     LastingWhat::Retaliate { amount, attack: a, attacker, pending } => {
                         o.insert("retaliate".into(), match amount {

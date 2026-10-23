@@ -1,0 +1,12 @@
+Metapod
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Caterpie
+G
+Harden
+During your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 60 or less.
+Weakness: Fire
+Resistance: none
+Retreat: 3

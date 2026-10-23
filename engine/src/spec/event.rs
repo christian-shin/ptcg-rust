@@ -387,11 +387,8 @@ pub enum EventPred {
     /// or less Energy attached can't attack"; the count of a checked read of the Energy it provides, which the
     /// UseAttack's checks make only when a lock on the player reads it: [`EventPred::reads_energy`]).
     EnergyAtMost(i32),
-    /// Damage: the damage done (after Weakness, Resistance and the effects on the Pokémon, APR D steps 2-5: id472, id2197) is at
-    /// most this much ("prevent all damage done to this Pokémon by attacks if that damage is 40 or less").
-    AmountAtMost(i32),
-    /// Damage: the damage done is at least this much ("takes 240 or more damage from an attack": the final amount, as
-    /// `AmountAtMost`).
+    /// Damage: the damage done is at least this much ("takes 240 or more damage from an attack": the final amount, after
+    /// Weakness, Resistance and the effects on the Pokémon, APR D steps 2-5: id472, id2197).
     AmountAtLeast(i32),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
@@ -833,7 +830,6 @@ impl EventPred {
             },
             EventPred::Purpose(p) => v.purpose == Some(*p),
             EventPred::EnergyAtMost(n) => v.energy.map_or(false, |e| e <= *n),
-            EventPred::AmountAtMost(n) => v.amount <= *n,
             EventPred::AmountAtLeast(n) => v.amount >= *n,
             EventPred::All(ps) => {
                 for p in ps.iter() {

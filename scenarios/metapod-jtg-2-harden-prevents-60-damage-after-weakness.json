@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Caterpie JTG 1",
+   "4 Metapod JTG 2",
+   "4 Torchic JTG 22",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "16 Fire Energy MEE 2",
+   "16 Psychic Energy MEE 5",
+   "12 Grass Energy MEE 1"
+  ],
+  [
+   "4 Caterpie JTG 1",
+   "4 Metapod JTG 2",
+   "4 Torchic JTG 22",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "16 Fire Energy MEE 2",
+   "16 Psychic Energy MEE 5",
+   "12 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Caterpie JTG 1",
+   "Metapod JTG 2"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Torchic JTG 22",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Harden"
+  },
+  {
+   "a": "attack",
+   "name": "Scratch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Metapod JTG 2",
+   "damage": 0,
+   "cite": "id472, id2197: Weakness is factored in before Harden reads the damage (Scratch 30, x2 for Weakness = 60: 60 or less is prevented)"
+  }
+ ]
+}
