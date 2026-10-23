@@ -1,0 +1,14 @@
+Bewear
+- Colorless - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Stufful
+CC
+Knuckle Punch 50
+CCC
+Hyper Lariat 100+
+Flip 2 coins. If both of them are heads, this attack does 100 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

@@ -1193,3 +1193,18 @@ Glaceon TWM 54	GlaceonTWM
 Metapod JTG 2	MetapodJTG
 Jynx TWM 46	JynxTWM
 Meowstic CRI 37	MeowsticCRI
+Arcanine DRI 28	Arcanine
+Archen WHT 50	Archen
+Archeops WHT 51	Archeops
+Ariados POR 2	Ariados
+Aromatisse POR 36	Aromatisse
+Arven's Greedent DRI 159	ArvensGreedent
+Arven's Mabosstiff ex DRI 139	ArvensMabosstiffEx
+Aurorus POR 24	Aurorus
+Banette JTG 60	BanetteJTG
+Bastiodon PBL 62	Bastiodon
+Beautifly ASC 13	Beautifly
+Bewear MEG 112	Bewear
+Boldore WHT 47	Boldore
+Butterfree JTG 3	Butterfree
+Camerupt ASC 28	Camerupt

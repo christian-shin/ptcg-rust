@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bewear MEG 112",
+   "4 Stufful MEG 111",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Bewear MEG 112",
+   "4 Stufful MEG 111",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bewear MEG 112",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "coins": [
+  false,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hyper Lariat"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 100,
+   "cite": "card text: flip 2 coins; if both of them are heads, 100 more damage"
+  }
+ ]
+}

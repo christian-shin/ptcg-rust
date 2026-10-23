@@ -1,0 +1,14 @@
+Arven's Greedent
+- Colorless - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Arven's Skwovet
+Ability:
+Greedy Order
+When you play this Pokémon from your hand to evolve 1 of your Pokémon during your turn, you may put up to 2 Arven's Sandwich cards from your discard pile into your hand.
+CC
+Rolling Tackle 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

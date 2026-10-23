@@ -6443,5 +6443,80 @@
   "name": "Meowstic",
   "text": "Meowstic\n- Psychic - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nEspurr\nPC\nTricky Steps 80\nYou may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/CRI/37"
+ },
+ "DRI 28": {
+  "name": "Arcanine",
+  "text": "Arcanine\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nGrowlithe\nCC\nFlare 50\nRCC\nPunishing Fang 100+\nIf your opponent's Active Pokémon is a [ D ] Pokémon, this attack does 100 more damage.\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/DRI/28"
+ },
+ "WHT 50": {
+  "name": "Archen",
+  "text": "Archen\n- Fighting - 80 HP\nPokémon\n- Stage 1\n- Evolves from\nFC\nAcrobatics 30+\nFlip 2 coins. This attack does 30 more damage for each heads.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/50"
+ },
+ "WHT 51": {
+  "name": "Archeops",
+  "text": "Archeops\n- Fighting - 140 HP\nPokémon\n- Stage 2\n- Evolves from\nArchen\nAbility:\nAncient Wing\nOnce during your turn, if this Pokémon is in the Active Spot, you may devolve 1 of your opponent's evolved Pokémon by putting the highest Stage Evolution card on it into your opponent's hand.\nFC\nRock Throw 100\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/51"
+ },
+ "POR 2": {
+  "name": "Ariados",
+  "text": "Ariados\n- Grass - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nSpinarak\nG\nPoison Ring 50\nYour opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/2"
+ },
+ "POR 36": {
+  "name": "Aromatisse",
+  "text": "Aromatisse\n- Psychic - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nSpritzee\nAbility:\nScent Collection\nOnce during your turn, you may use this Ability. Search your deck for up to 2 Basic [ P ] Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.\nPC\nDraining Kiss 50\nHeal 30 damage from this Pokémon.\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/36"
+ },
+ "DRI 159": {
+  "name": "Arven's Greedent",
+  "text": "Arven's Greedent\n- Colorless - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nArven's Skwovet\nAbility:\nGreedy Order\nWhen you play this Pokémon from your hand to evolve 1 of your Pokémon during your turn, you may put up to 2 Arven's Sandwich cards from your discard pile into your hand.\nCC\nRolling Tackle 50\nWeakness: Fighting\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/159"
+ },
+ "DRI 139": {
+  "name": "Arven's Mabosstiff ex",
+  "text": "Arven's Mabosstiff ex\n- Darkness - 270 HP\nPokémon\n- Stage 1\n- Evolves from\nArven's Maschiff\nC\nVigorous Tackle 30+\nIf this Pokémon has no damage counters on it, this attack does 120 more damage.\nCCC\nBoss Headbutt 210\nDuring your next turn, this Pokémon can't use Boss Headbutt.\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/DRI/139"
+ },
+ "POR 24": {
+  "name": "Aurorus",
+  "text": "Aurorus\n- Water - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nAmaura\nAbility:\nTundra Wall\nAll of your Pokémon that have any [ W ] Energy attached take 50 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) . The effect of Tundra Wall doesn't stack.\nWWC\nFreezing Chill 150\nDuring your opponent's next turn, the Defending Pokémon can't use attacks.\nWeakness: Metal\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/POR/24"
+ },
+ "JTG 60": {
+  "name": "Banette",
+  "text": "Banette\n- Psychic - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nShuppet\nP\nCursed Words\nYour opponent chooses 3 cards from their hand and shuffles those cards into their deck.\nPC\nSpooky Shot 70\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/60"
+ },
+ "PBL 62": {
+  "name": "Bastiodon",
+  "text": "Bastiodon\n- Metal - 160 HP\nPokémon\n- Stage 2\n- Evolves from\nShieldon\nAbility:\nAncient Bulwark\nAs long as this Pokémon is on your Bench, prevent all damage done to each of your Pokémon by attacks from your opponent's Pokémon that have 2 or less Energy attached.\nMMC\nHammer In 160\nWeakness: Fire\nResistance: Grass\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/PBL/62"
+ },
+ "ASC 13": {
+  "name": "Beautifly",
+  "text": "Beautifly\n- Grass - 130 HP\nPokémon\n- Stage 2\n- Evolves from\nSilcoon\nG\nStun Spore 40\nFlip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.\nG\nEnergy Straw 80×\nYour opponent reveals their hand, and this attack does 80 damage for each Energy card you find there.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/13"
+ },
+ "MEG 112": {
+  "name": "Bewear",
+  "text": "Bewear\n- Colorless - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nStufful\nCC\nKnuckle Punch 50\nCCC\nHyper Lariat 100+\nFlip 2 coins. If both of them are heads, this attack does 100 more damage.\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/MEG/112"
+ },
+ "WHT 47": {
+  "name": "Boldore",
+  "text": "Boldore\n- Fighting - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nRoggenrola\nF\nSmack Down 30+\nIf your opponent's Active Pokémon has [ F ] Resistance, this attack does 50 more damage.\nFFF\nPower Gem 90\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/WHT/47"
+ },
+ "JTG 3": {
+  "name": "Butterfree",
+  "text": "Butterfree\n- Grass - 120 HP\nPokémon\n- Stage 2\n- Evolves from\nMetapod\nG\nScale Hurricane 60×\nFlip 4 coins. This attack does 60 damage for each heads. If at least 2 of them are heads, your opponent's Active Pokémon is now Paralyzed.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/3"
+ },
+ "ASC 28": {
+  "name": "Camerupt",
+  "text": "Camerupt\n- Fire - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nNumel\nR\nRoasting Burn 110\nIf your opponent's Active Pokémon isn't Burned, this attack does nothing.\nRCCC\nPower Stomp 170\nDiscard 2 Energy from this Pokémon.\nWeakness: Water\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/28"
  }
 }

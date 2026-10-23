@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beautifly ASC 13",
+   "4 Mega Latias ex MEG 100",
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
+  ],
+  [
+   "4 Beautifly ASC 13",
+   "4 Mega Latias ex MEG 100",
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beautifly ASC 13",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Mega Latias ex MEG 100",
+   "Mega Latias ex MEG 100"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energy Straw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 240,
+   "cite": "card text: your opponent reveals their hand, and this attack does 80 damage for each Energy card you find there (3 Energy, 2 other cards)"
+  }
+ ]
+}

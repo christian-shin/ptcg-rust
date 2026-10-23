@@ -58,9 +58,6 @@ pub trait ActionChecks {
     fn game(&self) -> &Game;
     /// The one lock query (`derived::event_locked`).
     fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>>;
-    /// The Energy count the Pokémon in `slot` provides (a checked read; asked only under a "can't attack with this much
-    /// Energy" effect).
-    fn energy_count(&mut self, slot: SlotRef) -> R<i32>;
     /// Can the Pokémon in `slot` pay the cost of `attack` (the checked cost against the Energy it provides)?
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool>;
     /// Has `card` (player `p`'s) lost the Ability `power` to an Ability lock (`derived::has_no_ability`)?
@@ -73,10 +70,6 @@ impl ActionChecks for Game {
     }
     fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>> {
         crate::derived::event_locked(self, v)
-    }
-    fn energy_count(&mut self, slot: SlotRef) -> R<i32> {
-        let map = crate::derived::provided_energy(self, slot.p as usize, slot)?;
-        Ok(crate::engine::attack::max_energy_count(&map))
     }
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool> {
         crate::engine::attack::attack_payable(self, slot.p as usize, attack, slot)
@@ -95,11 +88,7 @@ pub fn attack_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, attack: Atta
         Ok(s) => s,
         Err(e) => return Ok(Err(e.0)),
     };
-    let mut v = attack_view(c.game(), p, attacking, attack);
-    // The Energy count, read only for a lock on the player that reads it (Walrein's Frigid Fangs).
-    if crate::spec::passive::lasting_reads_energy(c.game(), p) {
-        v.energy = Some(c.energy_count(attacking)?);
-    }
+    let v = attack_view(c.game(), p, attacking, attack);
     if let Some(code) = c.event_locked(&v)? {
         return Ok(Err(code));
     }

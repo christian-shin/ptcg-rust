@@ -1,0 +1,15 @@
+Camerupt
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Numel
+R
+Roasting Burn 110
+If your opponent's Active Pokémon isn't Burned, this attack does nothing.
+RCCC
+Power Stomp 170
+Discard 2 Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 3

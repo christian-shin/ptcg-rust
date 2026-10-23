@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Aurorus POR 24",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "24 Water Energy MEE 3",
+   "24 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Aurorus POR 24",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "24 Water Energy MEE 3",
+   "24 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Aurorus POR 24",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Freezing Chill"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 150,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "attack",
+   "name": "Strafe",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokemon can't use attacks"
+  }
+ ]
+}

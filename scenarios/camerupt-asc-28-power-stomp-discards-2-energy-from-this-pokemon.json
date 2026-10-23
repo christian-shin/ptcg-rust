@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Camerupt ASC 28",
+   "4 Numel MEG 21",
+   "4 Mega Latias ex MEG 100",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Camerupt ASC 28",
+   "4 Numel MEG 21",
+   "4 Mega Latias ex MEG 100",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Camerupt ASC 28",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Power Stomp"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 170,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Camerupt ASC 28",
+   "energy": 2,
+   "cite": "card text: discard 2 Energy from this Pokemon"
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Boldore WHT 47",
+   "4 Roggenrola WHT 46",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Boldore WHT 47",
+   "4 Roggenrola WHT 46",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Boldore WHT 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smack Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Team Rocket's Mewtwo ex ASC 79",
+   "damage": 50,
+   "cite": "card text: 30 damage, and 50 more if the Active Pokemon has [F] Resistance (80, then Resistance -30 = 50; id597, APR D step 4)"
+  }
+ ]
+}
