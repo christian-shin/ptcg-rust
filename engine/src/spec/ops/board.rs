@@ -1562,17 +1562,20 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
 }
 
 /// Can the effect `cause` evolve the Basic Pokémon in `t` with one of `stage2` (cards in the hand), skipping the
-/// Stage 1? The Evolve event's checks on the rule path: the locks on evolving from the hand (id1133, id285, id1998),
-/// the rule's limits and the cause card's own restriction (no permission lifts it: id1144, id1815).
+/// Stage 1? The Evolve event's checks on the rule path: the locks on evolving from the hand (id1133, id285, id1998;
+/// not read at a table with `TableRules::play_evolving_trainer_under_evolution_lock`, where the Evolve itself is still
+/// refused), the rule's limits and the cause card's own restriction (no permission lifts it: id1144, id1815).
 pub(crate) fn can_skip_stage1_onto<F: crate::derived::Facts>(g: &mut F, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
-    use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
+    use crate::engine::enter::{check_evolve, evolve_rules, evolve_view, evolves_into, Reach};
     let Some(base) = g.g().st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
+    let locks_unread = g.g().st.rules.play_evolving_trainer_under_evolution_lock;
     for &c in stage2 {
         if !evolves_into(g.g(), base, c, Reach::SkipStage1) {
             continue;
         }
         let Some(v) = evolve_view(g.g(), Some(c), t, super::super::event::RulesZone::Hand, super::super::event::EvolvePath::Rule, cause) else { return Ok(false) };
-        if check_evolve(g, &v, Reach::SkipStage1).is_ok() {
+        let ok = if locks_unread { evolve_rules(g, &v, Reach::SkipStage1) } else { check_evolve(g, &v, Reach::SkipStage1) };
+        if ok.is_ok() {
             return Ok(true);
         }
     }
