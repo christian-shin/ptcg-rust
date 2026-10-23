@@ -1,0 +1,18 @@
+{
+ "turn": 2,
+ "rules": {"ability_draw_or_search_offered_with_empty_deck": true},
+ "decks": [
+  ["4 Lunatone ASC 105", "4 Solrock ASC 106", "4 Hop's Snorlax JTG 117", "48 Fighting Energy MEE 6"],
+  ["4 Lunatone ASC 105", "4 Solrock ASC 106", "4 Hop's Snorlax JTG 117", "48 Fighting Energy MEE 6"]
+ ],
+ "me": {"reset": true, "active": "Lunatone ASC 105", "bench": [{"card": "Solrock ASC 106"}], "hand": ["3 Fighting Energy MEE 6"], "deck_left": 0},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"},
+ "answers": [
+  {"a": "ability", "name": "Lunar Cycle", "source": {"player": 2, "slot": 1, "index": 0}}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Lunar Cycle", "is": true, "cite": "table rule ability_draw_or_search_offered_with_empty_deck (on): the empty deck Lunar Cycle draws from isn't read"},
+  {"at": "decision", "n": 1, "who": "me", "zone": "hand", "count": 2, "cite": "table rule ability_draw_or_search_offered_with_empty_deck (on): the Basic [F] Energy card left the hand to use the Ability (APR E-30, id2115) and nothing is drawn from the empty deck (3 - 1)"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "ability", "name": "Lunar Cycle", "is": false, "cite": "Lunatone ASC 105 text: once during your turn (id127: an Ability is used once it is used)"}
+ ]
+}
