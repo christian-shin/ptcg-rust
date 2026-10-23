@@ -226,8 +226,10 @@ pub(crate) fn run_attach(g: &mut Game, card: CardId, target: SlotRef, manual: bo
 }
 
 /// An Energy card from the hand was attached to a Pokémon an attack left "whenever they attach an Energy card from their hand to
-/// the Defending Pokémon, place N damage counters on that Pokémon" on: the counters are a PlaceCounters event by that attack
-/// (Pachirisu's Electrified Incisors). Every attachment from the hand counts, the turn's own and an effect's (id25, id230).
+/// the Defending Pokémon, place N damage counters on that Pokémon" on (Pachirisu's Electrified Incisors): the counters are a
+/// PlaceCounters event by that effect acting on the Pokémon it is on (`CauseKind::LastingEffect`): a prevention of the effects of
+/// attacks that came into force after the effect was put, a Mist Energy being attached included, doesn't stop it (id1121,
+/// id2341). Every attachment from the hand counts, the turn's own and an effect's (id25, id230).
 fn attach_trap(g: &mut Game, card: CardId, target: SlotRef, source: RulesZone) -> R {
     if g.st.lasting.is_empty() || source != RulesZone::Hand || !g.st.cdef(card).is_energy() {
         return Ok(());
@@ -236,7 +238,7 @@ fn attach_trap(g: &mut Game, card: CardId, target: SlotRef, source: RulesZone) -
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
         return Ok(());
     }
-    crate::engine::damage::place(g, target, hp, Cause::attack(attacker, Some(from), attack))?;
+    crate::engine::damage::place(g, target, hp, Cause { kind: crate::cause::CauseKind::LastingEffect, card: Some(from), player: attacker, attack: Some(attack) })?;
     Ok(())
 }
 

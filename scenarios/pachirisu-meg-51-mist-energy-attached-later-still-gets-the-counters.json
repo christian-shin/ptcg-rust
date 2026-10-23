@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pachirisu MEG 51",
+   "4 Hop's Snorlax JTG 117",
+   "1 Mist Energy TEF 161",
+   "51 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Pachirisu MEG 51",
+   "4 Hop's Snorlax JTG 117",
+   "1 Mist Energy TEF 161",
+   "51 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pachirisu MEG 51",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true,
+  "hand": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Electrified Incisors"
+  },
+  {
+   "a": "play",
+   "card": "Mist Energy TEF 161",
+   "target": {
+    "index": 0,
+    "player": 2,
+    "slot": 1
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 90,
+   "energy": 1,
+   "cite": "id1121 (a prevention of effects doesn't remove an existing effect of an attack on the Pokémon), id2341 (Mist Energy attached after the effect was applied won't remove it): Electrified Incisors still places its 8 counters when the Energy attached is a Mist Energy (10 + 80)"
+  }
+ ]
+}

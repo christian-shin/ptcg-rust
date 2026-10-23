@@ -121,7 +121,8 @@ pub enum Lasting {
     /// Attacking Pokémon: a number of them, or as many as the damage done.
     Retaliate(PutOnAttacker),
     /// During the opponent's next turn, whenever they attach an Energy card from their hand to the Defending Pokémon, place n damage
-    /// counters on that Pokémon (the HP they stand for).
+    /// counters on that Pokémon (the HP they stand for): the effect on the Pokémon acting on it (`CauseKind::LastingEffect`, id1121,
+    /// id2341).
     CountersOnEnergyAttached(i32),
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
