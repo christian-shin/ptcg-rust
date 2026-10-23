@@ -55,6 +55,13 @@ pub enum CauseKind {
     Rule { which: RuleWhich },
     /// Poison, Burn, Confusion, Sleep, Paralysis.
     SpecialCondition,
+    /// An effect an attack put on a Pokémon earlier, acting on that Pokémon now ("At the end of your opponent's next turn, the
+    /// Defending Pokémon will be Knocked Out": APR E-21; `engine::lasting`'s end-of-turn entries). `card` is the Pokémon whose
+    /// attack put it, `attack` that attack, `player` its user. A prevention of the effects of attacks stops the effect being put
+    /// (the ApplyEffect event), not the effect acting later: "Pure Heart *prevents* effects, but it does not *remove* existing
+    /// effects" (id1121, Pale Moon GX's Knock Out at the end of the turn), "if you attach it after the effect ... was applied, it
+    /// won't remove the existing effect" (id2341), so `Kind(Attack)` doesn't match it.
+    LastingEffect,
 }
 
 /// What caused an event. `Copy`, 7 bytes.
@@ -88,7 +95,8 @@ impl Cause {
 
     /// The cause in 4 bytes, for a program frame that must carry it across a prompt (`CardFrame` has no room for
     /// the 7-byte struct): kind and rule (7 bits) and player (1 bit), the card, the attack's card and index
-    /// (`0xFF` = none; a game has fewer card instances).
+    /// (`0xFF` = none; a game has fewer card instances). `SpecialCondition` and `LastingEffect` share kind 7, told apart by
+    /// the rule bits.
     pub const fn pack(&self) -> [u8; 4] {
         let (k, w) = match self.kind {
             CauseKind::Attack => (0u8, 0u8),
@@ -99,6 +107,7 @@ impl Cause {
             CauseKind::Energy => (5, 0),
             CauseKind::Rule { which } => (6, which as u8),
             CauseKind::SpecialCondition => (7, 0),
+            CauseKind::LastingEffect => (7, 1),
         };
         let card = match self.card {
             Some(c) => c,
@@ -133,6 +142,7 @@ impl Cause {
             4 => CauseKind::Tool,
             5 => CauseKind::Energy,
             6 => CauseKind::Rule { which: WHICH[((b[0] >> 3) & 15) as usize] },
+            _ if (b[0] >> 3) & 15 == 1 => CauseKind::LastingEffect,
             _ => CauseKind::SpecialCondition,
         };
         Cause {
@@ -338,6 +348,7 @@ mod tests {
             Cause::new(CauseKind::Tool, Some(6), 1),
             Cause::new(CauseKind::Energy, Some(7), 0),
             Cause::new(CauseKind::SpecialCondition, None, 1),
+            Cause { kind: CauseKind::LastingEffect, card: Some(9), player: 1, attack: Some(AttackRef { card: 9, index: 0 }) },
         ];
         for w in whiches {
             all.push(Cause::rule(w, 1));

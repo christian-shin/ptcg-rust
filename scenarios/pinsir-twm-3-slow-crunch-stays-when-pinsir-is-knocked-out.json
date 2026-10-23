@@ -1,0 +1,88 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ],
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pinsir TWM 3",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slow Crunch"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Pinsir TWM 3"
+   ],
+   "cite": "card text (Headbutt 60 Knocks Pinsir Out)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Chewtle SCR 43"
+   ],
+   "cite": "id1982: the effect is on the Pokémon that was attacked with Slow Crunch"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "id1982"
+  }
+ ]
+}

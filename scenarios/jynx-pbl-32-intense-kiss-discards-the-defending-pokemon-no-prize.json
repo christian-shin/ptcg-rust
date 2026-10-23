@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jynx PBL 32",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Jynx PBL 32",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jynx PBL 32",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Intense Kiss"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Chewtle SCR 43",
+    "Psychic Energy MEE 5"
+   ],
+   "cite": "card text: discard the Defending Pokémon and all attached cards; APR E-21"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "card text: a discard, not a Knock Out (APR D: Prize cards are taken for a Knock Out)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Eevee SCR 113",
+   "cite": "APR D (the empty Active Spot is filled from the Bench)"
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Grimer DRI 123",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Grimer DRI 123",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Grimer DRI 123",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Corrosive Sludge"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Chewtle SCR 43"
+   ],
+   "cite": "APR E-21 (Corrosive Sludge is its example of an end-of-turn effect)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "card text: a discard, not a Knock Out"
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jynx PBL 32",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Jynx PBL 32",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jynx PBL 32",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Intense Kiss"
+  },
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "card": "Chewtle SCR 43",
+   "in_play": true,
+   "cite": "id2404: neither the old Active nor the new Active is discarded"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "card": "Eevee SCR 113",
+   "in_play": true,
+   "cite": "id2404"
+  }
+ ]
+}

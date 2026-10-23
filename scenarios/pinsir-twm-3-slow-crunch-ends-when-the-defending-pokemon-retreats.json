@@ -1,0 +1,86 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ],
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pinsir TWM 3",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slow Crunch"
+  },
+  {
+   "a": "retreat"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "card": "Chewtle SCR 43",
+   "in_play": true,
+   "cite": "id1981: evolving or moving to the Bench removes all attack effects"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Eevee SCR 113",
+   "cite": "id1981 (the new Active Pokémon isn't Knocked Out either)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "id1981"
+  }
+ ]
+}

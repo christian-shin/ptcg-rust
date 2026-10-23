@@ -1,0 +1,12 @@
+Pinsir
+- Grass - 110 HP
+Pokémon
+- Basic
+GC
+Slow Crunch
+Discard all Energy from this Pokémon. At the end of your opponent's next turn, the Defending Pokémon will be Knocked Out.
+GCC
+Superpowered Horns 100
+Weakness: Fire
+Resistance: none
+Retreat: 2

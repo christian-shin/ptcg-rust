@@ -6278,5 +6278,25 @@
   "name": "Octillery",
   "text": "Octillery\n- Water - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nRemoraid\nW\nJet of Ink 30\nDuring your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips 2 coins. If either of them is tails, that attack doesn't happen.\nWC\nTantrum 120\nThis Pokémon is now Confused.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
   "url": "https://limitlesstcg.com/cards/CRI/17"
+ },
+ "TWM 3": {
+  "name": "Pinsir",
+  "text": "Pinsir\n- Grass - 110 HP\nPokémon\n- Basic\nGC\nSlow Crunch\nDiscard all Energy from this Pokémon. At the end of your opponent's next turn, the Defending Pokémon will be Knocked Out.\nGCC\nSuperpowered Horns 100\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/TWM/3"
+ },
+ "PBL 32": {
+  "name": "Jynx",
+  "text": "Jynx\n- Psychic - 100 HP\nPokémon\n- Basic\nP\nIntense Kiss\nAt the end of your opponent's next turn, discard the Defending Pokémon and all attached cards.\nPC\nPsy Bolt 50\nFlip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PBL/32"
+ },
+ "DRI 123": {
+  "name": "Team Rocket's Grimer",
+  "text": "Team Rocket's Grimer\n- Darkness - 80 HP\nPokémon\n- Basic\nDC\nCorrosive Sludge\nAt the end of your opponent's next turn, discard the Defending Pokémon and all attached cards.\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/DRI/123"
+ },
+ "TWM 54": {
+  "name": "Glaceon",
+  "text": "Glaceon\n- Water - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nEevee\nW\nPermeating Chill 30\nAt the end of your opponent's next turn, put 9 damage counters on the Defending Pokémon.\nWC\nIcicle Missile 70\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/TWM/54"
  }
 }

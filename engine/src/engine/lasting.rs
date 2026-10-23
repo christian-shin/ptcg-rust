@@ -9,6 +9,10 @@
 //! Timing (unchanged from the slot fields it replaces): an effect put during its attacker's turn is "pending" until the
 //! end of that turn, in force during the opponent's next turn, and gone at the end of it; a lock counts the turns of the
 //! locked player.
+//!
+//! "At the end of your opponent's next turn, ..." (`LastingWhat::AtTurnEnd`) has the same timing; at the end of the
+//! Pokémon's owner's next turn its steps run as one of that turn's end-of-turn effects ([`turn_end_effects`], collected with
+//! the cards' end-of-turn triggers by `spec::run`, ordered by `engine::order`'s E-21 window), then [`end_turn`] removes it.
 
 use crate::list::{CardId, CardList, SVec};
 use crate::state::{AttackRef, LastingEffect, LastingOn, LastingWhat, SlotId, State};
@@ -44,7 +48,7 @@ fn kind_of(w: &LastingWhat) -> Option<Kind> {
         LastingWhat::NoWeakness { .. } => Kind::NoWeakness,
         LastingWhat::NextTurnBonus { pending: true, .. } => Kind::BonusPending,
         LastingWhat::NextTurnBonus { pending: false, .. } => Kind::BonusArmed,
-        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => return None,
+        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::AtTurnEnd { .. } | LastingWhat::Recorded => return None,
     })
 }
 
@@ -190,6 +194,40 @@ pub fn armed_bonus(st: &State, p: usize, s: SlotId) -> Option<(&'static crate::s
         Some(LastingEffect { source, what: LastingWhat::NextTurnBonus { spec, attack, .. }, .. }) => Some((*spec, *source, *attack)),
         _ => None,
     }
+}
+
+/// An effect whose steps run at the end of a turn ("At the end of your opponent's next turn, ..."), as the end of the turn
+/// collects it: the Pokémon it is on, the card whose attack put it, the attack and which of its such effects, the player who
+/// used it, and the EndTurn event `e` (the program's effect).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TurnEndEffect {
+    pub on: crate::effects::SlotRef,
+    pub source: CardId,
+    pub attack: AttackRef,
+    pub n: u8,
+    pub attacker: u8,
+    pub e: crate::effects::EffId,
+}
+
+/// The armed end-of-turn effects on player `p`'s Pokémon (their steps run at the end of `p`'s turn), in the order they were
+/// put.
+pub fn turn_end_effects(st: &State, p: usize, e: crate::effects::EffId) -> SVec<TurnEndEffect, 8> {
+    let mut out = SVec::new();
+    for l in st.lasting.iter() {
+        if let (LastingOn::Pokemon(q, s), LastingWhat::AtTurnEnd { attack, n, attacker, pending: false }) = (l.on, l.what) {
+            if q as usize == p && out.len() < out.capacity() {
+                out.push(TurnEndEffect { on: crate::effects::SlotRef::new(p, s), source: l.source, attack, n, attacker, e });
+            }
+        }
+    }
+    out
+}
+
+/// Is the end-of-turn effect `t` still on its Pokémon (an earlier effect of the same end of the turn may have removed the
+/// Pokémon or its effects)?
+pub fn turn_end_in_force(st: &State, t: &TurnEndEffect) -> bool {
+    let on = LastingOn::pokemon(t.on.p as usize, t.on.s);
+    st.lasting.iter().any(|l| l.on == on && l.source == t.source && matches!(l.what, LastingWhat::AtTurnEnd { attack, n, pending: false, .. } if attack == t.attack && n == t.n))
 }
 
 /// The locks on the Pokémon in spot `s` of player `p`, in the order they were put.
@@ -412,6 +450,12 @@ pub fn set_no_weakness(st: &mut State, p: usize, s: SlotId, source: CardId) {
             *pending = true;
         }
     });
+}
+
+/// "At the end of your opponent's next turn, ..." put this turn by player `attacker`'s attack `attack` (its `n`-th such effect),
+/// pending. One entry per effect put: two put on one Pokémon both apply.
+pub fn set_at_turn_end(st: &mut State, p: usize, s: SlotId, attack: AttackRef, n: u8, attacker: u8, source: CardId) {
+    st.lasting_mut().push(LastingEffect { on: LastingOn::pokemon(p, s), source, what: LastingWhat::AtTurnEnd { attack, n, attacker, pending: true } });
 }
 
 /// The next-turn bonus armed this turn (pending) for `source`.
@@ -656,6 +700,21 @@ pub fn end_turn(st: &mut State, p: usize) {
             }
         }
     }
+    // "At the end of your opponent's next turn": the entries on `p`'s Pokémon whose steps ran at the end of this turn
+    // (`turn_end_effects`) are gone; those player `p`'s attacks put during this turn come into force.
+    st.lasting_mut().retain_mut(|l| {
+        let on = l.on;
+        match &mut l.what {
+            LastingWhat::AtTurnEnd { attacker, pending, .. } if *pending => {
+                if *attacker as usize == p {
+                    *pending = false;
+                }
+                true
+            }
+            LastingWhat::AtTurnEnd { .. } => !matches!(on, LastingOn::Pokemon(q, _) if q as usize == p),
+            _ => true,
+        }
+    });
     cost_increase_end_of_turn(st, p);
     // The locks on player `p` count this turn.
     let on = LastingOn::Player(p as u8);
@@ -753,5 +812,47 @@ mod declared_tests {
         assert_eq!(st.lasting.len(), 1, "evolving ends it");
         clear_spot(&mut st, 0, 2);
         assert!(st.lasting.is_empty(), "leaving play ends it");
+    }
+}
+
+#[cfg(test)]
+mod turn_end_tests {
+    //! The effects attacks put on a Pokémon to run at the end of its owner's next turn (`LastingWhat::AtTurnEnd`): their timing
+    //! and the order of several (APR E-21).
+    use super::*;
+
+    fn card(g: &crate::game::Game, name: &str) -> CardId {
+        (0..g.st.n_cards).find(|c| g.st.cdef(*c).full_name == name).unwrap()
+    }
+
+    /// Two distinct end-of-turn effects on the Pokémon of the player whose turn ends (Slow Crunch's Knock Out and Permeating
+    /// Chill's counters) are ordered by that player (APR E-21: "If several such effects are active at the same time, the player
+    /// whose turn is ending decides in which order to apply those effects"); both apply, then the Knock Out at the state check.
+    #[test]
+    fn two_end_of_turn_effects_are_ordered_by_the_player_whose_turn_ends() {
+        let sc = serde_json::json!({"me": {"reset": true, "active": "Pinsir TWM 3"}, "opp": {"reset": true, "active": "Snorlax POR 63", "bench": [{"card": "Snorlax POR 63"}]}});
+        let mut g = crate::place::tests::game_of(&[("Pinsir TWM 3", 4), ("Glaceon TWM 54", 4), ("Eevee SCR 113", 4), ("Snorlax POR 63", 4)], sc);
+        let me = g.st.active_player as usize;
+        let opp = 1 - me;
+        let (pinsir, glaceon) = (card(&g, "Pinsir TWM 3"), card(&g, "Glaceon TWM 54"));
+        let s = g.st.players[opp].active;
+        let snorlax = g.st.slot_pokemon(opp, s).unwrap();
+        set_at_turn_end(&mut g.st, opp, s, AttackRef { card: pinsir, index: 0 }, 0, me as u8, pinsir);
+        set_at_turn_end(&mut g.st, opp, s, AttackRef { card: glaceon, index: 0 }, 0, me as u8, glaceon);
+        assert!(turn_end_effects(&g.st, opp, 0).is_empty(), "pending during the attacker's turn");
+        end_turn(&mut g.st, opp);
+        assert!(turn_end_effects(&g.st, opp, 0).is_empty(), "the end of the other player's turn arms nothing");
+        end_turn(&mut g.st, me);
+        assert_eq!(turn_end_effects(&g.st, opp, 0).len(), 2, "armed at the end of the attacker's turn");
+        crate::engine::phase::end_turn_event(&mut g, opp).unwrap();
+        let last = g.prompts.len() - 1;
+        let sel = g.prompt_select(last);
+        assert_eq!(sel.context, crate::interface::SelectContext::SkillOrder);
+        assert_eq!(g.prompts.as_slice()[last].player as usize, opp, "the player whose turn is ending orders them");
+        assert_eq!(sel.options.iter().map(|o| o.source).collect::<Vec<_>>(), vec![Some(pinsir), Some(glaceon)]);
+        // Permeating Chill first: the counters, then Slow Crunch's Knock Out; Snorlax is Knocked Out at the state check.
+        g.resolve(last, crate::prompts::Res::Int(1)).unwrap();
+        assert!(g.st.players[opp].discard().contains(snorlax), "Knocked Out after both effects");
+        assert!(!g.st.lasting.iter().any(|l| matches!(l.what, LastingWhat::AtTurnEnd { .. })), "gone with the Pokémon");
     }
 }

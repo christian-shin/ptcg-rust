@@ -469,7 +469,7 @@ impl Game {
         for l in self.st.lasting.iter() {
             name(l.source);
             match l.what {
-                LastingWhat::Lock { attack: Some(a), .. } | LastingWhat::Retaliate { attack: a, .. } | LastingWhat::AttachTrap { attack: a, .. } | LastingWhat::DiscardAttackerEnergy { attack: a, .. } | LastingWhat::NextTurnBonus { attack: a, .. } => name(a.card),
+                LastingWhat::Lock { attack: Some(a), .. } | LastingWhat::Retaliate { attack: a, .. } | LastingWhat::AttachTrap { attack: a, .. } | LastingWhat::DiscardAttackerEnergy { attack: a, .. } | LastingWhat::NextTurnBonus { attack: a, .. } | LastingWhat::AtTurnEnd { attack: a, .. } => name(a.card),
                 LastingWhat::Spawn { cause, .. } => Cause::unpack(cause).card.into_iter().for_each(&mut name),
                 _ => {}
             }

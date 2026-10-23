@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Glaceon TWM 54",
+   "4 Eevee SCR 113",
+   "4 Snorlax POR 63",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Glaceon TWM 54",
+   "4 Eevee SCR 113",
+   "4 Snorlax POR 63",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee SCR 113",
+   "Glaceon TWM 54"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorlax POR 63",
+  "active_damage": 50,
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Permeating Chill"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Snorlax POR 63"
+   ],
+   "cite": "card text: 50 + 30 + 90 reaches Snorlax's 160 HP; the state check after the end-of-turn effects Knocks it Out (id1944)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "APR D"
+  }
+ ]
+}

@@ -13,7 +13,8 @@
 //! - E-03 the effects activated by a Pokémon being damaged by an attack, after the attack's damage and effects: the player
 //!   of the damaged Pokémon;
 //! - E-04 the effects activated by Knock Outs, step 2 of the Knock Out process: the player whose turn is being played;
-//! - E-21 the effects at the end of a turn: the player whose turn is ending;
+//! - E-21 the effects at the end of a turn: the player whose turn is ending (the cards' end-of-turn triggers and the effects
+//!   attacks put on that player's Pokémon to run then, `Item::TurnEnd`);
 //! - F, Pokémon Checkup step 2: the player whose turn would be next, who also decides for each effect whether it comes
 //!   before or after checking all Special Conditions (a pseudo item of the same prompt);
 //! - the effects activated by Pokémon an effect puts into play ("whenever a player puts a Pokémon onto their Bench"), after
@@ -53,6 +54,9 @@ pub enum Item {
     /// Trigger `i` of card `c` over the event `e`, held until the Trainer card whose effect made the event is done
     /// (`TableRules::evolving_trainer_discarded_before_evolve_triggers`); the event is retained until it fires.
     Held(Timed),
+    /// An effect an attack put on the Pokémon of the player whose turn is ending, to run now ("At the end of your opponent's
+    /// next turn, ...": `engine::lasting::TurnEndEffect`; APR E-21).
+    TurnEnd(crate::engine::lasting::TurnEndEffect),
 }
 
 /// A trigger over the EnterPlay of a Pokémon an effect put into play: the card and its trigger, the program's player, and the
@@ -205,6 +209,8 @@ fn same_item(g: &Game, a: &Item, b: &Item) -> bool {
         (Item::Retaliation(a), Item::Retaliation(b)) => def_of(g, a.lasting.source) == def_of(g, b.lasting.source) && a.target.p == b.target.p,
         (Item::LastingKo { e: a }, Item::LastingKo { e: b }) => matches!((*g.e(*a), *g.e(*b)), (Effect::KnockOut { p: x, .. }, Effect::KnockOut { p: y, .. }) if x == y),
         (Item::Entered(a), Item::Entered(b)) => a.i == b.i && a.p == b.p && def_of(g, a.c) == def_of(g, b.c),
+        // The same text of the same attack on the same Pokémon.
+        (Item::TurnEnd(a), Item::TurnEnd(b)) => a.on == b.on && a.n == b.n && a.attack.idx() == b.attack.idx() && def_of(g, a.attack.card) == def_of(g, b.attack.card),
         _ => false,
     }
 }
@@ -217,6 +223,7 @@ fn source_card(g: &Game, item: &Item) -> Option<CardId> {
         Item::Retaliation(t) => Some(t.lasting.source),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_source(g, e),
         Item::Entered(t) => Some(t.c),
+        Item::TurnEnd(t) => Some(t.source),
     }
 }
 
@@ -229,6 +236,7 @@ fn fire(g: &mut Game, item: Item) -> R {
         Item::Retaliation(t) => crate::engine::damage::retaliate(g, &t),
         Item::LastingKo { e } => crate::engine::knockout::lasting_ko_trigger(g, e),
         Item::Entered(t) => run::fire_entered(g, &t),
+        Item::TurnEnd(t) => run::fire_turn_end(g, &t),
     }
 }
 

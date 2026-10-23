@@ -738,6 +738,11 @@ pub enum LastingWhat {
     /// C-15). The declaration number `index` of the source card, until `until`. Read where its modifier is read for a card in
     /// place (`passive::declared_effects`); the card that put it needn't be in play any more.
     Declared { index: u8, until: Until },
+    /// "At the end of your opponent's next turn, ..." on the Defending Pokémon (`Lasting::AtEndOfOpponentsNextTurn`): the
+    /// steps are the `n`-th such effect of the attack `attack` (the attack's text: a copied attack's is the source card's,
+    /// run for the copycat, the entry's source); used by player `attacker`. Pending during the attacker's turn; armed at its
+    /// end; its steps run at the end of the Pokémon's owner's next turn (APR E-21), then it is gone.
+    AtTurnEnd { attack: AttackRef, n: u8, attacker: u8, pending: bool },
     /// A record of the source card on the Pokémon ("that Pokémon": Boomerang Energy's, Heavy Baton's; `Op::Record`): it stays
     /// when the Pokémon moves to the Bench and ends when it evolves, is devolved or leaves play, or when a card's text forgets it
     /// (`Op::Forget`).
@@ -751,7 +756,7 @@ impl LastingWhat {
     /// Nothing in force nor pending: the entry is removed.
     pub fn is_spent(&self) -> bool {
         match *self {
-            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::AttachTrap { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::Recorded => false,
+            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::AttachTrap { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } | LastingWhat::AtTurnEnd { .. } | LastingWhat::Recorded => false,
             LastingWhat::TakesLessDamage(n, _) | LastingWhat::DealsLessDamage(n) => n == 0,
             LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
             LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),
