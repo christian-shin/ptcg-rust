@@ -114,6 +114,12 @@ impl Game {
                         o.insert("noWeakness".into(), json!(armed));
                         o.insert("pending".into(), json!(pending));
                     }
+                    LastingWhat::AtTurnEnd { attack: a, n, attacker, pending } => {
+                        o.insert("atTurnEnd".into(), json!(n));
+                        o.insert("attack".into(), attack(a));
+                        o.insert("attacker".into(), player(attacker));
+                        o.insert("pending".into(), json!(pending));
+                    }
                     LastingWhat::NextTurnBonus { spec, attack: a, pending } => {
                         o.insert("nextTurnBonus".into(), json!(spec.change.amount()));
                         o.insert("attack".into(), attack(a));

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Glaceon TWM 54",
+   "4 Eevee SCR 113",
+   "4 Snorlax POR 63",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Glaceon TWM 54",
+   "4 Eevee SCR 113",
+   "4 Snorlax POR 63",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee SCR 113",
+   "Glaceon TWM 54"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorlax POR 63",
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Permeating Chill"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Snorlax POR 63",
+   "damage": 30,
+   "cite": "card text (30 damage now)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Snorlax POR 63",
+   "damage": 120,
+   "cite": "card text: 9 damage counters at the end of the opponent's next turn (APR E-21)"
+  }
+ ]
+}

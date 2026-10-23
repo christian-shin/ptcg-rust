@@ -45,6 +45,10 @@ pub(crate) enum Prog {
     Trigger(u8),
     /// `spec.use_stadium`.
     UseStadium,
+    /// The steps of the `n`-th "at the end of your opponent's next turn" effect (`Lasting::AtEndOfOpponentsNextTurn`) of the
+    /// attack `attack` (its printed index on the card whose text it is: a copied attack's is the source card's), run at the
+    /// end of a turn for the card that used the attack (`engine::lasting::TurnEndEffect`).
+    TurnEnd { attack: crate::state::AttackRef, n: u8 },
 }
 
 /// Which top-level steps a run executes.
@@ -220,6 +224,8 @@ impl Frame {
             Prog::Power(i) => 0x200 | i as u32,
             Prog::Trigger(i) => 0x300 | i as u32,
             Prog::UseStadium => 0x400,
+            // Bit 15, then n (3 bits), the attack's printed index (4 bits) and its card.
+            Prog::TurnEnd { attack, n } => 0x8000 | (n as u32 & 7) << 12 | (attack.idx() as u32 & 0xF) << 8 | attack.card as u32,
         }
     }
 
@@ -255,6 +261,7 @@ impl Frame {
         let a0 = f.a[0] as u32;
         let code = a0 & 0xFFFF;
         let prog = match code >> 8 {
+            _ if code & 0x8000 != 0 => Prog::TurnEnd { attack: crate::state::AttackRef { card: (code & 0xFF) as u8, index: ((code >> 8) & 0xF) as u8 }, n: ((code >> 12) & 7) as u8 },
             0 => Prog::Attack((code & 0xFF) as u8),
             1 => Prog::Play,
             2 => Prog::Power((code & 0xFF) as u8),
@@ -414,24 +421,59 @@ fn spec_of(g: &Game, me: CardId) -> &'static CardSpec {
     crate::cards::spec_for(g.st.cards[card as usize].def).expect("spec card without a spec")
 }
 
-fn program(spec: &'static CardSpec, prog: Prog) -> &'static [Step] {
-    match prog {
-        Prog::Attack(i) => spec.attacks[i as usize].steps,
-        Prog::Play => spec.play.as_ref().map(|p| p.steps).unwrap_or(&[]),
-        Prog::Power(i) => spec.powers[i as usize].steps,
-        Prog::Trigger(i) => spec.triggers[i as usize].steps,
-        Prog::UseStadium => spec.use_stadium.as_ref().map(|p| p.steps).unwrap_or(&[]),
+/// The steps of the program the frame runs (of the card `me`, or of the card whose attack `me` copies; an end-of-turn
+/// effect's, of the attack that put it).
+pub(crate) fn program_steps(g: &Game, me: CardId, f: &Frame) -> &'static [Step] {
+    match f.prog {
+        Prog::Attack(i) => spec_of(g, me).attacks[i as usize].steps,
+        Prog::Play => spec_of(g, me).play.as_ref().map(|p| p.steps).unwrap_or(&[]),
+        Prog::Power(i) => spec_of(g, me).powers[i as usize].steps,
+        Prog::Trigger(i) => spec_of(g, me).triggers[i as usize].steps,
+        Prog::UseStadium => spec_of(g, me).use_stadium.as_ref().map(|p| p.steps).unwrap_or(&[]),
+        Prog::TurnEnd { attack, n } => turn_end_steps(&g.st, attack, n),
     }
 }
 
-/// The steps of the program the frame runs (of the card `me`, or of the card whose attack `me` copies).
-pub(crate) fn program_steps(g: &Game, me: CardId, f: &Frame) -> &'static [Step] {
-    program(spec_of(g, me), f.prog)
+/// The printed text of the attack `attack` (of the card whose text it is), as its spec's steps.
+fn attack_steps(st: &crate::state::State, attack: crate::state::AttackRef) -> &'static [Step] {
+    crate::cards::spec_for(st.cards[attack.card as usize].def).and_then(|s| s.attacks.iter().find(|a| a.index as usize == attack.idx())).map_or(&[], |a| a.steps)
 }
 
-/// The list the frame's current level walks.
-fn list_at(spec: &'static CardSpec, f: &Frame) -> &'static [Step] {
-    let mut list = program(spec, f.prog);
+/// The "at the end of your opponent's next turn" effects of a list of steps, nested lists included, in printed order.
+fn turn_end_specs(steps: &'static [Step], out: &mut SVec<&'static super::ops::state::EndOfTurnSpec, 8>) {
+    for s in steps {
+        match &s.op {
+            Op::Arm(super::ops::state::ArmSpec { what: super::ops::state::Lasting::AtEndOfOpponentsNextTurn(t) })
+            | Op::ArmEach(super::ops::state::ArmEachSpec { what: super::ops::state::Lasting::AtEndOfOpponentsNextTurn(t), .. }) => {
+                assert!(out.len() < out.capacity(), "more than {} end-of-turn effects in one attack", out.capacity());
+                out.push(*t);
+            }
+            op => {
+                for sel in 0..super::ops::flow::child_count(op) {
+                    turn_end_specs(ops::child(op, sel), out);
+                }
+            }
+        }
+    }
+}
+
+/// Which of the attack's end-of-turn effects `spec` is (`Prog::TurnEnd::n`; `None` when the attack's text has no such one).
+pub(crate) fn turn_end_index(st: &crate::state::State, attack: crate::state::AttackRef, spec: &'static super::ops::state::EndOfTurnSpec) -> Option<u8> {
+    let mut all = SVec::new();
+    turn_end_specs(attack_steps(st, attack), &mut all);
+    all.iter().position(|t| std::ptr::eq(*t, spec)).map(|n| n as u8)
+}
+
+/// The steps of the attack's `n`-th end-of-turn effect.
+fn turn_end_steps(st: &crate::state::State, attack: crate::state::AttackRef, n: u8) -> &'static [Step] {
+    let mut all = SVec::new();
+    turn_end_specs(attack_steps(st, attack), &mut all);
+    all.as_slice().get(n as usize).map_or(&[], |t| t.steps)
+}
+
+/// The list the frame's current level walks, in the program `root`.
+fn list_at(root: &'static [Step], f: &Frame) -> &'static [Step] {
+    let mut list = root;
     for level in 1..=f.depth as usize {
         let parent = &list[(f.path[level - 1] & INDEX_MASK) as usize];
         list = ops::child(&parent.op, f.path[level] >> SEL_SHIFT);
@@ -463,6 +505,9 @@ pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, v
         Prog::Power(i) => power_cause(g, me, i, p),
         Prog::UseStadium => Cause::new(CauseKind::Stadium, Some(me), p),
         Prog::Trigger(i) => trigger_cause(g, me, &spec_of(g, me).triggers[i as usize], eff),
+        // The effect the attack put on the Pokémon, acting at the end of the turn (not an effect of an attack done to it now:
+        // id1121, id2341).
+        Prog::TurnEnd { attack, .. } => Cause { kind: CauseKind::LastingEffect, card: Some(me), player: p, attack: Some(attack) },
     }
 }
 
@@ -568,6 +613,15 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
     if kind == crate::effects::k::KNOCK_OUT {
         return Ok(());
     }
+    // The end-of-turn effects attacks put on the turn player's Pokémon are end-of-turn effects too (APR E-21).
+    if kind == crate::effects::k::END_TURN && !g.st.lasting.is_empty() {
+        if let Effect::EndTurn { p } = *g.e(e) {
+            let turn_end = crate::engine::lasting::turn_end_effects(&g.st, p as usize, e);
+            if !turn_end.is_empty() {
+                return end_of_turn_with_lasting(g, e, turn_end.as_slice());
+            }
+        }
+    }
     if !g.kinds_present.has(kind) {
         return Ok(());
     }
@@ -583,6 +637,68 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
         None => fire_on(g, e, kind, None)?,
     }
     Ok(())
+}
+
+/// The end of player `p`'s turn (the EndTurn event `e`) with effects attacks put on `p`'s Pokémon to run now ("At the end of
+/// your opponent's next turn, ...": `turn_end`): they and the cards' end-of-turn triggers are the end of the turn's effects,
+/// ordered by `p` when two or more distinct ones apply (APR E-21: "If several such effects are active at the same time, the
+/// player whose turn is ending decides in which order to apply those effects"); otherwise the cards' triggers fire as at any
+/// end of the turn, then these effects in the order they were put.
+fn end_of_turn_with_lasting(g: &mut Game, e: EffId, turn_end: &[crate::engine::lasting::TurnEndEffect]) -> R {
+    let kind = crate::effects::k::END_TURN;
+    let mut items: SVec<(order::Item, bool), 32> = SVec::new();
+    if g.kinds_present.has(kind) {
+        for (t, x) in timed_triggers(g, e, kind)?.iter() {
+            items.push((order::Item::Card(*t), *x));
+        }
+    }
+    for t in turn_end {
+        assert!(items.len() < items.capacity(), "more than {} end-of-turn effects", items.capacity());
+        items.push((order::Item::TurnEnd(*t), turn_end_applies(g, t)));
+    }
+    if order::asks(g, items.as_slice()) {
+        let Effect::EndTurn { p } = *g.e(e) else { return Ok(()) };
+        g.retain_fx(e);
+        order::open(g, order::Window::EndTurn { p, e }, items.as_slice())?;
+        g.order_pending = true;
+        return Ok(());
+    }
+    if g.kinds_present.has(kind) {
+        fire_on(g, e, kind, None)?;
+    }
+    for t in turn_end {
+        fire_turn_end(g, t)?;
+    }
+    Ok(())
+}
+
+/// The program of the end-of-turn effect `t`: the attack's steps for that effect, for the card that used the attack, by the
+/// attack's user, with "the Defending Pokémon" (`SlotExpr::Picked`) the Pokémon the effect is on.
+fn turn_end_frame(g: &Game, t: &crate::engine::lasting::TurnEndEffect) -> Frame {
+    // The attack's printed index (a copied attack's copy marks aside: the frame carries only what it encodes).
+    let attack = crate::state::AttackRef { card: t.attack.card, index: t.attack.idx() as u8 };
+    let mut f = Frame::start(g, t.source, Prog::TurnEnd { attack, n: t.n }, Phase::Use, t.e, t.attacker as usize, false);
+    f.slot = t.on.p << 4 | t.on.s;
+    f
+}
+
+/// Does the end-of-turn effect `t` apply now: it is still on its Pokémon and its steps can change the game (`applies`)?
+pub(crate) fn turn_end_applies(g: &Game, t: &crate::engine::lasting::TurnEndEffect) -> bool {
+    if !crate::engine::lasting::turn_end_in_force(&g.st, t) {
+        return false;
+    }
+    let f = turn_end_frame(g, t);
+    applies(g, t.source, &f, program_steps(g, t.source, &f))
+}
+
+/// Run the steps of the end-of-turn effect `t`, if it is still on its Pokémon (an earlier effect of this end of the turn may
+/// have removed the Pokémon or its effects).
+pub(crate) fn fire_turn_end(g: &mut Game, t: &crate::engine::lasting::TurnEndEffect) -> R {
+    if !crate::engine::lasting::turn_end_in_force(&g.st, t) {
+        return Ok(());
+    }
+    let f = turn_end_frame(g, t);
+    run(g, t.source, f)
 }
 
 /// A trigger about to fire at the end of a turn or at Pokémon Checkup: its card, its index, its player and spot, and the
@@ -1221,8 +1337,7 @@ pub(crate) fn attack_can_do_something(g: &Game, p: usize, attacking: crate::effe
 /// `CardImpl::resume` of every spec card.
 pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };
-    let spec = spec_of(g, me);
-    let op = &list_at(spec, &f)[f.index()].op;
+    let op = &list_at(program_steps(g, me, &f), &f)[f.index()].op;
     let flow = if f.sub == COIN_SEQUENCE {
         // A finished coin sequence: the core passes the results (bit i = flip i was heads) and
         // the flip count; the frame is as the op left it.
@@ -1238,8 +1353,7 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
 /// `CardImpl::coin` of every spec card: the result of a single flip.
 pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
     let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };
-    let spec = spec_of(g, me);
-    let op = &list_at(spec, &f)[f.index()].op;
+    let op = &list_at(program_steps(g, me, &f), &f)[f.index()].op;
     let flow = ops::coin_result(g, me, &mut f, op, heads)?;
     proceed(g, me, f, flow)
 }
@@ -1254,9 +1368,9 @@ fn proceed(g: &mut Game, me: CardId, mut f: Frame, flow: Flow) -> R {
 }
 
 fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
-    let spec = spec_of(g, me);
+    let root = program_steps(g, me, &f);
     loop {
-        let list = list_at(spec, &f);
+        let list = list_at(root, &f);
         let i = f.index();
         if i >= list.len() {
             if f.depth > 0 {
@@ -1264,7 +1378,7 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 let d = f.depth as usize;
                 let mut parent_frame = f;
                 parent_frame.depth -= 1;
-                let parent = &list_at(spec, &parent_frame)[parent_frame.index()].op;
+                let parent = &list_at(root, &parent_frame)[parent_frame.index()].op;
                 f.iter[d - 1] += 1;
                 if ops::again(g, me, &mut f, parent) {
                     f.path[d] &= !INDEX_MASK;

@@ -43,7 +43,9 @@ pub enum SlotExpr {
     /// The Pokémon this card is (or is attached to).
     This,
     Active(Who),
-    /// The Pokémon the last `PickSlot` chose (none when there was nothing to pick).
+    /// The Pokémon the last `PickSlot` chose (none when there was nothing to pick); in a trigger's program the Pokémon the
+    /// event is about; in an end-of-turn effect's program (`Lasting::AtEndOfOpponentsNextTurn`) the Pokémon the effect is on
+    /// ("the Defending Pokémon").
     Picked,
     /// The Pokémon the program's last attachment went to (none when nothing was attached).
     Attached,

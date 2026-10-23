@@ -1186,3 +1186,7 @@ Perrin TWM 160	Perrin
 Team Rocket's Hypnotizer ASC 206	TeamRocketsHypnotizer
 Tremendous Bomb PBL 82	TremendousBomb
 Treasure Tracker PRE 131	TreasureTracker
+Pinsir TWM 3	PinsirTWM
+Jynx PBL 32	JynxPBL
+Team Rocket's Grimer DRI 123	TeamRocketsGrimer
+Glaceon TWM 54	GlaceonTWM

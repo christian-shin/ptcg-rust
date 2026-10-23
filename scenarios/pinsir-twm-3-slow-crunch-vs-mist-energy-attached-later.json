@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ],
+  [
+   "4 Pinsir TWM 3",
+   "4 Chewtle SCR 43",
+   "4 Eevee SCR 113",
+   "4 Glaceon TWM 54",
+   "1 Mist Energy TEF 161",
+   "43 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pinsir TWM 3",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chewtle SCR 43",
+  "hand": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Eevee SCR 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slow Crunch"
+  },
+  {
+   "a": "play",
+   "card": "Mist Energy TEF 161",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Chewtle SCR 43",
+    "Mist Energy TEF 161"
+   ],
+   "cite": "id1121 (a prevention of effects doesn't remove an existing effect: Pale Moon GX's Knock Out at the end of the turn still happens); id2341 (Mist Energy attached after the effect was applied doesn't remove it)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "id1121"
+  }
+ ]
+}

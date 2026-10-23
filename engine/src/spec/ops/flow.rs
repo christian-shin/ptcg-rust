@@ -458,6 +458,17 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     }
 }
 
+/// How many nested lists the op has (`child`'s selectors `0..child_count`).
+pub fn child_count(op: &Op) -> u8 {
+    match op {
+        Op::May(_) | Op::If(_) => 2,
+        Op::Choose(c) => c.options.len() as u8,
+        Op::ForEach(_) => 1,
+        Op::Coin(_) => 3,
+        _ => 0,
+    }
+}
+
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     if let Op::ForEach(fe) = op {
         let pass = f.pass() as usize;

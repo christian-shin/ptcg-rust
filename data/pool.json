@@ -12988,5 +12988,45 @@
   "key": "Treasure Tracker PRE 131",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "3",
+  "name": "Pinsir",
+  "type": "G Basic",
+  "reg": "H",
+  "key": "Pinsir TWM 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "32",
+  "name": "Jynx",
+  "type": "P Basic",
+  "reg": "J",
+  "key": "Jynx PBL 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "123",
+  "name": "Team Rocket's Grimer",
+  "type": "D Basic",
+  "reg": "I",
+  "key": "Team Rocket's Grimer DRI 123",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "54",
+  "name": "Glaceon",
+  "type": "W Stage 1",
+  "reg": "H",
+  "key": "Glaceon TWM 54",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

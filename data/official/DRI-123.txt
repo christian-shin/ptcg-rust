@@ -1,0 +1,10 @@
+Team Rocket's Grimer
+- Darkness - 80 HP
+Pokémon
+- Basic
+DC
+Corrosive Sludge
+At the end of your opponent's next turn, discard the Defending Pokémon and all attached cards.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

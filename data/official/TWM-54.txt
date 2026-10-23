@@ -1,0 +1,14 @@
+Glaceon
+- Water - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+W
+Permeating Chill 30
+At the end of your opponent's next turn, put 9 damage counters on the Defending Pokémon.
+WC
+Icicle Missile 70
+Weakness: Metal
+Resistance: none
+Retreat: 1

@@ -120,6 +120,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                     l::set_discard_attacker_energy(st, tp, ts, attack, p as u8, card)
                 }
             }
+            Lasting::AtEndOfOpponentsNextTurn(spec) => {
+                if let Some(attack) = attack {
+                    if let Some(n) = crate::spec::run::turn_end_index(st, attack, spec) {
+                        l::set_at_turn_end(st, tp, ts, attack, n, p as u8, card)
+                    }
+                }
+            }
             Lasting::IncreaseAttackCost => l::set_cost_increase(st, tp, ts, false, p as u8, card),
             Lasting::IncreaseRetreatCost => l::set_cost_increase(st, tp, ts, true, p as u8, card),
             Lasting::NoWeakness => l::set_no_weakness(st, tp, ts, card),
@@ -134,7 +141,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 pub fn target_of(g: &Game, p: usize, source: SlotRef, effect: Lasting) -> ApplyTarget {
     let o = 1 - p;
     match effect {
-        Lasting::Lock(LastingLockSpec { on: LockOn::DefendingPokemon, .. }) | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::CountersOnEnergyAttached(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
+        Lasting::Lock(LastingLockSpec { on: LockOn::DefendingPokemon, .. }) | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::CountersOnEnergyAttached(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost | Lasting::AtEndOfOpponentsNextTurn(_) => {
             ApplyTarget::Slot(SlotRef::new(o, g.st.players[o].active))
         }
         Lasting::Lock(LastingLockSpec { on: LockOn::ThisPokemon, .. }) => ApplyTarget::Slot(source),

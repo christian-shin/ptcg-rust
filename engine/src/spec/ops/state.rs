@@ -145,6 +145,41 @@ pub enum Lasting {
     /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
     /// the attacker's controller discards an Energy attached to the Attacking Pokémon (e.g. Little Grudge).
     DiscardAttackerEnergyIfKnockedOut,
+    /// "At the end of your opponent's next turn, [steps]" on the Defending Pokémon (e.g. "the Defending Pokémon will be
+    /// Knocked Out", "discard the Defending Pokémon and all attached cards", "put 9 damage counters on the Defending
+    /// Pokémon"). An effect on that Pokémon (APR C-15; id1981, id1982, id2404, id1746): it ends when the Pokémon moves to the
+    /// Bench, evolves or devolves, and stays when the attacking Pokémon leaves the Active Spot or play. Its steps run at the
+    /// end of the Pokémon's owner's next turn, one of the end-of-turn effects that player orders (APR E-21, whose example is
+    /// Corrosive Sludge), before Pokémon Checkup; a Knock Out they make waits for the state check after every end-of-turn
+    /// effect (id1944). A prevention of the effects of attacks keeps the effect off when the attack puts it (the ApplyEffect
+    /// event) and never stops it later (id1121, id2341: the steps' cause is `CauseKind::LastingEffect`). In the steps, "the
+    /// Defending Pokémon" is `SlotExpr::Picked` (the Pokémon the effect is on); their program player is the attack's user.
+    AtEndOfOpponentsNextTurn(&'static EndOfTurnSpec),
+}
+
+/// The steps of a lasting effect that run at the end of a turn (`Lasting::AtEndOfOpponentsNextTurn`). Found again, when they
+/// run, among the steps of the attack that put it (`spec::run::Prog::TurnEnd`); one is equal only to itself.
+pub struct EndOfTurnSpec {
+    pub steps: &'static [Step],
+}
+
+/// "At the end of your opponent's next turn, discard the Defending Pokémon and all attached cards": the Pokémon and every card
+/// attached to it leave play for its owner's discard pile (a LeavePlay, not a Knock Out: no Prize cards).
+pub static DISCARD_THE_DEFENDING_POKEMON: EndOfTurnSpec =
+    EndOfTurnSpec { steps: &[Step::new(Op::RemoveFromPlay(super::board::RemoveFromPlaySpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Opp, Zone::Discard), top: false }))] };
+
+impl PartialEq for EndOfTurnSpec {
+    fn eq(&self, other: &Self) -> bool {
+        std::ptr::eq(self, other)
+    }
+}
+
+impl Eq for EndOfTurnSpec {}
+
+impl std::fmt::Debug for EndOfTurnSpec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "EndOfTurnSpec({} steps)", self.steps.len())
+    }
 }
 
 /// A lock an attack leaves (`Lasting::Lock`): the declaration (what it forbids, a [`LockDecl`] as an in-play lock
