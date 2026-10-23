@@ -155,6 +155,7 @@ pub fn num(n: &Num) -> ReadSet {
         Num::DamageDone => ReadSet::st(COUNTERS),
         Num::PrizesLeft(_) | Num::PrizesTaken(_) => ReadSet::st(ZONES),
         Num::DamageOn(e) => ReadSet::st(COUNTERS).or(slot_expr(*e)),
+        Num::Conditions(e) => ReadSet::st(CONDITIONS).or(slot_expr(*e)),
         Num::Turn => ReadSet::st(TURN),
         Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num(a).or(num(b)),
         Num::If(c, a, b) => cond(c).or(num(a)).or(num(b)),

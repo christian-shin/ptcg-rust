@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Aegislash POR 58",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Aegislash POR 58",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Doublade POR 57",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "Mega Latias ex MEG 100",
+   "Mega Latias ex MEG 100"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Weaponized Swords"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 0,
+   "cite": "id2320: only cards named exactly Honedge, Doublade or Aegislash count"
+  }
+ ]
+}

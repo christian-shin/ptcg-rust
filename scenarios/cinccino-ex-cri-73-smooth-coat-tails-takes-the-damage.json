@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "14 Fighting Energy MEE 6",
+   "13 Fire Energy MEE 2",
+   "13 Water Energy MEE 3"
+  ],
+  [
+   "4 Cinccino ex CRI 73",
+   "4 Minccino CRI 72",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Arcanine DRI 28",
+   "14 Fighting Energy MEE 6",
+   "13 Fire Energy MEE 2",
+   "13 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Arcanine DRI 28",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Cinccino ex CRI 73"
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flare"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Cinccino ex CRI 73",
+   "damage": 50,
+   "cite": "card text: tails, the damage is done"
+  }
+ ]
+}

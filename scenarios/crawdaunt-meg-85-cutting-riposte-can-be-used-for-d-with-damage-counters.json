@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crawdaunt MEG 85",
+   "4 Corphish MEG 33",
+   "4 Mega Latias ex MEG 100",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Crawdaunt MEG 85",
+   "4 Corphish MEG 33",
+   "4 Mega Latias ex MEG 100",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Crawdaunt MEG 85",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "active_damage": 10
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cutting Riposte"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 130,
+   "cite": "card text: if this Pokemon has any damage counters on it, this attack can be used for [D] (1 Darkness Energy attached)"
+  }
+ ]
+}

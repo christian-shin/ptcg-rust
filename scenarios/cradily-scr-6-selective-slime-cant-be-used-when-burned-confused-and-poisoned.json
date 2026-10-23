@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cradily SCR 6",
+   "4 Lileep SCR 5",
+   "4 Mega Latias ex MEG 100",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Cradily SCR 6",
+   "4 Lileep SCR 5",
+   "4 Mega Latias ex MEG 100",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cradily SCR 6"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_conditions": [
+   "BURNED",
+   "CONFUSED",
+   "POISONED"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": false,
+   "cite": "id2014: Selective Slime can't be used if the opponent's Active Pokemon is already Burned, Confused, and Poisoned"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+Duosion
+- Psychic - 70 HP
+Pokémon
+- Stage 1
+- Evolves from
+Solosis
+C
+Cellular Evolution
+Search your deck for a card that evolves from 1 of your Pokémon and put it onto that Pokémon to evolve it. Then, shuffle your deck.
+C
+Spray Fluid 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

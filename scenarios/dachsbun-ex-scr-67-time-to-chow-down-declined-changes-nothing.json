@@ -1,0 +1,64 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Dachsbun ex SCR 67",
+   "4 Fidough SCR 66",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "20 Water Energy MEE 3",
+   "20 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dachsbun ex SCR 67",
+   "4 Fidough SCR 66",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "20 Water Energy MEE 3",
+   "20 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fidough SCR 66",
+  "active_damage": 20,
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Dachsbun ex SCR 67"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Dachsbun ex SCR 67",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  false,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Dachsbun ex SCR 67",
+   "damage": 20,
+   "energy": 1,
+   "cite": "card text: you may heal"
+  }
+ ]
+}

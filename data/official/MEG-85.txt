@@ -1,0 +1,14 @@
+Crawdaunt
+- Darkness - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Corphish
+C
+Vise Grip 30
+DDC
+Cutting Riposte 130
+If this Pokémon has any damage counters on it, this attack can be used for [ D ] .
+Weakness: Grass
+Resistance: none
+Retreat: 3

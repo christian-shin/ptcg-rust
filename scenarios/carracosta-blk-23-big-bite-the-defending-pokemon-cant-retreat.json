@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carracosta BLK 23",
+   "4 Tirtouga BLK 22",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Carracosta BLK 23",
+   "4 Tirtouga BLK 22",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Carracosta BLK 23",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "bench": [
+   {
+    "card": "Mega Latias ex MEG 100"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Big Bite"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 150,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokemon can't retreat"
+  }
+ ]
+}

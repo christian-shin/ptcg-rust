@@ -120,6 +120,9 @@ pub enum Num {
     /// The damage the attack in progress did to the opponent's Active Pokémon, as done (not capped by its HP: id462): "the same
     /// amount of damage you did to your opponent's Active Pokémon".
     DamageDone,
+    /// The Special Conditions affecting the Pokémon, counted one each ("for each Special Condition affecting your opponent's Active
+    /// Pokémon"): 0 for no Pokémon.
+    Conditions(SlotExpr),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -422,6 +425,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::OpenBench(w) => empty_bench_slots(g, f.who(*w)).len() as i32,
         Num::PrizesLeft(w) => g.st.players[f.who(*w)].prize_left() as i32,
         Num::DamageOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).damage).unwrap_or(0),
+        Num::Conditions(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).special_conditions.len() as i32).unwrap_or(0),
         Num::Turn => g.st.turn as i32,
         Num::Add(a, b) => num(g, me, f, a) + num(g, me, f, b),
         Num::Sub(a, b) => num(g, me, f, a) - num(g, me, f, b),

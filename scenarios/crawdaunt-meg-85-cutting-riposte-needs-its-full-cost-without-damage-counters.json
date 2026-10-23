@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crawdaunt MEG 85",
+   "4 Corphish MEG 33",
+   "4 Mega Latias ex MEG 100",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Crawdaunt MEG 85",
+   "4 Corphish MEG 33",
+   "4 Mega Latias ex MEG 100",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Crawdaunt MEG 85",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Cutting Riposte",
+   "is": false,
+   "cite": "card text: the cost is [D][D][C] without damage counters on this Pokemon"
+  }
+ ]
+}

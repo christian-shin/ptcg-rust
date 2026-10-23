@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dewgong PFL 22",
+   "4 Seel PFL 21",
+   "4 Archeops WHT 51",
+   "4 Aurorus POR 24",
+   "4 Arcanine DRI 28",
+   "4 Mega Latias ex MEG 100",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Dewgong PFL 22",
+   "4 Seel PFL 21",
+   "4 Archeops WHT 51",
+   "4 Aurorus POR 24",
+   "4 Arcanine DRI 28",
+   "4 Mega Latias ex MEG 100",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dewgong PFL 22",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "coins": [
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 140,
+   "cite": "card text: flip 2 coins, 70 damage for each heads"
+  }
+ ]
+}

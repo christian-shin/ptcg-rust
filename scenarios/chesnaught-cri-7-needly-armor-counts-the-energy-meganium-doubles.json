@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chesnaught CRI 7",
+   "4 Quilladin CRI 6",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Meganium MEG 10",
+   "20 Grass Energy MEE 1",
+   "20 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Chesnaught CRI 7",
+   "4 Quilladin CRI 6",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "4 Meganium MEG 10",
+   "20 Grass Energy MEE 1",
+   "20 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chesnaught CRI 7",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Meganium MEG 10"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Archeops WHT 51",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Rock Throw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Archeops WHT 51",
+   "damage": 120,
+   "cite": "JP FAQ Meganium MEG 10 / Chesnaught, id2347: Wild Growth makes 2 Basic Grass Energy count as 4, so 12 damage counters"
+  }
+ ]
+}

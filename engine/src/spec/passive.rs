@@ -3884,8 +3884,10 @@ mod prevent_marker_tests {
         // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
         // CW18: the Gain-Condition prevention of the five new Antique Fossils (Armor, Jaw, Plume, Sail, Skull), Plume Fossil's Plume
         // Protection (over Damage) and Sail Fossil's Protective Sail (over the cause).
-        // CW25: Bastiodon PBL 62's Ancient Bulwark (over the cause, guarded by the Bench).
-        assert_eq!(n, 64);
+        // CW25: Bastiodon PBL 62's Ancient Bulwark (over the cause, guarded by the Bench); Carracosta BLK 23's Mighty Shell (over damage
+        // and effects, by cause), Cetitan ex's Snow Camouflage (over the cause), Cinccino ex's Smooth Coat (coin), the Tera rule of
+        // Cinderace ex, Drednaw's Impervious Shell (over Damage).
+        assert_eq!(n, 69);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.

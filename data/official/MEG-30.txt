@@ -1,0 +1,14 @@
+Centiskorch
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Sizzlipede
+CC
+Coiling Crush 50
+Flip 2 coins. For each heads, discard an Energy from your opponent's Active Pokémon.
+RRCC
+Heat Crawler 140
+Weakness: Water
+Resistance: none
+Retreat: 3

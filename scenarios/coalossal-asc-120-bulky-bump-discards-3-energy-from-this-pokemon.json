@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Coalossal ASC 120",
+   "4 Rolycoly ASC 118",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "22 Fighting Energy MEE 6",
+   "22 Water Energy MEE 3"
+  ],
+  [
+   "4 Coalossal ASC 120",
+   "4 Rolycoly ASC 118",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "22 Fighting Energy MEE 6",
+   "22 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Coalossal ASC 120",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bulky Bump"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 220,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Coalossal ASC 120",
+   "energy": 2,
+   "cite": "card text: discard 3 Energy from this Pokemon (5 attached)"
+  }
+ ]
+}

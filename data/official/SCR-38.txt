@@ -1,0 +1,14 @@
+Carracosta
+- Water - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Tirtouga
+Ability:
+Primal Knowledge
+Attacks used by your Pokémon do 30 more damage to your opponent's Active Evolution Pokémon (before applying Weakness and Resistance) .
+WW
+Tidal Wave 150
+Weakness: Lightning
+Resistance: none
+Retreat: 3

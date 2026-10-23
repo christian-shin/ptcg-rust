@@ -13208,5 +13208,205 @@
   "key": "Camerupt ASC 28",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "38",
+  "name": "Carracosta",
+  "type": "W Stage 2",
+  "reg": "H",
+  "key": "Carracosta SCR 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "23",
+  "name": "Carracosta",
+  "type": "W Stage 2",
+  "reg": "I",
+  "key": "Carracosta BLK 23",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "30",
+  "name": "Centiskorch",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Centiskorch MEG 30",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "65",
+  "name": "Cetitan ex",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Cetitan ex DRI 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "7",
+  "name": "Chesnaught",
+  "type": "G Stage 2",
+  "reg": "J",
+  "key": "Chesnaught CRI 7",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "73",
+  "name": "Cinccino ex",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Cinccino ex CRI 73",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "28",
+  "name": "Cinderace ex",
+  "type": "R Stage 2",
+  "reg": "H",
+  "key": "Cinderace ex SCR 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "47",
+  "name": "Claydol",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Claydol CRI 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "120",
+  "name": "Coalossal",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Coalossal ASC 120",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "6",
+  "name": "Cradily",
+  "type": "G Stage 2",
+  "reg": "H",
+  "key": "Cradily SCR 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "85",
+  "name": "Crawdaunt",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Crawdaunt MEG 85",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "51",
+  "name": "Crobat",
+  "type": "D Stage 2",
+  "reg": "J",
+  "key": "Crobat CRI 51",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "67",
+  "name": "Dachsbun ex",
+  "type": "P Stage 1",
+  "reg": "H",
+  "key": "Dachsbun ex SCR 67",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SFA",
+  "number": "5",
+  "name": "Decidueye",
+  "type": "G Stage 2",
+  "reg": "H",
+  "key": "Decidueye SFA 5",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "13",
+  "name": "Delphox",
+  "type": "R Stage 2",
+  "reg": "J",
+  "key": "Delphox CRI 13",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "22",
+  "name": "Dewgong",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Dewgong PFL 22",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "19",
+  "name": "Dewgong",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Dewgong POR 19",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "57",
+  "name": "Doublade",
+  "type": "M Stage 1",
+  "reg": "J",
+  "key": "Doublade POR 57",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "44",
+  "name": "Drednaw",
+  "type": "W Stage 1",
+  "reg": "H",
+  "key": "Drednaw SCR 44",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "38",
+  "name": "Duosion",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Duosion BLK 38",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

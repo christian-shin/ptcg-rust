@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crobat CRI 51",
+   "4 Golbat CRI 50",
+   "4 Zubat CRI 49",
+   "4 Mega Latias ex MEG 100",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Crobat CRI 51",
+   "4 Golbat CRI 50",
+   "4 Zubat CRI 49",
+   "4 Mega Latias ex MEG 100",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Crobat CRI 51",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Poison Sound Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 80,
+   "cite": "card text: your opponent's Active Pokemon is now Confused and Poisoned",
+   "conditions": [
+    "CONFUSED",
+    "POISONED"
+   ]
+  }
+ ]
+}

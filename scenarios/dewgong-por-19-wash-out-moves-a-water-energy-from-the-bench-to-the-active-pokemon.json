@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dewgong POR 19",
+   "4 Seel POR 18",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Dewgong POR 19",
+   "4 Seel POR 18",
+   "4 Mega Latias ex MEG 100",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dewgong POR 19",
+  "bench": [
+   {
+    "card": "Mega Latias ex MEG 100",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Wash Out",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Dewgong POR 19",
+   "energy": 1,
+   "cite": "card text: move a [W] Energy from 1 of your Benched Pokemon to your Active Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Mega Latias ex MEG 100",
+   "energy": 1,
+   "cite": "card text"
+  }
+ ]
+}

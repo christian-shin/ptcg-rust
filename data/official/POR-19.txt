@@ -1,0 +1,14 @@
+Dewgong
+- Water - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Seel
+Ability:
+Wash Out
+As often as you like during your turn, you may use this Ability. Move a [ W ] Energy from 1 of your Benched Pokémon to your Active Pokémon.
+WW
+Wave Splash 60
+Weakness: Lightning
+Resistance: none
+Retreat: 2

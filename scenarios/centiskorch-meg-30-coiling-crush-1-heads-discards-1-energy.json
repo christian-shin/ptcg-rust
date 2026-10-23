@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Centiskorch MEG 30",
+   "4 Mega Latias ex MEG 100",
+   "26 Fire Energy MEE 2",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Centiskorch MEG 30",
+   "4 Mega Latias ex MEG 100",
+   "26 Fire Energy MEE 2",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Centiskorch MEG 30",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Coiling Crush"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 50,
+   "cite": "card text: flip 2 coins; for each heads, discard an Energy from your opponent's Active Pokemon",
+   "energy": 2
+  }
+ ]
+}

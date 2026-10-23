@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duosion BLK 38",
+   "4 Solosis BLK 37",
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Mega Latias ex MEG 100",
+   "20 Psychic Energy MEE 5",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Duosion BLK 38",
+   "4 Solosis BLK 37",
+   "4 Doublade POR 57",
+   "4 Honedge POR 56",
+   "4 Mega Latias ex MEG 100",
+   "20 Psychic Energy MEE 5",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duosion BLK 38",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Honedge POR 56"
+   }
+  ],
+  "deck_top": [
+   "Doublade POR 57"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cellular Evolution"
+  },
+  [
+   0
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Doublade POR 57",
+   "cite": "card text: search your deck for a card that evolves from 1 of your Pokemon and put it onto that Pokemon to evolve it (Honedge on the Bench becomes Doublade)"
+  }
+ ]
+}

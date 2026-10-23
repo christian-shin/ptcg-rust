@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cinderace ex SCR 28",
+   "4 Raboot SCR 147",
+   "4 Scorbunny SCR 26",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "4 Mega Kangaskhan ex MEG 104",
+   "36 Fire Energy MEE 2"
+  ],
+  [
+   "4 Cinderace ex SCR 28",
+   "4 Raboot SCR 147",
+   "4 Scorbunny SCR 26",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "4 Mega Kangaskhan ex MEG 104",
+   "36 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cinderace ex SCR 28",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flare Strike"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Kangaskhan ex MEG 104",
+   "damage": 280,
+   "cite": "card text"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Flare Strike",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't use Flare Strike; APR C-15"
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Coalossal ASC 120",
+   "4 Rolycoly ASC 118",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Coalossal ASC 120",
+   "4 Rolycoly ASC 118",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Heracross ex PFL 4",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Coalossal ASC 120",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "discard": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "bench": [
+   {
+    "card": "Mega Heracross ex PFL 4"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tar Cannon"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Mega Heracross ex PFL 4",
+   "damage": 0,
+   "cite": "card text: if you don't have 10 or more Basic [F] Energy cards in your discard pile, this attack does nothing"
+  }
+ ]
+}

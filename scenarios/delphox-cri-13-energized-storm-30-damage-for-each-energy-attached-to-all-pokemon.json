@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Delphox CRI 13",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Mega Latias ex MEG 100",
+    "energy": [
+     "Water Energy MEE 3"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Mega Latias ex MEG 100",
+    "energy": [
+     "Water Energy MEE 3",
+     "Water Energy MEE 3"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energized Storm"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 240,
+   "cite": "card text: 30 damage for each Energy attached to all Pokemon (2 + 1 mine, 3 + 2 theirs = 8)"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+Dewgong
+- Water - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Seel
+Ability:
+Thick Fat
+This Pokémon takes 30 less damage from attacks from your opponent's [ R ] or [ W ] Pokémon (after applying Weakness and Resistance) .
+WC
+Slam 70×
+Flip 2 coins. This attack does 70 damage for each heads.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

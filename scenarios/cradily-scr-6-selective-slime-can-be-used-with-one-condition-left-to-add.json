@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cradily SCR 6",
+   "4 Lileep SCR 5",
+   "4 Mega Latias ex MEG 100",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Cradily SCR 6",
+   "4 Lileep SCR 5",
+   "4 Mega Latias ex MEG 100",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cradily SCR 6"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_conditions": [
+   "BURNED",
+   "POISONED"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": true,
+   "cite": "id2014 (Confused would be new)"
+  }
+ ]
+}

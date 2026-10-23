@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Decidueye SFA 5",
+   "4 Dartrix SFA 4",
+   "4 Mega Latias ex MEG 100",
+   "24 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Decidueye SFA 5",
+   "4 Dartrix SFA 4",
+   "4 Mega Latias ex MEG 100",
+   "24 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Decidueye SFA 5",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Stock Up on Feathers"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 7,
+   "cite": "card text: draw cards until you have 7 cards in your hand (2 in hand)"
+  }
+ ]
+}

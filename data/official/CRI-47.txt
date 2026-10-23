@@ -1,0 +1,12 @@
+Claydol
+- Fighting - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Baltoy
+F
+Devolution Ray 50
+If your opponent's Active Pokémon is an evolved Pokémon, devolve it by putting the highest Stage Evolution card on it into your opponent's hand.
+Weakness: Grass
+Resistance: none
+Retreat: 2

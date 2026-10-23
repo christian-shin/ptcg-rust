@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Cetitan ex DRI 65",
+   "4 Cetoddle DRI 64",
+   "4 Mega Latias ex MEG 100",
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Full Metal Lab TEF 148",
+   "4 Boss's Orders PAL 172",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cetitan ex DRI 65",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "stadium": "Full Metal Lab TEF 148"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crushing Press"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Kangaskhan ex MEG 104",
+   "damage": 280,
+   "cite": "card text: you may discard a Stadium in play. If you do, this attack does 140 more damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Full Metal Lab TEF 148"
+   ],
+   "cite": "card text: the Stadium is discarded (to its owner's discard pile)"
+  }
+ ]
+}

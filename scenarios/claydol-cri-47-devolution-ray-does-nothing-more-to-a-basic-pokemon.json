@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Claydol CRI 47",
+   "4 Baltoy CRI 46",
+   "4 Seel PFL 21",
+   "4 Dewgong PFL 22",
+   "4 Mega Latias ex MEG 100",
+   "40 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Claydol CRI 47",
+   "4 Baltoy CRI 46",
+   "4 Seel PFL 21",
+   "4 Dewgong PFL 22",
+   "4 Mega Latias ex MEG 100",
+   "40 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Claydol CRI 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Devolution Ray"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 50,
+   "cite": "card text: if your opponent's Active Pokemon is an evolved Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text"
+  }
+ ]
+}

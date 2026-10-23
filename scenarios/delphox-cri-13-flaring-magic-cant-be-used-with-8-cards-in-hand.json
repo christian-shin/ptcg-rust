@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Delphox CRI 13",
+  "hand": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": false,
+   "cite": "id2343: with 8 or more cards in hand the Ability can't be used (after the discard nothing would be drawn)"
+  }
+ ]
+}

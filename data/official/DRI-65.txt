@@ -1,0 +1,15 @@
+Cetitan ex
+- Water - 300 HP
+Pokémon
+- Stage 1
+- Evolves from
+Cetoddle
+Ability:
+Snow Camouflage
+Whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pokémon.
+WWWC
+Crushing Press 140+
+You may discard a Stadium in play. If you do, this attack does 140 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 4

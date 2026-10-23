@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Delphox CRI 13",
+   "4 Braixen CRI 12",
+   "4 Mega Latias ex MEG 100",
+   "24 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Delphox CRI 13",
+  "hand": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Flaring Magic",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 7,
+   "cite": "card text: discard a Basic [R] Energy card from your hand in order to use this Ability. Draw cards until you have 7 cards in your hand (3 - 1 + 5)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text"
+  }
+ ]
+}

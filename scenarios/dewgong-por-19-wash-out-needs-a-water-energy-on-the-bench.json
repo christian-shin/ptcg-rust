@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dewgong POR 19",
+   "4 Seel POR 18",
+   "4 Mega Latias ex MEG 100",
+   "24 Water Energy MEE 3",
+   "24 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Dewgong POR 19",
+   "4 Seel POR 18",
+   "4 Mega Latias ex MEG 100",
+   "24 Water Energy MEE 3",
+   "24 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dewgong POR 19",
+  "bench": [
+   {
+    "card": "Mega Latias ex MEG 100",
+    "energy": [
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": false,
+   "cite": "card text: move a [W] Energy from 1 of your Benched Pokemon (only Fighting Energy there)"
+  }
+ ]
+}
