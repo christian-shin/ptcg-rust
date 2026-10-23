@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[Step::before_damage(Op::Damage(DamageSpec {
-                op: DamageOp::Set,
+                op: DamageOp::Nothing,
                 hp: Num::Lit(0),
                 when: Cond::Not(&Cond::All(&[Cond::InPlay(Who::Me, PlayScope::Bench, Pred::Name("Uxie")), Cond::InPlay(Who::Me, PlayScope::Bench, Pred::Name("Azelf"))])),
             }))],

@@ -7,6 +7,6 @@
  "me": {"reset": true, "active": "Lunatone ASC 105", "bench": [{"card": "Solrock ASC 106"}], "hand": ["3 Fighting Energy MEE 6"], "deck_left": 0},
  "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"},
  "expect": [
-  {"at": "start", "who": "me", "legal": "ability", "name": "Lunar Cycle", "is": false, "cite": "table rule ability_draw_or_search_offered_with_empty_deck (off, the rulings): APR A-02 step 1 (an Ability that would not change the game state can't be used); id2362 (you cannot simply discard cards for no effect): Draw 3 cards from an empty deck changes nothing"}
+  {"at": "start", "who": "me", "legal": "ability", "name": "Lunar Cycle", "is": false, "cite": "APR A-02 step 1 (an Ability that would not change the game state can't be used); id2362 (you cannot simply discard cards for no effect): Draw 3 cards from an empty deck changes nothing"}
  ]
 }
