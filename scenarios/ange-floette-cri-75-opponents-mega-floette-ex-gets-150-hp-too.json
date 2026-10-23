@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "stadium": "Ange Floette CRI 75",
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Floette ex CRI 35",
+  "active_damage": 300,
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "opp",
+   "slot": "active",
+   "hp_left": 100,
+   "cite": "card text: both yours and your opponent's"
+  }
+ ]
+}

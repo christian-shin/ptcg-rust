@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Nitro Fire Energy CRI 86",
+   "4 Ceruledge ex PRE 147",
+   "4 Snover MEG 35",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Nitro Fire Energy CRI 86",
+   "4 Ceruledge ex PRE 147",
+   "4 Snover MEG 35",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Ceruledge ex PRE 147",
+  "active_energy": [
+   "Nitro Fire Energy CRI 86",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Raging Amethyst"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "contains": [
+    "Nitro Fire Energy CRI 86"
+   ],
+   "cite": "card text: if this card is discarded by an effect of an attack used by the [R] Pok\u00e9mon this card is attached to, put this card into your hand after attack damage and effects"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text (Raging Amethyst): discard all Energy from this Pok\u00e9mon"
+  }
+ ]
+}

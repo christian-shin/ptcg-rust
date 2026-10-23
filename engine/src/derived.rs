@@ -876,12 +876,30 @@ pub fn keep_has_no_ability(g: &mut Game, k: u32, card: CardId, power_index: Opti
     }
 }
 
-/// The Special Conditions the Pokémon in `target` keeps when it evolves (APR A-05: it recovers from all of them, unless a
-/// card says otherwise). No declaration in the pool keeps one (batch 8 C3c: the CheckSpecialConditionRemoval effect had
-/// no handler); a card that does needs a modifier read here.
-pub fn preserved_conditions(g: &mut Game, p: usize, target: SlotRef) -> R<SVec<u8, 5>> {
-    let _ = (g, p, target);
-    Ok(SVec::new())
+/// The Special Conditions the Pokémon in `target` keeps when it evolves or devolves (APR A-05, C-13: it recovers from all of
+/// them, unless a card says otherwise): the `KeepConditions` declarations in place whose subject the Pokémon is, each unblocked
+/// (Dizzying Valley: Confusion), as `SpecialCondition` numbers.
+pub fn preserved_conditions(g: &mut Game, target: SlotRef) -> R<SVec<u8, 5>> {
+    use crate::spec::passive::{self, Modifier};
+    let mut keep: SVec<u8, 5> = SVec::new();
+    if g.decls.sets[crate::decl::fam::KEEP_CONDITIONS] == 0 || g.st.slot(target.p as usize, target.s).special_conditions.is_empty() {
+        return Ok(keep);
+    }
+    for c in crate::decl::in_place(g, crate::decl::fam::KEEP_CONDITIONS, 0).iter().copied() {
+        for ps in crate::decl::passives(g, c) {
+            let Modifier::KeepConditions(k) = &ps.modifier else { continue };
+            if passive::blocked(g, c, ps.origin) || !crate::spec::value::slot_pred_m(g, c, target, &k.subject)? {
+                continue;
+            }
+            for cond in k.conds {
+                let n = *cond as u8;
+                if !keep.contains(&n) {
+                    keep.push(n);
+                }
+            }
+        }
+    }
+    Ok(keep)
 }
 
 /// The lock that forbids an event, if any (`passive::event_locked`): the one query the event's routine asks before the

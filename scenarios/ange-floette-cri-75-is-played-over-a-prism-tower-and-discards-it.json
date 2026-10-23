@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Ange Floette CRI 75"
+  ],
+  "stadium": "Prism Tower CRI 80",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Ange Floette CRI 75"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Ange Floette CRI 75",
+   "cite": "card text: you can put this card into play only if you discard a Prism Tower in play"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Prism Tower CRI 80"
+   ],
+   "cite": "card text: the Prism Tower is discarded (APR B-04 the Stadium in play is replaced)"
+  }
+ ]
+}

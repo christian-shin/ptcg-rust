@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Skull Fossil PBL 73",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Antique Skull Fossil PBL 73",
+   "4 Pikachu ex PRE 28",
+   "4 Snover MEG 35",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Pikachu ex PRE 28",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Antique Skull Fossil PBL 73",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tail Whap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: if this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon, place 3 damage counters on the Attacking Pok\u00e9mon"
+  }
+ ]
+}

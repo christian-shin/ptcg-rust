@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Core Memory POR 70",
+   "4 Mega Zygarde ex POR 47",
+   "4 Snover MEG 35",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Core Memory POR 70",
+   "4 Mega Zygarde ex POR 47",
+   "4 Snover MEG 35",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "active_tool": "Core Memory POR 70",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Geobuster",
+   "is": false,
+   "cite": "card text: you still need the necessary Energy to use this attack ([F][F][F][F])"
+  }
+ ]
+}

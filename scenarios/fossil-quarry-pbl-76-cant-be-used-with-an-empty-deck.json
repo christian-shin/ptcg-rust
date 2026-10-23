@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "stadium": "Fossil Quarry PBL 76",
+  "deck_left": 0,
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "id840: an empty deck can't be searched"
+  }
+ ]
+}

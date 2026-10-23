@@ -87,7 +87,9 @@ pub mod fam {
     /// `AttackFlags` with `first_turn` ("if you go first, this Pokémon can attack during your first turn": the UseAttack's
     /// checks read it).
     pub const FIRST_TURN: usize = 13;
-    pub const N: usize = 14;
+    /// `KeepConditions` (read where a Pokémon evolves or devolves: Dizzying Valley).
+    pub const KEEP_CONDITIONS: usize = 14;
+    pub const N: usize = 15;
 }
 
 /// The family a passive's modifier is read in, if it is one of the index's.
@@ -103,6 +105,7 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::Prevent(p) if matches!(p.what, crate::spec::passive::PreventWhat::ToolEffects) => fam::TOOLS_OFF,
         Modifier::Prevent(p) if crate::spec::passive::prevention_recovers(p) => fam::TABLE_STATE,
         Modifier::BenchSize(_) | Modifier::Recover(_) | Modifier::AttachGuard(_) => fam::TABLE_STATE,
+        Modifier::KeepConditions(_) => fam::KEEP_CONDITIONS,
         Modifier::PrizeAdjust(_) => fam::PRIZE,
         Modifier::DamageDealt(d) if matches!(d.stage, crate::spec::passive::DamageStage::Deal) => fam::DAMAGE_DEALT,
         Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => fam::DAMAGE_TAKEN,

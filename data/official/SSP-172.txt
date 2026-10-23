@@ -1,0 +1,4 @@
+Dragon Elixir
+Trainer
+- Item
+Heal 60 damage from your Active [ N ] Pokémon.

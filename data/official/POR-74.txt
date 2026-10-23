@@ -1,0 +1,4 @@
+Hole-Digging Shovel
+Trainer
+- Item
+Discard the top 2 cards of your deck.

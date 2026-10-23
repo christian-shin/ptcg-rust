@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Deduction Kit SSP 171",
+   "4 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Deduction Kit SSP 171",
+   "4 Snover MEG 35",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Deduction Kit SSP 171"
+  ],
+  "deck_top": [
+   "Fire Energy MEE 2",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Deduction Kit SSP 171"
+  },
+  0,
+  [
+   2,
+   1,
+   0
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Psychic Energy MEE 5",
+    "Grass Energy MEE 1",
+    "Fire Energy MEE 2",
+    "Metal Energy MEE 8"
+   ],
+   "cite": "card text: look at the top 3 cards of your deck and put them back in any order (scripted: the reverse order), the 4th card is still the 4th"
+  }
+ ]
+}

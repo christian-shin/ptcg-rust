@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Perrin TWM 160",
+   "4 Snover MEG 35",
+   "4 Antique Cover Fossil SCR 129",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Perrin TWM 160",
+   "4 Snover MEG 35",
+   "4 Antique Cover Fossil SCR 129",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Perrin TWM 160",
+   "Antique Cover Fossil SCR 129"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Perrin TWM 160",
+   "cite": "id2324 / id2038: a Fossil is an Item card while in the hand, so there is no Pok\u00e9mon to reveal"
+  }
+ ]
+}

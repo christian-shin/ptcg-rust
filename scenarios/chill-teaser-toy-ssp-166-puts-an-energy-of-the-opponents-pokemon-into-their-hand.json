@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chill Teaser Toy SSP 166",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Chill Teaser Toy SSP 166",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Chill Teaser Toy SSP 166"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Chill Teaser Toy SSP 166"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: put an Energy attached to 1 of your opponent's Pok\u00e9mon into their hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 1,
+   "contains": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "APR C-02: the card goes to its owner's hand"
+  }
+ ]
+}

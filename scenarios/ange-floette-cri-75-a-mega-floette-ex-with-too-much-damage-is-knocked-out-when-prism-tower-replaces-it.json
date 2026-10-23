@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Floette ex CRI 35",
+  "active_damage": 260,
+  "stadium": "Ange Floette CRI 75",
+  "hand": [
+   "Prism Tower CRI 80"
+  ],
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Prism Tower CRI 80"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Mega Floette ex CRI 35"
+   ],
+   "cite": "JP FAQ Prism Tower CRI 80 (Ange Floette, Mega Floette ex with 26 damage counters): the Stadium is discarded and Mega Floette ex is Knocked Out"
+  }
+ ]
+}

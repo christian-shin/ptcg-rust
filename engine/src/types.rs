@@ -279,6 +279,7 @@ pub mod tag {
     pub const MISTYS: u32 = 47;
     pub const ERIKAS: u32 = 48;
     pub const CYNTHIAS: u32 = 50;
+    pub const ARVENS: u32 = 51;
     pub const POKEMON_SV_MEGA: u32 = 53;
     pub const TEAM_ROCKET: u32 = 56;
     pub const ANTIQUE: u32 = 61;

@@ -251,7 +251,8 @@ pub enum RulesZone {
     Stadium,
 }
 
-/// A limit on evolving that a `Permit` lifts or a `Restrict` imposes (APR A-05).
+/// A limit of the rules that a `Permit` lifts or a `Restrict` imposes: on evolving (APR A-05), on playing a Supporter on the first
+/// turn of the game, on playing a second Stadium in a turn (APR B-04).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Limit {
     /// Not during the owner's first turn.
@@ -267,6 +268,10 @@ pub enum Limit {
     /// play a Supporter card on their first turn": APR E-26 area; Carmine and Team Rocket's Proton: "If you go first, you
     /// can use this card during your first turn"). Only a `Permit` of the card played lifts it.
     GoingFirst,
+    /// One Stadium card played from the hand per turn (APR B-04): a Stadium played this turn closes the rule for the other Stadium
+    /// cards. Only a `Permit` of the card played lifts it (Ange Floette: "you can put this card into play during the same turn
+    /// you play Prism Tower").
+    OneStadiumPerTurn,
 }
 
 /// The role the declaring card plays in an event ("this Pokémon", "this card").
@@ -385,6 +390,9 @@ pub enum EventPred {
     /// Damage: the damage done (after Weakness, Resistance and the effects on the Pokémon, APR D steps 2-5: id472, id2197) is at
     /// most this much ("prevent all damage done to this Pokémon by attacks if that damage is 40 or less").
     AmountAtMost(i32),
+    /// Damage: the damage done is at least this much ("takes 240 or more damage from an attack": the final amount, as
+    /// `AmountAtMost`).
+    AmountAtLeast(i32),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -826,6 +834,7 @@ impl EventPred {
             EventPred::Purpose(p) => v.purpose == Some(*p),
             EventPred::EnergyAtMost(n) => v.energy.map_or(false, |e| e <= *n),
             EventPred::AmountAtMost(n) => v.amount <= *n,
+            EventPred::AmountAtLeast(n) => v.amount >= *n,
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {

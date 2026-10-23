@@ -1,0 +1,9 @@
+Antique Armor Fossil
+- 60 HP
+Trainer
+- Item
+Play this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.
+At any time during your turn, you may discard this card from play.
+Ability:
+Protective Armor
+As long as this Pokémon is in the Active Spot, all of your Pokémon take 10 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) .

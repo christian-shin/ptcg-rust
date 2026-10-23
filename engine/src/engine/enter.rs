@@ -170,15 +170,18 @@ fn limit_applies(v: &EventView, l: Limit) -> bool {
         Limit::BaseEnteredThisTurn => v.base_entered_this_turn,
         Limit::EvolvesFrom => false,
         Limit::GoingFirst => v.first_turn_of_game,
+        // Asked by `play_trainer::check_with` itself when a Stadium has been played this turn.
+        Limit::OneStadiumPerTurn => false,
     }
 }
 
-fn limit_error(l: Limit) -> &'static str {
+pub(crate) fn limit_error(l: Limit) -> &'static str {
     match l {
         Limit::FirstTurn => "CANNOT_EVOLVE_ON_YOUR_FIRST_TURN",
         Limit::BaseEnteredThisTurn => "POKEMON_CANT_EVOLVE_THIS_TURN",
         Limit::EvolvesFrom => "INVALID_TARGET",
         Limit::GoingFirst => "CANNOT_PLAY_THIS_CARD",
+        Limit::OneStadiumPerTurn => "STADIUM_ALREADY_PLAYED",
     }
 }
 
@@ -224,6 +227,7 @@ pub const fn limit_kind(l: Limit) -> u32 {
         Limit::BaseEnteredThisTurn => k::PERMIT_BASE_ENTERED,
         Limit::EvolvesFrom => k::PERMIT_EVOLVES_FROM,
         Limit::GoingFirst => k::PERMIT_GOING_FIRST,
+        Limit::OneStadiumPerTurn => k::PERMIT_ONE_STADIUM_PER_TURN,
     }
 }
 
@@ -546,7 +550,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
             for c in cards.iter().rev().take(3) {
                 out.push(*c);
             }
-            crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
+            recover_by_rule(g, t, cause)?;
             let turn = g.st.turn;
             crate::engine::game_effect::clear_effects_evolving(&mut g.st, tp, ts);
             g.st.players[tp].slots[ts as usize].entered_turn = turn;
@@ -563,7 +567,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
             }
             out.push(top);
         }
-        crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
+        recover_by_rule(g, t, cause)?;
         let turn = g.st.turn;
         crate::engine::game_effect::clear_effects_evolving(&mut g.st, tp, ts);
         g.st.players[tp].slots[ts as usize].entered_turn = turn;
@@ -666,7 +670,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let turn = g.st.turn;
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.entered_turn = turn;
-            evolution_consequences(g, target.p as usize, target, cause)
+            evolution_consequences(g, target, cause)
         }
         Effect::Devolve { target, count, dest, cause, .. } => {
             let mut all: SVec<CardId, 3> = SVec::new();
@@ -698,15 +702,19 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// Conditions (except the ones a card preserves) and the effects on it; it is a
 /// new Pokémon for once-per-turn Abilities (id317) and has none of the old card's card-bound facts (id2265).
 /// Rare Candy counts as evolving (id1045).
-fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause) -> R {
-    let preserved = crate::derived::preserved_conditions(g, p, target)?;
+fn evolution_consequences(g: &mut Game, target: SlotRef, cause: Cause) -> R {
     // player.removePokemonEffects(target)
-    // The Pokémon recovers from its Special Conditions, except the preserved ones (RemoveCondition events, by the
-    // Evolve's cause).
-    crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;
+    recover_by_rule(g, target, cause)?;
     crate::engine::game_effect::clear_effects_evolving(&mut g.st, target.p as usize, target.s);
     crate::engine::usage::reset_slot(&mut g.st, target);
     Ok(())
+}
+
+/// The Pokémon recovers from its Special Conditions as the rules make it when it evolves or devolves (APR A-05, C-13), except the
+/// ones a card preserves (`derived::preserved_conditions`: Dizzying Valley): RemoveCondition events, by the event's cause.
+fn recover_by_rule(g: &mut Game, target: SlotRef, cause: Cause) -> R {
+    let preserved = crate::derived::preserved_conditions(g, target)?;
+    crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())
 }
 
 #[cfg(test)]

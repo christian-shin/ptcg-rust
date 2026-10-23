@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Snover MEG 35",
+   "4 Duraludon PRE 69",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Antique Jaw Fossil POR 68",
+   "4 Snover MEG 35",
+   "4 Duraludon PRE 69",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "stadium": "Fossil Quarry PBL 76",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   },
+   {
+    "card": "Snover MEG 35"
+   },
+   {
+    "card": "Snover MEG 35"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "id925: no room on the Bench, nothing can be put there"
+  }
+ ]
+}

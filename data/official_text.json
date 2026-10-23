@@ -6278,5 +6278,130 @@
   "name": "Octillery",
   "text": "Octillery\n- Water - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nRemoraid\nW\nJet of Ink 30\nDuring your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips 2 coins. If either of them is tails, that attack doesn't happen.\nWC\nTantrum 120\nThis Pokémon is now Confused.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
   "url": "https://limitlesstcg.com/cards/CRI/17"
+ },
+ "CRI 75": {
+  "name": "Ange Floette",
+  "text": "Ange Floette\nTrainer\n- Stadium\nYou can put this card into play only if you discard a Prism Tower in play, and you can put this card into play during the same turn you play Prism Tower.\nEach Mega Floette ex in play (both yours and your opponent's) gets +150 HP.",
+  "url": "https://limitlesstcg.com/cards/CRI/75"
+ },
+ "ASC 182": {
+  "name": "Anthea & Concordia",
+  "text": "Anthea & Concordia\nTrainer\n- Supporter\nYou can use this card only if you have N's Darmanitan, N's Zoroark ex, N's Vanilluxe, N's Klinklang, N's Reshiram, and N's Zekrom in play.\nDuring this turn, if your opponent's Active Pokémon is Knocked Out by damage from an attack used by your N's Pokémon, take 3 more Prize cards.",
+  "url": "https://limitlesstcg.com/cards/ASC/182"
+ },
+ "PBL 72": {
+  "name": "Antique Armor Fossil",
+  "text": "Antique Armor Fossil\n- 60 HP\nTrainer\n- Item\nPlay this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.\nAt any time during your turn, you may discard this card from play.\nAbility:\nProtective Armor\nAs long as this Pokémon is in the Active Spot, all of your Pokémon take 10 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) .",
+  "url": "https://limitlesstcg.com/cards/PBL/72"
+ },
+ "POR 68": {
+  "name": "Antique Jaw Fossil",
+  "text": "Antique Jaw Fossil\nTrainer\n- Item\nPlay this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.\nAt any time during your turn, you may discard this card from play.\nAbility:\nIntimidating Jaw\nAs long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon do 30 less damage (before applying Weakness and Resistance) .",
+  "url": "https://limitlesstcg.com/cards/POR/68"
+ },
+ "WHT 79": {
+  "name": "Antique Plume Fossil",
+  "text": "Antique Plume Fossil\n- 60 HP\nTrainer\n- Item\nPlay this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.\nAt any time during your turn, you may discard this card from play.\nAbility:\nPlume Protection\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks from your opponent's Pokémon.",
+  "url": "https://limitlesstcg.com/cards/WHT/79"
+ },
+ "POR 69": {
+  "name": "Antique Sail Fossil",
+  "text": "Antique Sail Fossil\nTrainer\n- Item\nPlay this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.\nAt any time during your turn, you may discard this card from play.\nAbility:\nProtective Sail\nWhenever your opponent plays a Supporter card from their hand, prevent all effects of that card done to this Pokémon.",
+  "url": "https://limitlesstcg.com/cards/POR/69"
+ },
+ "PBL 73": {
+  "name": "Antique Skull Fossil",
+  "text": "Antique Skull Fossil\n- 60 HP\nTrainer\n- Item\nPlay this card as if it were a 60-HP Basic [ C ] Pokémon. This card can't be affected by any Special Conditions and can't retreat.\nAt any time during your turn, you may discard this card from play.\nAbility:\nSpiny Skull\nIf this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , place 3 damage counters on the Attacking Pokémon.",
+  "url": "https://limitlesstcg.com/cards/PBL/73"
+ },
+ "DRI 161": {
+  "name": "Arven's Sandwich",
+  "text": "Arven's Sandwich\nTrainer\n- Item\nHeal 30 damage from your Active Pokémon. If that Pokémon is an Arven's Pokémon, heal 100 damage from it instead.",
+  "url": "https://limitlesstcg.com/cards/DRI/161"
+ },
+ "JTG 142": {
+  "name": "Billy & O'Nare",
+  "text": "Billy & O'Nare\nTrainer\n- Supporter\nDraw 2 cards. Then, if you have 10 or more cards in your hand, draw 2 more cards.",
+  "url": "https://limitlesstcg.com/cards/JTG/142"
+ },
+ "SSP 166": {
+  "name": "Chill Teaser Toy",
+  "text": "Chill Teaser Toy\nTrainer\n- Item\nYou can use this card only if you go second, and only during your first turn.\nPut an Energy attached to 1 of your opponent's Pokémon into their hand.",
+  "url": "https://limitlesstcg.com/cards/SSP/166"
+ },
+ "POR 70": {
+  "name": "Core Memory",
+  "text": "Core Memory\nTrainer\n- Tool\nThe Mega Zygarde ex this card is attached to can use the attack on this card. (You still need the necessary Energy to use this attack.)\nFFFF\nGeobuster 350\nDiscard all Energy from this Pokémon.",
+  "url": "https://limitlesstcg.com/cards/POR/70"
+ },
+ "SSP 171": {
+  "name": "Deduction Kit",
+  "text": "Deduction Kit\nTrainer\n- Item\nLook at the top 3 cards of your deck and put them back in any order, or shuffle them and put them on the bottom of your deck.",
+  "url": "https://limitlesstcg.com/cards/SSP/171"
+ },
+ "PFL 88": {
+  "name": "Dizzying Valley",
+  "text": "Dizzying Valley\nTrainer\n- Stadium\nConfused Pokémon (both yours and your opponent's) don't recover from that Special Condition when they evolve or devolve.",
+  "url": "https://limitlesstcg.com/cards/PFL/88"
+ },
+ "SSP 172": {
+  "name": "Dragon Elixir",
+  "text": "Dragon Elixir\nTrainer\n- Item\nHeal 60 damage from your Active [ N ] Pokémon.",
+  "url": "https://limitlesstcg.com/cards/SSP/172"
+ },
+ "DRI 163": {
+  "name": "Emcee's Hype",
+  "text": "Emcee's Hype\nTrainer\n- Supporter\nDraw 2 cards. If your opponent has 3 or fewer Prize cards remaining, draw 2 more cards.",
+  "url": "https://limitlesstcg.com/cards/DRI/163"
+ },
+ "CRI 77": {
+  "name": "Emma",
+  "text": "Emma\nTrainer\n- Supporter\nYour opponent reveals their hand, and you draw a card for each Pokémon you find there.",
+  "url": "https://limitlesstcg.com/cards/CRI/77"
+ },
+ "BLK 81": {
+  "name": "Energy Coin",
+  "text": "Energy Coin\nTrainer\n- Item\nFlip 2 coins. If both of them are heads, search your deck for a Basic Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.",
+  "url": "https://limitlesstcg.com/cards/BLK/81"
+ },
+ "PBL 76": {
+  "name": "Fossil Quarry",
+  "text": "Fossil Quarry\nTrainer\n- Stadium\nOnce during each player's turn, that player may search their deck for up to 2 Item cards that have \"Antique\" in their name and put them onto their Bench. Then, that player shuffles their deck.",
+  "url": "https://limitlesstcg.com/cards/PBL/76"
+ },
+ "DRI 166": {
+  "name": "Granite Cave",
+  "text": "Granite Cave\nTrainer\n- Stadium\nSteven's Pokémon (both yours and your opponent's) take 30 less damage from attacks from the opponent's Pokémon (after applying Weakness and Resistance) .",
+  "url": "https://limitlesstcg.com/cards/DRI/166"
+ },
+ "POR 74": {
+  "name": "Hole-Digging Shovel",
+  "text": "Hole-Digging Shovel\nTrainer\n- Item\nDiscard the top 2 cards of your deck.",
+  "url": "https://limitlesstcg.com/cards/POR/74"
+ },
+ "PBL 80": {
+  "name": "Misty's Vitality",
+  "text": "Misty's Vitality\nTrainer\n- Supporter\nSearch your deck for up to 4 Basic [ W ] Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck. Your turn ends.",
+  "url": "https://limitlesstcg.com/cards/PBL/80"
+ },
+ "CRI 86": {
+  "name": "Nitro Fire Energy",
+  "text": "Nitro Fire Energy\nEnergy\n- Special Energy\nAs long as this card is attached to a Pokémon, it provides [ R ] Energy.\nIf this card is discarded by an effect of an attack used by the [ R ] Pokémon this card is attached to, put this card into your hand after attack damage and effects.",
+  "url": "https://limitlesstcg.com/cards/CRI/86"
+ },
+ "TWM 160": {
+  "name": "Perrin",
+  "text": "Perrin\nTrainer\n- Supporter\nReveal up to 2 Pokémon in your hand and put them into your deck. If you do, search your deck for up to that many Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.",
+  "url": "https://limitlesstcg.com/cards/TWM/160"
+ },
+ "ASC 206": {
+  "name": "Team Rocket's Hypnotizer",
+  "text": "Team Rocket's Hypnotizer\nTrainer\n- Tool\nIf the Team Rocket's Pokémon this card is attached to is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Team Rocket's Pokémon is Knocked Out) , the Attacking Pokémon is now Asleep.",
+  "url": "https://limitlesstcg.com/cards/ASC/206"
+ },
+ "PBL 82": {
+  "name": "Tremendous Bomb",
+  "text": "Tremendous Bomb\nTrainer\n- Tool\nIf the Pokémon this card is attached to isn't a Mega Evolution Pokémon ex, is in the Active Spot, and takes 240 or more damage from an attack from your opponent's Mega Evolution Pokémon ex (even if this Pokémon is Knocked Out) , place 12 damage counters on the Attacking Pokémon. If you placed any damage counters in this way, discard this card.",
+  "url": "https://limitlesstcg.com/cards/PBL/82"
  }
 }

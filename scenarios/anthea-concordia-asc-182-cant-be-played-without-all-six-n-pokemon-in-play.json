@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Anthea & Concordia ASC 182",
+   "4 N's Darmanitan ASC 33",
+   "4 N's Zoroark ex ASC 137",
+   "4 N's Reshiram ASC 154",
+   "4 N's Zekrom ASC 155",
+   "4 Snover MEG 35",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Anthea & Concordia ASC 182",
+   "4 N's Darmanitan ASC 33",
+   "4 N's Zoroark ex ASC 137",
+   "4 N's Reshiram ASC 154",
+   "4 N's Zekrom ASC 155",
+   "4 Snover MEG 35",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "N's Darmanitan ASC 33",
+  "hand": [
+   "Anthea & Concordia ASC 182"
+  ],
+  "bench": [
+   {
+    "card": "N's Zoroark ex ASC 137"
+   },
+   {
+    "card": "N's Reshiram ASC 154"
+   },
+   {
+    "card": "N's Zekrom ASC 155"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Anthea & Concordia ASC 182",
+   "cite": "card text: you can use this card only if you have N's Darmanitan, N's Zoroark ex, N's Vanilluxe, N's Klinklang, N's Reshiram, and N's Zekrom in play (4 of the 6)"
+  }
+ ]
+}

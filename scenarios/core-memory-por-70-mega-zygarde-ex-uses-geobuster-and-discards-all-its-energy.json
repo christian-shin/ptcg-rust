@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Core Memory POR 70",
+   "4 Mega Zygarde ex POR 47",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Core Memory POR 70",
+   "4 Mega Zygarde ex POR 47",
+   "4 Mega Floette ex CRI 35",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mega Zygarde ex POR 47",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "active_tool": "Core Memory POR 70",
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Floette ex CRI 35",
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Geobuster"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 3,
+   "cite": "card text: the Mega Zygarde ex this card is attached to can use the attack on this card: Geobuster 350 [F][F][F][F] Knocks Out Mega Floette ex (250 HP)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text (Geobuster): discard all Energy from this Pok\u00e9mon"
+  }
+ ]
+}

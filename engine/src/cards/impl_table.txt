@@ -1160,3 +1160,28 @@ Heliolisk ASC 64	HelioliskASC
 Larry's Dudunsparce ex ASC 164	LarrysDudunsparceEx
 Sandslash MEG 69	SandslashMEG
 Octillery CRI 17	OctilleryCRI
+Ange Floette CRI 75	AngeFloette
+Anthea & Concordia ASC 182	AntheaConcordia
+Antique Armor Fossil PBL 72	AntiqueArmorFossil
+Antique Jaw Fossil POR 68	AntiqueJawFossil
+Antique Plume Fossil WHT 79	AntiquePlumeFossil
+Antique Sail Fossil POR 69	AntiqueSailFossil
+Antique Skull Fossil PBL 73	AntiqueSkullFossil
+Arven's Sandwich DRI 161	ArvensSandwich
+Billy & O'Nare JTG 142	BillyONare
+Chill Teaser Toy SSP 166	ChillTeaserToy
+Core Memory POR 70	CoreMemory
+Deduction Kit SSP 171	DeductionKit
+Dizzying Valley PFL 88	DizzyingValley
+Dragon Elixir SSP 172	DragonElixir
+Emcee's Hype DRI 163	EmceesHype
+Emma CRI 77	Emma
+Energy Coin BLK 81	EnergyCoin
+Fossil Quarry PBL 76	FossilQuarry
+Granite Cave DRI 166	GraniteCave
+Hole-Digging Shovel POR 74	HoleDiggingShovel
+Misty's Vitality PBL 80	MistysVitality
+Nitro Fire Energy CRI 86	NitroFireEnergy
+Perrin TWM 160	Perrin
+Team Rocket's Hypnotizer ASC 206	TeamRocketsHypnotizer
+Tremendous Bomb PBL 82	TremendousBomb

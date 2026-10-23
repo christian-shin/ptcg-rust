@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Seismitoad 30C 84",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Ange Floette CRI 75",
+   "4 Prism Tower CRI 80",
+   "4 Seismitoad 30C 84",
+   "4 Snover MEG 35",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Seismitoad 30C 84",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "stadium": "Prism Tower CRI 80",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Ange Floette CRI 75"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quaking Fist"
+  },
+  {
+   "a": "play",
+   "name": "Ange Floette CRI 75"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "zone": "discard",
+   "not_contains": [
+    "Prism Tower CRI 80"
+   ],
+   "cite": "JP FAQ Seismitoad (\u30ac\u30de\u30b2\u30ed\u30b2) x Prism Tower x Ange Floette: the coin is flipped first; tails: Prism Tower isn't discarded"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Ange Floette CRI 75"
+   ],
+   "cite": "Seismitoad Quaking Fist: on tails the Trainer card is discarded instead"
+  }
+ ]
+}

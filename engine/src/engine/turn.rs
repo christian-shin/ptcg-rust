@@ -128,7 +128,11 @@ pub fn printed_attack_list(g: &Game, p: usize) -> CheckedAttacks {
     let a = g.st.players[p].active;
     if let Some(t) = g.st.slot(p, a).tools().get(0) {
         let d = g.st.cdef(t);
-        if d.is_trainer() {
+        // "The Mega Zygarde ex this card is attached to can use the attack on this card": only the Pokémon the Tool names.
+        let holder_ok = crate::cards::spec_for(g.st.cards[t as usize].def)
+            .and_then(|s| s.attack_holder.as_ref())
+            .map_or(true, |sp| crate::spec::value::slot_pred(g, t, SlotRef::new(p, a), sp).unwrap_or(false));
+        if d.is_trainer() && holder_ok {
             for i in 0..d.attacks.len() {
                 attacks.push(AttackRef { card: t, index: i as u8 });
             }

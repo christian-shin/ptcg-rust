@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Emcee's Hype DRI 163",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Emcee's Hype DRI 163",
+   "4 Snover MEG 35",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Emcee's Hype DRI 163"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "prizes_left": 3,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Emcee's Hype DRI 163"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 4,
+   "cite": "card text: draw 2 cards; if your opponent has 3 or fewer Prize cards remaining, draw 2 more (3 left)"
+  }
+ ]
+}

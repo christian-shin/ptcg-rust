@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Fossil Quarry PBL 76",
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "stadium": "Fossil Quarry PBL 76",
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "cite": "id929: a search of a deck with cards in it may fail to find what it looks for (no Item with \"Antique\" in its name)"
+  }
+ ]
+}

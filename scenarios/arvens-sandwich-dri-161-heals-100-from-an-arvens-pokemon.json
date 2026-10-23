@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Arven's Sandwich DRI 161",
+   "4 Arven's Toedscruel DRI 110",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Arven's Sandwich DRI 161",
+   "4 Arven's Toedscruel DRI 110",
+   "4 Snover MEG 35",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Arven's Toedscruel DRI 110",
+  "active_damage": 120,
+  "hand": [
+   "Arven's Sandwich DRI 161"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Arven's Sandwich DRI 161"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 20,
+   "cite": "card text: if that Pok\u00e9mon is an Arven's Pok\u00e9mon, heal 100 damage from it instead"
+  }
+ ]
+}

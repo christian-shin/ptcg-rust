@@ -1,0 +1,4 @@
+Arven's Sandwich
+Trainer
+- Item
+Heal 30 damage from your Active Pokémon. If that Pokémon is an Arven's Pokémon, heal 100 damage from it instead.

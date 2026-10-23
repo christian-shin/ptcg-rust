@@ -256,7 +256,18 @@ mod key_tests {
             }
         }
         rules.sort();
-        assert_eq!(rules, [("Antique Cover Fossil SCR 129", 0), ("Antique Root Fossil SCR 130", 0)]);
+        assert_eq!(
+            rules,
+            [
+                ("Antique Armor Fossil PBL 72", 0),
+                ("Antique Cover Fossil SCR 129", 0),
+                ("Antique Jaw Fossil POR 68", 0),
+                ("Antique Plume Fossil WHT 79", 0),
+                ("Antique Root Fossil SCR 130", 0),
+                ("Antique Sail Fossil POR 69", 0),
+                ("Antique Skull Fossil PBL 73", 0)
+            ]
+        );
     }
 
     #[test]
@@ -390,7 +401,18 @@ mod declaration_tests {
     fn the_fossils_are_the_play_as_pokemon_programs() {
         let mut marked: Vec<&str> = cards().iter().enumerate().filter(|(i, _)| crate::cards::spec_for(*i as DefId).map_or(false, crate::spec::run::plays_as_pokemon)).map(|(_, d)| d.full_name).collect();
         marked.sort();
-        assert_eq!(marked, ["Antique Cover Fossil SCR 129", "Antique Root Fossil SCR 130"]);
+        assert_eq!(
+            marked,
+            [
+                "Antique Armor Fossil PBL 72",
+                "Antique Cover Fossil SCR 129",
+                "Antique Jaw Fossil POR 68",
+                "Antique Plume Fossil WHT 79",
+                "Antique Root Fossil SCR 130",
+                "Antique Sail Fossil POR 69",
+                "Antique Skull Fossil PBL 73"
+            ]
+        );
     }
 
     /// Every power of a pool card with a program is one that can be used (an Ability with a program, or the Fossils' discard
@@ -409,6 +431,6 @@ mod declaration_tests {
                 programs += 1;
             }
         }
-        assert_eq!(programs, 57, "the pool's powers with a program");
+        assert_eq!(programs, 62, "the pool's powers with a program");
     }
 }

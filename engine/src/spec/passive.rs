@@ -60,6 +60,10 @@ pub enum Modifier {
     /// `subject` recover whenever the table state is checked (RemoveCondition events). "Can't be affected by" is
     /// a `Prevent` declaration over GainCondition.
     Recover(RecoverSpec),
+    /// "Confused Pokémon don't recover from that Special Condition when they evolve or devolve" (Dizzying Valley): the Pokémon
+    /// matching `subject` keep the listed Special Conditions through the recoveries the rules make when a Pokémon evolves or
+    /// devolves (APR A-05, C-13). Read by `derived::preserved_conditions`.
+    KeepConditions(KeepConditionsSpec),
     AttachGuard(AttachGuardSpec),
     BenchSize(BenchSizeSpec),
     /// "This Pokémon may use an attack it has twice" while `guard` holds (Festival Lead: "If Festival Grounds is in play";
@@ -841,6 +845,11 @@ pub struct RecoverSpec {
     pub conds: &'static [SpecialCondition],
     pub subject: SlotPred,
 }
+/// The Special Conditions the Pokémon matching `subject` keep when they evolve or devolve.
+pub struct KeepConditionsSpec {
+    pub conds: &'static [SpecialCondition],
+    pub subject: SlotPred,
+}
 /// The Energy can only be attached to a matching Pokémon (and is discarded from any other).
 pub struct AttachGuardSpec {
     pub allow: SlotPred,
@@ -895,6 +904,8 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`); the discard and the
         // recovery are the state check's (`knockout::table_state`, through the declaration index).
         Modifier::AttachGuard(_) | Modifier::Recover(_) => KindMask::EMPTY,
+        // Read where a Pokémon evolves or devolves (`derived::preserved_conditions`).
+        Modifier::KeepConditions(_) => KindMask::EMPTY,
         Modifier::AbilityLock(l) => {
             if lock_reads_attached(l) {
                 mask(&[k::DECLARES_ABILITY_LOCK, k::POWER, k::DECLARES_ATTACHED_LOCK])
@@ -1074,6 +1085,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
         Modifier::AttackCost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
         Modifier::Recover(_) => Ok(()),
+        // Read where a Pokémon evolves or devolves (`derived::preserved_conditions`); nothing is dispatched to it.
+        Modifier::KeepConditions(_) => Ok(()),
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::TypeOverride(_) => Ok(()),
@@ -3869,7 +3882,9 @@ mod prevent_marker_tests {
         // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (23 cards, Miraidon ex ASC 73 and Tatsugiri ex SSP 142 included), Sylveon, Crustle DRI, Shaymin,
         // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin); CW23: Fraxure SFA 45's Unnerve (over the cause) and the Tera rule of Magcargo ex, Revavroom ex and Wugtrio ex.
         // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
-        assert_eq!(n, 56);
+        // CW18: the Gain-Condition prevention of the five new Antique Fossils (Armor, Jaw, Plume, Sail, Skull), Plume Fossil's Plume
+        // Protection (over Damage) and Sail Fossil's Protective Sail (over the cause).
+        assert_eq!(n, 63);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
@@ -3905,7 +3920,7 @@ mod prevent_marker_tests {
             }
         }
         recovering.sort();
-        assert_eq!(recovering.len(), 6, "{recovering:?}");
+        assert_eq!(recovering.len(), 11, "{recovering:?}");
         assert!(!recovering.iter().any(|c| c.starts_with("Yveltal")));
         let by_attacks = PreventSpec::on(
             SlotPred::Holder,
