@@ -333,17 +333,33 @@ fn prevented_damage_counters_have_one_entry_of_0() {
     assert_eq!((e.len(), e[0].kind, e[0].amount), (1, EventKind::PlaceCounters, 20));
 }
 
-/// An attack with printed damage whose damage comes out 0 (Victini BLK 12's V-Force with 4 or fewer Benched Pokémon:
-/// "this attack does nothing") has one Damage entry of 0 on the Defending Pokémon, which takes no damage.
+/// An attack whose text makes it do nothing (Victini BLK 12's V-Force with 4 or fewer Benched Pokémon: "this attack does
+/// nothing") does no damage at all: no damage calculation, no Damage entry, and the Defending Pokémon takes none.
 #[test]
-fn an_attack_whose_damage_comes_out_0_has_one_entry_of_0() {
+fn an_attack_that_does_nothing_has_no_damage_entry() {
     let v = "Victini BLK 12";
     let mut g = game_of(&[(MON, 4), (v, 2), (FIRE, 4)], serde_json::json!({"me": {"reset": true, "active": v, "active_energy": [FIRE, FIRE]}, "opp": {"reset": true, "active": MON}}));
     g.st.set_turn(2);
     let opp = 1 - g.st.active_player as usize;
-    let defending = g.st.active_pokemon(opp);
     g.record_on();
     attack(&mut g, "V-Force");
+    let e = g.take_record();
+    assert!(e.iter().all(|x| x.kind != EventKind::Damage), "{e:?}");
+    assert_eq!(g.st.slot(opp, g.st.players[opp].active).damage, 0);
+}
+
+/// A damage that is calculated and comes out 0 (Zoroark WHT 62's Mind Jack, 30 for each of the opponent's Benched Pokémon,
+/// with none) has one Damage entry of 0 on the Defending Pokémon, which takes no damage.
+#[test]
+fn a_calculated_damage_of_0_has_one_entry_of_0() {
+    let z = "Zoroark WHT 62";
+    let dark = "Darkness Energy MEE 7";
+    let mut g = game_of(&[(MON, 4), (z, 2), (dark, 4)], serde_json::json!({"me": {"reset": true, "active": z, "active_energy": [dark, dark, dark]}, "opp": {"reset": true, "active": MON}}));
+    g.st.set_turn(2);
+    let opp = 1 - g.st.active_player as usize;
+    let defending = g.st.active_pokemon(opp);
+    g.record_on();
+    attack(&mut g, "Mind Jack");
     let e = g.take_record();
     let damage: Vec<_> = e.iter().filter(|x| x.kind == EventKind::Damage).collect();
     assert_eq!(damage.len(), 1, "{e:?}");

@@ -140,11 +140,12 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     g.run_fx_unit(Effect::Damage { b, amount: d, survive })
 }
 
-/// The base damage of the attack of `b` came out 0 (APR A-01 step 4; Damage Calculation Order 1): it does no damage and
-/// no calculation is done. One with printed damage (a multiplier of 0, "this attack does nothing") shows a damage of 0 to
-/// the Defending Pokémon in the record (`record::comes_out_zero`); an attack without printed damage does no damage at all.
+/// The base damage of the attack of `b` came out 0 (APR A-01 step 4; Damage Calculation Order 1): no calculation is done.
+/// A damage that was calculated and came out 0 (a multiplier with no count: "30x" with no heads) shows a damage of 0 to the
+/// Defending Pokémon in the record (`record::comes_out_zero`). An attack whose text made it do nothing
+/// (`fx_flag::DOES_NOTHING`) and an attack without printed damage do no damage at all: no entry.
 pub fn base_damage_zero(g: &mut Game, b: &AtkBase) {
-    if g.record.on() && crate::engine::attack::attack_def(g, b.attack).damage > 0 {
+    if g.record.on() && g.fx_flags(b.attack_effect) & crate::game::fx_flag::DOES_NOTHING == 0 && crate::engine::attack::attack_def(g, b.attack).damage > 0 {
         crate::record::comes_out_zero(g, EventKind::Damage, b.target, b.cause);
     }
 }
