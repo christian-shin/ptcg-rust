@@ -2,8 +2,8 @@
 //! Tool or Special Energy card from 1 of your opponent's Pokémon, or discard a Stadium in play.
 //!
 //! The Energy is the cost (`Step::cost`, APR E-30): it is picked and discarded first, and the card can't be played without
-//! one. `needs` asks that something can be discarded (a Tool, a Special Energy card or a Stadium); the choice that follows
-//! lists only the kinds that exist. Each discard from a Pokémon or the Stadium is a LeavePlay (D1) caused by this Item, to its
+//! one. The rules' walk follows the choice's options (a Tool, a Special Energy card or a Stadium to discard): with none of
+//! them the card can't be played; the choice lists only the kinds that exist. Each discard from a Pokémon or the Stadium is a LeavePlay (D1) caused by this Item, to its
 //! owner's discard pile; with several Tools on the Pokémon, one Tool is chosen and only it is discarded.
 use crate::spec::prelude::*;
 
@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Special Energy card from 1 of your opponent's Pokémon, or discard a Stadium in play.
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Any(&[HAS_TOOL, HAS_SPECIAL, STADIUM_IN_PLAY])],
+        needs: &[],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
             Step::cost(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

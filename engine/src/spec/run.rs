@@ -1114,6 +1114,22 @@ impl RulesWalk {
                     let b = self.walk(g, me, f, m.no, false);
                     if a == Some(true) || b == Some(true) { Some(true) } else { a.or(b) }
                 }
+                // The options of a choice, each walked with the cards the earlier steps set aside (a Look that found nothing
+                // leaves nothing to put back): one that would change the game is enough.
+                Op::Choose(c) => {
+                    let mut r = None;
+                    for o in c.options {
+                        match self.walk(g, me, f, o.body, false) {
+                            Some(true) => {
+                                r = Some(true);
+                                break;
+                            }
+                            Some(false) => r = Some(false),
+                            None => {}
+                        }
+                    }
+                    r
+                }
                 // A coin flip counts through what its results do (id925; `flow::effect_possible`).
                 Op::Coin(c) => {
                     let r = [self.walk(g, me, f, c.heads, false), self.walk(g, me, f, c.tails, false), self.walk(g, me, f, c.then, false)];
