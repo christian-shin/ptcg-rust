@@ -391,3 +391,26 @@ fn a_prevented_attack_damage_has_one_entry_of_0() {
     assert_eq!((damage[0].card, damage[0].amount), (dunsparce, 0));
     assert_eq!(g.st.slot(me, g.st.players[me].active).damage, 0);
 }
+
+/// A Tool discarded as it reduces damage to 0 (Payapa Berry: "takes 60 less damage, and discard this card"): the Tool's
+/// discard comes before the entry of 0 as the reduction is applied (off); at a table with
+/// `damage_reducing_tool_discarded_after_the_damage` the entry of 0 comes first, then the discard.
+#[test]
+fn a_tool_discarded_by_its_reduction_follows_the_damage_only_at_a_table_that_says_so() {
+    for after in [false, true] {
+        let (s, berry) = ("Spritzee POR 35", "Payapa Berry SCR 141");
+        let mut g = game_of(&[(MON, 4), (s, 2), (berry, 2), ("Psychic Energy MEE 5", 4)], serde_json::json!({"me": {"reset": true, "active": s, "active_energy": ["Psychic Energy MEE 5"]}, "opp": {"reset": true, "active": MON, "active_tool": berry}}));
+        g.st.rules.damage_reducing_tool_discarded_after_the_damage = after;
+        g.st.set_turn(2);
+        let opp = 1 - g.st.active_player as usize;
+        let berry_def = crate::carddb::def_by_full_name(berry).unwrap();
+        let tool = g.st.slot(opp, g.st.players[opp].active).tools().iter().find(|c| g.st.cards[*c as usize].def == berry_def).expect("the Tool is attached");
+        g.record_on();
+        attack(&mut g, "Ram");
+        let e = g.take_record();
+        let damage = e.iter().position(|x| x.kind == EventKind::Damage && x.amount == 0).expect("the entry of 0");
+        let left = e.iter().position(|x| x.kind == EventKind::LeavePlay && x.card == Some(tool)).unwrap_or_else(|| panic!("the Tool leaves play: {e:?}"));
+        assert_eq!(damage < left, after, "after = {after}: {e:?}");
+        assert_eq!(g.st.slot(opp, g.st.players[opp].active).damage, 0);
+    }
+}

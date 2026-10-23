@@ -128,6 +128,14 @@ pub struct TableRules {
     /// (RULES.md: "Healing a Pokémon with no damage counters isn't healing it"). A card that needs damage to be played
     /// (Jacinthe, a damaged [P] Pokémon) keeps that condition either way.
     pub heal_chooses_only_damaged_pokemon: bool,
+    /// A Tool that is discarded as part of reducing damage ("takes 60 less damage, and discard this card": Payapa Berry) is
+    /// discarded once the damage is done: the Damage event (or, when the reduction brings it to 0, the record's entry of 0)
+    /// comes first, then the Tool leaves play. `engine::damage::deal`.
+    ///
+    /// Off: the Tool leaves play as the reduction is applied, in step 5 of the damage calculation, before the damage is
+    /// done. No ruling gives the order (the attack steps chart and APR B-05 name the reduction, not the discard): the
+    /// order of the card's own words, "takes less damage, and discard", is kept.
+    pub damage_reducing_tool_discarded_after_the_damage: bool,
 }
 
 impl TableRules {
@@ -144,6 +152,7 @@ impl TableRules {
         "attack_choices_asked_when_their_effect_runs",
         "play_evolving_trainer_under_evolution_lock",
         "heal_chooses_only_damaged_pokemon",
+        "damage_reducing_tool_discarded_after_the_damage",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -160,6 +169,7 @@ impl TableRules {
             "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
             "heal_chooses_only_damaged_pokemon" => &mut self.heal_chooses_only_damaged_pokemon,
+            "damage_reducing_tool_discarded_after_the_damage" => &mut self.damage_reducing_tool_discarded_after_the_damage,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
