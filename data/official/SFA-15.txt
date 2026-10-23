@@ -1,0 +1,17 @@
+Revavroom ex
+- Lightning - 280 HP
+Pokémon
+- Stage 1
+- Evolves from
+Varoom
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent's) .
+M
+Accelerator Flash 20+
+If this Pokémon moved from your Bench to the Active Spot this turn, this attack does 120 more damage.
+MMM
+Shattering Speed 250
+Discard this Pokémon and all attached cards.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

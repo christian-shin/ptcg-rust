@@ -1,0 +1,15 @@
+Raichu
+- Lightning - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pikachu
+L
+Quick Blow 20+
+Flip a coin. If heads, this attack does 50 more damage.
+LLC
+Strong Volt 150
+Discard a [ L ] Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

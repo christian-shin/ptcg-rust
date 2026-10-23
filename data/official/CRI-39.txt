@@ -1,0 +1,15 @@
+Trevenant
+- Psychic - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Phantump
+P
+Cursed Roots 30
+During your opponent's next turn, Energy can't be attached from your opponent's hand to the Defending Pokémon.
+PP
+Overwhelming Pain 60+
+This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

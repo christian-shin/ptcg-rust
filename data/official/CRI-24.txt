@@ -1,0 +1,14 @@
+Avalugg
+- Water - 160 HP
+Pokémon
+- Stage 1
+- Evolves from
+Bergmite
+W
+Iceberg Breaker 60×
+Discard the top 6 cards of your deck, and this attack does 60 damage for each Basic [ W ] Energy card you discarded in this way.
+WWCC
+Frost Stamp 160
+Weakness: Metal
+Resistance: none
+Retreat: 4

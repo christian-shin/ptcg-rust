@@ -71,10 +71,10 @@ pub fn damage_view(g: &Game, b: &AtkBase, amount: i32) -> EventView {
 // The routines
 
 /// Damage: the attack of `b` does `amount` damage to the Pokémon in `b.target`, in one calculation order (APR Damage
-/// Calculation Order 1-6). `deal`: the attack's damage calculated in full (the attacker-side modifiers, and Weakness and
-/// Resistance when the target is in an Active Spot); otherwise put on the Pokémon (`DamageCalc::Put`: no attacker-side
-/// modifiers, no Weakness or Resistance). Nothing happens when the final damage is 0 or a prevention applies (the record
-/// shows a damage of 0, `record::comes_out_zero`).
+/// Calculation Order 1-6). The attacker-side modifiers (step 2) apply to every damage the attack does; `deal` adds
+/// Weakness and Resistance when the target is in an Active Spot (steps 3-4); otherwise the damage is put on the Pokémon
+/// (`DamageCalc::Put`: no Weakness or Resistance). Nothing happens when the final damage is 0 or a prevention applies (the
+/// record shows a damage of 0, `record::comes_out_zero`).
 pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     let t = b.target;
     let mut d = amount;
@@ -84,14 +84,22 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     };
     // Step 2: the effects on the Pokémon doing the damage: the attacker-side modifiers (DamageDealt at the Deal stage), then
     // "the Defending Pokémon's attacks do N less damage".
-    if deal {
+    // Every damage the attack does, to a Benched Pokémon and to the attacker itself too (id158, id2213, id2345: "attacks used
+    // by your opponent's Active Pokémon do N less damage" reduces the damage to each Pokémon): a modifier names the Pokémon
+    // it is for (`DamageDealtSpec::target`; the default is the opponent's Active Pokémon, which a Benched one never is).
+    {
         let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0, applied: crate::list::SVec::new() };
         attacker_side(g, &mut acc)?;
         d = acc.damage;
     }
     let src_red = crate::engine::lasting::deals_less_damage(&g.st, b.source.p as usize, b.source.s);
     if src_red > 0 {
-        d = (d - src_red).max(0);
+        d -= src_red;
+    }
+    // APR "Damage Calculation Order", step 2: an effect that makes the damage 0 or negative ends the calculation.
+    if d <= 0 {
+        crate::record::comes_out_zero(g, EventKind::Damage, t, b.cause);
+        return Ok(());
     }
     // Steps 3-4: Weakness and Resistance apply to damage done to a Pokémon in an Active Spot, either player's: the
     // attack's damage to the attacker itself too (APR B-09: "Weakness, Resistance, and other effects on the Pokémon

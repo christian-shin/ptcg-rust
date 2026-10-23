@@ -1,0 +1,15 @@
+Watchog
+- Colorless - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Patrat
+C
+Focus Energy
+During your next turn, this Pokémon's Hyper Fang attack's base damage is 240.
+C
+Hyper Fang 80
+Flip a coin. If tails, this attack does nothing.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

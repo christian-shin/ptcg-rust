@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Toxicroak MEG 79",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Fighting Energy MEE 6",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Toxicroak MEG 79",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Fighting Energy MEE 6",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Toxicroak MEG 79",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reckless Charge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 70,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Toxicroak MEG 79",
+   "damage": 20,
+   "cite": "card text: this Pokémon also does 20 damage to itself"
+  }
+ ]
+}

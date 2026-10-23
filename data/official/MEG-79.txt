@@ -1,0 +1,12 @@
+Toxicroak
+- Fighting - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Croagunk
+F
+Reckless Charge 70
+This Pokémon also does 20 damage to itself.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Wailord
+- Water - 240 HP
+Pokémon
+- Stage 1
+- Evolves from
+Wailmer
+CCCC
+Hydro Pump 10+
+This attack does 50 more damage for each [ W ] Energy attached to this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 4

@@ -12258,5 +12258,455 @@
   "key": "Zarude PBL 56",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "157",
+  "name": "Swellow",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Swellow DRI 157",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "7",
+  "name": "Tangrowth",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Tangrowth MEG 7",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "73",
+  "name": "Team Rocket's Flaaffy",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Team Rocket's Flaaffy DRI 73",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "118",
+  "name": "Team Rocket's Nidorino",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Team Rocket's Nidorino DRI 118",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "95",
+  "name": "Team Rocket's Pupitar",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Team Rocket's Pupitar DRI 95",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "90",
+  "name": "Thievul",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Thievul MEG 90",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "97",
+  "name": "Tinkatuff",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Tinkatuff MEG 97",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "79",
+  "name": "Toxicroak",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Toxicroak MEG 79",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "72",
+  "name": "Tranquill",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Tranquill BLK 72",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "44",
+  "name": "Tyrunt",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Tyrunt POR 44",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "28",
+  "name": "Vanillish",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Vanillish WHT 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "105",
+  "name": "Vibrava",
+  "type": "F Stage 1",
+  "reg": "H",
+  "key": "Vibrava SSP 105",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "52",
+  "name": "Vibrava",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Vibrava PFL 52",
+  "tier": "data",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "41",
+  "name": "Wailord",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Wailord JTG 41",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "16",
+  "name": "Wailord ex",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Wailord ex PBL 16",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "116",
+  "name": "Whirlipede",
+  "type": "D Stage 1",
+  "reg": "H",
+  "key": "Whirlipede TWM 116",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "32",
+  "name": "Zebstrika",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Zebstrika WHT 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "66",
+  "name": "Zweilous",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Zweilous WHT 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "24",
+  "name": "Pyroar",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Pyroar MEG 24",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "36",
+  "name": "Mismagius ex",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Mismagius ex PFL 36",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "37",
+  "name": "Scovillain ex",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Scovillain ex SSP 37",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "11",
+  "name": "Leafeon",
+  "type": "G Stage 1",
+  "reg": "H",
+  "key": "Leafeon TWM 11",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "38",
+  "name": "Clawitzer",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Clawitzer MEG 38",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "57",
+  "name": "Garbodor",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Garbodor CRI 57",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "61",
+  "name": "Raticate",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Raticate POR 61",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "56",
+  "name": "Gorebyss",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Gorebyss DRI 56",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "56",
+  "name": "Raichu",
+  "type": "L Stage 1",
+  "reg": "J",
+  "key": "Raichu ASC 56",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "65",
+  "name": "Mega Dragalge ex",
+  "type": "N Stage 1",
+  "reg": "J",
+  "key": "Mega Dragalge ex CRI 65",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "29",
+  "name": "Magcargo ex",
+  "type": "R Stage 1",
+  "reg": "H",
+  "key": "Magcargo ex TWM 29",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SFA",
+  "number": "45",
+  "name": "Fraxure",
+  "type": "N Stage 1",
+  "reg": "H",
+  "key": "Fraxure SFA 45",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "20",
+  "name": "Ninetales",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Ninetales MEG 20",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "24",
+  "name": "Avalugg",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Avalugg CRI 24",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "49",
+  "name": "Misty's Gyarados",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Misty's Gyarados DRI 49",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SFA",
+  "number": "15",
+  "name": "Revavroom ex",
+  "type": "L Stage 1",
+  "reg": "H",
+  "key": "Revavroom ex SFA 15",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TEF",
+  "number": "60",
+  "name": "Wugtrio ex",
+  "type": "L Stage 1",
+  "reg": "H",
+  "key": "Wugtrio ex TEF 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "TWM",
+  "number": "22",
+  "name": "Sinistcha",
+  "type": "G Stage 1",
+  "reg": "H",
+  "key": "Sinistcha TWM 22",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "45",
+  "name": "Donphan",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Donphan CRI 45",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "73",
+  "name": "Watchog",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Watchog WHT 73",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "39",
+  "name": "Trevenant",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Trevenant CRI 39",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "26",
+  "name": "Beartic",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Beartic BLK 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "50",
+  "name": "N's Vanillish",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "N's Vanillish ASC 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "58",
+  "name": "Mabosstiff",
+  "type": "D Stage 1",
+  "reg": "J",
+  "key": "Mabosstiff PBL 58",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "53",
+  "name": "Frosmoth",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Frosmoth ASC 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "64",
+  "name": "Heliolisk",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Heliolisk ASC 64",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "164",
+  "name": "Larry's Dudunsparce ex",
+  "type": "C Stage 1",
+  "reg": "J",
+  "key": "Larry's Dudunsparce ex ASC 164",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

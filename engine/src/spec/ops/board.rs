@@ -112,11 +112,12 @@ pub struct DamageSpec {
 pub enum DamageCalc {
     /// `Deal` on the opponent's Active Pokémon, `Put` elsewhere.
     Auto,
-    /// The full calculation (`engine::damage::deal` with `deal`): the attacker-side modifiers, and Weakness and
+    /// The full calculation (`engine::damage::deal` with `deal`): the attacker-side modifiers, then Weakness and
     /// Resistance when the target is in an Active Spot, either player's (the attacker's damage to itself too, APR B-09);
     /// never on a Benched Pokémon (APR B-08).
     Deal,
-    /// Put on the Pokémon: no attacker-side modifiers, no Weakness or Resistance (damage to Benched Pokémon).
+    /// Put on the Pokémon: no Weakness or Resistance (damage to Benched Pokémon). The attacker-side modifiers still apply
+    /// to the damage they name a target for (id2213, id2345).
     Put,
 }
 
@@ -225,6 +226,10 @@ pub struct RemoveFromPlaySpec {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ConditionChange {
     Add(&'static [SpecialCondition]),
+    /// One condition whose rule places this many damage counters at each Checkup instead of its usual number ("Your
+    /// opponent's Active Pokémon is now Poisoned. During Pokémon Checkup, place 16 damage counters on that Pokémon instead
+    /// of 1": id2373, id1044).
+    Counters(SpecialCondition, u8),
     RemoveAll,
     /// Remove one: the only one, or the one the player picks.
     RemoveChosen,
@@ -938,6 +943,11 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
         ConditionChange::Add(cs) => {
             let gained = inflict_on(g, me, f, slot, cs)?;
             f.outcome = Outcome::count(cs.len(), gained, cs.len() - gained);
+            Ok(Flow::Next)
+        }
+        ConditionChange::Counters(x, n) => {
+            let gained = crate::engine::condition::gain_with(g, slot, x, n, f.cause)? as usize;
+            f.outcome = Outcome::count(1, gained, 1 - gained);
             Ok(Flow::Next)
         }
         ConditionChange::RemoveAll => {

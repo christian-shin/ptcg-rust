@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zebstrika WHT 32",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Koraidon TEF 119",
+   "44 Lightning Energy MEE 4",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Zebstrika WHT 32",
+   "4 Mega Dragalge ex CRI 65",
+   "4 Koraidon TEF 119",
+   "44 Lightning Energy MEE 4",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Zebstrika WHT 32",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Electrobullet"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 100,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Koraidon TEF 119",
+   "damage": 30,
+   "cite": "card text: 30 damage to 1 Benched Pokémon, no Weakness"
+  }
+ ]
+}

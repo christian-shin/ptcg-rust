@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Larry's Dudunsparce ex ASC 164",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Larry's Dudunsparce ex ASC 164",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Larry's Dudunsparce ex ASC 164",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true,
+  false,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Work Rush"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 80,
+   "cite": "card text"
+  }
+ ]
+}

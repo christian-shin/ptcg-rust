@@ -409,6 +409,6 @@ mod declaration_tests {
                 programs += 1;
             }
         }
-        assert_eq!(programs, 55, "the pool's powers with a program");
+        assert_eq!(programs, 57, "the pool's powers with a program");
     }
 }

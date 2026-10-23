@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Magcargo ex TWM 29",
+   "1 Mega Dragalge ex CRI 65",
+   "1 Skrelp CRI 58",
+   "57 Fire Energy MEE 2"
+  ],
+  [
+   "1 Magcargo ex TWM 29",
+   "1 Mega Dragalge ex CRI 65",
+   "1 Skrelp CRI 58",
+   "57 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Magcargo ex TWM 29",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true,
+  "prizes": [
+   "Mega Dragalge ex CRI 65",
+   "Skrelp CRI 58"
+  ],
+  "deck_left": 3
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true,
+  "deck_left": 0
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ground Burn"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 280,
+   "cite": "card text: 140 + 140 x 1 Energy card (the top card of your deck; the opponent has no deck to discard from)"
+  }
+ ]
+}

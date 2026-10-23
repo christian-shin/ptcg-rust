@@ -1,0 +1,17 @@
+Wugtrio ex
+- Lightning - 250 HP
+Pokémon
+- Stage 1
+- Evolves from
+Wiglett
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent's) .
+W
+Tricolor Pump
+Discard up to 3 Energy cards from your hand. This attack does 60 damage to 1 of your opponent's Pokémon for each Energy card you discarded in this way. (Don't apply Weakness and Resistance for Benched Pokémon.)
+WW
+Numbing Hold 120
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

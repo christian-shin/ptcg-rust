@@ -199,6 +199,12 @@ pub const fn by_checkup(p: usize) -> Cause {
 /// GainCondition: the Pokémon in `target` is now affected by `condition`. It doesn't happen (`Ok(false)`) when no
 /// Pokémon is there or the event is refused.
 pub fn gain(g: &mut Game, target: SlotRef, condition: SpecialCondition, cause: Cause) -> R<bool> {
+    gain_with(g, target, condition, base_counters(condition), cause)
+}
+
+/// [`gain`] for a condition whose rule places `counters` damage counters at each Checkup ("Poisoned. During Pokémon Checkup,
+/// place 16 damage counters on that Pokémon instead of 1": id2373, every Checkup while it lasts).
+pub fn gain_with(g: &mut Game, target: SlotRef, condition: SpecialCondition, counters: u8, cause: Cause) -> R<bool> {
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
         return Ok(false);
     }
@@ -206,7 +212,7 @@ pub fn gain(g: &mut Game, target: SlotRef, condition: SpecialCondition, cause: C
     if refused(g, &v)?.is_some() {
         return Ok(false);
     }
-    g.run_fx_unit(Effect::GainCondition { p: target.p, target, condition, counters: base_counters(condition), cause })?;
+    g.run_fx_unit(Effect::GainCondition { p: target.p, target, condition, counters, cause })?;
     Ok(true)
 }
 

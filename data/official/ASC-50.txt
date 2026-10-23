@@ -1,0 +1,14 @@
+N's Vanillish
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+N's Vanillite
+C
+Flop 20
+WCC
+Sheer Cold 60
+During your opponent's next turn, the Defending Pokémon can't use attacks.
+Weakness: Metal
+Resistance: none
+Retreat: 1

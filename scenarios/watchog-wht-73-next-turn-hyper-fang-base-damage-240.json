@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Watchog WHT 73",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Watchog WHT 73",
+   "4 Mega Dragalge ex CRI 65",
+   "48 Psychic Energy MEE 5",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Watchog WHT 73",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Focus Energy"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Hyper Fang"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 3,
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 240,
+   "cite": "card text: during your next turn, this Pokémon's Hyper Fang attack's base damage is 240"
+  }
+ ]
+}

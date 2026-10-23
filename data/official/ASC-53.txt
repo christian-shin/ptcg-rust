@@ -1,0 +1,15 @@
+Frosmoth
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snom
+Ability:
+Alluring Wings
+Once during your turn, if this Pokémon is in the Active Spot, you may use this Ability. Each player draws a card.
+WW
+Cold Cyclone 90
+Move a [ W ] Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 2

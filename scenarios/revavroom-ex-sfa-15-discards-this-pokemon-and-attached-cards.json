@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Revavroom ex SFA 15",
+   "4 Koraidon TEF 119",
+   "4 Mega Dragalge ex CRI 65",
+   "44 Metal Energy MEE 8",
+   "4 Skrelp CRI 58"
+  ],
+  [
+   "4 Revavroom ex SFA 15",
+   "4 Koraidon TEF 119",
+   "4 Mega Dragalge ex CRI 65",
+   "44 Metal Energy MEE 8",
+   "4 Skrelp CRI 58"
+  ]
+ ],
+ "me": {
+  "active": "Revavroom ex SFA 15",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ]
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shattering Speed"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 250,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": "Revavroom ex SFA 15",
+   "cite": "card text: discard this Pokémon and all attached cards"
+  }
+ ]
+}
