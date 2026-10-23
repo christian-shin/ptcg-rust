@@ -1169,6 +1169,9 @@ pub struct DamageAcc {
     pub flags: u8,
     /// The Abilities (`PowerDef::name_id`) whose non-stacking reduction already applied to this damage (`NonStack::SameAbility`).
     pub applied: SVec<u16, 4>,
+    /// Tools to discard once the damage is done (`TableRules::damage_reducing_tool_discarded_after_the_damage`): the card and
+    /// the cause of its discard.
+    pub discard_after: SVec<(CardId, crate::cause::Cause), 2>,
 }
 
 /// The printed name (`PowerDef::name_id`) of the Ability the passive of the card `me` is (a `NonStack::SameAbility`
@@ -1398,7 +1401,11 @@ pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d:
         // D1).
         let t = b.target;
         let cause = crate::cause::Cause::of_origin(origin, me, t.p);
-        crate::engine::knockout::leave_play_cards(g, t, &[me], super::event::RulesZone::Discard, cause, None)?;
+        if g.st.rules.damage_reducing_tool_discarded_after_the_damage {
+            acc.discard_after.push((me, cause));
+        } else {
+            crate::engine::knockout::leave_play_cards(g, t, &[me], super::event::RulesZone::Discard, cause, None)?;
+        }
     }
     Ok(())
 }
