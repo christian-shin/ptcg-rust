@@ -12768,5 +12768,15 @@
   "key": "Glaceon TWM 54",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "2",
+  "name": "Metapod",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Metapod JTG 2",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

@@ -91,21 +91,6 @@ pub enum PutOnAttacker {
     DamageDone,
 }
 
-/// The damage a lasting "prevent all damage ... if that damage is N or less" covers: one entry per printed cap (each is a static
-/// `Prevent` of the lasting table, `passive::LASTING_PREVENTS`).
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum DamageCap {
-    AtMost40,
-}
-
-impl DamageCap {
-    pub const fn spec(self) -> &'static crate::spec::passive::PreventSpec {
-        match self {
-            DamageCap::AtMost40 => &crate::spec::passive::LASTING_PREVENT_DAMAGE_AT_MOST_40,
-        }
-    }
-}
-
 /// A lasting attack effect (vocabulary v1 `Lasting`). The core owns the
 /// pending-to-active roll-over at the end of the turn and the expiry.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -126,8 +111,12 @@ pub enum Lasting {
     TakesMoreDamage(i32),
     /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks from `source`.
     PreventDamage(DamageSource),
-    /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is at most this much.
-    PreventDamageAtMost(DamageCap),
+    /// During the opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is this much or less:
+    /// the damage after Weakness, Resistance and the effects on the Pokémon, as the prevention reads it at step 6 of the damage
+    /// calculation (id472, id2197: "Weakness & Resistance are factored in before determining whether Harden blocks it"). The
+    /// bound is stored with the prevention (`LastingWhat::Prevent::at_most`); like every attack's effect on the Pokémon it ends
+    /// when the Pokémon leaves the Active Spot (id2196).
+    PreventDamageAtMost(i16),
     /// During the opponent's next turn, if this Pokémon is damaged by an attack (even if Knocked Out), put damage counters on the
     /// Attacking Pokémon: a number of them, or as many as the damage done.
     Retaliate(PutOnAttacker),

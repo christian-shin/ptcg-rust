@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Caterpie JTG 1",
+   "4 Metapod JTG 2",
+   "4 Torchic JTG 22",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "16 Fire Energy MEE 2",
+   "16 Psychic Energy MEE 5",
+   "12 Grass Energy MEE 1"
+  ],
+  [
+   "4 Caterpie JTG 1",
+   "4 Metapod JTG 2",
+   "4 Torchic JTG 22",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "16 Fire Energy MEE 2",
+   "16 Psychic Energy MEE 5",
+   "12 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Caterpie JTG 1",
+   "Metapod JTG 2"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Wobbuffet DRI 82",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Harden"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt Bounce"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Metapod JTG 2",
+   "damage": 70,
+   "cite": "card text: only damage of 60 or less is prevented (Headbutt Bounce 70)"
+  }
+ ]
+}

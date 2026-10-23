@@ -1828,12 +1828,9 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BURNED: PreventSpec = PreventSpec::on(
     ]),
 );
 
-/// "Prevent all damage done to this Pokémon by attacks if that damage is 40 or less": the damage after Weakness and Resistance
-/// (id472, id2197).
-pub static LASTING_PREVENT_DAMAGE_AT_MOST_40: PreventSpec = PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::AmountAtMost(40)]));
-
-/// Every lasting `Prevent` an attack can leave on a Pokémon (a `LastingWhat::Prevent` stores an index into it).
-pub static LASTING_PREVENTS: [&PreventSpec; 8] = [
+/// Every lasting `Prevent` an attack can leave on a Pokémon (a `LastingWhat::Prevent` stores an index into it, and the damage
+/// bound "if that damage is N or less" of `Lasting::PreventDamageAtMost`).
+pub static LASTING_PREVENTS: [&PreventSpec; 7] = [
     &LASTING_PREVENT_EFFECTS,
     &LASTING_PREVENT_DAMAGE,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC,
@@ -1841,7 +1838,6 @@ pub static LASTING_PREVENTS: [&PreventSpec; 8] = [
     &LASTING_PREVENT_DAMAGE_FROM_ABILITY,
     &LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
     &LASTING_PREVENT_DAMAGE_FROM_BURNED,
-    &LASTING_PREVENT_DAMAGE_AT_MOST_40,
 ];
 
 /// The index of a lasting `Prevent` in [`LASTING_PREVENTS`].
@@ -2219,9 +2215,9 @@ pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
         }
     }
     for l in crate::engine::lasting::prevents(&g.st, t.p as usize, t.s).iter() {
-        let crate::state::LastingWhat::Prevent { spec, pending } = l.what else { continue };
+        let crate::state::LastingWhat::Prevent { spec, pending, at_most } = l.what else { continue };
         let spec = LASTING_PREVENTS[spec as usize];
-        if pending || spec.coin || !ranges(&spec.from, v.kind) {
+        if pending || spec.coin || !ranges(&spec.from, v.kind) || at_most.is_some_and(|n| v.amount > n as i32) {
             continue;
         }
         if spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &spec.protects)? {

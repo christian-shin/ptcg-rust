@@ -6298,5 +6298,10 @@
   "name": "Glaceon",
   "text": "Glaceon\n- Water - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nEevee\nW\nPermeating Chill 30\nAt the end of your opponent's next turn, put 9 damage counters on the Defending Pokémon.\nWC\nIcicle Missile 70\nWeakness: Metal\nResistance: none\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/TWM/54"
+ },
+ "JTG 2": {
+  "name": "Metapod",
+  "text": "Metapod\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nCaterpie\nG\nHarden\nDuring your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 60 or less.\nWeakness: Fire\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/JTG/2"
  }
 }

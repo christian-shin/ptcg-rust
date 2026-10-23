@@ -707,8 +707,9 @@ pub enum LastingWhat {
     /// "The Defending Pokémon takes N more damage from attacks" (by the attacking player's attacks).
     TakesMoreDamage { amount: i16, attacker: Option<u8>, pending: bool, rearm: bool },
     /// "Prevent all damage done to / effects of attacks done to this Pokémon": a `Prevent` (an index into
-    /// `passive::LASTING_PREVENTS`), evaluated for the source card.
-    Prevent { spec: u8, pending: bool },
+    /// `passive::LASTING_PREVENTS`), evaluated for the source card; `at_most`: "if that damage is N or less" (the damage the
+    /// prevention reads, `EventView::amount`).
+    Prevent { spec: u8, pending: bool, at_most: Option<i16> },
     /// A lasting trigger: "if this Pokémon is damaged by an attack, put N damage counters on the Attacking Pokémon"
     /// (the source's attack `attack`, by player `attacker`).
     Retaliate { amount: crate::spec::ops::state::PutOnAttacker, attack: AttackRef, attacker: u8, pending: bool },

@@ -100,9 +100,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Lasting::ThisTakesMoreDamage(n) => l::set_takes_less(st, tp, ts, -n, crate::spec::ops::state::DamageSource::Any, card),
             Lasting::DealsLessDamage(n) => l::set_deals_less(st, tp, ts, n, card),
             Lasting::TakesMoreDamage(n) => l::set_takes_more(st, tp, ts, n, p as u8, card),
-            Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
-            Lasting::PreventDamageAtMost(cap) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(cap.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
-            Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), None, cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            Lasting::PreventDamageAtMost(n) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_DAMAGE), Some(n), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), None, cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
             // The two lasting triggers (they fire in the Damage routine's step-7 window and in the KnockOut routine): an
             // attack's only.
             Lasting::Retaliate(n) => {

@@ -1164,3 +1164,4 @@ Pinsir TWM 3	PinsirTWM
 Jynx PBL 32	JynxPBL
 Team Rocket's Grimer DRI 123	TeamRocketsGrimer
 Glaceon TWM 54	GlaceonTWM
+Metapod JTG 2	MetapodJTG
