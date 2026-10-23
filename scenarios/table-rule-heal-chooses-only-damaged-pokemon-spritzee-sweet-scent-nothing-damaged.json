@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Spritzee POR 35",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Spritzee POR 35",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Spritzee POR 35",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sweet Scent"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "ChoosePokemon"
+   ],
+   "cite": "table rule heal_chooses_only_damaged_pokemon (on): no Pok\u00e9mon with damage on it, so nothing is offered and nothing is asked"
+  }
+ ],
+ "rules": {
+  "heal_chooses_only_damaged_pokemon": true
+ }
+}

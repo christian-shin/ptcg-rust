@@ -333,17 +333,33 @@ fn prevented_damage_counters_have_one_entry_of_0() {
     assert_eq!((e.len(), e[0].kind, e[0].amount), (1, EventKind::PlaceCounters, 20));
 }
 
-/// An attack with printed damage whose damage comes out 0 (Victini BLK 12's V-Force with 4 or fewer Benched Pokémon:
-/// "this attack does nothing") has one Damage entry of 0 on the Defending Pokémon, which takes no damage.
+/// An attack whose text makes it do nothing (Victini BLK 12's V-Force with 4 or fewer Benched Pokémon: "this attack does
+/// nothing") does no damage at all: no damage calculation, no Damage entry, and the Defending Pokémon takes none.
 #[test]
-fn an_attack_whose_damage_comes_out_0_has_one_entry_of_0() {
+fn an_attack_that_does_nothing_has_no_damage_entry() {
     let v = "Victini BLK 12";
     let mut g = game_of(&[(MON, 4), (v, 2), (FIRE, 4)], serde_json::json!({"me": {"reset": true, "active": v, "active_energy": [FIRE, FIRE]}, "opp": {"reset": true, "active": MON}}));
     g.st.set_turn(2);
     let opp = 1 - g.st.active_player as usize;
-    let defending = g.st.active_pokemon(opp);
     g.record_on();
     attack(&mut g, "V-Force");
+    let e = g.take_record();
+    assert!(e.iter().all(|x| x.kind != EventKind::Damage), "{e:?}");
+    assert_eq!(g.st.slot(opp, g.st.players[opp].active).damage, 0);
+}
+
+/// A damage that is calculated and comes out 0 (Zoroark WHT 62's Mind Jack, 30 for each of the opponent's Benched Pokémon,
+/// with none) has one Damage entry of 0 on the Defending Pokémon, which takes no damage.
+#[test]
+fn a_calculated_damage_of_0_has_one_entry_of_0() {
+    let z = "Zoroark WHT 62";
+    let dark = "Darkness Energy MEE 7";
+    let mut g = game_of(&[(MON, 4), (z, 2), (dark, 4)], serde_json::json!({"me": {"reset": true, "active": z, "active_energy": [dark, dark, dark]}, "opp": {"reset": true, "active": MON}}));
+    g.st.set_turn(2);
+    let opp = 1 - g.st.active_player as usize;
+    let defending = g.st.active_pokemon(opp);
+    g.record_on();
+    attack(&mut g, "Mind Jack");
     let e = g.take_record();
     let damage: Vec<_> = e.iter().filter(|x| x.kind == EventKind::Damage).collect();
     assert_eq!(damage.len(), 1, "{e:?}");
@@ -374,4 +390,27 @@ fn a_prevented_attack_damage_has_one_entry_of_0() {
     assert_eq!(damage.len(), 1, "{e:?}");
     assert_eq!((damage[0].card, damage[0].amount), (dunsparce, 0));
     assert_eq!(g.st.slot(me, g.st.players[me].active).damage, 0);
+}
+
+/// A Tool discarded as it reduces damage to 0 (Payapa Berry: "takes 60 less damage, and discard this card"): the Tool's
+/// discard comes before the entry of 0 as the reduction is applied (off); at a table with
+/// `damage_reducing_tool_discarded_after_the_damage` the entry of 0 comes first, then the discard.
+#[test]
+fn a_tool_discarded_by_its_reduction_follows_the_damage_only_at_a_table_that_says_so() {
+    for after in [false, true] {
+        let (s, berry) = ("Spritzee POR 35", "Payapa Berry SCR 141");
+        let mut g = game_of(&[(MON, 4), (s, 2), (berry, 2), ("Psychic Energy MEE 5", 4)], serde_json::json!({"me": {"reset": true, "active": s, "active_energy": ["Psychic Energy MEE 5"]}, "opp": {"reset": true, "active": MON, "active_tool": berry}}));
+        g.st.rules.damage_reducing_tool_discarded_after_the_damage = after;
+        g.st.set_turn(2);
+        let opp = 1 - g.st.active_player as usize;
+        let berry_def = crate::carddb::def_by_full_name(berry).unwrap();
+        let tool = g.st.slot(opp, g.st.players[opp].active).cards().iter().find(|c| g.st.cards[*c as usize].def == berry_def).expect("the Tool is attached");
+        g.record_on();
+        attack(&mut g, "Ram");
+        let e = g.take_record();
+        let damage = e.iter().position(|x| x.kind == EventKind::Damage && x.amount == 0).expect("the entry of 0");
+        let left = e.iter().position(|x| x.kind == EventKind::LeavePlay && x.card == Some(tool)).unwrap_or_else(|| panic!("the Tool leaves play: {e:?}"));
+        assert_eq!(damage < left, after, "after = {after}: {e:?}");
+        assert_eq!(g.st.slot(opp, g.st.players[opp].active).damage, 0);
+    }
 }

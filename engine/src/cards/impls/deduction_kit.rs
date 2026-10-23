@@ -4,8 +4,8 @@
 //! The Look sets the top 3 cards aside (all of the deck when it holds fewer), then the player chooses one of two puts of
 //! them back into the deck: on top in the order the player chooses (`DeckOrder::ChosenBy`), or shuffled among themselves on the
 //! bottom (`DeckOrder::Shuffled`, APR E-35: "shuffle them and put them on the bottom" shuffles only those cards, not the
-//! deck). With an empty deck there is nothing to look at and the card can't be played (id925): the rules' walk reads a Look of
-//! the deck as possible, so `needs` holds the deck's card.
+//! deck). With an empty deck there is nothing to look at, so nothing is set aside to put back and the card can't be played
+//! (APR B-01 step 1, id925): the rules' walk follows the Look's cards into each option of the choice.
 use crate::spec::prelude::*;
 
 const SET_ASIDE: ZoneRef = ZoneRef(Who::Me, Zone::Scratch(0));
@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "DeductionKit",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Choose(ChooseSpec {

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Lit(0), when: Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Ne, Num::ZoneSize(ZoneRef(Who::Opp, Zone::Hand))) })),
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Nothing, hp: Num::Lit(0), when: Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Ne, Num::ZoneSize(ZoneRef(Who::Opp, Zone::Hand))) })),
             ],
         },
     ],

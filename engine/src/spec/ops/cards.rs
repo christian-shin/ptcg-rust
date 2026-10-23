@@ -1766,7 +1766,7 @@ fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec)
 /// itself; an op on the cards an earlier op chose or set aside is possible when that choice is (a gate); moving cards needs cards
 /// to move; a search and a draw need a deck with a card.
 pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
-    let deck = |w: Who| deck_read_has_card(g, f, f.who(w));
+    let deck = |w: Who| !g.st.players[f.who(w)].deck().is_empty();
     let dependent = |from: &ZoneRef, cards: &CardSel| matches!(cards, CardSel::Chosen(_)) || matches!(from.1, Zone::Scratch(_));
     Some(match op {
         Op::Pick(_) | Op::Snapshot(_) | Op::PickPrize(_) | Op::PrizeVisibility(_) => return None,
@@ -1795,7 +1795,7 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         Op::HandShuffleDraw(h) => {
             let p = f.who(h.who);
             let hand = if matches!(h.who, Who::Me) { hand_len_without(g, f, p, me) } else { g.st.players[p].hand().len() as i32 };
-            hand > 0 || (num(g, me, f, &h.draw) > 0 && deck_read_has_card(g, f, p))
+            hand > 0 || (num(g, me, f, &h.draw) > 0 && !g.st.players[p].deck().is_empty())
         }
         Op::DiscardEnergy(d) => energy_move_possible(g, me, f, d),
         _ => implied_ok(g, me, f, op),
@@ -1829,7 +1829,7 @@ fn energy_move_possible(g: &Game, me: CardId, f: &Frame, d: &DiscardEnergySpec) 
 /// still above 0 for "draw until you have N cards in your hand".
 pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec, removed: i32) -> bool {
     let p = f.who(d.who);
-    if !deck_read_has_card(g, f, p) {
+    if g.st.players[p].deck().is_empty() {
         return false;
     }
     match &d.amount {
@@ -1837,12 +1837,6 @@ pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec,
         DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
         _ => true,
     }
-}
-
-/// Does player `p`'s deck hold a card, as the usability walk reads it for a draw, a search or a pick from the deck? An
-/// Ability's walk doesn't read it at a table with `TableRules::ability_draw_or_search_offered_with_empty_deck` (yes).
-fn deck_read_has_card(g: &Game, f: &Frame, p: usize) -> bool {
-    !g.st.players[p].deck().is_empty() || (g.st.rules.ability_draw_or_search_offered_with_empty_deck && matches!(f.prog, crate::spec::run::Prog::Power(_)))
 }
 
 /// Would the pick find a card (`run::usable_by_rules`: what the ops on its register can do)? A pick that may take none
@@ -1855,7 +1849,7 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, pick: &PickSpec) -> bo
         return false;
     }
     if pick.from.1 == Zone::Deck {
-        return deck_read_has_card(g, f, f.who(pick.from.0));
+        return !g.st.players[f.who(pick.from.0)].deck().is_empty();
     }
     zone_cards(g, me, f, pick.from).iter().any(|c| pick_ok(g, f, pick, *c))
 }
@@ -1931,7 +1925,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
         return false;
     }
     if pick.from.1 == Zone::Deck {
-        return deck_read_has_card(g, f, f.who(pick.from.0)) && named_copy_may_be_in_deck(g, f.who(pick.from.0), &pick.predicate);
+        return !g.st.players[f.who(pick.from.0)].deck().is_empty() && named_copy_may_be_in_deck(g, f.who(pick.from.0), &pick.predicate);
     }
     let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count() as i32;
     let min = num(g, me, f, &pick.bounds.min).max(1).min(room);

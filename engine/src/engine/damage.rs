@@ -88,7 +88,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // by your opponent's Active Pokémon do N less damage" reduces the damage to each Pokémon): a modifier names the Pokémon
     // it is for (`DamageDealtSpec::target`; the default is the opponent's Active Pokémon, which a Benched one never is).
     {
-        let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0, applied: crate::list::SVec::new() };
+        let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0, applied: crate::list::SVec::new(), discard_after: crate::list::SVec::new() };
         attacker_side(g, &mut acc)?;
         d = acc.damage;
     }
@@ -109,7 +109,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     }
     // Step 5: the effects on the damaged Pokémon: the defender-side modifiers (DamageTaken), the survive-on-10
     // replacements of a full-HP Pokémon (SurviveOnTen), then the lasting "takes N less / more damage".
-    let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: deal, survive: false, flags: 0, applied: crate::list::SVec::new() };
+    let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: deal, survive: false, flags: 0, applied: crate::list::SVec::new(), discard_after: crate::list::SVec::new() };
     defender_side(g, &mut acc)?;
     d = acc.damage;
     let survive = acc.survive;
@@ -135,16 +135,22 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     }
     if d <= 0 {
         crate::record::comes_out_zero(g, EventKind::Damage, t, b.cause);
-        return Ok(());
+    } else {
+        g.run_fx_unit(Effect::Damage { b, amount: d, survive })?;
     }
-    g.run_fx_unit(Effect::Damage { b, amount: d, survive })
+    // Tools discarded by their reduction, at a table where that follows the damage.
+    for (card, cause) in acc.discard_after.iter().copied() {
+        crate::engine::knockout::leave_play_cards(g, t, &[card], crate::spec::event::RulesZone::Discard, cause, None)?;
+    }
+    Ok(())
 }
 
-/// The base damage of the attack of `b` came out 0 (APR A-01 step 4; Damage Calculation Order 1): it does no damage and
-/// no calculation is done. One with printed damage (a multiplier of 0, "this attack does nothing") shows a damage of 0 to
-/// the Defending Pokémon in the record (`record::comes_out_zero`); an attack without printed damage does no damage at all.
+/// The base damage of the attack of `b` came out 0 (APR A-01 step 4; Damage Calculation Order 1): no calculation is done.
+/// A damage that was calculated and came out 0 (a multiplier with no count: "30x" with no heads) shows a damage of 0 to the
+/// Defending Pokémon in the record (`record::comes_out_zero`). An attack whose text made it do nothing
+/// (`fx_flag::DOES_NOTHING`) and an attack without printed damage do no damage at all: no entry.
 pub fn base_damage_zero(g: &mut Game, b: &AtkBase) {
-    if g.record.on() && crate::engine::attack::attack_def(g, b.attack).damage > 0 {
+    if g.record.on() && g.fx_flags(b.attack_effect) & crate::game::fx_flag::DOES_NOTHING == 0 && crate::engine::attack::attack_def(g, b.attack).damage > 0 {
         crate::record::comes_out_zero(g, EventKind::Damage, b.target, b.cause);
     }
 }

@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Timburr",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::before_damage(Op::Coin(CoinSpec { tails: &[Step::new(damage_is(Num::Lit(0)))], ..CoinSpec::DEFAULT }))],
+        steps: &[Step::before_damage(Op::Coin(CoinSpec { tails: &[Step::new(attack_does_nothing(Cond::True))], ..CoinSpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

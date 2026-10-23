@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "WatchogWHT",
-    attacks: &[AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { tails: &[Step::new(damage_is(Num::Lit(0)))], ..CoinSpec::DEFAULT }))] }],
+    attacks: &[AttackSpec { index: 1, steps: &[Step::before_damage(Op::Coin(CoinSpec { tails: &[Step::new(attack_does_nothing(Cond::True))], ..CoinSpec::DEFAULT }))] }],
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: 0, applies_to: BonusFor::Attack(1), change: BonusChange::BaseDamage(240) }) }],
     ..CardSpec::NONE
 };

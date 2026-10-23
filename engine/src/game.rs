@@ -138,6 +138,9 @@ pub mod fx_flag {
     pub const TRIGGERS_OPEN: u8 = 1 << 3;
     /// The player took the attack's optional effect (`AttackFlagKind::OptionChosen`).
     pub const OPTION_CHOSEN: u8 = 1 << 4;
+    /// The attack's text made it do nothing (`DamageOp::Nothing`, `ChoiceDamageBy::NothingUnless`): no damage is done, so no
+    /// damage calculation happens and the record has no entry (`damage::base_damage_zero`).
+    pub const DOES_NOTHING: u8 = 1 << 5;
 }
 
 /// A step queued in an attack's after-damage window.

@@ -1,0 +1,47 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Grimsley's Move PFL 90",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Grimsley's Move PFL 90",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "hand": [
+   "Grimsley's Move PFL 90"
+  ],
+  "deck_left": 0
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Grimsley's Move PFL 90",
+   "is": false,
+   "cite": "APR B-01 step 1; id925: with no card in the deck the Look sets nothing aside, so no later step changes the game and the card can't be played"
+  }
+ ]
+}

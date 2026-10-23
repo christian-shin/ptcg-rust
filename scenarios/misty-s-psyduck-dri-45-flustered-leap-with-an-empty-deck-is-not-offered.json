@@ -23,40 +23,21 @@
     ]
    }
   ],
-  "reset": true
+  "reset": true,
+  "deck_left": 0
  },
  "opp": {
   "active": "Chewtle SCR 43",
   "reset": true
  },
- "answers": [
-  {
-   "a": "ability",
-   "name": "Flustered Leap",
-   "source": {
-    "player": 2,
-    "slot": 2,
-    "index": 0
-   }
-  },
-  false,
-  {
-   "a": "pass"
-  }
- ],
  "expect": [
   {
-   "at": "turn_end",
+   "at": "start",
    "who": "me",
-   "bench_count": 1,
-   "cite": "card text: you may discard the bottom card of your deck"
-  },
-  {
-   "at": "turn_end",
-   "who": "me",
-   "zone": "discard",
-   "count": 0,
-   "cite": "card text: nothing is discarded"
+   "legal": "ability",
+   "name": "Flustered Leap",
+   "is": false,
+   "cite": "APR A-02 step 1: with no card in the deck there is no bottom card to discard, so the Ability would not change the game state and can't be used"
   }
  ]
 }

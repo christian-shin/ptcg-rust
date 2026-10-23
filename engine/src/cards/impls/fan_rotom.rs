@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "FanRotom",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::before_damage(damage_is(Num::If(&Cond::StadiumInPlay(Pred::Any), &Num::Lit(70), &Num::Lit(0)))),
+            Step::before_damage(attack_does_nothing(Cond::Not(&Cond::StadiumInPlay(Pred::Any)))),
         ] },
     ],
     powers: &[PowerSpec {

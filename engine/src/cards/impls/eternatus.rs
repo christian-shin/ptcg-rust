@@ -23,7 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
-                Step::before_damage(damage_is(Num::If(&STADIUM_IN_PLAY, &Num::Lit(230), &Num::Lit(0)))),
+                Step::before_damage(attack_does_nothing(Cond::Not(&STADIUM_IN_PLAY))),
                 Step::after_damage(Op::If(IfSpec {
                     cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
                     yes: &[Step::new(Op::Discard(DiscardSpec { from: MY_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT }))],

@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Basculin",
     attacks: &[AttackSpec {
         index: 1,
-        steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Lit(0), when: Cond::Cmp(Num::DamageOn(OPP_ACTIVE), CmpOp::Eq, Num::Lit(0)) }))],
+        steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Nothing, hp: Num::Lit(0), when: Cond::Cmp(Num::DamageOn(OPP_ACTIVE), CmpOp::Eq, Num::Lit(0)) }))],
     }],
     ..CardSpec::NONE
 };

@@ -119,15 +119,23 @@ pub struct TableRules {
     /// Rare Candy can't be used while an evolution-preventing Ability is in effect; id925, APR B-01: a card whose effect
     /// would not change the game can't be played).
     pub play_evolving_trainer_under_evolution_lock: bool,
-    /// Whether an Ability can be used doesn't read whether a deck its effect draws from or searches holds a card: an
-    /// Ability that draws cards or searches a deck is offered with that deck empty (e.g. Lunatone's Lunar Cycle: the
-    /// Energy is discarded, nothing is drawn; its once-per-turn use is spent). Every other part of the walk still applies
-    /// (its printed conditions, its costs, a choice from a known zone). Trainers and attacks are judged as off.
-    /// `spec::ops::cards::deck_read_has_card` (the walk's read of a deck for a draw, a search, a pick from it).
+    /// A heal that names its Pokémon by choice ("heal 30 damage from 1 of your Pokémon": Spritzee's Sweet Scent, Jacinthe)
+    /// offers only the Pokémon with damage counters on them; with none, nothing is chosen and nothing is healed.
+    /// `spec::ops::board::exec` (the `Op::Heal` pick).
     ///
-    /// Off (the rulings): an Ability that would not change the game state can't be used (APR A-02 step 1; id2362: "you
-    /// cannot simply discard 2 cards for no effect"; id925): a draw or a search of an empty deck changes nothing.
-    pub ability_draw_or_search_offered_with_empty_deck: bool,
+    /// Off (the rulings): any Pokémon the text allows can be chosen, an undamaged one too (compendium id1775: a heal of
+    /// 40 from 1 of your Pokémon can be used with a Pokémon without damage as "a valid target"); healing it does nothing
+    /// (RULES.md: "Healing a Pokémon with no damage counters isn't healing it"). A card that needs damage to be played
+    /// (Jacinthe, a damaged [P] Pokémon) keeps that condition either way.
+    pub heal_chooses_only_damaged_pokemon: bool,
+    /// A Tool that is discarded as part of reducing damage ("takes 60 less damage, and discard this card": Payapa Berry) is
+    /// discarded once the damage is done: the Damage event (or, when the reduction brings it to 0, the record's entry of 0)
+    /// comes first, then the Tool leaves play. `engine::damage::deal`.
+    ///
+    /// Off: the Tool leaves play as the reduction is applied, in step 5 of the damage calculation, before the damage is
+    /// done. No ruling gives the order (the attack steps chart and APR B-05 name the reduction, not the discard): the
+    /// order of the card's own words, "takes less damage, and discard", is kept.
+    pub damage_reducing_tool_discarded_after_the_damage: bool,
 }
 
 impl TableRules {
@@ -143,7 +151,8 @@ impl TableRules {
         "ability_attach_targets_unread",
         "attack_choices_asked_when_their_effect_runs",
         "play_evolving_trainer_under_evolution_lock",
-        "ability_draw_or_search_offered_with_empty_deck",
+        "heal_chooses_only_damaged_pokemon",
+        "damage_reducing_tool_discarded_after_the_damage",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -159,7 +168,8 @@ impl TableRules {
             "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
             "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
-            "ability_draw_or_search_offered_with_empty_deck" => &mut self.ability_draw_or_search_offered_with_empty_deck,
+            "heal_chooses_only_damaged_pokemon" => &mut self.heal_chooses_only_damaged_pokemon,
+            "damage_reducing_tool_discarded_after_the_damage" => &mut self.damage_reducing_tool_discarded_after_the_damage,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
