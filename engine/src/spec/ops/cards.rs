@@ -1234,30 +1234,40 @@ fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
     slots
 }
 
-/// The Pokémon that can't receive the cards.
-fn blocked_to(g: &mut Game, me: CardId, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> {
+/// The Pokémon that can't receive the cards: those that fail the text's target, and those none of the cards that can be
+/// chosen (`cards`) can be attached to, the Attach's checks refusing each (a lock: "Energy can't be attached from your
+/// opponent's hand to the Defending Pokémon"; the card's own guard; the spot: RULES.md "Options that can't do anything", a
+/// prompt offers what can change the game). A prevention doesn't block a Pokémon (it stays choosable, id290; the card is
+/// discarded instead, id2354).
+fn blocked_to(g: &mut Game, me: CardId, f: &Frame, p: usize, a: &AttachSpec, cards: &[CardId]) -> R<SVec<CardTarget, 9>> {
     let mut out: SVec<CardTarget, 9> = SVec::new();
-    match a.scan {
-        TargetScan::InPlay => {
-            for (slot, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if !slot_pred_m(g, me, SlotRef::new(p, slot), &a.target)? {
-                    out.push(t);
-                }
-            }
-        }
+    let targets: Vec<(SlotId, CardTarget)> = match a.scan {
+        TargetScan::InPlay => for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().map(|(slot, _, t)| (*slot, *t)).collect(),
         TargetScan::Bench => {
             let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
-            for (index, s) in bench.into_iter().enumerate() {
-                if g.st.slot(p, s).cards().is_empty() {
-                    continue;
-                }
-                if !slot_pred_m(g, me, SlotRef::new(p, s), &a.target)? {
-                    out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, index as u8));
-                }
-            }
+            bench.into_iter().enumerate().filter(|(_, s)| !g.st.slot(p, *s).cards().is_empty()).map(|(index, s)| (s, CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, index as u8))).collect()
+        }
+    };
+    for (slot, t) in targets {
+        let to = SlotRef::new(p, slot);
+        if !slot_pred_m(g, me, to, &a.target)? || (!cards.is_empty() && none_attachable(g, f, cards, to)?) {
+            out.push(t);
         }
     }
     Ok(out)
+}
+
+/// Do the Attach's checks refuse each of `cards` onto the Pokémon in `to` (`engine::attach::check_attach_with`, the routine's
+/// own checks)?
+fn none_attachable(g: &mut Game, f: &Frame, cards: &[CardId], to: SlotRef) -> R<bool> {
+    for &c in cards {
+        let Some((_, source)) = crate::engine::enter::source_of(g, c) else { continue };
+        let v = crate::engine::attach::attach_view(g, c, to, source, false, f.cause);
+        if crate::engine::attach::check_attach_with(g, &v)?.is_none() {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool> {
@@ -1277,7 +1287,8 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
             o.blocked.push(i as u8);
         }
     }
-    o.blocked_to = blocked_to(g, me, p, a)?;
+    let choosable: Vec<CardId> = cards.iter().copied().filter(|c| pred(g, *c, &a.predicate)).collect();
+    o.blocked_to = blocked_to(g, me, f, p, a, &choosable)?;
     o.same_target = a.same_target;
     o.different_targets = a.different_targets;
     if !a.valid_types.is_empty() {
@@ -3314,13 +3325,40 @@ mod attach_target_tests {
         assert!(attach_targets_exist(&g, me, &f, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::DARK), TargetScan::Bench)));
         assert!(!attach_targets_exist(&g, me, &f, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::FIRE), TargetScan::InPlay)));
         // The prompt lists the Pokémon that fail the target: the Active one for [D] (InPlay), none for the Bench scan.
-        let blocked = blocked_to(&mut g, me, 0, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::DARK), TargetScan::InPlay)).unwrap();
+        let blocked = blocked_to(&mut g, me, &f, 0, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::DARK), TargetScan::InPlay), &[]).unwrap();
         assert_eq!(blocked.len(), 1);
         assert_eq!(blocked[0].slot, SlotType::Active);
-        assert!(blocked_to(&mut g, me, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::DARK), TargetScan::Bench)).unwrap().is_empty());
-        let blocked = blocked_to(&mut g, me, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::FIRE), TargetScan::Bench)).unwrap();
+        assert!(blocked_to(&mut g, me, &f, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::DARK), TargetScan::Bench), &[]).unwrap().is_empty());
+        let blocked = blocked_to(&mut g, me, &f, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::FIRE), TargetScan::Bench), &[]).unwrap();
         assert_eq!(blocked.len(), 1);
         assert_eq!(blocked[0].slot, SlotType::Bench);
+    }
+
+    /// A Pokémon none of the choosable cards can be attached to is blocked (a lock on it: "during your opponent's next turn,
+    /// Energy can't be attached from your opponent's hand to the Defending Pokémon", Trevenant CRI 39's Cursed Roots), so an
+    /// Ability's attach from the hand (Hydrapple ex's Ripening Charge) doesn't offer it: the option couldn't change the game
+    /// (RULES.md "Options that can't do anything").
+    #[test]
+    fn a_pokemon_a_lock_keeps_every_card_off_is_blocked() {
+        static NO_ENERGY_FROM_HAND: crate::spec::passive::LockDecl = crate::spec::passive::LockDecl::on(
+            crate::spec::event::EventPred::All(&[
+                crate::spec::event::EventPred::Kind(crate::spec::event::EventKind::Attach),
+                crate::spec::event::EventPred::Source(crate::spec::event::RulesZone::Hand),
+                crate::spec::event::EventPred::Card(Pred::Energy),
+            ]),
+            "BLOCKED_BY_EFFECT",
+        );
+        let (mut g, me) = board();
+        let energy = (0..g.st.n_cards).find(|c| g.st.owner(*c) == 0 && g.st.cdef(*c).is_energy() && g.st.players[0].deck().contains(*c)).unwrap();
+        g.move_card_to(ListRef::Deck(0), energy, ListRef::Hand(0));
+        let f = frame(&g, me);
+        let any = spec(AttachSlots::BenchActive, SlotPred::Any, TargetScan::InPlay);
+        assert!(blocked_to(&mut g, me, &f, 0, &any, &[energy]).unwrap().is_empty(), "no lock: every Pokémon can receive it");
+        let active = g.st.players[0].active;
+        crate::engine::lasting::add_pokemon_lock(&mut g.st, 0, active, &NO_ENERGY_FROM_HAND, 1, me, None);
+        let blocked = blocked_to(&mut g, me, &f, 0, &any, &[energy]).unwrap();
+        assert_eq!(blocked.len(), 1, "the locked Active Pokémon");
+        assert_eq!(blocked[0].slot, SlotType::Active);
     }
 }
 
