@@ -1080,6 +1080,20 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
             opts.blocked.push(i as u8);
         }
     }
+    // Cards the Attach this pick feeds can't be attached to its fixed Pokémon (a lock over Attach from the hand: an Ability that
+    // attaches "to this Pokémon") are blocked, as an Attach prompt blocks a Pokémon nothing can go onto.
+    if let Some(onto) = attach_onto_of(crate::spec::run::program_steps(g, me, f), pick.into) {
+        if let Some(to) = slot_of(g, me, f, onto) {
+            for (i, c) in cards.iter().enumerate() {
+                if pick_ok(g, f, pick, *c) && none_attachable(g, f, &[*c], to).unwrap_or(false) {
+                    opts.blocked.push(i as u8);
+                }
+            }
+        }
+    }
+    if min > 0 && opts.blocked.len() >= cards.len() {
+        return false;
+    }
     opts.different_types = pick.distinct_types;
     for cap in pick.caps {
         let v = Some(to_u8(num(g, me, f, &cap.max)));
@@ -1109,6 +1123,23 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     };
     choose_cards(g, p, purpose, list, Filter::none(), opts, Provenance::by(me), f.cont(me, sub));
     true
+}
+
+/// The Pokémon a later `Attach` names (`onto`) for the cards of register `reg`, when the program has one.
+fn attach_onto_of(steps: &[Step], reg: u8) -> Option<SlotExpr> {
+    for s in steps {
+        if let Op::Attach(AttachSpec { cards: CardSel::Chosen(r), onto: Some(e), .. }) = &s.op {
+            if *r == reg {
+                return Some(*e);
+            }
+        }
+        for sel in 0..=8 {
+            if let Some(e) = attach_onto_of(super::child(&s.op, sel), reg) {
+                return Some(e);
+            }
+        }
+    }
+    None
 }
 
 fn search_room(g: &Game, f: &Frame, s: &SearchSpec) -> i32 {
