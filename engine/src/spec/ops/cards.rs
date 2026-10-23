@@ -1768,7 +1768,13 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
             RevealWhat::Zone(z) => !zone_cards(g, me, f, *z).is_empty(),
             RevealWhat::Chosen(_) => true,
         },
-        Op::HandShuffleDraw(_) => true,
+        // Shuffling a hand into its deck changes the game when the hand holds a card, the draw after it when the deck
+        // holds one (an empty hand into an empty deck, then no card to draw: nothing changes; APR B-01 step 1, id925).
+        Op::HandShuffleDraw(h) => {
+            let p = f.who(h.who);
+            let hand = if matches!(h.who, Who::Me) { hand_len_without(g, f, p, me) } else { g.st.players[p].hand().len() as i32 };
+            hand > 0 || (num(g, me, f, &h.draw) > 0 && deck_read_has_card(g, f, p))
+        }
         Op::DiscardEnergy(d) => energy_move_possible(g, me, f, d),
         _ => implied_ok(g, me, f, op),
     })

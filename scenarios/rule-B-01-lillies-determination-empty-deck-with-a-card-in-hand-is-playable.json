@@ -1,0 +1,16 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Lillie's Determination ASC 192", "4 Hop's Snorlax JTG 117", "52 Fighting Energy MEE 6"],
+  ["4 Lillie's Determination ASC 192", "4 Hop's Snorlax JTG 117", "52 Fighting Energy MEE 6"]
+ ],
+ "me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Lillie's Determination ASC 192", "Fighting Energy MEE 6"], "deck_left": 0},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"},
+ "answers": [
+  {"a": "play", "card": "Lillie's Determination ASC 192"}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "play", "name": "Lillie's Determination ASC 192", "is": true, "cite": "Lillie's Determination text; APR B-01 step 1: the card in the hand is shuffled into the deck, then drawn (the hand goes into the deck: a change of the game state)"},
+  {"at": "decision", "n": 1, "who": "me", "zone": "hand", "count": 1, "cite": "Lillie's Determination text: shuffle your hand into your deck, then draw 6 cards: the only card in the deck is drawn"}
+ ]
+}

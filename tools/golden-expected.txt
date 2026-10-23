@@ -2,3 +2,11 @@
 # each a rules fix against the recording. Update in the same commit as a rules fix.
 # baseline ede53f7 recorded 2026-10-19 after events batch 10 E15-E19 and the once-per-turn rules fix (an Ability is used
 # once it is used, id127 / id249); the previous baseline 06d4018 (717 attributed to that fix) is banked in git history.
+# E28 RULES FIX (APR B-01 step 1, id925): Lillie's Determination with an empty hand and an empty deck is not offered
+g0500002971
+g0500003969
+g0500009468
+g0500012548
+g0500014042
+g0500016166
+g0500017122
