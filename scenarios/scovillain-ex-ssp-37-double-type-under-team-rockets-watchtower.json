@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scovillain ex SSP 37",
+   "4 Mega Dragalge ex CRI 65",
+   "46 Fire Energy MEE 2",
+   "4 Skrelp CRI 58",
+   "2 Team Rocket's Watchtower ASC 210"
+  ],
+  [
+   "4 Scovillain ex SSP 37",
+   "4 Mega Dragalge ex CRI 65",
+   "46 Fire Energy MEE 2",
+   "4 Skrelp CRI 58",
+   "2 Team Rocket's Watchtower ASC 210"
+  ]
+ ],
+ "me": {
+  "active": "Scovillain ex SSP 37",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true,
+  "active_damage": 20,
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "active": [
+   "Skrelp CRI 58",
+   "Mega Dragalge ex CRI 65"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spicy Rage"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragalge ex CRI 65",
+   "damage": 150,
+   "cite": "card text: 10 + 70 x 2 (Team Rocket's Watchtower in play: Scovillain ex is [G]/[R], not [C], so its Ability and the attack work)"
+  }
+ ]
+}
