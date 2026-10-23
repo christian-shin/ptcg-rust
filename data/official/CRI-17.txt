@@ -1,0 +1,15 @@
+Octillery
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Remoraid
+W
+Jet of Ink 30
+During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips 2 coins. If either of them is tails, that attack doesn't happen.
+WC
+Tantrum 120
+This Pokémon is now Confused.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

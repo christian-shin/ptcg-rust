@@ -50,14 +50,15 @@ pub struct PowerFrame {
 /// Attack-flow coin callbacks.
 #[derive(Clone, Copy, Debug)]
 pub enum AttackCoinCb {
-    /// The coin of a coin-gated lock on the attacking Pokémon (`CoinGate::TailsStopsAttack`): heads, the attack goes on (the Confusion
-    /// flip, then the attack); tails, it doesn't happen.
+    /// The coin(s) of a coin-gated lock on the attacking Pokémon (`CoinGate::TailsStopsAttack`): all heads, the attack goes on (the
+    /// Confusion flip, then the attack); any tails, it doesn't happen.
     Gate(AttackFrame),
 }
 
 pub fn coin_cb(g: &mut Game, a: AttackCoinCb, result: bool) -> R {
     match a {
         AttackCoinCb::Gate(f) => {
+            // `result`: the one flip, or every flip of the sequence heads.
             if result {
                 return confusion_then_attack(g, f, false);
             }
@@ -126,8 +127,13 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     // A coin-gated lock on the attacking Pokémon (Sand Attack): its flip comes first, before the Confusion flip (id2317); a legality
     // trial takes the heads path.
     if !what_if && !g.rng.is_fixed() {
-        if let Some(cause) = crate::spec::passive::attack_coin_gate(g, p, attacking, attack)? {
-            g.coin_flip(p, crate::game::CoinCb::Attack(AttackCoinCb::Gate(f)), cause)?;
+        if let Some((cause, coins)) = crate::spec::passive::attack_coin_gate(g, p, attacking, attack)? {
+            let cb = crate::game::CoinCb::Attack(AttackCoinCb::Gate(f));
+            if coins == 1 {
+                g.coin_flip(p, cb, cause)?;
+            } else {
+                crate::engine::condition::flip_sequence(g, p, coins, cb, cause)?;
+            }
             return Ok(());
         }
     }

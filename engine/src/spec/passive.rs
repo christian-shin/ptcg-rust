@@ -382,10 +382,11 @@ pub enum CoinGate {
     No,
     /// Flip when trying: tails, the event doesn't happen and the card is discarded instead.
     TailsDiscardsCard,
-    /// Flip when trying to use an attack ("if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails,
-    /// that attack doesn't happen"): tails, the attack isn't used (it ends at once, as a Confused Pokémon's tails does: APR D-01).
-    /// The flip comes before the Confusion flip (id2317) and before any cost the attack's text asks (id497).
-    TailsStopsAttack,
+    /// Flip `coins` coins when trying to use an attack ("if the Defending Pokémon tries to use an attack, your opponent flips a
+    /// coin. If tails, that attack doesn't happen"; "flips 2 coins. If either of them is tails, ..."): any tails, the attack isn't
+    /// used (it ends at once, as a Confused Pokémon's tails does: APR D-01). The flips come before the Confusion flip (id2317)
+    /// and before any cost the attack's text asks (id497).
+    TailsStopsAttack { coins: u8 },
 }
 
 /// A lock (events design section 5: `Lock { forbids }`), and the code the stopped action fails with: the events it
@@ -426,15 +427,21 @@ pub static CANT_ATTACK: LockDecl = LockDecl::on(
 /// "If the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen" (an attack's lasting
 /// effect on the Defending Pokémon, `Lasting::Lock` on it): not a legality check (heads lets the attack through), asked by the
 /// attack routine (`attack_coin_gate`).
-pub static ATTACK_COIN_GATE: LockDecl = LockDecl {
-    error: "BLOCKED_BY_EFFECT",
-    forbids: super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
-    coin: CoinGate::TailsStopsAttack,
-};
+pub static ATTACK_COIN_GATE: LockDecl = attack_coin_gate_of(1);
 
-/// A coin-gated lock on the attacking Pokémon that its attack `attack` matches: the cause of the coin (the lock's source's attack,
-/// by its owner), or `None` when no such lock applies (a plain read of the Pokémon's locks first).
-pub fn attack_coin_gate(g: &mut Game, p: usize, attacking: crate::effects::SlotRef, attack: crate::state::AttackRef) -> R<Option<crate::cause::Cause>> {
+/// The coin-gated attack lock that flips `coins` coins (any tails stops the attack): `ATTACK_COIN_GATE` is one coin; a card that
+/// says "flips 2 coins" declares `static X: LockDecl = attack_coin_gate_of(2)`.
+pub const fn attack_coin_gate_of(coins: u8) -> LockDecl {
+    LockDecl {
+        error: "BLOCKED_BY_EFFECT",
+        forbids: super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
+        coin: CoinGate::TailsStopsAttack { coins },
+    }
+}
+
+/// A coin-gated lock on the attacking Pokémon that its attack `attack` matches: the cause of the coins (the lock's source's attack,
+/// by its owner) and how many are flipped, or `None` when no such lock applies (a plain read of the Pokémon's locks first).
+pub fn attack_coin_gate(g: &mut Game, p: usize, attacking: crate::effects::SlotRef, attack: crate::state::AttackRef) -> R<Option<(crate::cause::Cause, u8)>> {
     let locks = crate::engine::lasting::pokemon_locks(&g.st, attacking.p as usize, attacking.s);
     if locks.is_empty() {
         return Ok(None);
@@ -443,8 +450,10 @@ pub fn attack_coin_gate(g: &mut Game, p: usize, attacking: crate::effects::SlotR
     let Some(me) = g.st.slot_pokemon(attacking.p as usize, attacking.s) else { return Ok(None) };
     for l in locks.iter() {
         let crate::state::LastingWhat::Lock { decl, .. } = l.what else { continue };
-        if decl.coin == CoinGate::TailsStopsAttack && decl.forbids.eval(g, me, &v)? {
-            return Ok(Some(crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8)));
+        if let CoinGate::TailsStopsAttack { coins } = decl.coin {
+            if decl.forbids.eval(g, me, &v)? {
+                return Ok(Some((crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8), coins)));
+            }
         }
     }
     Ok(None)

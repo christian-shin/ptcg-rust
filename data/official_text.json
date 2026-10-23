@@ -6273,5 +6273,10 @@
   "name": "Sandslash",
   "text": "Sandslash\n- Fighting - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nSandshrew\nCC\nSand Attack 50\nDuring your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.\nFCC\nMud Shot 100\nWeakness: Grass\nResistance: none\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/MEG/69"
+ },
+ "CRI 17": {
+  "name": "Octillery",
+  "text": "Octillery\n- Water - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nRemoraid\nW\nJet of Ink 30\nDuring your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips 2 coins. If either of them is tails, that attack doesn't happen.\nWC\nTantrum 120\nThis Pokémon is now Confused.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/17"
  }
 }

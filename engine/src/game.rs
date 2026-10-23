@@ -1034,6 +1034,8 @@ impl Game {
             CoinCb::DelegSequenceCard { card, source, serial, frame } => {
                 crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[Res::Int(results as i32), Res::Int(n as i32)], None)
             }
+            // A coin-gated attack lock's flips: the attack goes on only when every flip is heads.
+            CoinCb::Attack(a) => attack::coin_cb(self, a, results == (1u32 << n) - 1),
             other => self.run_coin_cb(other, result),
         }
     }

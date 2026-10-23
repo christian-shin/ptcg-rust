@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Octillery CRI 17",
+   "4 Chewtle SCR 43",
+   "48 Water Energy MEE 3",
+   "4 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Octillery CRI 17",
+   "4 Chewtle SCR 43",
+   "48 Water Energy MEE 3",
+   "4 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Octillery CRI 17",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chewtle SCR 43",
+  "reset": true,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "coins": [
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jet of Ink"
+  },
+  {
+   "a": "attack",
+   "name": "Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "slot": "active",
+   "card": "Octillery CRI 17",
+   "damage": 60,
+   "cite": "card text: both heads, the attack happens (Headbutt 60)"
+  }
+ ]
+}

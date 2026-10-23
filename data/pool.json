@@ -12718,5 +12718,15 @@
   "key": "Sandslash MEG 69",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "17",
+  "name": "Octillery",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Octillery CRI 17",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]
