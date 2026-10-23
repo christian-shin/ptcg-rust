@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[
         AttackSpec {
             index: 0,
-            steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Lit(0), when: Cond::Not(&Cond::Slot(OPP_ACTIVE, SlotPred::Condition(SpecialCondition::Burned))) }))],
+            steps: &[Step::before_damage(attack_does_nothing(Cond::Not(&Cond::Slot(OPP_ACTIVE, SlotPred::Condition(SpecialCondition::Burned)))))],
         },
         AttackSpec {
             index: 1,
