@@ -213,6 +213,8 @@ fn deal_damage(g: &mut Game, mut f: AttackFrame) -> R {
             g.wait_prompt(Cont::UseAttack(f));
             return Ok(());
         }
+    } else {
+        crate::engine::damage::base_damage_zero(g, &atk_base(g, f.atk));
     }
     after_attack(g, f)
 }

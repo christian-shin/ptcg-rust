@@ -73,7 +73,8 @@ pub fn damage_view(g: &Game, b: &AtkBase, amount: i32) -> EventView {
 /// Damage: the attack of `b` does `amount` damage to the Pokémon in `b.target`, in one calculation order (APR Damage
 /// Calculation Order 1-6). `deal`: the attack's damage calculated in full (the attacker-side modifiers, and Weakness and
 /// Resistance when the target is in an Active Spot); otherwise put on the Pokémon (`DamageCalc::Put`: no attacker-side
-/// modifiers, no Weakness or Resistance). Nothing happens when the final damage is 0 or a prevention applies.
+/// modifiers, no Weakness or Resistance). Nothing happens when the final damage is 0 or a prevention applies (the record
+/// shows a damage of 0, `record::comes_out_zero`).
 pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     let t = b.target;
     let mut d = amount;
@@ -120,17 +121,24 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // isn't affected by effects on the damaged Pokémon (Shred; APR C-16).
     if !shred {
         let v = damage_view(g, &b, d);
-        if crate::derived::event_prevented(g, &v)? {
-            return Ok(());
-        }
-        if d > 0 && crate::spec::passive::coin_prevented(g, &v)? {
-            return Ok(());
+        if crate::derived::event_prevented(g, &v)? || (d > 0 && crate::spec::passive::coin_prevented(g, &v)?) {
+            d = 0;
         }
     }
     if d <= 0 {
+        crate::record::comes_out_zero(g, EventKind::Damage, t, b.cause);
         return Ok(());
     }
     g.run_fx_unit(Effect::Damage { b, amount: d, survive })
+}
+
+/// The base damage of the attack of `b` came out 0 (APR A-01 step 4; Damage Calculation Order 1): it does no damage and
+/// no calculation is done. One with printed damage (a multiplier of 0, "this attack does nothing") shows a damage of 0 to
+/// the Defending Pokémon in the record (`record::comes_out_zero`); an attack without printed damage does no damage at all.
+pub fn base_damage_zero(g: &mut Game, b: &AtkBase) {
+    if g.record.on() && crate::engine::attack::attack_def(g, b.attack).damage > 0 {
+        crate::record::comes_out_zero(g, EventKind::Damage, b.target, b.cause);
+    }
 }
 
 /// Step 2's declarations: every card of the game with an attacker-side modifier at the Deal stage (`decl::fam::DAMAGE_DEALT`,
@@ -304,13 +312,14 @@ pub fn would_be_prevented(g: &mut Game, b: &AtkBase, amount: i32) -> R<bool> {
 
 /// PlaceCounters: `hp` HP of damage counters on the Pokémon in `target`. It doesn't happen (`Ok(false)`) when no
 /// Pokémon is there, there is nothing to place, or the event is refused (a lock; a prevention: Hide 'n' Sneak, Mist
-/// Energy, Battle Cage, ...).
+/// Energy, Battle Cage, ...; the record shows counters of 0 then, `record::comes_out_zero`).
 pub fn place(g: &mut Game, target: SlotRef, hp: i32, cause: Cause) -> R<bool> {
     if hp <= 0 || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
         return Ok(false);
     }
     let v = counters_view(g, target, hp, cause);
     if crate::engine::condition::refused(g, &v)?.is_some() {
+        crate::record::comes_out_zero(g, EventKind::PlaceCounters, target, cause);
         return Ok(false);
     }
     g.run_fx_unit(Effect::PlaceCounters { p: target.p, target, amount: hp, cause })?;
