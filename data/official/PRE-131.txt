@@ -1,0 +1,4 @@
+Treasure Tracker
+Trainer
+- Item
+Search your deck for up to 5 Pokémon Tool cards, reveal them, and put them into your hand. Then, shuffle your deck.

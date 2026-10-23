@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Treasure Tracker PRE 131",
+   "4 Handheld Fan TWM 150",
+   "4 Air Balloon ASC 181",
+   "4 Snover MEG 35",
+   "6 Grass Energy MEE 1",
+   "41 Water Energy MEE 3"
+  ],
+  [
+   "1 Treasure Tracker PRE 131",
+   "4 Handheld Fan TWM 150",
+   "4 Air Balloon ASC 181",
+   "4 Snover MEG 35",
+   "6 Grass Energy MEE 1",
+   "41 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Treasure Tracker PRE 131"
+  ],
+  "deck_top": [
+   "Handheld Fan TWM 150",
+   "Air Balloon ASC 181"
+  ],
+  "prizes": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Treasure Tracker PRE 131"
+  },
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "contains": [
+    "Handheld Fan TWM 150",
+    "Air Balloon ASC 181"
+   ],
+   "cite": "card text: search your deck for up to 5 Pok\u00e9mon Tool cards, reveal them, and put them into your hand (scripted: the 2 on top of the deck)"
+  }
+ ]
+}

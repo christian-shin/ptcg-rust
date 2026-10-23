@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Treasure Tracker PRE 131",
+   "4 Snover MEG 35",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Treasure Tracker PRE 131",
+   "4 Snover MEG 35",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand": [
+   "Treasure Tracker PRE 131"
+  ],
+  "deck_left": 0,
+  "reset": true
+ },
+ "opp": {
+  "active": "Snover MEG 35",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "is": false,
+   "name": "Treasure Tracker PRE 131",
+   "cite": "id840: an empty deck can't be searched"
+  }
+ ]
+}

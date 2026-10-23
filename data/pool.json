@@ -12978,5 +12978,15 @@
   "key": "Tremendous Bomb PBL 82",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "131",
+  "name": "Treasure Tracker",
+  "type": "Item",
+  "reg": "H",
+  "key": "Treasure Tracker PRE 131",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

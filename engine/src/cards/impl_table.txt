@@ -1185,3 +1185,4 @@ Nitro Fire Energy CRI 86	NitroFireEnergy
 Perrin TWM 160	Perrin
 Team Rocket's Hypnotizer ASC 206	TeamRocketsHypnotizer
 Tremendous Bomb PBL 82	TremendousBomb
+Treasure Tracker PRE 131	TreasureTracker
