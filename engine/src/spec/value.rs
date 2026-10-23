@@ -777,6 +777,9 @@ pub enum SlotPred {
     /// Damage counters were removed from the Pokémon during this turn ("if this Pokémon was healed during this turn": a
     /// heal that removed nothing isn't healing, id2198; `Slot::healed_this_turn`).
     HealedThisTurn,
+    /// The Pokémon has this many Energy attached or fewer, counting the Energy it provides (units, as the game checks it): "Pokémon
+    /// that have 2 or less Energy attached" (a checked read).
+    EnergyAtMost(i32),
 }
 
 impl SlotPred {
@@ -927,7 +930,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::AnyTool(q) => slot.tools().iter().any(|c| pred(g, c, q)),
         SlotPred::HasSpecialEnergy => slot.energies().iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::Recorded => crate::engine::lasting::is_recorded(&g.st, p, id, me),
-        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
+        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::EnergyAtMost(_) | SlotPred::RemainingHpAtMost(_) => return None,
         SlotPred::HasEnergyNamed(n) => slot.cards().iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_energy() && d.name == *n
@@ -996,6 +999,7 @@ pub fn slot_pred_view_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: Slot
         },
         SlotPred::Provides(t) => g.provided_energy(s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
         SlotPred::NoEnergyProvided => g.provided_energy(s.p as usize, s)?.is_empty(),
+        SlotPred::EnergyAtMost(n) => crate::engine::attack::max_energy_count(&g.provided_energy(s.p as usize, s)?) <= *n,
         SlotPred::RemainingHpAtMost(n) => {
             if g.g().st.slot_pokemon(s.p as usize, s.s).is_none() {
                 return Ok(false);

@@ -1,0 +1,12 @@
+Butterfree
+- Grass - 120 HP
+Pokémon
+- Stage 2
+- Evolves from
+Metapod
+G
+Scale Hurricane 60×
+Flip 4 coins. This attack does 60 damage for each heads. If at least 2 of them are heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Fire
+Resistance: none
+Retreat: 1

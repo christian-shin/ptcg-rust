@@ -138,7 +138,7 @@ pub fn slot_pred(sp: &SlotPred) -> ReadSet {
         SlotPred::Top(q) | SlotPred::HasCard(q) | SlotPred::AnyTool(q) => ReadSet::st(BOARD).or(pred(q)),
         SlotPred::Recorded => ReadSet::st(BOARD | EFFECTS),
         SlotPred::TypeIs(_) => ReadSet::st(BOARD).or(ReadSet::fact(fact::TYPES)),
-        SlotPred::Provides(_) | SlotPred::NoEnergyProvided => ReadSet::st(BOARD).or(ReadSet::fact(fact::PROVIDES)),
+        SlotPred::Provides(_) | SlotPred::NoEnergyProvided | SlotPred::EnergyAtMost(_) => ReadSet::st(BOARD).or(ReadSet::fact(fact::PROVIDES)),
         SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) => ReadSet::st(BOARD).or(ReadSet::fact(fact::ABILITY)),
         SlotPred::RemainingHpAtMost(_) => ReadSet::st(BOARD | COUNTERS).or(ReadSet::fact(fact::HP)),
         // `Slot::entered_turn`: a "this turn" record.

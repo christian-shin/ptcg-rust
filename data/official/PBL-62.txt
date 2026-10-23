@@ -1,0 +1,14 @@
+Bastiodon
+- Metal - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Shieldon
+Ability:
+Ancient Bulwark
+As long as this Pokémon is on your Bench, prevent all damage done to each of your Pokémon by attacks from your opponent's Pokémon that have 2 or less Energy attached.
+MMC
+Hammer In 160
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

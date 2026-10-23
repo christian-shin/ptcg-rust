@@ -262,20 +262,28 @@ pub struct PreventSpec {
     /// card's owner flips, only for damage no other prevention stops and only when there is damage
     /// (`coin_prevented`, after `event_prevented`); the hard reader skips it.
     pub coin: bool,
+    /// "As long as this Pokémon is on your Bench, prevent ...": the prevention applies only while the condition holds for the
+    /// declaring card (read with checked reads, like a `DamageTaken` guard). `Cond::True` for the rest.
+    pub guard: Cond,
 }
 
 impl PreventSpec {
     /// No prevention: write `..PreventSpec::NONE` for the fields a declaration doesn't use.
-    pub const NONE: PreventSpec = PreventSpec { what: PreventWhat::None, protects: SlotPred::Any, from: super::event::EventPred::NEVER, coin: false };
+    pub const NONE: PreventSpec = PreventSpec { what: PreventWhat::None, protects: SlotPred::Any, from: super::event::EventPred::NEVER, coin: false, guard: Cond::True };
 
     /// The events `from` don't happen to the Pokémon matching `protects`.
     pub const fn on(protects: SlotPred, from: super::event::EventPred) -> PreventSpec {
-        PreventSpec { what: PreventWhat::None, protects, from, coin: false }
+        PreventSpec { what: PreventWhat::None, protects, from, coin: false, guard: Cond::True }
     }
 
     /// The events `from` don't happen to the Pokémon matching `protects` if the declaring card's owner flips heads.
     pub const fn on_coin(protects: SlotPred, from: super::event::EventPred) -> PreventSpec {
-        PreventSpec { what: PreventWhat::None, protects, from, coin: true }
+        PreventSpec { what: PreventWhat::None, protects, from, coin: true, guard: Cond::True }
+    }
+
+    /// The same prevention, only while `guard` holds for the declaring card.
+    pub const fn while_(self, guard: Cond) -> PreventSpec {
+        PreventSpec { guard, ..self }
     }
 }
 
@@ -2085,17 +2093,6 @@ pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool
         || crate::engine::lasting::any_lock_of(&g.st, p)
 }
 
-/// Does a lock an attack left on player `p` or on one of their Pokémon read the Energy the attacking Pokémon provides
-/// (`EventPred::EnergyAtMost`: Walrein's Frigid Fangs, on each Pokémon since batch 8 C12c)? The UseAttack's checks make
-/// that checked read only then.
-pub fn lasting_reads_energy(g: &Game, p: usize) -> bool {
-    g.st.lasting.iter().any(|l| match (l.on, l.what) {
-        (crate::state::LastingOn::Player(q), crate::state::LastingWhat::PlayerLock { decl, .. }) => q as usize == p && decl.forbids.reads_energy(),
-        (crate::state::LastingOn::Pokemon(q, _), crate::state::LastingWhat::Lock { decl, .. }) => q as usize == p && decl.forbids.reads_energy(),
-        _ => false,
-    })
-}
-
 /// The marker a `Prevent` over events of `kind` sets in its card's mask (`prevent_kinds`) and that
 /// [`event_prevented`] reads; `None` for a kind whose routine doesn't ask the reader (a prevention over it would
 /// never be consulted: `prevent_marker_tests` checks that no card declares one). Exhaustive, like `lock_marker`.
@@ -2259,7 +2256,7 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
             Some(s) => slot_pred_m(g, me, s, &p.protects)? && ability_effect_reaches(g, me, ps.origin, at.owner, s, false)?,
             None => matches!(p.protects, SlotPred::Any),
         };
-        if protected && !blocked(g, me, ps.origin) {
+        if protected && !blocked(g, me, ps.origin) && (matches!(p.guard, Cond::True) || guard_ok_m(g, me, ps.origin, at.owner, &p.guard)?) {
             return Ok(true);
         }
     }
@@ -3880,7 +3877,8 @@ mod prevent_marker_tests {
         // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
         // CW18: the Gain-Condition prevention of the five new Antique Fossils (Armor, Jaw, Plume, Sail, Skull), Plume Fossil's Plume
         // Protection (over Damage) and Sail Fossil's Protective Sail (over the cause).
-        assert_eq!(n, 63);
+        // CW25: Bastiodon PBL 62's Ancient Bulwark (over the cause, guarded by the Bench).
+        assert_eq!(n, 64);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.

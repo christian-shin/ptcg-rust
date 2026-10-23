@@ -13058,5 +13058,155 @@
   "key": "Meowstic CRI 37",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "28",
+  "name": "Arcanine",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Arcanine DRI 28",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "50",
+  "name": "Archen",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Archen WHT 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "51",
+  "name": "Archeops",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Archeops WHT 51",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "2",
+  "name": "Ariados",
+  "type": "G Stage 1",
+  "reg": "J",
+  "key": "Ariados POR 2",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "36",
+  "name": "Aromatisse",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Aromatisse POR 36",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "159",
+  "name": "Arven's Greedent",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Arven's Greedent DRI 159",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "139",
+  "name": "Arven's Mabosstiff ex",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Arven's Mabosstiff ex DRI 139",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "24",
+  "name": "Aurorus",
+  "type": "W Stage 2",
+  "reg": "J",
+  "key": "Aurorus POR 24",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "60",
+  "name": "Banette",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Banette JTG 60",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PBL",
+  "number": "62",
+  "name": "Bastiodon",
+  "type": "M Stage 2",
+  "reg": "J",
+  "key": "Bastiodon PBL 62",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "13",
+  "name": "Beautifly",
+  "type": "G Stage 2",
+  "reg": "I",
+  "key": "Beautifly ASC 13",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "112",
+  "name": "Bewear",
+  "type": "C Stage 1",
+  "reg": "I",
+  "key": "Bewear MEG 112",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "47",
+  "name": "Boldore",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Boldore WHT 47",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "3",
+  "name": "Butterfree",
+  "type": "G Stage 2",
+  "reg": "I",
+  "key": "Butterfree JTG 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "28",
+  "name": "Camerupt",
+  "type": "R Stage 1",
+  "reg": "I",
+  "key": "Camerupt ASC 28",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Aurorus POR 24",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Aurorus POR 24",
+   "4 Archeops WHT 51",
+   "4 Mega Latias ex MEG 100",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Archeops WHT 51",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Aurorus POR 24"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rock Throw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 100,
+   "cite": "card text: all of your Pokemon that have any [W] Energy attached take 50 less damage; the effect doesn't stack (JP FAQ Aurorus POR 24: the damage is read before the attack's effects)"
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Archeops WHT 51",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Archeops WHT 51",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "bench": [
+   {
+    "card": "Archeops WHT 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Stufful MEG 111",
+   "Bewear MEG 112"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": false,
+   "cite": "card text: once during your turn, if this Pokemon is in the Active Spot"
+  }
+ ]
+}

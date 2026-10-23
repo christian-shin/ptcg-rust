@@ -1,0 +1,14 @@
+Arcanine
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Growlithe
+CC
+Flare 50
+RCC
+Punishing Fang 100+
+If your opponent's Active Pokémon is a [ D ] Pokémon, this attack does 100 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 3

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Boldore WHT 47",
+   "4 Roggenrola WHT 46",
+   "4 Mega Latias ex MEG 100",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Boldore WHT 47",
+   "4 Roggenrola WHT 46",
+   "4 Mega Latias ex MEG 100",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Boldore WHT 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smack Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 30,
+   "cite": "card text: no bonus against a Pokemon without [F] Resistance"
+  }
+ ]
+}

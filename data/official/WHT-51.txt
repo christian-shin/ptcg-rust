@@ -1,0 +1,14 @@
+Archeops
+- Fighting - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Archen
+Ability:
+Ancient Wing
+Once during your turn, if this Pokémon is in the Active Spot, you may devolve 1 of your opponent's evolved Pokémon by putting the highest Stage Evolution card on it into your opponent's hand.
+FC
+Rock Throw 100
+Weakness: Grass
+Resistance: none
+Retreat: 1

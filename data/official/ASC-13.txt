@@ -1,0 +1,15 @@
+Beautifly
+- Grass - 130 HP
+Pokémon
+- Stage 2
+- Evolves from
+Silcoon
+G
+Stun Spore 40
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+G
+Energy Straw 80×
+Your opponent reveals their hand, and this attack does 80 damage for each Energy card you find there.
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beautifly ASC 13",
+   "4 Mega Latias ex MEG 100",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Beautifly ASC 13",
+   "4 Mega Latias ex MEG 100",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beautifly ASC 13",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Stun Spore"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 40,
+   "cite": "card text",
+   "conditions": []
+  }
+ ]
+}
