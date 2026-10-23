@@ -1,0 +1,14 @@
+Sandslash
+- Fighting - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Sandshrew
+CC
+Sand Attack 50
+During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.
+FCC
+Mud Shot 100
+Weakness: Grass
+Resistance: none
+Retreat: 1

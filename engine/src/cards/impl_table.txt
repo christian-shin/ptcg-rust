@@ -1158,3 +1158,4 @@ Mabosstiff PBL 58	Mabosstiff
 Frosmoth ASC 53	FrosmothASC
 Heliolisk ASC 64	HelioliskASC
 Larry's Dudunsparce ex ASC 164	LarrysDudunsparceEx
+Sandslash MEG 69	SandslashMEG
