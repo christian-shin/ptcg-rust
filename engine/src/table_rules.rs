@@ -119,15 +119,6 @@ pub struct TableRules {
     /// Rare Candy can't be used while an evolution-preventing Ability is in effect; id925, APR B-01: a card whose effect
     /// would not change the game can't be played).
     pub play_evolving_trainer_under_evolution_lock: bool,
-    /// Whether an Ability can be used doesn't read whether a deck its effect draws from or searches holds a card: an
-    /// Ability that draws cards or searches a deck is offered with that deck empty (e.g. Lunatone's Lunar Cycle: the
-    /// Energy is discarded, nothing is drawn; its once-per-turn use is spent). Every other part of the walk still applies
-    /// (its printed conditions, its costs, a choice from a known zone). Trainers and attacks are judged as off.
-    /// `spec::ops::cards::deck_read_has_card` (the walk's read of a deck for a draw, a search, a pick from it).
-    ///
-    /// Off (the rulings): an Ability that would not change the game state can't be used (APR A-02 step 1; id2362: "you
-    /// cannot simply discard 2 cards for no effect"; id925): a draw or a search of an empty deck changes nothing.
-    pub ability_draw_or_search_offered_with_empty_deck: bool,
 }
 
 impl TableRules {
@@ -143,7 +134,6 @@ impl TableRules {
         "ability_attach_targets_unread",
         "attack_choices_asked_when_their_effect_runs",
         "play_evolving_trainer_under_evolution_lock",
-        "ability_draw_or_search_offered_with_empty_deck",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -159,7 +149,6 @@ impl TableRules {
             "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
             "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
-            "ability_draw_or_search_offered_with_empty_deck" => &mut self.ability_draw_or_search_offered_with_empty_deck,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
