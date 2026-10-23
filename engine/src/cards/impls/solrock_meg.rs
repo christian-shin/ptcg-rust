@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
             // "If you don't have Lunatone on your Bench, this attack does nothing."
-            Step::before_damage(Op::If(IfSpec { cond: Cond::InPlay(Who::Me, PlayScope::Bench, Pred::Name("Lunatone")), yes: &[], no: &[Step::new(damage_is(Num::Lit(0)))] })),
+            Step::before_damage(Op::If(IfSpec { cond: Cond::InPlay(Who::Me, PlayScope::Bench, Pred::Name("Lunatone")), yes: &[], no: &[Step::new(attack_does_nothing(Cond::True))] })),
         ],
     }],
     ..CardSpec::NONE

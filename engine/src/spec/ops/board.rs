@@ -99,6 +99,10 @@ pub enum DamageOp {
     Add,
     /// "N times": the attack's damage is exactly N.
     Set,
+    /// "This attack does nothing": no damage is done at all, so there is no damage calculation (APR B-02 note; the damage
+    /// is 0 and nothing can be added to it). Unlike `Set` to 0, a damage that is calculated and comes out 0 ("30x" with no
+    /// heads). `hp` is not read.
+    Nothing,
 }
 
 /// Change the damage the attack is about to do (before the damage).
@@ -434,7 +438,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 match d.op {
                     DamageOp::Add => *damage += n,
                     DamageOp::Set => *damage = n,
+                    DamageOp::Nothing => *damage = 0,
                 }
+            }
+            if d.op == DamageOp::Nothing {
+                g.set_fx_flag(f.eff, crate::game::fx_flag::DOES_NOTHING);
             }
             Ok(Flow::Next)
         }
@@ -750,13 +758,24 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 Some(r) => reg_list(g, f, r).len() as i32,
                 None => 1,
             };
+            let mut nothing = false;
             if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
                 match c.by {
                     ChoiceDamageBy::Each(DamageOp::Add, per) => *damage += per * n,
                     ChoiceDamageBy::Each(DamageOp::Set, per) => *damage = per * n,
-                    ChoiceDamageBy::NothingUnless(need) if n < need as i32 => *damage = 0,
+                    ChoiceDamageBy::Each(DamageOp::Nothing, _) => {
+                        *damage = 0;
+                        nothing = true;
+                    }
+                    ChoiceDamageBy::NothingUnless(need) if n < need as i32 => {
+                        *damage = 0;
+                        nothing = true;
+                    }
                     ChoiceDamageBy::NothingUnless(_) => {}
                 }
+            }
+            if nothing {
+                g.set_fx_flag(f.eff, crate::game::fx_flag::DOES_NOTHING);
             }
             Ok(Flow::Next)
         }
@@ -1283,6 +1302,11 @@ pub const fn heal_active(hp: i32) -> Op {
 /// "N more damage" when the condition holds.
 pub const fn more_damage_if(hp: i32, when: Cond) -> Op {
     Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(hp), when })
+}
+
+/// "This attack does nothing", when the condition holds (`DamageOp::Nothing`).
+pub const fn attack_does_nothing(when: Cond) -> Op {
+    Op::Damage(DamageSpec { op: DamageOp::Nothing, hp: Num::Lit(0), when })
 }
 
 /// The attack's damage is this number (N times, or set to a value).
