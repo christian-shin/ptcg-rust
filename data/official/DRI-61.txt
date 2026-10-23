@@ -1,0 +1,13 @@
+Wash Rotom
+- Water - 80 HP
+Pokémon
+- Basic
+W
+Manual Wash 20
+Heal 10 damage from each of your Pokémon.
+CC
+Gadget Show 30×
+This attack does 30 damage for each Pokémon Tool attached to all of your Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

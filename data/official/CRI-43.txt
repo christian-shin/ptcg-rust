@@ -1,0 +1,13 @@
+Sudowoodo
+- Fighting - 110 HP
+Pokémon
+- Basic
+C
+Trials and Trip-ulations
+Search your deck for up to 2 Transformation Tome cards, reveal them, and put them into your hand. Then, shuffle your deck.
+F
+Rock Hurl 30
+This attack's damage isn't affected by Resistance.
+Weakness: Grass
+Resistance: none
+Retreat: 1

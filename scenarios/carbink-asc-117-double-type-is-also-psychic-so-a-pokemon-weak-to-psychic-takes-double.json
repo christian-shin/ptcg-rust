@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Carbink ASC 117",
+   "1 Koraidon ex ASC 121",
+   "3 Fighting Energy MEE 6",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Carbink ASC 117",
+   "1 Koraidon ex ASC 121",
+   "3 Fighting Energy MEE 6",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Carbink ASC 117",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Koraidon ex ASC 121",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Counter Jewel"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon ex ASC 121",
+   "damage": 140,
+   "cite": "card text: as long as this Pokémon is in play, it is [F] and [P] type (70 x 2 against a Pokémon that is weak to [P])"
+  }
+ ]
+}

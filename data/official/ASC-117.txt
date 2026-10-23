@@ -1,0 +1,13 @@
+Carbink
+- Fighting - 90 HP
+Pokémon
+- Basic
+Ability:
+Double Type
+As long as this Pokémon is in play, it is [ F ] and [ P ] type.
+FFC
+Counter Jewel 70+
+If your opponent has 2 or fewer Prize cards remaining, this attack does 100 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 1

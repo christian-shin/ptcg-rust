@@ -1,0 +1,10 @@
+Team Rocket's Blipbug
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Searching Eyes
+Look at 1 of your opponent's face-down Prize cards.
+Weakness: Fire
+Resistance: none
+Retreat: 1

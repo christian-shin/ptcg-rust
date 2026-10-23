@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Espurr CRI 36",
+   "1 Dratini ASC 150",
+   "1 Psychic Energy MEE 5",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Espurr CRI 36",
+   "1 Dratini ASC 150",
+   "1 Psychic Energy MEE 5",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Espurr CRI 36",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Buddy Attack"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dratini ASC 150",
+   "damage": 10,
+   "cite": "card text: 10 damage; 60 more only if Emma was played from your hand this turn (not played here)"
+  }
+ ]
+}

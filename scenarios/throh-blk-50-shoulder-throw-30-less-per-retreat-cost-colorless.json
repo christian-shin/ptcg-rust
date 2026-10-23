@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Throh BLK 50",
+   "1 Dratini ASC 150",
+   "2 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "1 Throh BLK 50",
+   "1 Dratini ASC 150",
+   "2 Fighting Energy MEE 6",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Throh BLK 50",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Dratini ASC 150",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shoulder Throw"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dratini ASC 150",
+   "damage": 60,
+   "cite": "card text: 120 minus 30 for each [C] in the Retreat Cost (2)"
+  }
+ ]
+}

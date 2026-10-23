@@ -1,0 +1,10 @@
+Espurr
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Buddy Attack 10+
+If you played Emma from your hand during this turn, this attack does 60 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Sudowoodo CRI 43",
+   "1 Yveltal MEG 88",
+   "1 Fighting Energy MEE 6",
+   "57 Water Energy MEE 3"
+  ],
+  [
+   "1 Sudowoodo CRI 43",
+   "1 Yveltal MEG 88",
+   "1 Fighting Energy MEE 6",
+   "57 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Sudowoodo CRI 43",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Yveltal MEG 88",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rock Hurl"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Yveltal MEG 88",
+   "damage": 30,
+   "cite": "card text: this attack's damage isn't affected by Resistance (Yveltal resists Fighting)"
+  }
+ ]
+}

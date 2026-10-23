@@ -1,0 +1,12 @@
+Terapagos
+- Colorless - 120 HP
+Pokémon
+- Basic
+C
+Prism Charge
+Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like. Then, shuffle your deck.
+CCC
+Hard Tackle 100
+Weakness: Fighting
+Resistance: none
+Retreat: 2

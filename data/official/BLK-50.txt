@@ -1,0 +1,10 @@
+Throh
+- Fighting - 130 HP
+Pokémon
+- Basic
+FC
+Shoulder Throw 120-
+This attack does 30 less damage for each [ C ] in your opponent's Active Pokémon's Retreat Cost.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Azelf
+- Psychic - 70 HP
+Pokémon
+- Basic
+PC
+Neurokinesis 10+
+This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

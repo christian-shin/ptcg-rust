@@ -1,0 +1,138 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Terapagos SSP 161",
+   "1 Hop's Snorlax JTG 117",
+   "1 Tatsugiri ex SSP 142",
+   "2 Grass Energy MEE 1",
+   "1 Fire Energy MEE 2",
+   "1 Darkness Energy MEE 7",
+   "53 Water Energy MEE 3"
+  ],
+  [
+   "1 Terapagos SSP 161",
+   "1 Hop's Snorlax JTG 117",
+   "1 Tatsugiri ex SSP 142",
+   "2 Grass Energy MEE 1",
+   "1 Fire Energy MEE 2",
+   "1 Darkness Energy MEE 7",
+   "53 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Terapagos SSP 161",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Tatsugiri ex SSP 142"
+   }
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "discard": [
+   "Hop's Snorlax JTG 117",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Prism Charge"
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 0
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 1
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 2
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 3,
+   "cite": "card text: search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon"
+  }
+ ]
+}

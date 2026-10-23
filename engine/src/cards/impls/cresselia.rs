@@ -23,7 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
                 asker: Who::Me,
                 when: Cond::FaceDownPrize(Who::Me),
                 yes: &[
-                    Step::new(Op::PickPrize(PickPrizeSpec { chooser: Who::Me, face_down_only: true })),
+                    Step::new(Op::PickPrize(PickPrizeSpec { chooser: Who::Me, whose: Who::Me, face_down_only: true, purpose: PromptPurpose::TurnPrizeFaceUp })),
                     Step::new(Op::PrizeVisibility(PrizeVisibilitySpec { action: PrizeAction::FaceUp(Who::Me) })),
                     Step::new(more_damage_if(80, Cond::True)),
                 ],

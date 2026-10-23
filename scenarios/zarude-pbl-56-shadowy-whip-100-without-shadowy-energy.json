@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Zarude PBL 56",
+   "1 Raging Bolt ex PRE 166",
+   "1 Snover MEG 35",
+   "3 Darkness Energy MEE 7",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "1 Zarude PBL 56",
+   "1 Raging Bolt ex PRE 166",
+   "1 Snover MEG 35",
+   "3 Darkness Energy MEE 7",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Zarude PBL 56",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true,
+  "bench": [
+   {
+    "card": "Snover MEG 35"
+   }
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shadowy Whip"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 100,
+   "cite": "card text: no bonus without Shadowy [D] Energy on the Bench"
+  }
+ ]
+}

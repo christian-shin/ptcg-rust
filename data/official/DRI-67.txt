@@ -1,0 +1,13 @@
+Wellspring Mask Ogerpon
+- Water - 110 HP
+Pokémon
+- Basic
+C
+Water Kagura
+Search your deck for a Basic [ W ] Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.
+WWC
+Bubble Drain 100
+Heal 30 damage from this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

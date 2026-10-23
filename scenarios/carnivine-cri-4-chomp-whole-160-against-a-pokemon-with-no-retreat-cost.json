@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Carnivine CRI 4",
+   "1 Tapu Koko ex JTG 51",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "1 Carnivine CRI 4",
+   "1 Tapu Koko ex JTG 51",
+   "3 Grass Energy MEE 1",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Carnivine CRI 4",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true,
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Tapu Koko ex JTG 51",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chomp Whole"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Tapu Koko ex JTG 51",
+   "damage": 160,
+   "cite": "card text: 80 + 80 when the Active Pokémon has no Retreat Cost"
+  }
+ ]
+}

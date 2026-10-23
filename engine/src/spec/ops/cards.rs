@@ -305,7 +305,8 @@ pub enum MoveEnergyMode {
     /// `ability`: an Ability's version (Iron Leaves ex) of the same rule as a Supporter's (N's Plan), as the
     /// game plays it: the Active Pokémon is blocked as a source in the prompt's blocked sources (otherwise
     /// as a blocked entry holding all its cards), and the cards move one source at a time.
-    BenchToActive { max: Option<u8>, required: bool, ability: bool },
+    /// `only`: just the Energy that provides this type is moved ("any amount of [M] Energy", Cobalion ex's Metal Road).
+    BenchToActive { max: Option<u8>, required: bool, ability: bool, only: Option<CardType> },
 }
 /// Discard, or otherwise move, the Energy (or other cards) of a Pokémon: `selection` says which cards and
 /// who chooses them; `to` where they go (the ones of an attack choose at step D, move after the damage).
@@ -422,11 +423,14 @@ pub struct PlayFromZoneSpec {
     pub cards: u8,
     pub who: Who,
 }
-/// The player chooses one of their Prize cards (face down only when asked) to turn it face up: its position is
-/// kept for `PrizeVisibility` (the prompt's purpose is `TurnPrizeFaceUp`).
+/// The player chooses one of `whose` Prize cards (face down only when asked) to turn it face up or to look at: its position is
+/// kept for `PrizeVisibility` (the prompt's purpose is `TurnPrizeFaceUp` or `LookAtPrize`, as the text says).
 pub struct PickPrizeSpec {
     pub chooser: Who,
+    /// Whose Prize cards can be chosen.
+    pub whose: Who,
     pub face_down_only: bool,
+    pub purpose: PromptPurpose,
 }
 /// The resolving Trainer (a Fossil) is played from the hand as a Basic Pokémon on the first
 /// open Bench slot; it can't be played without room.
@@ -444,6 +448,9 @@ pub enum PrizeAction {
     /// Turn the Prize card picked by `PickPrize` face up (visible to both players); the Prize
     /// cards are the given player's.
     FaceUp(Who),
+    /// Look at the Prize card picked by `PickPrize` (the Prize cards are the given player's): shown to the player the program
+    /// runs for only, it stays face down ("look at 1 of your opponent's face-down Prize cards").
+    Look(Who),
 }
 /// `who` takes `count` Prize cards into their hand (chosen by them when there are more left).
 pub struct TakePrizeSpec {
@@ -631,8 +638,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::PickPrize(pp) => {
             g.prompt(
                 f.who(pp.chooser),
-                PromptPurpose::TurnPrizeFaceUp,
-                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: pp.face_down_only },
+                pp.purpose,
+                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: pp.chooser != pp.whose, allow_cancel: false, is_secret: false, destination: None, face_down_only: pp.face_down_only },
                 Provenance::by(me),
                 f.cont(me, 1),
             );
@@ -665,7 +672,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::MoveEnergyOwn(m) => Ok(if move_energy_own_prompt(g, me, f, m) { Flow::Suspend } else { Flow::Next }),
         Op::MoveEnergy(m) => {
             if m.mode != MoveEnergyMode::Effect {
-                return Ok(if move_energy_mode_prompt(g, me, f, m) { Flow::Suspend } else { Flow::Next });
+                return Ok(if move_energy_mode_prompt(g, me, f, m)? { Flow::Suspend } else { Flow::Next });
             }
             if let Some(c) = f.recorded_choice(g, me) {
                 if c.answer == CHOICE_YES {
@@ -687,6 +694,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                         let (p, i) = (f.who(owner), f.prize as usize);
                         g.st.players[p].prize_public[i] = true;
                         g.st.players[p].prize_face_up[i] = true;
+                    }
+                }
+                PrizeAction::Look(owner) => {
+                    if f.prize != NONE {
+                        let cards: Vec<CardId> = g.lst(ListRef::Prize(f.who(owner) as u8, f.prize)).to_vec();
+                        crate::record::reveal(g, f.p as usize, &cards);
+                        g.prompt(f.p as usize, PromptPurpose::Look, PromptKind::ShowCards, Provenance::NONE, Cont::Noop);
                     }
                 }
             }
@@ -1573,8 +1587,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
-        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves).
-        Op::Pick(p) if p.from.1 != Zone::Deck => {
+        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves), and so are the cards of a
+        // zone an earlier step fills (the cards a Look sets aside: "look at the top 10 cards ... put any number of Pokémon you
+        // find there onto your Bench"): nothing can be asked about it yet.
+        Op::Pick(p) if p.from.1 != Zone::Deck && !zone_is_unset(f, p.from) => {
             if ask_pick(g, me, f, p, i32::MAX, pick_purpose(g, me, f, op, p), 1, false) {
                 return Ok(Flow::Suspend);
             }
@@ -1942,7 +1958,7 @@ fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_h
 // MoveEnergy modes other than the attack effect (S3 agent 3)
 
 /// Open the MoveEnergy prompt of a `BenchToActive` move; false when there is nothing to move.
-fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec) -> bool {
+fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec) -> R<bool> {
     let owner = f.who(m.owner);
     let chooser = f.who(m.chooser);
     let pokemon = for_each_pokemon(g, owner, PlayerType::BottomPlayer);
@@ -1950,10 +1966,19 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
     let mut slots = SVec::new();
     let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
     let filter = match m.mode {
-        MoveEnergyMode::BenchToActive { max, required, ability } => {
-            let has = pokemon.iter().any(|(s, _, t)| t.slot == SlotType::Bench && g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()));
+        MoveEnergyMode::BenchToActive { max, required, ability, only } => {
+            let mut has = false;
+            for (s, _, t) in pokemon.iter() {
+                if t.slot != SlotType::Bench {
+                    continue;
+                }
+                has |= match only {
+                    Some(ty) => !energy_cards_that_provide_type(g, owner, *s, ty)?.is_empty(),
+                    None => g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()),
+                };
+            }
             if !has || pokemon.len() <= 1 {
-                return false;
+                return Ok(false);
             }
             // At least 1, unless the Trainer is used as the effect of an attack.
             o.min = if required && !f.via_attack { 1 } else { 0 };
@@ -1969,17 +1994,23 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
                     o.blocked_map.push((*t, b));
                 } else {
                     o.blocked_to.push(*t);
+                    // Only the Energy that provides the type can be chosen: the Pokémon's other cards are blocked.
+                    if let Some(ty) = only {
+                        if let Some(b) = blocked_non_type_energy(g, owner, *s, ty)? {
+                            o.blocked_map.push((*t, b));
+                        }
+                    }
                 }
             }
             slots.push(SlotType::Bench as u8);
             slots.push(SlotType::Active as u8);
             Filter::super_type(SuperType::Energy)
         }
-        MoveEnergyMode::Effect => return false,
+        MoveEnergyMode::Effect => return Ok(false),
     };
     let o = g.stash_opts(o);
     g.prompt(chooser, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type, slots, filter, o }, Provenance::by(me), f.cont(me, 1));
-    true
+    Ok(true)
 }
 
 // ---------------------------------------------------------------------------

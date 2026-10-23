@@ -1,0 +1,12 @@
+Basculin
+- Water - 90 HP
+Pokémon
+- Basic
+C
+Bite 10
+W
+Bared Fangs 50
+If your opponent's Active Pokémon has no damage counters on it before this attack does damage, this attack does nothing.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

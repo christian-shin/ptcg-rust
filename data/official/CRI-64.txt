@@ -1,0 +1,13 @@
+Cobalion ex
+- Metal - 210 HP
+Pokémon
+- Basic
+Ability:
+Metal Road
+Once during your turn, when this Pokémon moves from your Bench to the Active Spot, you may use this Ability. Move any amount of [ M ] Energy from your other Pokémon to this Pokémon.
+MMC
+Power Tackle 200
+During your next turn, this Pokémon can't use attacks.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

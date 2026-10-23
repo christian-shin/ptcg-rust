@@ -1,0 +1,13 @@
+Wiglett
+- Water - 60 HP
+Pokémon
+- Basic
+W
+Lucky Find
+Search your deck for an Item card, reveal it, and put it into your hand. Then, shuffle your deck.
+WW
+Aqua Bomb 40
+This Pokémon also does 20 damage to itself.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -292,7 +292,7 @@ pub(crate) fn context_for(purpose: PromptPurpose) -> SelectContext {
         P::PutOnDeckBottom => SelectContext::ToDeckBottom,
         P::FirstPlayerFlip | P::ConfusionFlip | P::BurnFlip | P::SleepFlip => SelectContext::CoinHead,
         P::Shuffle => SelectContext::Shuffle,
-        P::Look | P::TurnPrizeFaceUp => SelectContext::Look,
+        P::Look | P::TurnPrizeFaceUp | P::LookAtPrize => SelectContext::Look,
         P::MulliganYours | P::MulliganOpponents => SelectContext::Mulligan,
         P::EvolutionCard => SelectContext::EvolvesTo,
         P::EvolvePokemon => SelectContext::EvolvesFrom,

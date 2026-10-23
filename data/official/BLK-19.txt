@@ -1,0 +1,10 @@
+Tympole
+- Water - 60 HP
+Pokémon
+- Basic
+CC
+Round 20×
+This attack does 20 damage for each of your Pokémon in play that has the Round attack.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

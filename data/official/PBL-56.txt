@@ -1,0 +1,13 @@
+Zarude
+- Darkness - 130 HP
+Pokémon
+- Basic
+D
+Overhead Throw 30
+This attack also does 30 damage to 1 of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+DDD
+Shadowy Whip 100+
+If your Benched Pokémon have any Shadowy [ D ] Energy attached, this attack does 70 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 2

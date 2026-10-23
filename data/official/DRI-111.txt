@@ -1,0 +1,13 @@
+Cornerstone Mask Ogerpon
+- Fighting - 110 HP
+Pokémon
+- Basic
+C
+Rock Kagura
+Search your deck for a Basic [ F ] Energy card and attach it to 1 of your Pokémon. Then, shuffle your deck.
+FFC
+Mountain Ramming 100
+Discard the top card of your opponent's deck.
+Weakness: Grass
+Resistance: none
+Retreat: 1

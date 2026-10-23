@@ -1087,3 +1087,30 @@ Suicune PFL 26	Suicune
 Tapu Koko SSP 65	TapuKokoSSP
 Victini BLK 12	VictiniBLK
 Shelmet WHT 8	ShelmetWHT
+Azelf SSP 80	Azelf
+Basculin WHT 24	Basculin
+Carbink ASC 117	Carbink
+Carnivine CRI 4	Carnivine
+Cobalion ex CRI 64	CobalionEx
+Cornerstone Mask Ogerpon DRI 111	CornerstoneMaskOgerpon
+Cryogonal BLK 27	Cryogonal
+Erika's Tangela ASC 7	ErikasTangela
+Espurr CRI 36	EspurrCRI
+Steven's Carbink DRI 86	StevensCarbink
+Sudowoodo CRI 43	Sudowoodo
+Tatsugiri ex SSP 142	TatsugiriEx
+Teal Mask Ogerpon DRI 26	TealMaskOgerponDRI
+Team Rocket's Blipbug DRI 15	TeamRocketsBlipbug
+Terapagos SSP 161	Terapagos
+Throh BLK 50	Throh
+Tornadus WHT 78	Tornadus
+Tropius PBL 1	Tropius
+Tympole BLK 19	TympoleBLK
+Uxie SSP 78	Uxie
+Volcanion MEG 25	VolcanionMEG
+Wash Rotom DRI 61	WashRotom
+Wellspring Mask Ogerpon DRI 67	WellspringMaskOgerpon
+Wiglett TEF 47	Wiglett
+Xerneas MEG 64	XerneasMEG
+Yveltal ex POR 53	YveltalEx
+Zarude PBL 56	ZarudePBL

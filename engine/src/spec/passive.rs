@@ -3760,10 +3760,10 @@ mod prevent_marker_tests {
         // Batch 4: Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal; batch 6 (one
         // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
         // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
-        // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (22 cards, Miraidon ex ASC 73 included), Sylveon, Crustle DRI, Shaymin,
+        // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (23 cards, Miraidon ex ASC 73 and Tatsugiri ex SSP 142 included), Sylveon, Crustle DRI, Shaymin,
         // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin).
         // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
-        assert_eq!(n, 51);
+        assert_eq!(n, 52);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
@@ -3925,12 +3925,14 @@ mod next_turn_bonus_tests {
 #[cfg(test)]
 mod non_stacking_tests {
     //! Events batch 9 C2: `NonStack::SameAbility` replaced a per-card bit (one for the whole game, set by every card that
-    //! declared the old card-named variant): equal to a key on the declaring Ability's name exactly when every declarer prints
-    //! the same Ability name, and no other card declares a non-stacking reduction.
+    //! declared the old card-named variant): a key on the declaring Ability's name. Every declarer is an Ability that prints
+    //! the name the table gives, and no other card declares a non-stacking reduction.
     use super::*;
 
     #[test]
-    fn every_declarer_of_a_non_stacking_reduction_is_curly_wall() {
+    fn every_declarer_of_a_non_stacking_reduction_is_keyed_by_its_ability() {
+        // (the card's key, the Ability whose name the reduction is keyed by)
+        let printed = [("Bouffalant SCR 119", "Curly Wall"), ("Steven's Carbink DRI 86", "Stone Palace")];
         let mut declarers = Vec::new();
         for (id, d) in crate::carddb::cards().iter().enumerate() {
             let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
@@ -3939,12 +3941,14 @@ mod non_stacking_tests {
                 if t.nonstacking.is_some() {
                     assert_eq!(ps.origin, RuleSource::Ability, "{}: a non-stacking reduction that isn't an Ability's", d.full_name);
                     let abilities: Vec<&str> = d.powers.iter().filter(|p| p.source() == RuleSource::Ability).map(|p| p.name).collect();
-                    assert_eq!(abilities, vec!["Curly Wall"], "{}: the Ability a non-stacking reduction is keyed by", d.full_name);
+                    let (_, name) = printed.iter().find(|(k, _)| *k == d.full_name).unwrap_or_else(|| panic!("{}: a non-stacking reduction not in the table", d.full_name));
+                    assert_eq!(abilities, vec![*name], "{}: the Ability a non-stacking reduction is keyed by", d.full_name);
                     declarers.push(d.full_name);
                 }
             }
         }
-        assert_eq!(declarers, vec!["Bouffalant SCR 119"], "the cards that declared a non-stacking reduction");
+        declarers.sort();
+        assert_eq!(declarers, vec!["Bouffalant SCR 119", "Steven's Carbink DRI 86"], "the cards that declared a non-stacking reduction");
     }
 }
 
