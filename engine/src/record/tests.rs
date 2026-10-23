@@ -121,6 +121,7 @@ fn recorded_games_replay_their_zones() {
 }
 
 const MON: &str = "Duraludon PRE 69";
+const FIRE: &str = "Fire Energy MEE 2";
 
 fn board() -> Game {
     game_of(&[(MON, 4)], serde_json::json!({"me": {"reset": true, "active": MON, "hand": [MON, "Metal Energy MEE 8"], "discard": ["Metal Energy MEE 8"]}, "opp": {"reset": true, "active": MON}}))
@@ -250,4 +251,127 @@ fn a_condition_already_there_is_not_recorded_again() {
     assert!(!crate::engine::condition::gain_changes(slot, SpecialCondition::Confused, 3));
     assert!(crate::engine::condition::gain_changes(slot, SpecialCondition::Confused, 4), "another number of counters");
     assert!(crate::engine::condition::gain_changes(slot, SpecialCondition::Asleep, 0), "Asleep replaces Confused");
+}
+
+/// Answers every prompt with its first valid picks until the next turn decision.
+fn to_turn_decision(g: &mut Game) {
+    while let Some(sel) = g.select_with(false).unwrap() {
+        if sel.select_type == crate::interface::SelectType::Main {
+            break;
+        }
+        let mut picks = Vec::new();
+        while picks.len() < sel.min_count {
+            let (mask, _) = g.pick_mask(&sel, &picks);
+            picks.push(mask.iter().position(|m| *m).expect("a valid pick"));
+        }
+        g.answer(&sel, &picks).unwrap();
+    }
+}
+
+/// The active player's Active Pokémon uses its attack `name`; the prompts after it are answered until the next turn
+/// decision (the opponent's turn).
+fn attack(g: &mut Game, name: &str) {
+    let opts = crate::options::legal_actions(g);
+    let a = opts
+        .iter()
+        .map(|o| o.action)
+        .find(|a| matches!(a, crate::game::Action::Attack { attack, .. } if crate::engine::attack::attack_def(g, *attack).name == name))
+        .unwrap_or_else(|| panic!("{name} is not offered"));
+    g.act(a).unwrap();
+    to_turn_decision(g);
+}
+
+/// The cards of the entries of `kind` with amount 0: the record-only entries of what comes out 0 (RULES.md "Events
+/// batch 10, E14": no event happens; `record::comes_out_zero`).
+fn zeros(e: &[RecordEntry], kind: EventKind) -> Vec<Option<CardId>> {
+    e.iter().filter(|x| x.kind == kind && x.amount == 0).map(|x| x.card).collect()
+}
+
+/// A heal that heals 0 (no damage to heal, nothing to heal by) has one RemoveCounters entry of 0, public, and changes
+/// nothing; a heal that heals has its entry with the HP healed.
+#[test]
+fn a_heal_of_0_has_one_entry_of_0() {
+    let mut g = board();
+    let opp = 1 - g.st.active_player as usize;
+    let mine = Cause::new(CauseKind::Trainer, None, 1 - opp as u8);
+    let t = crate::effects::SlotRef::new(opp, g.st.players[opp].active);
+    let mon = g.st.slot_pokemon(opp, t.s);
+    let h = g.state_hash();
+    g.record_on();
+    assert!(!crate::engine::condition::heal(&mut g, t, 30, mine).unwrap());
+    let e = g.take_record();
+    assert_eq!(e.len(), 1, "{e:?}");
+    assert_eq!((e[0].kind, e[0].card, e[0].target, e[0].amount, e[0].seen_by, e[0].cause), (EventKind::RemoveCounters, mon, mon, 0, ALL, Some(mine)));
+    assert_eq!(g.state_hash(), h, "nothing changed");
+    *g.st.damage_mut(opp, t.s) = 40;
+    assert!(!crate::engine::condition::heal(&mut g, t, 0, mine).unwrap());
+    assert_eq!(zeros(&g.take_record(), EventKind::RemoveCounters), vec![mon], "nothing to heal by");
+    assert!(crate::engine::condition::heal(&mut g, t, 30, mine).unwrap());
+    let e = g.take_record();
+    assert_eq!((e.len(), e[0].kind, e[0].amount), (1, EventKind::RemoveCounters, 30));
+}
+
+/// Damage counters a prevention keeps off a Pokémon (Battle Cage: an Ability of the opponent's Pokémon on a Benched
+/// Pokémon) have one PlaceCounters entry of 0; the Pokémon keeps no counters.
+#[test]
+fn prevented_damage_counters_have_one_entry_of_0() {
+    let mut g = game_of(&[(MON, 4), ("Battle Cage PFL 85", 1)], serde_json::json!({"me": {"reset": true, "active": MON, "stadium": "Battle Cage PFL 85"}, "opp": {"reset": true, "active": MON, "bench": [{"card": MON}]}}));
+    let me = g.st.active_player as usize;
+    let opp = 1 - me;
+    let by_ability = Cause::new(CauseKind::Ability, g.st.active_pokemon(me), me as u8);
+    let b = crate::effects::SlotRef::new(opp, g.st.players[opp].bench[0]);
+    g.record_on();
+    assert!(!crate::engine::damage::place(&mut g, b, 20, by_ability).unwrap());
+    let e = g.take_record();
+    assert_eq!(e.len(), 1, "{e:?}");
+    assert_eq!((e[0].kind, e[0].card, e[0].amount, e[0].seen_by), (EventKind::PlaceCounters, g.st.slot_pokemon(opp, b.s), 0, ALL));
+    assert_eq!(g.st.slot(opp, b.s).damage, 0);
+    // On the Active Pokémon Battle Cage doesn't apply: the counters are placed, recorded with their HP.
+    let a = crate::effects::SlotRef::new(opp, g.st.players[opp].active);
+    assert!(crate::engine::damage::place(&mut g, a, 20, by_ability).unwrap());
+    let e = g.take_record();
+    assert_eq!((e.len(), e[0].kind, e[0].amount), (1, EventKind::PlaceCounters, 20));
+}
+
+/// An attack with printed damage whose damage comes out 0 (Victini BLK 12's V-Force with 4 or fewer Benched Pokémon:
+/// "this attack does nothing") has one Damage entry of 0 on the Defending Pokémon, which takes no damage.
+#[test]
+fn an_attack_whose_damage_comes_out_0_has_one_entry_of_0() {
+    let v = "Victini BLK 12";
+    let mut g = game_of(&[(MON, 4), (v, 2), (FIRE, 4)], serde_json::json!({"me": {"reset": true, "active": v, "active_energy": [FIRE, FIRE]}, "opp": {"reset": true, "active": MON}}));
+    g.st.set_turn(2);
+    let opp = 1 - g.st.active_player as usize;
+    let defending = g.st.active_pokemon(opp);
+    g.record_on();
+    attack(&mut g, "V-Force");
+    let e = g.take_record();
+    let damage: Vec<_> = e.iter().filter(|x| x.kind == EventKind::Damage).collect();
+    assert_eq!(damage.len(), 1, "{e:?}");
+    assert_eq!((damage[0].card, damage[0].target, damage[0].amount, damage[0].seen_by), (defending, defending, 0, ALL));
+    assert!(matches!(damage[0].cause, Some(c) if c.kind == CauseKind::Attack));
+    assert_eq!(g.st.slot(opp, g.st.players[opp].active).damage, 0);
+}
+
+/// A prevented attack's damage (Dig: "prevent all damage from and effects of attacks done to this Pokémon") has one
+/// Damage entry of 0: the prevention makes the damage 0 (APR C-16: "the damage becomes 0") like the calculation's
+/// other effects.
+#[test]
+fn a_prevented_attack_damage_has_one_entry_of_0() {
+    let d = "Dunsparce PRE 79";
+    let mut g = game_of(
+        &[(MON, 4), (d, 2)],
+        serde_json::json!({"me": {"reset": true, "active": d, "active_energy": ["Metal Energy MEE 8", "Metal Energy MEE 8"]}, "opp": {"reset": true, "active": MON, "active_energy": ["Metal Energy MEE 8"]}, "coins": [true]}),
+    );
+    g.st.set_turn(2);
+    let me = g.st.active_player as usize;
+    let dunsparce = g.st.active_pokemon(me);
+    attack(&mut g, "Dig");
+    assert_eq!(g.st.active_player as usize, 1 - me, "the opponent's turn");
+    g.record_on();
+    attack(&mut g, "Hammer In");
+    let e = g.take_record();
+    let damage: Vec<_> = e.iter().filter(|x| x.kind == EventKind::Damage).collect();
+    assert_eq!(damage.len(), 1, "{e:?}");
+    assert_eq!((damage[0].card, damage[0].amount), (dunsparce, 0));
+    assert_eq!(g.st.slot(me, g.st.players[me].active).damage, 0);
 }
