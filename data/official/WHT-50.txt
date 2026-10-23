@@ -1,0 +1,11 @@
+Archen
+- Fighting - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+FC
+Acrobatics 30+
+Flip 2 coins. This attack does 30 more damage for each heads.
+Weakness: Grass
+Resistance: none
+Retreat: 1

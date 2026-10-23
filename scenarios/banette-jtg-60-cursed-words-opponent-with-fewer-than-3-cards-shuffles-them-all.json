@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Banette JTG 60",
+   "4 Shuppet PBL 33",
+   "4 Mega Latias ex MEG 100",
+   "4 Boss's Orders PAL 172",
+   "22 Water Energy MEE 3",
+   "22 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Banette JTG 60",
+   "4 Shuppet PBL 33",
+   "4 Mega Latias ex MEG 100",
+   "4 Boss's Orders PAL 172",
+   "22 Water Energy MEE 3",
+   "22 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Banette JTG 60",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "hand": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cursed Words"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text: your opponent chooses 3 cards from their hand and shuffles those cards into their deck (as many as they have if fewer)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 0,
+   "cite": "card text: shuffled into the deck, not discarded"
+  }
+ ]
+}

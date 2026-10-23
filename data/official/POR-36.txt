@@ -1,0 +1,15 @@
+Aromatisse
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Spritzee
+Ability:
+Scent Collection
+Once during your turn, you may use this Ability. Search your deck for up to 2 Basic [ P ] Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+PC
+Draining Kiss 50
+Heal 30 damage from this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 1

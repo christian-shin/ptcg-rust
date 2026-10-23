@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Archeops WHT 51",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Archeops WHT 51",
+   "4 Stufful MEG 111",
+   "4 Bewear MEG 112",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Archeops WHT 51"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Stufful MEG 111"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": false,
+   "cite": "APR D-05: an Ability that can't change anything can't be used (no evolved Pokemon of the opponent's)"
+  }
+ ]
+}

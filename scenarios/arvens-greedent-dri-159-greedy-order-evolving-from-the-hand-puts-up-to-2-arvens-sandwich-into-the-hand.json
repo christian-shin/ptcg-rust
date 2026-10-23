@@ -1,0 +1,71 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Arven's Greedent DRI 159",
+   "4 Arven's Skwovet DRI 158",
+   "4 Arven's Sandwich DRI 161",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Arven's Greedent DRI 159",
+   "4 Arven's Skwovet DRI 158",
+   "4 Arven's Sandwich DRI 161",
+   "4 Mega Latias ex MEG 100",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Arven's Skwovet DRI 158",
+  "hand": [
+   "Arven's Greedent DRI 159"
+  ],
+  "discard": [
+   "Arven's Sandwich DRI 161",
+   "Arven's Sandwich DRI 161",
+   "Arven's Sandwich DRI 161"
+  ],
+  "played": "earlier"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Arven's Greedent DRI 159",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: you may put up to 2 Arven's Sandwich cards from your discard pile into your hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text"
+  }
+ ]
+}

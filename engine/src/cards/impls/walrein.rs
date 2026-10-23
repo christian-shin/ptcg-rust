@@ -7,7 +7,7 @@
 //! Walrein / Terapagos / Mist Energy: Mist Energy already attached, it can attack; attached afterwards, it can't, id2341),
 //! and on each new one that comes into play during that turn (the parenthetical). It ends for a Pokémon that moves to the
 //! Bench, evolves or devolves (APR C-15); Walrein leaving the Active Spot changes nothing (id2055: "resides on all of the
-//! opponent's Pokémon, not on Walrein"). The Energy attached is the Energy provided (`EventPred::EnergyAtMost`).
+//! opponent's Pokémon, not on Walrein"). The Energy attached is the Energy provided (`SlotPred::EnergyAtMost`, read on the attacking Pokémon).
 //!
 //! The self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08).
 use crate::spec::prelude::*;
@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::ArmEach(ArmEachSpec {
                 side: Who::Opp,
                 subject: SlotPred::Any,
-                what: Lasting::Lock(LastingLockSpec::on_defending(&LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::UseAttack), EventPred::EnergyAtMost(2)]), "BLOCKED_BY_EFFECT"))),
+                what: Lasting::Lock(LastingLockSpec::on_defending(&LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::UseAttack), EventPred::Slot(SlotPred::EnergyAtMost(2))]), "BLOCKED_BY_EFFECT"))),
             }))],
         },
         AttackSpec { index: 1, steps: &[Step::after_damage(self_damage(50))] },

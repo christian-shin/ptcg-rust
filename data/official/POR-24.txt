@@ -1,0 +1,15 @@
+Aurorus
+- Water - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Amaura
+Ability:
+Tundra Wall
+All of your Pokémon that have any [ W ] Energy attached take 50 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) . The effect of Tundra Wall doesn't stack.
+WWC
+Freezing Chill 150
+During your opponent's next turn, the Defending Pokémon can't use attacks.
+Weakness: Metal
+Resistance: none
+Retreat: 3

@@ -1,0 +1,14 @@
+Boldore
+- Fighting - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Roggenrola
+F
+Smack Down 30+
+If your opponent's Active Pokémon has [ F ] Resistance, this attack does 50 more damage.
+FFF
+Power Gem 90
+Weakness: Grass
+Resistance: none
+Retreat: 3

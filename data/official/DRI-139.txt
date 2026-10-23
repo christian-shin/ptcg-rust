@@ -1,0 +1,15 @@
+Arven's Mabosstiff ex
+- Darkness - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Arven's Maschiff
+C
+Vigorous Tackle 30+
+If this Pokémon has no damage counters on it, this attack does 120 more damage.
+CCC
+Boss Headbutt 210
+During your next turn, this Pokémon can't use Boss Headbutt.
+Weakness: Grass
+Resistance: none
+Retreat: 3

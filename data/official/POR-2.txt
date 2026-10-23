@@ -1,0 +1,12 @@
+Ariados
+- Grass - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Spinarak
+G
+Poison Ring 50
+Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat.
+Weakness: Fire
+Resistance: none
+Retreat: 1

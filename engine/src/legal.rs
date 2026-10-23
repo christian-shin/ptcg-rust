@@ -35,7 +35,7 @@
 
 use crate::carddb::DefId;
 use crate::effects::*;
-use crate::engine::{attack, retreat, turn};
+use crate::engine::{retreat, turn};
 use crate::game::{Action, Game};
 use crate::list::*;
 use crate::prompts::get_target;
@@ -508,12 +508,6 @@ impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
     }
     fn event_locked(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<Option<&'static str>> {
         Ok(self.event_lock(v))
-    }
-    fn energy_count(&mut self, slot: SlotRef) -> crate::game::R<i32> {
-        match self.provided(slot.s) {
-            Ok(map) => Ok(attack::max_energy_count(&map)),
-            Err(()) => Err(crate::game::GameError("ENERGY_READ")),
-        }
     }
     fn payable(&mut self, attack_ref: AttackRef, slot: SlotRef) -> crate::game::R<bool> {
         let p = self.p;

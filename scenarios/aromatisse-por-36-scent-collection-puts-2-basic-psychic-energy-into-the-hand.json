@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Aromatisse POR 36",
+   "1 Mega Latias ex MEG 100",
+   "2 Water Energy MEE 3",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Aromatisse POR 36",
+   "1 Mega Latias ex MEG 100",
+   "2 Water Energy MEE 3",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Aromatisse POR 36",
+  "hand": [
+   "Mega Latias ex MEG 100",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Scent Collection",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "contains": [
+    "Psychic Energy MEE 5",
+    "Psychic Energy MEE 5"
+   ],
+   "count": 5,
+   "cite": "card text: search your deck for up to 2 Basic [P] Energy cards, reveal them, and put them into your hand (3 cards were already in the hand)"
+  }
+ ]
+}
