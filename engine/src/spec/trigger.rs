@@ -94,6 +94,12 @@ pub(crate) fn fires_on(g: &mut Game, me: CardId, v: &super::event::EventView, t:
         _ => None,
     };
     let Some(_) = super::passive::locate(g, me, t.origin).or(left).or_else(recorded) else { return Ok(None) };
+    // A Trainer's own trigger ("at the end of this turn, ...") is an effect of the card that was played: held by the card in
+    // its owner's record of the cards played this turn, wherever the card is now (a played Supporter is in the discard pile
+    // by the end of the turn), not by another copy in the hand, the deck or the discard pile (APR E-21, id2135).
+    if t.origin == RuleSource::TrainerEffect && !g.st.players[g.st.owner(me)].played_this_turn.contains(&me) {
+        return Ok(None);
+    }
     if !pred.eval(g, me, v)? {
         return Ok(None);
     }

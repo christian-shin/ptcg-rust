@@ -32,6 +32,9 @@ pub enum RuleSource {
     Tool,
     Energy,
     Stadium,
+    /// A Trainer's effect: a passive applies while a declared effect of the card is on its object (`Op::Declare`); a trigger
+    /// ("at the end of this turn, ...") is held by the card that was played this turn (the owner's record of the cards played
+    /// this turn), wherever it is now.
     TrainerEffect,
     CardRule,
 }

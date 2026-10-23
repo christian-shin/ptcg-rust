@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Snover MEG 35",
+   "2 Amarys PRE 93",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "2 Snover MEG 35",
+   "2 Amarys PRE 93",
+   "1 Hop's Snorlax JTG 117",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Snover MEG 35",
+  "hand_to_deck": true,
+  "reset": true,
+  "hand": [
+   "Amarys PRE 93"
+  ],
+  "deck_top": [
+   "Amarys PRE 93",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Snover MEG 35"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Amarys PRE 93"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "play",
+   "card": "Amarys PRE 93"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 4,
+   "cite": "card text: draw 4 cards. At the end of this turn, if you have 5 or more cards in your hand, discard your hand; APR E-21, id2135: the effect is the played Supporter's, a copy in the hand has none (turn 2: 4 cards, kept)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text: draw 4 cards. At the end of this turn, if you have 5 or more cards in your hand, discard your hand; APR E-21, id2135: the effect is the played Supporter's, a copy in the hand has none (turn 4: 8 cards, discarded)"
+  }
+ ]
+}
