@@ -1,0 +1,15 @@
+{
+ "turn": 3,
+ "decks": [
+  ["4 Tympole EVS 42", "4 Palpitoad OBF 51", "4 Seismitoad 30C 84", "4 Rare Candy MEG 125", "4 Bronzor TEF 68", "4 Bronzong TEF 69", "36 Psychic Energy MEE 5"],
+  ["4 Tympole EVS 42", "4 Palpitoad OBF 51", "4 Seismitoad 30C 84", "4 Rare Candy MEG 125", "4 Bronzor TEF 68", "4 Bronzong TEF 69", "36 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": ["Bronzor TEF 68", "Bronzong TEF 69"], "active_energy": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Bronzor TEF 68", "bench": [{"card": "Tympole EVS 42"}], "hand": ["Rare Candy MEG 125", "Seismitoad 30C 84"]},
+ "answers": [
+  {"a": "attack", "name": "Evolution Jammer"}
+ ],
+ "expect": [
+  {"at": "next_turn", "who": "opp", "legal": "play", "name": "Rare Candy MEG 125", "is": false, "cite": "table rule play_evolving_trainer_under_evolution_lock (off, the rulings): id1133 (Rare Candy can't be used while evolving from the hand is stopped); Evolution Jammer: they can't play Pokemon from their hand to evolve their Pokemon"}
+ ]
+}

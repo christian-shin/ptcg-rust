@@ -108,6 +108,17 @@ pub struct TableRules {
     /// id220, id521, id2034: the choice is made, the damage calculated, then the choice carried out); a deck search and a
     /// choice under a coin or an "If" the damage can change are made after the damage, when their options exist.
     pub attack_choices_asked_when_their_effect_runs: bool,
+    /// An effect that stops evolving from the hand (a lock over the Evolve event: Bronzong's Evolution Jammer, Team
+    /// Rocket's Arbok's Potent Glare, ...) doesn't keep a Trainer card that evolves a Pokémon with a card from the hand
+    /// (Rare Candy) from being played: its Pokémon and its Evolution card are chosen as if no lock applied, the card is
+    /// discarded, and the Evolve is refused by the lock, so nothing evolves. The Trainer's own limits (not during your
+    /// first turn, not on a Pokémon put into play this turn) and whether the cards evolve into each other still apply.
+    /// `spec::ops::board::can_skip_stage1_onto`.
+    ///
+    /// Off (the rulings): an evolving Trainer can't be played while evolving from the hand is locked (compendium id1133:
+    /// Rare Candy can't be used while an evolution-preventing Ability is in effect; id925, APR B-01: a card whose effect
+    /// would not change the game can't be played).
+    pub play_evolving_trainer_under_evolution_lock: bool,
 }
 
 impl TableRules {
@@ -122,6 +133,7 @@ impl TableRules {
         "copied_copy_attack_does_nothing",
         "ability_attach_targets_unread",
         "attack_choices_asked_when_their_effect_runs",
+        "play_evolving_trainer_under_evolution_lock",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -136,6 +148,7 @@ impl TableRules {
             "copied_copy_attack_does_nothing" => &mut self.copied_copy_attack_does_nothing,
             "ability_attach_targets_unread" => &mut self.ability_attach_targets_unread,
             "attack_choices_asked_when_their_effect_runs" => &mut self.attack_choices_asked_when_their_effect_runs,
+            "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
