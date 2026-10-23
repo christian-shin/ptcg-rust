@@ -12708,5 +12708,15 @@
   "key": "Larry's Dudunsparce ex ASC 164",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "69",
+  "name": "Sandslash",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Sandslash MEG 69",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]
