@@ -136,10 +136,19 @@ pub struct TableRules {
     /// done. No ruling gives the order (the attack steps chart and APR B-05 name the reduction, not the discard): the
     /// order of the card's own words, "takes less damage, and discard", is kept.
     pub damage_reducing_tool_discarded_after_the_damage: bool,
+    /// Replaces Sudden Death with a draw: when both players win at the same time in equally many ways (each has taken their
+    /// last Prize card, or the other has no Pokémon in play, after every effect has resolved: e.g. both Active Pokémon Knocked
+    /// Out with no Pokémon left to promote), the game ends with no winner, its result `types::WINNER_DRAW`. The same inside a
+    /// Tiebreaker game. A player who won in more ways than the other still wins. `engine::knockout::check_winner`.
+    ///
+    /// Off (the rulings): a Tiebreaker game (Sudden Death) is played, a new game with 1 Prize card each, when the players won in
+    /// the same number of ways; a player who won in two ways while the other won in one wins (SSP rulebook "What if both
+    /// players win at the same time?", APR I-E; RULES.md "A Tiebreaker game is a new game").
+    pub simultaneous_win_is_a_draw: bool,
 }
 
 impl TableRules {
-    /// Every option's name, in the order of the fields.
+    /// Every option's name, in the order of the fields (`simultaneous_win_is_a_draw` replaces Sudden Death with a draw).
     pub const NAMES: &'static [&'static str] = &[
         "ask_single_way_payments",
         "hide_attacks_that_can_do_nothing",
@@ -153,6 +162,7 @@ impl TableRules {
         "play_evolving_trainer_under_evolution_lock",
         "heal_chooses_only_damaged_pokemon",
         "damage_reducing_tool_discarded_after_the_damage",
+        "simultaneous_win_is_a_draw",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -170,6 +180,7 @@ impl TableRules {
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
             "heal_chooses_only_damaged_pokemon" => &mut self.heal_chooses_only_damaged_pokemon,
             "damage_reducing_tool_discarded_after_the_damage" => &mut self.damage_reducing_tool_discarded_after_the_damage,
+            "simultaneous_win_is_a_draw" => &mut self.simultaneous_win_is_a_draw,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
