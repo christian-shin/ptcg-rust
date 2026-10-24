@@ -1,0 +1,15 @@
+Forretress
+- Metal - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Pineco
+C
+Iron Shake-Up 20
+You may move any amount of [ M ] Energy from your Pokémon to your other Pokémon in any way you like.
+MCCC
+Hurricane of Needles 80×
+Flip 4 coins. This attack does 80 damage for each heads.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

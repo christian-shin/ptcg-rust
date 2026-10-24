@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Garganacl MEG 84",
+   "4 Naclstack MEG 83",
+   "4 Nacli MEG 82",
+   "4 Slaking ex SSP 147",
+   "4 Excadrill ex BLK 46",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Mega Latias ex MEG 100",
+   "20 Fighting Energy MEE 6",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Garganacl MEG 84",
+   "4 Naclstack MEG 83",
+   "4 Nacli MEG 82",
+   "4 Slaking ex SSP 147",
+   "4 Excadrill ex BLK 46",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Mega Latias ex MEG 100",
+   "20 Fighting Energy MEE 6",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Garganacl MEG 84",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Slaking ex SSP 147"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hammer In"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Slaking ex SSP 147",
+   "damage": 320,
+   "cite": "card text: 30 more damage before applying Weakness: (130 + 30) x 2 = 320"
+  }
+ ]
+}

@@ -6618,5 +6618,75 @@
   "name": "Duosion",
   "text": "Duosion\n- Psychic - 70 HP\nPokémon\n- Stage 1\n- Evolves from\nSolosis\nC\nCellular Evolution\nSearch your deck for a card that evolves from 1 of your Pokémon and put it onto that Pokémon to evolve it. Then, shuffle your deck.\nC\nSpray Fluid 30\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/BLK/38"
+ },
+ "ASC 15": {
+  "name": "Dustox",
+  "text": "Dustox\n- Grass - 140 HP\nPokémon\n- Stage 2\n- Evolves from\nCascoon\nAbility:\nBoisterous Wind\nOnce during your turn, you may use this Ability. Flip a coin. If heads, put an Energy attached to your opponent's Active Pokémon into their hand.\nGG\nTwilight Poison 100\nYour opponent's Active Pokémon is now Asleep and Poisoned.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/ASC/15"
+ },
+ "BLK 32": {
+  "name": "Eelektross",
+  "text": "Eelektross\n- Lightning - 160 HP\nPokémon\n- Stage 2\n- Evolves from\nEelektrik\nL\nThunder Fang 60\nFlip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.\nLLLC\nBuzz Flip 100×\nFlip 4 coins. This attack does 100 damage for each heads.\nWeakness: Fighting\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/32"
+ },
+ "WHT 13": {
+  "name": "Emboar",
+  "text": "Emboar\n- Fire - 180 HP\nPokémon\n- Stage 2\n- Evolves from\nPignite\nAbility:\nInferno Fandango\nAs often as you like during your turn, you may attach a Basic [ R ] Energy card from your hand to 1 of your Pokémon.\nRRRC\nHeat Crash 120\nWeakness: Water\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/WHT/13"
+ },
+ "ASC 6": {
+  "name": "Erika's Victreebel",
+  "text": "Erika's Victreebel\n- Grass - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nErika's Weepinbell\nGC\nFlower Garden Rondo 40×\nThis attack does 40 damage for each of your Erika's Pokémon in play.\nGGC\nSolar Beam 130\nWeakness: Fire\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/6"
+ },
+ "ASC 3": {
+  "name": "Erika's Vileplume ex",
+  "text": "Erika's Vileplume ex\n- Grass - 310 HP\nPokémon\n- Stage 2\n- Evolves from\nErika's Gloom\nAbility:\nLovely Fragrance\nOnce during your turn, you may use this Ability. Heal 30 damage from each of your Pokémon.\nGGC\nBloom Powder 160\nYour opponent's Active Pokémon is now Asleep and Poisoned.\nWeakness: Fire\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/ASC/3"
+ },
+ "BLK 46": {
+  "name": "Excadrill ex",
+  "text": "Excadrill ex\n- Fighting - 270 HP\nPokémon\n- Stage 1\n- Evolves from\nDrilbur\nFF\nPiercing Drill 60\nThis attack also does 60 damage to 1 of your opponent's Benched Pokémon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pokémon.)\nFFF\nRock Tumble 200\nThis attack's damage isn't affected by Resistance.\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/46"
+ },
+ "JTG 17": {
+  "name": "Floragato",
+  "text": "Floragato\n- Grass - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nSprigatito\nCC\nMagical Leaf 30+\nFlip a coin. If heads, this attack does 30 more damage, and heal 30 damage from this Pokémon.\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/JTG/17"
+ },
+ "PFL 53": {
+  "name": "Flygon",
+  "text": "Flygon\n- Fighting - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nVibrava\nAbility:\nSandy Flapping\nOnce during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. You may also use this Ability if this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon. Discard the top 2 cards of your opponent's deck.\nFF\nCutting Wind 130\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/53"
+ },
+ "SSP 106": {
+  "name": "Flygon ex",
+  "text": "Flygon ex\n- Fighting - 310 HP\nPokémon\n- Stage 2\n- Evolves from\nVibrava\nTera\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .\nF\nReversing Storm 130\nYou may switch this Pokémon with 1 of your Benched Pokémon.\nWFM\nSonic Peridot\nThis attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.\nWeakness: Grass\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/SSP/106"
+ },
+ "DRI 140": {
+  "name": "Forretress",
+  "text": "Forretress\n- Metal - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nPineco\nC\nIron Shake-Up 20\nYou may move any amount of [ M ] Energy from your Pokémon to your other Pokémon in any way you like.\nMCCC\nHurricane of Needles 80×\nFlip 4 coins. This attack does 80 damage for each heads.\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/DRI/140"
+ },
+ "MEG 43": {
+  "name": "Frosmoth",
+  "text": "Frosmoth\n- Water - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nSnom\nW\nChilling Wings\nThis attack does 20 damage to each of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.) Your opponent's Active Pokémon is now Asleep.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/43"
+ },
+ "MEG 84": {
+  "name": "Garganacl",
+  "text": "Garganacl\n- Fighting - 180 HP\nPokémon\n- Stage 2\n- Evolves from\nNaclstack\nAbility:\nPowerful a-Salt\nAttacks used by your [ F ] Pokémon do 30 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .\nFFC\nHammer In 130\nWeakness: Grass\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/MEG/84"
+ },
+ "POR 50": {
+  "name": "Gengar",
+  "text": "Gengar\n- Darkness - 130 HP\nPokémon\n- Stage 2\n- Evolves from\nHaunter\nAbility:\nInfinite Shadow\nIf this Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, put it into your hand instead of the discard pile. (Discard all attached cards.)\nD\nMind Jack 10+\nThis attack does 30 more damage for each of your opponent's Benched Pokémon.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/POR/50"
+ },
+ "MEG 99": {
+  "name": "Gholdengo",
+  "text": "Gholdengo\n- Metal - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nGimmighoul\nC\nAll-You-Can-Grab\nFlip a coin until you get tails. Search your deck for a number of cards up to the number of heads and put them into your hand. Then, shuffle your deck.\nMCC\nSpeed Attack 100\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/99"
  }
 }

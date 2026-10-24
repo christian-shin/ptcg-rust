@@ -1,0 +1,14 @@
+Garganacl
+- Fighting - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Naclstack
+Ability:
+Powerful a-Salt
+Attacks used by your [ F ] Pokémon do 30 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+FFC
+Hammer In 130
+Weakness: Grass
+Resistance: none
+Retreat: 4

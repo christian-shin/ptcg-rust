@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Lightning Energy MEE 4",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Lightning Energy MEE 4",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eelektross BLK 32",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "coins": [
+  true,
+  true,
+  false,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Buzz Flip"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 300,
+   "cite": "card text: flip 4 coins; 100 damage for each heads (3 heads)"
+  }
+ ]
+}

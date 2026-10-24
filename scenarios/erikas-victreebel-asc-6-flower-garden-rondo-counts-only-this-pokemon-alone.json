@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Erika's Victreebel ASC 6",
+   "4 Erika's Oddish ASC 1",
+   "4 Erika's Weepinbell ASC 5",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Erika's Victreebel ASC 6",
+   "4 Erika's Oddish ASC 1",
+   "4 Erika's Weepinbell ASC 5",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Erika's Victreebel ASC 6",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flower Garden Rondo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 40,
+   "cite": "card text: Erika's Pokemon in play: this Pokemon only (1)"
+  }
+ ]
+}

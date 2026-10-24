@@ -1,0 +1,63 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Flygon PFL 53",
+   "4 Vibrava PFL 52",
+   "4 Trapinch PFL 51",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Slaking ex SSP 147",
+   "20 Water Energy MEE 3",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Flygon PFL 53",
+   "4 Vibrava PFL 52",
+   "4 Trapinch PFL 51",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Slaking ex SSP 147",
+   "20 Water Energy MEE 3",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Vibrava PFL 52",
+  "hand": [
+   "Flygon PFL 53"
+  ],
+  "played": "earlier"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Flygon PFL 53",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 2,
+   "cite": "card text: when you play this Pokemon from your hand to evolve 1 of your Pokemon, you may use this Ability. Discard the top 2 cards of your opponent's deck"
+  }
+ ]
+}

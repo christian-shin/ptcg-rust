@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slaking ex SSP 147",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gengar POR 50",
+  "active_damage": 120,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Gengar POR 50"
+   ],
+   "cite": "card text: only a Knock Out by damage from an attack from your opponent's Pokemon (Poison at Checkup: the discard pile)"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text"
+  }
+ ]
+}

@@ -1228,3 +1228,17 @@ Dewgong POR 19	DewgongPOR
 Doublade POR 57	Doublade
 Drednaw SCR 44	Drednaw
 Duosion BLK 38	Duosion
+Dustox ASC 15	Dustox
+Eelektross BLK 32	Eelektross
+Emboar WHT 13	Emboar
+Erika's Victreebel ASC 6	ErikasVictreebel
+Erika's Vileplume ex ASC 3	ErikasVileplumeEx
+Excadrill ex BLK 46	ExcadrillEx
+Floragato JTG 17	Floragato
+Flygon PFL 53	Flygon
+Flygon ex SSP 106	FlygonEx
+Forretress DRI 140	Forretress
+Frosmoth MEG 43	FrosmothMEG
+Garganacl MEG 84	Garganacl
+Gengar POR 50	Gengar
+Gholdengo MEG 99	GholdengoMEG

@@ -1,0 +1,15 @@
+Excadrill ex
+- Fighting - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Drilbur
+FF
+Piercing Drill 60
+This attack also does 60 damage to 1 of your opponent's Benched Pokémon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pokémon.)
+FFF
+Rock Tumble 200
+This attack's damage isn't affected by Resistance.
+Weakness: Grass
+Resistance: none
+Retreat: 3

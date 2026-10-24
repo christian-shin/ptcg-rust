@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Forretress DRI 140",
+   "4 Pineco DRI 4",
+   "4 Honedge POR 56",
+   "4 Mega Dragonite ex ASC 152",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Forretress DRI 140",
+   "4 Pineco DRI 4",
+   "4 Honedge POR 56",
+   "4 Mega Dragonite ex ASC 152",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Forretress DRI 140",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Honedge POR 56"
+   },
+   {
+    "card": "Mega Dragonite ex ASC 152",
+    "energy": [
+     "Metal Energy MEE 8"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iron Shake-Up"
+  },
+  []
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Forretress DRI 140",
+   "energy": 3,
+   "cite": "card text: you may move (none)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "card": "Mega Dragonite ex ASC 152",
+   "energy": 1,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Honedge POR 56",
+   "energy": 0,
+   "cite": "card text"
+  }
+ ]
+}

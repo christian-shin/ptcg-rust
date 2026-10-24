@@ -1,0 +1,17 @@
+Flygon ex
+- Fighting - 310 HP
+Pokémon
+- Stage 2
+- Evolves from
+Vibrava
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+F
+Reversing Storm 130
+You may switch this Pokémon with 1 of your Benched Pokémon.
+WFM
+Sonic Peridot
+This attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.
+Weakness: Grass
+Resistance: none
+Retreat: 1

@@ -299,6 +299,10 @@ pub struct MoveEnergySpec {
 pub enum MoveEnergyMode {
     /// One Energy moves between the owner's Pokémon, as an effect of the attack.
     Effect,
+    /// "You may move any amount of [M] Energy from your Pokémon to your other Pokémon in any way you like", as an effect of
+    /// the attack: between none and every Energy card (that provides `only` when given) of the owner's Pokémon, each moved to
+    /// another of the owner's Pokémon, chosen at step D and moved after the damage (Iron Shake-Up).
+    AnyAmount { only: Option<CardType> },
     // --- S3 agent 3 appends ---
     /// Up to `max` Energy cards of the Benched Pokémon move to the Active Pokémon (N's Plot: at
     /// least 1, or 0 when the Trainer is used as the effect of an attack).
@@ -307,6 +311,12 @@ pub enum MoveEnergyMode {
     /// as a blocked entry holding all its cards), and the cards move one source at a time.
     /// `only`: just the Energy that provides this type is moved ("any amount of [M] Energy", Cobalion ex's Metal Road).
     BenchToActive { max: Option<u8>, required: bool, ability: bool, only: Option<CardType> },
+}
+impl MoveEnergyMode {
+    /// The modes that are effects of the attack being used (chosen at step D, moved after the damage).
+    const fn is_attack_effect(&self) -> bool {
+        matches!(self, MoveEnergyMode::Effect | MoveEnergyMode::AnyAmount { .. })
+    }
 }
 /// Discard, or otherwise move, the Energy (or other cards) of a Pokémon: `selection` says which cards and
 /// who chooses them; `to` where they go (the ones of an attack choose at step D, move after the damage).
@@ -671,7 +681,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::DiscardEnergy(d) => de_exec(g, me, f, d),
         Op::MoveEnergyOwn(m) => Ok(if move_energy_own_prompt(g, me, f, m) { Flow::Suspend } else { Flow::Next }),
         Op::MoveEnergy(m) => {
-            if m.mode != MoveEnergyMode::Effect {
+            if !m.mode.is_attack_effect() {
                 return Ok(if move_energy_mode_prompt(g, me, f, m)? { Flow::Suspend } else { Flow::Next });
             }
             if let Some(c) = f.recorded_choice(g, me) {
@@ -680,7 +690,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 }
                 return Ok(Flow::Next);
             }
-            if move_energy_prompt(g, me, f, m, 1) {
+            if move_energy_prompt(g, me, f, m, 1)? {
                 Ok(Flow::Suspend)
             } else {
                 Ok(Flow::Next)
@@ -1420,17 +1430,34 @@ fn energy_attached(g: &Game, owner: usize) -> bool {
     for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(s, _, _)| g.st.slot(owner, *s).cards().iter().any(|c| g.st.cdef(c).is_energy()))
 }
 
-fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec, sub: u8) -> bool {
+fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpec, sub: u8) -> R<bool> {
     let owner = f.who(m.owner);
     if !energy_attached(g, owner) || for_each_pokemon(g, owner, PlayerType::BottomPlayer).len() <= 1 {
-        return false;
+        return Ok(false);
     }
     let chooser = f.who(m.chooser);
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let player_type = if owner == chooser { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
-    let opts = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+    let mut opts = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+    if let MoveEnergyMode::AnyAmount { only } = m.mode {
+        // "You may move any amount": none is a valid answer; only the Energy that provides the type can be chosen.
+        opts.min = 0;
+        opts.max = None;
+        if let Some(ty) = only {
+            let mut has = false;
+            for (s, _, t) in for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().copied() {
+                has |= !energy_cards_that_provide_type(g, owner, s, ty)?.is_empty();
+                if let Some(b) = blocked_non_type_energy(g, owner, s, ty)? {
+                    opts.blocked_map.push((t, b));
+                }
+            }
+            if !has {
+                return Ok(false);
+            }
+        }
+    }
     let opts = g.stash_opts(opts);
     g.prompt(
         chooser,
@@ -1439,7 +1466,7 @@ fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpe
         Provenance::by(me),
         f.cont(me, sub),
     );
-    true
+    Ok(true)
 }
 
 /// (from slot, to slot, card) as bytes: slot = player << 4 | slot id.
@@ -1558,7 +1585,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             Ok(Flow::Next)
         }
-        Op::MoveEnergy(m) if m.mode != MoveEnergyMode::Effect => {
+        Op::MoveEnergy(m) if !m.mode.is_attack_effect() => {
             let Res::Transfers(ts) = first else { return Ok(Flow::Next) };
             let p = f.p as usize;
             if let MoveEnergyMode::BenchToActive { ability: true, .. } = m.mode {
@@ -1656,7 +1683,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Next)
         }
         Op::MoveEnergy(m) => {
-            if move_energy_prompt(g, me, f, m, 1) {
+            if move_energy_prompt(g, me, f, m, 1)? {
                 return Ok(Flow::Suspend);
             }
             f.record(g, me, CHOICE_NONE);
@@ -2083,7 +2110,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
             slots.push(SlotType::Active as u8);
             Filter::super_type(SuperType::Energy)
         }
-        MoveEnergyMode::Effect => return Ok(false),
+        MoveEnergyMode::Effect | MoveEnergyMode::AnyAmount { .. } => return Ok(false),
     };
     let o = g.stash_opts(o);
     g.prompt(chooser, PromptPurpose::MoveEnergy, PromptKind::MoveEnergy { player_type, slots, filter, o }, Provenance::by(me), f.cont(me, 1));
