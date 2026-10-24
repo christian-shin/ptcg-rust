@@ -6,6 +6,10 @@
 //! hidden: any card, none when it is empty), set aside while the deck is shuffled (APR E-19), then put on top by one PutIntoDeck
 //! event of the Ability (Ciphermaniac's Codebreaking with one card). Poison Sound Wave puts both conditions on the Defending
 //! Pokémon after the damage.
+//!
+//! It needs at least 2 cards in the deck (APR B-01 / A-02 step 1, id925: an Ability that can't change the game can't be used):
+//! with 1 card, choosing it, shuffling and putting it back on top changes nothing, and with 0 the search can't be made (id840).
+//! (The rules' walk does not see that a Pick of the whole deck followed by a put back on top is a no-op, so the Ability states it.)
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
@@ -15,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn,
-        needs: &[Cond::Printed(&Cond::IsActive(SlotExpr::This))],
+        needs: &[Cond::Printed(&Cond::IsActive(SlotExpr::This)), Cond::Cmp(Num::ZoneSize(DECK), CmpOp::Gt, Num::Lit(1))],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: DECK, bounds: Bounds { min: Num::Min(&Num::Lit(1), &Num::ZoneSize(DECK)), max: Num::Min(&Num::Lit(1), &Num::ZoneSize(DECK)) }, into: 0, ..PickSpec::DEFAULT })),
             Step::new(Op::Look(LookSpec { from: DECK, cards: CardSel::Chosen(0), into: 1, ..LookSpec::DEFAULT })),
