@@ -1,0 +1,102 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slaking ex SSP 147",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Gastly POR 48",
+   "Haunter POR 49",
+   "Gengar POR 50"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Great Swing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "contains": [
+    "Gengar POR 50",
+    "Haunter POR 49",
+    "Gastly POR 48"
+   ],
+   "cite": "card text: put it into your hand instead of the discard pile"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Water Energy MEE 3",
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: (Discard all attached cards.)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "not_contains": [
+    "Gengar POR 50"
+   ],
+   "cite": "card text: Gengar is not in the discard pile"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "a Knock Out by damage from an attack still takes a Prize card (APR D)"
+  }
+ ]
+}

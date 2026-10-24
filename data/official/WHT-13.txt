@@ -1,0 +1,14 @@
+Emboar
+- Fire - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Pignite
+Ability:
+Inferno Fandango
+As often as you like during your turn, you may attach a Basic [ R ] Energy card from your hand to 1 of your Pokémon.
+RRRC
+Heat Crash 120
+Weakness: Water
+Resistance: none
+Retreat: 4

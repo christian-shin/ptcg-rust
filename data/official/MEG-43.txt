@@ -1,0 +1,12 @@
+Frosmoth
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snom
+W
+Chilling Wings
+This attack does 20 damage to each of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.) Your opponent's Active Pokémon is now Asleep.
+Weakness: Metal
+Resistance: none
+Retreat: 2

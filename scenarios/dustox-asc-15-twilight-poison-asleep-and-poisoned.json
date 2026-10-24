@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dustox ASC 15",
+   "4 Cascoon ASC 14",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "4 Dustox ASC 15",
+   "4 Cascoon ASC 14",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dustox ASC 15",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Twilight Poison"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 100,
+   "conditions": [
+    "ASLEEP",
+    "POISONED"
+   ],
+   "cite": "card text: your opponent's Active Pokemon is now Asleep and Poisoned"
+  }
+ ]
+}

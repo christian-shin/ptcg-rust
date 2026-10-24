@@ -1,0 +1,78 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Camerupt ASC 28",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Numel ASC 27",
+   "20 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Camerupt ASC 28",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Numel ASC 27",
+   "20 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Frosmoth MEG 43",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Camerupt ASC 28",
+  "bench": [
+   {
+    "card": "Camerupt ASC 28"
+   },
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chilling Wings"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Camerupt ASC 28",
+   "damage": 40,
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "card text: 20 damage to each of your opponent's Pokemon; the Active Pokemon is weak to Water (x2 = 40)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Camerupt ASC 28",
+   "damage": 20,
+   "conditions": [],
+   "cite": "card text: Benched Pokemon: 20, no Weakness for Benched Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 20,
+   "cite": "card text: Benched Pokemon"
+  }
+ ]
+}

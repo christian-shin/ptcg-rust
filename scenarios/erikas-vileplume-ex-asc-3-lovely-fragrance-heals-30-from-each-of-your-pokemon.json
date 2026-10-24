@@ -1,0 +1,91 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Erika's Vileplume ex ASC 3",
+   "4 Erika's Oddish ASC 1",
+   "4 Erika's Gloom ASC 2",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Erika's Vileplume ex ASC 3",
+   "4 Erika's Oddish ASC 1",
+   "4 Erika's Gloom ASC 2",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Erika's Vileplume ex ASC 3",
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152",
+    "damage": 20
+   },
+   {
+    "card": "Erika's Oddish ASC 1",
+    "damage": 50
+   },
+   {
+    "card": "Erika's Gloom ASC 2"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Lovely Fragrance",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Erika's Vileplume ex ASC 3",
+   "damage": 70,
+   "cite": "card text: heal 30 damage from each of your Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 0,
+   "cite": "card text: 20 damage, healed down to 0"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "card": "Erika's Oddish ASC 1",
+   "damage": 20,
+   "cite": "card text: 50 damage, 30 healed"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 2,
+   "card": "Erika's Gloom ASC 2",
+   "damage": 0,
+   "cite": "card text: no damage to heal"
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gholdengo MEG 99",
+   "4 Gimmighoul MEG 67",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ],
+  [
+   "4 Gholdengo MEG 99",
+   "4 Gimmighoul MEG 67",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gholdengo MEG 99",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "All-You-Can-Grab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text: up to the number of heads (0)"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Coin",
+    "ShuffleDeck"
+   ],
+   "cite": "card text: flip a coin until you get tails"
+  }
+ ]
+}

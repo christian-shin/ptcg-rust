@@ -1,0 +1,12 @@
+Floragato
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Sprigatito
+CC
+Magical Leaf 30+
+Flip a coin. If heads, this attack does 30 more damage, and heal 30 damage from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

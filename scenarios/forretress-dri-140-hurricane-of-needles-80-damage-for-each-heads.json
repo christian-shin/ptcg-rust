@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Forretress DRI 140",
+   "4 Pineco DRI 4",
+   "4 Honedge POR 56",
+   "4 Mega Dragonite ex ASC 152",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Forretress DRI 140",
+   "4 Pineco DRI 4",
+   "4 Honedge POR 56",
+   "4 Mega Dragonite ex ASC 152",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Forretress DRI 140",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "coins": [
+  true,
+  true,
+  false,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hurricane of Needles"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 240,
+   "cite": "card text: flip 4 coins; 80 damage for each heads (3 heads)"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+Gengar
+- Darkness - 130 HP
+Pokémon
+- Stage 2
+- Evolves from
+Haunter
+Ability:
+Infinite Shadow
+If this Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, put it into your hand instead of the discard pile. (Discard all attached cards.)
+D
+Mind Jack 10+
+This attack does 30 more damage for each of your opponent's Benched Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

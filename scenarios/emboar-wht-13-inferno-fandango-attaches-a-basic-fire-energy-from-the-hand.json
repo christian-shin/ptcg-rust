@@ -1,0 +1,88 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Emboar WHT 13",
+   "4 Pignite WHT 12",
+   "4 Tepig WHT 11",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Emboar WHT 13",
+   "4 Pignite WHT 12",
+   "4 Tepig WHT 11",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Emboar WHT 13",
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ],
+  "hand": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Inferno Fandango",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "index": 0,
+     "player": 2,
+     "slot": 2
+    }
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Mega Dragonite ex ASC 152",
+   "energy": 1,
+   "cite": "card text: attach a Basic [R] Energy card from your hand to 1 of your Pokemon (a Benched Pokemon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Emboar WHT 13",
+   "energy": 0,
+   "cite": "card text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text"
+  }
+ ]
+}
