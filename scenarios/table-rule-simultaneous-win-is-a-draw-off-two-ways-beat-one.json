@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "supporter_played": true,
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "prizes_left": 1,
+  "energy_attached": true,
+  "retreated": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "SSP rulebook 'What if both players win at the same time?': a player who wins in two ways (last Prize card, and the opponent has no Pokemon in play) while the other wins in one wins"
+  }
+ ]
+}

@@ -136,6 +136,14 @@ pub struct TableRules {
     /// done. No ruling gives the order (the attack steps chart and APR B-05 name the reduction, not the discard): the
     /// order of the card's own words, "takes less damage, and discard", is kept.
     pub damage_reducing_tool_discarded_after_the_damage: bool,
+    /// When both players win at the same time (each has taken their last Prize card, or the other has no Pokémon in play, after
+    /// every effect has resolved: e.g. both Active Pokémon Knocked Out with no Pokémon left to promote), the game ends in a draw:
+    /// its result is `types::WINNER_DRAW`, whatever the number of ways each player won in. `engine::knockout::check_winner`.
+    ///
+    /// Off (the rulings): a Tiebreaker game (Sudden Death) is played, a new game with 1 Prize card each, when the players won in
+    /// the same number of ways; a player who won in two ways while the other won in one wins (SSP rulebook "What if both
+    /// players win at the same time?", APR I-E; RULES.md "A Tiebreaker game is a new game").
+    pub simultaneous_win_is_a_draw: bool,
 }
 
 impl TableRules {
@@ -153,6 +161,7 @@ impl TableRules {
         "play_evolving_trainer_under_evolution_lock",
         "heal_chooses_only_damaged_pokemon",
         "damage_reducing_tool_discarded_after_the_damage",
+        "simultaneous_win_is_a_draw",
     ];
 
     /// Set the option `name` (one of [`TableRules::NAMES`]); an unknown name is an error.
@@ -170,6 +179,7 @@ impl TableRules {
             "play_evolving_trainer_under_evolution_lock" => &mut self.play_evolving_trainer_under_evolution_lock,
             "heal_chooses_only_damaged_pokemon" => &mut self.heal_chooses_only_damaged_pokemon,
             "damage_reducing_tool_discarded_after_the_damage" => &mut self.damage_reducing_tool_discarded_after_the_damage,
+            "simultaneous_win_is_a_draw" => &mut self.simultaneous_win_is_a_draw,
             _ => return Err(format!("unknown table rule {:?} (known: {})", name, Self::NAMES.join(", "))),
         };
         *field = on;
