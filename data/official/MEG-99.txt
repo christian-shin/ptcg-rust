@@ -1,0 +1,14 @@
+Gholdengo
+- Metal - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Gimmighoul
+C
+All-You-Can-Grab
+Flip a coin until you get tails. Search your deck for a number of cards up to the number of heads and put them into your hand. Then, shuffle your deck.
+MCC
+Speed Attack 100
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

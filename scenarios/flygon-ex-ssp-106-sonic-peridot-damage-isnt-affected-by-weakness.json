@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flygon ex SSP 106",
+   "1 Vibrava SSP 105",
+   "2 Trapinch SSP 104",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Mega Slowbro ex PBL 31",
+   "2 Slaking ex SSP 147",
+   "2 Erika's Oddish ASC 1",
+   "2 Mega Latias ex MEG 100",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "10 Fighting Energy MEE 6",
+   "10 Water Energy MEE 3",
+   "10 Metal Energy MEE 8",
+   "5 Water Energy MEE 3"
+  ],
+  [
+   "4 Flygon ex SSP 106",
+   "1 Vibrava SSP 105",
+   "2 Trapinch SSP 104",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Mega Slowbro ex PBL 31",
+   "2 Slaking ex SSP 147",
+   "2 Erika's Oddish ASC 1",
+   "2 Mega Latias ex MEG 100",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "10 Fighting Energy MEE 6",
+   "10 Water Energy MEE 3",
+   "10 Metal Energy MEE 8",
+   "5 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Flygon ex SSP 106",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6",
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Slaking ex SSP 147"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sonic Peridot"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Slaking ex SSP 147",
+   "damage": 100,
+   "cite": "card text: this attack's damage isn't affected by Weakness (Slaking ex is weak to Fighting: 100, not 200)"
+  }
+ ]
+}

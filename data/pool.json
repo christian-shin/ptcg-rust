@@ -13408,5 +13408,145 @@
   "key": "Duosion BLK 38",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "15",
+  "name": "Dustox",
+  "type": "G Stage 2",
+  "reg": "H",
+  "key": "Dustox ASC 15",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "32",
+  "name": "Eelektross",
+  "type": "L Stage 2",
+  "reg": "I",
+  "key": "Eelektross BLK 32",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "13",
+  "name": "Emboar",
+  "type": "R Stage 2",
+  "reg": "I",
+  "key": "Emboar WHT 13",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "6",
+  "name": "Erika's Victreebel",
+  "type": "G Stage 2",
+  "reg": "I",
+  "key": "Erika's Victreebel ASC 6",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "3",
+  "name": "Erika's Vileplume ex",
+  "type": "G Stage 2",
+  "reg": "J",
+  "key": "Erika's Vileplume ex ASC 3",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "46",
+  "name": "Excadrill ex",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Excadrill ex BLK 46",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "17",
+  "name": "Floragato",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Floragato JTG 17",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "53",
+  "name": "Flygon",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Flygon PFL 53",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SSP",
+  "number": "106",
+  "name": "Flygon ex",
+  "type": "F Stage 2",
+  "reg": "H",
+  "key": "Flygon ex SSP 106",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "140",
+  "name": "Forretress",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Forretress DRI 140",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "43",
+  "name": "Frosmoth",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Frosmoth MEG 43",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "84",
+  "name": "Garganacl",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Garganacl MEG 84",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "50",
+  "name": "Gengar",
+  "type": "D Stage 2",
+  "reg": "J",
+  "key": "Gengar POR 50",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "99",
+  "name": "Gholdengo",
+  "type": "M Stage 1",
+  "reg": "I",
+  "key": "Gholdengo MEG 99",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

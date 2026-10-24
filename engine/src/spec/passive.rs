@@ -3887,7 +3887,8 @@ mod prevent_marker_tests {
         // CW25: Bastiodon PBL 62's Ancient Bulwark (over the cause, guarded by the Bench); Carracosta BLK 23's Mighty Shell (over damage
         // and effects, by cause), Cetitan ex's Snow Camouflage (over the cause), Cinccino ex's Smooth Coat (coin), the Tera rule of
         // Cinderace ex, Drednaw's Impervious Shell (over Damage).
-        assert_eq!(n, 69);
+        // CW26: the Tera rule of Flygon ex.
+        assert_eq!(n, 70);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.

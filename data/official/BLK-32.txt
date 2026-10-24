@@ -1,0 +1,15 @@
+Eelektross
+- Lightning - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Eelektrik
+L
+Thunder Fang 60
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+LLLC
+Buzz Flip 100×
+Flip 4 coins. This attack does 100 damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

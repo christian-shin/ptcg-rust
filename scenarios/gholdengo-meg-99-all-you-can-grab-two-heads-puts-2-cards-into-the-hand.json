@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gholdengo MEG 99",
+   "4 Gimmighoul MEG 67",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ],
+  [
+   "4 Gholdengo MEG 99",
+   "4 Gimmighoul MEG 67",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "10 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gholdengo MEG 99",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "coins": [
+  true,
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "All-You-Can-Grab"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: search your deck for a number of cards up to the number of heads (2) and put them into your hand"
+  }
+ ]
+}

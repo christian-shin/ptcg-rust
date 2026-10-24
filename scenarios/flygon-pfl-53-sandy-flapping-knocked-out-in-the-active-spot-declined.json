@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flygon PFL 53",
+   "4 Vibrava PFL 52",
+   "4 Trapinch PFL 51",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Slaking ex SSP 147",
+   "20 Water Energy MEE 3",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Flygon PFL 53",
+   "4 Vibrava PFL 52",
+   "4 Trapinch PFL 51",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "4 Slaking ex SSP 147",
+   "20 Water Energy MEE 3",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slaking ex SSP 147",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Flygon PFL 53",
+  "active_damage": 140,
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Great Swing"
+  },
+  [
+   0
+  ],
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: you may also use this Ability (declined: only the Energy Great Swing discards)"
+  }
+ ]
+}

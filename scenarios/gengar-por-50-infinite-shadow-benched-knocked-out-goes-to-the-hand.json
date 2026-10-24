@@ -1,0 +1,88 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ],
+  [
+   "4 Gengar POR 50",
+   "4 Haunter POR 49",
+   "4 Gastly POR 48",
+   "4 Slaking ex SSP 147",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "8 Water Energy MEE 3",
+   "12 Darkness Energy MEE 7",
+   "12 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Frosmoth MEG 43",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "bench": [
+   {
+    "card": [
+     "Gastly POR 48",
+     "Haunter POR 49",
+     "Gengar POR 50"
+    ],
+    "energy": [
+     "Water Energy MEE 3"
+    ],
+    "damage": 110
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chilling Wings"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "contains": [
+    "Gengar POR 50"
+   ],
+   "cite": "card text: if this Pokemon is Knocked Out by damage from an attack, put it into your hand (also from the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: attached cards are discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "not_contains": [
+    "Gengar POR 50"
+   ],
+   "cite": "card text"
+  }
+ ]
+}

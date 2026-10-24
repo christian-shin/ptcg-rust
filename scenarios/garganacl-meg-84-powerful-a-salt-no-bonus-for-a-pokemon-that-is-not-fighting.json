@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Garganacl MEG 84",
+   "4 Naclstack MEG 83",
+   "4 Nacli MEG 82",
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Lightning Energy MEE 4",
+   "16 Water Energy MEE 3"
+  ],
+  [
+   "4 Garganacl MEG 84",
+   "4 Naclstack MEG 83",
+   "4 Nacli MEG 82",
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Mega Dragonite ex ASC 152",
+   "20 Lightning Energy MEE 4",
+   "16 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eelektross BLK 32",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": "Garganacl MEG 84"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Fang"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 60,
+   "cite": "card text: attacks used by your [F] Pokemon (an [L] Pokemon attacks: 60, no bonus)"
+  }
+ ]
+}

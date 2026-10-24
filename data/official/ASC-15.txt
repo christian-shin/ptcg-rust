@@ -1,0 +1,15 @@
+Dustox
+- Grass - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Cascoon
+Ability:
+Boisterous Wind
+Once during your turn, you may use this Ability. Flip a coin. If heads, put an Energy attached to your opponent's Active Pokémon into their hand.
+GG
+Twilight Poison 100
+Your opponent's Active Pokémon is now Asleep and Poisoned.
+Weakness: Fire
+Resistance: none
+Retreat: 1

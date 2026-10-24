@@ -24,8 +24,9 @@ pub enum AttackFlagKind {
     IgnoreDefenderEffects,
     PreventDamage,
     FirstTurnAllowed,
-    /// The player took the attack's optional effect ("you may ...": Dialga's Chrono Burst): read by the attack's text after
-    /// the damage (`Cond::AttackFlag`).
+    /// The attack's text took a branch whose effect comes after the damage: the player took the optional effect ("you may
+    /// ...": Dialga's Chrono Burst) or the coin came up heads ("if heads, this attack does 30 more damage and heal 30 damage
+    /// from this Pokémon"): read by the attack's text after the damage (`Cond::AttackFlag`).
     OptionChosen,
 }
 

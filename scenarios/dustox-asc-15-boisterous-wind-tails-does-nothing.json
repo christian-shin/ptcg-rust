@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dustox ASC 15",
+   "4 Cascoon ASC 14",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "4 Dustox ASC 15",
+   "4 Cascoon ASC 14",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dustox ASC 15"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Boisterous Wind",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "energy": 1,
+   "cite": "card text: if heads (tails: nothing happens)"
+  }
+ ]
+}
