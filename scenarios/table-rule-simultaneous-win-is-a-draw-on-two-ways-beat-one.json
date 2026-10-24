@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape PBL 43",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape PBL 43",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "supporter_played": true,
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "prizes_left": 1,
+  "energy_attached": true,
+  "retreated": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "table rule simultaneous_win_is_a_draw replaces only Sudden Death: a player who wins in two ways against one still wins"
+  }
+ ],
+ "rules": {
+  "simultaneous_win_is_a_draw": true
+ }
+}

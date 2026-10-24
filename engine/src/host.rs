@@ -41,7 +41,7 @@ pub use crate::rng::Draw;
 pub use crate::snapshot::Snapshot;
 pub use crate::spec::passive::RuleSource;
 pub use crate::state::NO_PLAYER;
-pub use crate::types::WINNER_NONE;
+pub use crate::types::{WINNER_DRAW, WINNER_NONE, WINNER_P1, WINNER_P2};
 pub use crate::view::{CardView, EnergyUnit, EnergyUnitKind, EnergyView, PokemonView, SeatView, TableView};
 pub use crate::what_if::{AttackOutcome, AttackWhatIf};
 pub use crate::table_rules::TableRules;
@@ -67,7 +67,8 @@ pub struct StartOptions {
 /// What the game waits for ([`next`]).
 #[derive(Clone, Debug)]
 pub enum Decision {
-    /// The game is over. `winner` is the winning seat, `WINNER_NONE` for none, or a draw (`Game::st.winner`).
+    /// The game is over. `winner` is the winning seat (`WINNER_P1` = 0, `WINNER_P2` = 1), `WINNER_DRAW` (3) when the game ends in
+    /// a draw (only with the table rule `simultaneous_win_is_a_draw`), or `WINNER_NONE` (-1) for none (`Game::st.winner`).
     Over { winner: i8 },
     /// A turn decision of `player`: one of `actions` goes to [`act`] (the engine's own list of legal turn actions, in its
     /// order; never empty, `Action::Pass` ends the turn).

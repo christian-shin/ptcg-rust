@@ -48,6 +48,8 @@ pub enum EndReason {
     CardEffect,
     /// A Tiebreaker game: a player has Prize advantage after everything resolved.
     Tiebreaker,
+    /// Both players won in equally many ways and the table ends that in a draw (`TableRules::simultaneous_win_is_a_draw`).
+    SimultaneousWin,
 }
 
 /// The game ends: `winner` (a player, or a draw) for `reason`.
@@ -991,7 +993,8 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32), 4>>
 
 /// The winner, once every effect has resolved (APR E): a player with no Prize cards left wins, a player with no
 /// Pokémon in play loses; both at once: the one who met more conditions wins, the same number starts Sudden Death
-/// (R7F-12; rulings 234, 820, 1403).
+/// (R7F-12; rulings 234, 820, 1403; SSP rulebook "What if both players win at the same time?", APR I-E), or at a table with
+/// `TableRules::simultaneous_win_is_a_draw` the game ends with no winner instead (replacing Sudden Death).
 pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
     let mut points = [0; 2];
     let mut prizes_out = false;
@@ -1006,7 +1009,13 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
             prizes_out = true;
         }
     }
-    if points[0] > 0 && points[1] > 0 && points[0] == points[1] {
+    // Equal numbers of ways (both above 0): a Tiebreaker game, or at a table with the rule a draw; one player winning in more
+    // ways than the other wins (below).
+    if points[0] > 0 && points[0] == points[1] {
+        if g.st.rules.simultaneous_win_is_a_draw {
+            game_end(g, WINNER_DRAW, EndReason::SimultaneousWin);
+            return on_complete(g, oc);
+        }
         return initiate_sudden_death(g);
     }
     if points[0] + points[1] == 0 {
@@ -1020,13 +1029,8 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
         }
         return on_complete(g, oc);
     }
-    let winner = if points[0] > points[1] {
-        WINNER_P1
-    } else if points[1] > points[0] {
-        WINNER_P2
-    } else {
-        WINNER_DRAW
-    };
+    // Equal numbers were settled above (both 0: nothing to decide; both above 0: a Tiebreaker game or a draw).
+    let winner = if points[0] > points[1] { WINNER_P1 } else { WINNER_P2 };
     game_end(g, winner, if prizes_out { EndReason::Prizes } else { EndReason::NoPokemon });
     on_complete(g, oc)
 }
