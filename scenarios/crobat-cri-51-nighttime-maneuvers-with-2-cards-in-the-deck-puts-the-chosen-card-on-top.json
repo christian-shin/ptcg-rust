@@ -1,0 +1,91 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crobat CRI 51",
+   "4 Golbat CRI 50",
+   "4 Zubat CRI 49",
+   "4 Mega Latias ex MEG 100",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Crobat CRI 51",
+   "4 Golbat CRI 50",
+   "4 Zubat CRI 49",
+   "4 Mega Latias ex MEG 100",
+   "1 Fire Energy MEE 2",
+   "1 Grass Energy MEE 1",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Crobat CRI 51",
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "discard": [
+   "34 Water Energy MEE 3",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8",
+   "3 Crobat CRI 51",
+   "4 Golbat CRI 50",
+   "4 Zubat CRI 49",
+   "4 Mega Latias ex MEG 100"
+  ],
+  "deck_top": [
+   "Fire Energy MEE 2",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Nighttime Maneuvers",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "is": true,
+   "cite": "id925: with 2 cards the shuffle can change the order"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Grass Energy MEE 1"
+   ],
+   "cite": "card text: put that card on top of the deck (the 2nd card is chosen)"
+  }
+ ]
+}
