@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gourgeist ex CRI 41",
+   "4 Pumpkaboo CRI 40",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ],
+  [
+   "4 Gourgeist ex CRI 41",
+   "4 Pumpkaboo CRI 40",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gourgeist ex CRI 41",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ghostly Touch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: discard a random card from your opponent's hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text"
+  }
+ ]
+}

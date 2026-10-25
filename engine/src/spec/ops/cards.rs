@@ -393,8 +393,9 @@ pub enum EnergySelection {
     Scoped { scope: PromptScope, min: Num, max: Num, kind: EnergyKind, clamp: bool },
     /// A ChooseEnergy prompt: the Energy the Pokémon provides pays `n` Energy of `ty`.
     Cost { n: Num, ty: CardType },
-    /// Every Energy card (the cards providing Energy when `provided`); nothing is asked.
-    All { provided: bool },
+    /// Every Energy card of the kind (the cards providing Energy when `provided`; "all Basic [W] Energy attached" is `kind:
+    /// BasicProvides`); nothing is asked.
+    All { provided: bool, kind: EnergyKind },
     /// A DiscardEnergy prompt over every Pokémon in play, either side's: `min..=max` Pokémon Tools.
     Tools { min: Num, max: Num },
     /// An AttachEnergy prompt over the Pokémon's cards and the owner's Bench: move `min..=max`
@@ -2875,14 +2876,14 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             g.prompt(chooser, e.purpose(), PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Provenance::by(me), f.cont(me, sub));
             Ok(Flow::Suspend)
         }
-        EnergySelection::All { provided } => {
+        EnergySelection::All { provided, kind } => {
             if record {
                 return Ok(Flow::Next);
             }
             let cards: Vec<CardId> = if *provided {
                 crate::derived::provided_energy(g, p as usize, src)?.iter().map(|m| m.card).collect()
             } else {
-                ec_energy_cards(g, src, EnergyKind::Any)?
+                ec_energy_cards(g, src, *kind)?
             };
             let ts: Vec<Ec> = cards.into_iter().map(|c| (src, None, c)).collect();
             ec_apply(g, me, f, e, &ts)?;
@@ -3494,7 +3495,7 @@ mod pick_purpose_tests {
                 }
             }
         }
-        assert_eq!(n, 28, "the pool has 28 PickSlot steps");
+        assert_eq!(n, 29, "the pool has 29 PickSlot steps");
     }
 
     fn outcomes(class: &str) -> Vec<PromptPurpose> {

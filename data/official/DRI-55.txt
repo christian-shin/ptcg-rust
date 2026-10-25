@@ -1,0 +1,14 @@
+Huntail
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Clamperl
+Ability:
+Diver's Catch
+When 1 of your [ W ] Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, you may put all Basic [ W ] Energy attached to that Pokémon into your hand instead of the discard pile.
+WCC
+Wave Splash 80
+Weakness: Lightning
+Resistance: none
+Retreat: 1

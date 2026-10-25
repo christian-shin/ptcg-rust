@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hydreigon ex WHT 67",
+   "4 Deino WHT 65",
+   "2 Zweilous WHT 66",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Lapras ex SCR 32",
+   "20 Darkness Energy MEE 7",
+   "4 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Hydreigon ex WHT 67",
+   "4 Deino WHT 65",
+   "2 Zweilous WHT 66",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Lapras ex SCR 32",
+   "20 Darkness Energy MEE 7",
+   "4 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hydreigon ex WHT 67",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Oddish PFL 1",
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dark Bite"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "card text: if your opponent's Basic Pokemon is Knocked Out by damage from an attack used by this Pokemon, take 1 more Prize card (1 + 1)"
+  }
+ ]
+}

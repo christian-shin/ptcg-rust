@@ -1,0 +1,98 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Krookodile PFL 66",
+   "4 Krokorok PFL 65",
+   "4 Sandile PFL 64",
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Oddish PFL 1",
+   "2 Mega Dragonite ex ASC 152",
+   "14 Darkness Energy MEE 7",
+   "10 Lightning Energy MEE 4",
+   "10 Water Energy MEE 3"
+  ],
+  [
+   "4 Krookodile PFL 66",
+   "4 Krokorok PFL 65",
+   "4 Sandile PFL 64",
+   "4 Eelektross BLK 32",
+   "4 Tynamo BLK 30",
+   "4 Oddish PFL 1",
+   "2 Mega Dragonite ex ASC 152",
+   "14 Darkness Energy MEE 7",
+   "10 Lightning Energy MEE 4",
+   "10 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Oddish PFL 1",
+  "active_damage": 30,
+  "bench": [
+   {
+    "card": "Krookodile PFL 66",
+    "energy": [
+     "Darkness Energy MEE 7",
+     "Darkness Energy MEE 7",
+     "Darkness Energy MEE 7",
+     "Darkness Energy MEE 7"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eelektross BLK 32",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Thunder Fang"
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Vengeful Fang"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Eelektross BLK 32"
+   ],
+   "turn": 2,
+   "cite": "card text: if any of your Pokemon were Knocked Out by damage from an attack during your opponent's last turn, 160 more damage (60 + 160 = 220 Knocks Out Eelektross, 160 HP; 60 alone would not)"
+  }
+ ]
+}

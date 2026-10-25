@@ -1,0 +1,14 @@
+Iono's Electrode
+- Lightning - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Iono's Voltorb
+LL
+Thump-Thump Boom
+This Pokémon does 100 damage to itself. Flip a coin. If heads, your opponent's Active Pokémon is Knocked Out.
+LLC
+Electric Ball 100
+Weakness: Fighting
+Resistance: none
+Retreat: 0

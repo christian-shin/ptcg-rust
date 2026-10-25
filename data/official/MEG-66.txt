@@ -1,0 +1,14 @@
+Houndstone
+- Psychic - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Greavard
+P
+Horrifying Bite 30
+Flip a coin until you get tails. For each heads, choose a random card from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.
+PPC
+Hammer In 130
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

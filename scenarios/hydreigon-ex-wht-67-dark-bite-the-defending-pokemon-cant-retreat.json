@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hydreigon ex WHT 67",
+   "4 Deino WHT 65",
+   "2 Zweilous WHT 66",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Lapras ex SCR 32",
+   "20 Darkness Energy MEE 7",
+   "4 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Hydreigon ex WHT 67",
+   "4 Deino WHT 65",
+   "2 Zweilous WHT 66",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Lapras ex SCR 32",
+   "20 Darkness Energy MEE 7",
+   "4 Water Energy MEE 3",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hydreigon ex WHT 67",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Oddish PFL 1"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dark Bite"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, the Defending Pokemon can't retreat"
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gigalith WHT 48",
+   "4 Roggenrola WHT 46",
+   "2 Nacli MEG 82",
+   "2 Naclstack MEG 83",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "20 Fighting Energy MEE 6",
+   "10 Water Energy MEE 3",
+   "14 Water Energy MEE 3"
+  ],
+  [
+   "4 Gigalith WHT 48",
+   "4 Roggenrola WHT 46",
+   "2 Nacli MEG 82",
+   "2 Naclstack MEG 83",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "20 Fighting Energy MEE 6",
+   "10 Water Energy MEE 3",
+   "14 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gigalith WHT 48",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "active_damage": 50,
+  "bench": [
+   {
+    "card": "Nacli MEG 82",
+    "damage": 10
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Vengeful Cannon"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 20,
+   "cite": "card text: only Benched [F] Pokemon (the Active Gigalith is not Benched)"
+  }
+ ]
+}

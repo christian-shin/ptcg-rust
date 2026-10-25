@@ -6688,5 +6688,115 @@
   "name": "Gholdengo",
   "text": "Gholdengo\n- Metal - 130 HP\nPokémon\n- Stage 1\n- Evolves from\nGimmighoul\nC\nAll-You-Can-Grab\nFlip a coin until you get tails. Search your deck for a number of cards up to the number of heads and put them into your hand. Then, shuffle your deck.\nMCC\nSpeed Attack 100\nWeakness: Fire\nResistance: Grass\nRetreat: 2",
   "url": "https://limitlesstcg.com/cards/MEG/99"
+ },
+ "WHT 48": {
+  "name": "Gigalith",
+  "text": "Gigalith\n- Fighting - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nBoldore\nF\nVengeful Cannon 20×\nThis attack does 20 damage for each damage counter on all of your Benched [ F ] Pokémon.\nFFF\nHeavy Impact 160\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/WHT/48"
+ },
+ "PRE 26": {
+  "name": "Glaceon ex",
+  "text": "Glaceon ex\n- Water - 270 HP\nPokémon\n- Stage 1\n- Evolves from\nEevee\nTera\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .\nWC\nFrost Bullet 110\nThis attack also does 30 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nGWD\nEuclase\nKnock Out 1 of your opponent's Pokémon that has exactly 6 damage counters on it.\nWeakness: Metal\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PRE/26"
+ },
+ "PFL 2": {
+  "name": "Gloom",
+  "text": "Gloom\n- Grass - 70 HP\nPokémon\n- Stage 1\n- Evolves from\nOddish\nG\nDisperse Drool 20\nThis attack also does 20 damage to each Benched Pokémon (both yours and your opponent's) . (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/PFL/2"
+ },
+ "CRI 26": {
+  "name": "Golisopod",
+  "text": "Golisopod\n- Water - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nWimpod\nW\nCritical Slash 30\nIf your opponent's Pokémon is Knocked Out by damage from this attack, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.\nCCC\nBoundless Power 150\nDuring your next turn, this Pokémon can't use attacks.\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/26"
+ },
+ "WHT 43": {
+  "name": "Gothitelle",
+  "text": "Gothitelle\n- Psychic - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nGothorita\nAbility:\nDistorted Future\nOnce during your turn, if this Pokémon is in the Active Spot, you may have your opponent shuffle their hand into their deck and draw 3 cards.\nPC\nSynchro Shot 90+\nIf you have the same number of cards in your hand as your opponent, this attack does 90 more damage.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/WHT/43"
+ },
+ "WHT 42": {
+  "name": "Gothorita",
+  "text": "Gothorita\n- Psychic - 90 HP\nPokémon\n- Stage 1\n- Evolves from\nGothita\nP\nFortunate Eye\nLook at the top 5 cards of your opponent's deck and put them back in any order.\nPC\nPsyshot 40\nWeakness: Darkness\nResistance: Fighting\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/WHT/42"
+ },
+ "CRI 41": {
+  "name": "Gourgeist ex",
+  "text": "Gourgeist ex\n- Psychic - 270 HP\nPokémon\n- Stage 1\n- Evolves from\nPumpkaboo\nP\nHorrifying Rondo 30+\nThis attack does 50 more damage for each of your Benched Pokémon that has any damage counters on it.\nPP\nGhostly Touch 140\nDiscard a random card from your opponent's hand.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/CRI/41"
+ },
+ "MEG 92": {
+  "name": "Grafaiai",
+  "text": "Grafaiai\n- Darkness - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nShroodle\nDC\nMiraculous Paint 90\nFlip a coin. If heads, choose a Special Condition. Your opponent's Active Pokémon is now affected by that Special Condition.\nWeakness: Fighting\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEG/92"
+ },
+ "MEG 63": {
+  "name": "Grumpig",
+  "text": "Grumpig\n- Psychic - 120 HP\nPokémon\n- Stage 1\n- Evolves from\nSpoink\nAbility:\nEnergized Steps\nOnce during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Look at the top 4 cards of your deck and attach any number of Basic Energy cards you find there to your Pokémon in any way you like. Shuffle the other cards back into your deck.\nPCC\nPsychic Sphere 60\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEG/63"
+ },
+ "DRI 106": {
+  "name": "Hippowdon",
+  "text": "Hippowdon\n- Fighting - 160 HP\nPokémon\n- Stage 1\n- Evolves from\nHippopotas\nFF\nRam 60\nFFC\nSuper Sandstorm 150\nThis attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's) . (Don't apply Weakness and Resistance for Benched Pokémon.)\nWeakness: Grass\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/DRI/106"
+ },
+ "POR 40": {
+  "name": "Hippowdon",
+  "text": "Hippowdon\n- Fighting - 150 HP\nPokémon\n- Stage 1\n- Evolves from\nHippopotas\nFFC\nTwister Spewing 80\nIf you played Tarragon from your hand during this turn, discard the top 3 cards of your opponent's deck.\nFFCC\nHeavy Impact 130\nWeakness: Grass\nResistance: none\nRetreat: 4",
+  "url": "https://limitlesstcg.com/cards/POR/40"
+ },
+ "JTG 108": {
+  "name": "Hop's Corviknight",
+  "text": "Hop's Corviknight\n- Metal - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nHop's Corvisquire\nC\nShoot Through 50\nThis attack also does 50 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)\nMMC\nSteel Wing 150\nDuring your opponent's next turn, this Pokémon takes 60 less damage from attacks (after applying Weakness and Resistance) .\nWeakness: Lightning\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/JTG/108"
+ },
+ "MEG 66": {
+  "name": "Houndstone",
+  "text": "Houndstone\n- Psychic - 140 HP\nPokémon\n- Stage 1\n- Evolves from\nGreavard\nP\nHorrifying Bite 30\nFlip a coin until you get tails. For each heads, choose a random card from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.\nPPC\nHammer In 130\nWeakness: Darkness\nResistance: Fighting\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/MEG/66"
+ },
+ "DRI 55": {
+  "name": "Huntail",
+  "text": "Huntail\n- Water - 110 HP\nPokémon\n- Stage 1\n- Evolves from\nClamperl\nAbility:\nDiver's Catch\nWhen 1 of your [ W ] Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, you may put all Basic [ W ] Energy attached to that Pokémon into your hand instead of the discard pile.\nWCC\nWave Splash 80\nWeakness: Lightning\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/DRI/55"
+ },
+ "WHT 67": {
+  "name": "Hydreigon ex",
+  "text": "Hydreigon ex\n- Darkness - 330 HP\nPokémon\n- Stage 2\n- Evolves from\nZweilous\nAbility:\nGreedy Eater\nIf your opponent's Basic Pokémon is Knocked Out by damage from an attack used by this Pokémon, take 1 more Prize card.\nDDDCC\nDark Bite 200\nDuring your opponent's next turn, the Defending Pokémon can't retreat.\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/WHT/67"
+ },
+ "JTG 48": {
+  "name": "Iono's Electrode",
+  "text": "Iono's Electrode\n- Lightning - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nIono's Voltorb\nLL\nThump-Thump Boom\nThis Pokémon does 100 damage to itself. Flip a coin. If heads, your opponent's Active Pokémon is Knocked Out.\nLLC\nElectric Ball 100\nWeakness: Fighting\nResistance: none\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/JTG/48"
+ },
+ "ASC 148": {
+  "name": "Kingambit",
+  "text": "Kingambit\n- Metal - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nBisharp\nAbility:\nSupreme Overlord\nAttacks used by this Pokémon do 30 more damage to your opponent's Active Pokémon for each Prize card your opponent has taken (before applying Weakness and Resistance) .\nMM\nDouble-Edged Slash 180\nThis Pokémon also does 50 damage to itself.\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/ASC/148"
+ },
+ "BLK 63": {
+  "name": "Klinklang",
+  "text": "Klinklang\n- Metal - 150 HP\nPokémon\n- Stage 2\n- Evolves from\nKlang\nAbility:\nGear Coating\nAll of your Pokémon that have any [ M ] Energy attached take 20 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) .\nMCC\nHammer In 120\nWeakness: Fire\nResistance: Grass\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/63"
+ },
+ "BLK 58": {
+  "name": "Krokorok",
+  "text": "Krokorok\n- Darkness - 100 HP\nPokémon\n- Stage 1\n- Evolves from\nSandile\nDC\nTighten Up 40\nYour opponent discards 2 cards from their hand.\nWeakness: Grass\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/BLK/58"
+ },
+ "BLK 59": {
+  "name": "Krookodile",
+  "text": "Krookodile\n- Darkness - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nKrokorok\nDC\nTighten Up 60\nYour opponent discards 2 cards from their hand.\nDDC\nCursed Slug 120+\nIf your opponent has 3 or fewer cards in their hand, this attack does 120 more damage.\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/BLK/59"
+ },
+ "PFL 66": {
+  "name": "Krookodile",
+  "text": "Krookodile\n- Darkness - 170 HP\nPokémon\n- Stage 2\n- Evolves from\nKrokorok\nD\nVengeful Fang 60+\nIf any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 160 more damage.\nDCCC\nHammer In 160\nWeakness: Grass\nResistance: none\nRetreat: 3",
+  "url": "https://limitlesstcg.com/cards/PFL/66"
+ },
+ "SCR 32": {
+  "name": "Lapras ex",
+  "text": "Lapras ex\n- Water - 220 HP\nPokémon\n- Basic\nTera\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .\nW\nPower Splash 40×\nThis attack does 40 damage for each Energy attached to this Pokémon.\nWPM\nLarimar Rain\nLook at the top 20 cards of your deck and attach any number of Energy cards you find there to your Pokémon in any way you like. Shuffle the other cards back into your deck.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SCR/32"
  }
 }

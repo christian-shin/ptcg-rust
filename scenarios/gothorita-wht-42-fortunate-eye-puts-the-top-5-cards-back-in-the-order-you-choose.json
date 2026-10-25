@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gothorita WHT 42",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "8 Grass Energy MEE 1",
+   "4 Fighting Energy MEE 6",
+   "4 Metal Energy MEE 8",
+   "4 Darkness Energy MEE 7",
+   "10 Water Energy MEE 3"
+  ],
+  [
+   "4 Gothorita WHT 42",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "8 Grass Energy MEE 1",
+   "4 Fighting Energy MEE 6",
+   "4 Metal Energy MEE 8",
+   "4 Darkness Energy MEE 7",
+   "10 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gothorita WHT 42",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "deck_top": [
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5",
+   "Fighting Energy MEE 6",
+   "Metal Energy MEE 8",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fortunate Eye"
+  },
+  [
+   4,
+   3,
+   2,
+   1,
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "deck",
+   "top": [
+    "Darkness Energy MEE 7",
+    "Metal Energy MEE 8",
+    "Fighting Energy MEE 6",
+    "Psychic Energy MEE 5",
+    "Grass Energy MEE 1"
+   ],
+   "cite": "card text: look at the top 5 cards of your opponent's deck and put them back in any order (scripted: the reverse order; the same 5 cards)"
+  }
+ ]
+}

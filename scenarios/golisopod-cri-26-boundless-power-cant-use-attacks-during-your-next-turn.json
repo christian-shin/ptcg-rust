@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Golisopod CRI 26",
+   "4 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "4 Oddish PFL 1",
+   "20 Water Energy MEE 3",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Golisopod CRI 26",
+   "4 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "4 Oddish PFL 1",
+   "20 Water Energy MEE 3",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Golisopod CRI 26",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Boundless Power"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 150,
+   "cite": "card text: 150 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Boundless Power",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't use attacks"
+  }
+ ]
+}

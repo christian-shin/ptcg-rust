@@ -116,7 +116,7 @@ pub fn slot_pred(sp: &SlotPred) -> ReadSet {
         SlotPred::Any => ReadSet::NONE,
         SlotPred::Not(q) => slot_pred(q),
         SlotPred::All(qs) | SlotPred::OneOf(qs) => all(qs, slot_pred),
-        SlotPred::Damaged => ReadSet::st(COUNTERS),
+        SlotPred::Damaged | SlotPred::DamageCounters(_) => ReadSet::st(COUNTERS),
         SlotPred::HasCondition | SlotPred::Condition(_) => ReadSet::st(CONDITIONS),
         SlotPred::IsActive
         | SlotPred::IsBench

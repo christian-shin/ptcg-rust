@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gourgeist ex CRI 41",
+   "4 Pumpkaboo CRI 40",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ],
+  [
+   "4 Gourgeist ex CRI 41",
+   "4 Pumpkaboo CRI 40",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gourgeist ex CRI 41",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152",
+    "damage": 10
+   },
+   {
+    "card": "Pumpkaboo CRI 40",
+    "damage": 20
+   },
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Horrifying Rondo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 130,
+   "cite": "card text: 50 more damage for each of your Benched Pokemon that has any damage counters (2): 30 + 100"
+  }
+ ]
+}

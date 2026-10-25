@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gothitelle WHT 43",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ],
+  [
+   "4 Gothitelle WHT 43",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "bench": [
+   {
+    "card": "Gothitelle WHT 43"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Distorted Future",
+   "is": false,
+   "cite": "card text: if this Pokemon is in the Active Spot"
+  }
+ ]
+}

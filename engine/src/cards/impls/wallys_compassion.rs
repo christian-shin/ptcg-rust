@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
             // "If you healed any damage in this way": the Heal's outcome.
             Step::new(Op::If(IfSpec {
                 cond: Cond::Done,
-                yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::All { provided: false }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT }))],
+                yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::All { provided: false, kind: EnergyKind::Any }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT }))],
                 no: &[],
             })),
         ],

@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gothitelle WHT 43",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ],
+  [
+   "4 Gothitelle WHT 43",
+   "4 Gothita WHT 41",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Psychic Energy MEE 5",
+   "30 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gothitelle WHT 43",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Synchro Shot"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 180,
+   "cite": "card text: the same number of cards in your hand as your opponent: 90 + 90"
+  }
+ ]
+}

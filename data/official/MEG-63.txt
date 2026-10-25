@@ -1,0 +1,14 @@
+Grumpig
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Spoink
+Ability:
+Energized Steps
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Look at the top 4 cards of your deck and attach any number of Basic Energy cards you find there to your Pokémon in any way you like. Shuffle the other cards back into your deck.
+PCC
+Psychic Sphere 60
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

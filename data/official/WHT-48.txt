@@ -1,0 +1,14 @@
+Gigalith
+- Fighting - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Boldore
+F
+Vengeful Cannon 20×
+This attack does 20 damage for each damage counter on all of your Benched [ F ] Pokémon.
+FFF
+Heavy Impact 160
+Weakness: Grass
+Resistance: none
+Retreat: 3

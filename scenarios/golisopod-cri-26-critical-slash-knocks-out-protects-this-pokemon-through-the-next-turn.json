@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Golisopod CRI 26",
+   "4 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "4 Oddish PFL 1",
+   "20 Water Energy MEE 3",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Golisopod CRI 26",
+   "4 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "4 Oddish PFL 1",
+   "20 Water Energy MEE 3",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Golisopod CRI 26",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Oddish PFL 1",
+  "active_damage": 30,
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Critical Slash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "lasting_effects": 2,
+   "cite": "card text: if your opponent's Pokemon is Knocked Out by damage from this attack, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokemon (damage and effects: 2 entries)"
+  }
+ ]
+}

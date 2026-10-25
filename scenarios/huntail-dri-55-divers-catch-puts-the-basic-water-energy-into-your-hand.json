@@ -1,0 +1,83 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Huntail DRI 55",
+   "4 Clamperl DRI 54",
+   "2 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Slaking ex SSP 147",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "20 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ],
+  [
+   "4 Huntail DRI 55",
+   "4 Clamperl DRI 54",
+   "2 Wimpod CRI 25",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Slaking ex SSP 147",
+   "4 Frosmoth MEG 43",
+   "4 Snom MEG 42",
+   "20 Water Energy MEE 3",
+   "18 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slaking ex SSP 147",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Huntail DRI 55",
+  "active_damage": 100,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Great Swing"
+  },
+  [
+   0
+  ],
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "contains": [
+    "Water Energy MEE 3",
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: you may put all Basic [W] Energy attached to that Pokemon into your hand instead of the discard pile"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "not_contains": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "card text: not into the discard pile"
+  }
+ ]
+}

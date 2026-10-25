@@ -1,0 +1,14 @@
+Krookodile
+- Darkness - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Krokorok
+D
+Vengeful Fang 60+
+If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 160 more damage.
+DCCC
+Hammer In 160
+Weakness: Grass
+Resistance: none
+Retreat: 3

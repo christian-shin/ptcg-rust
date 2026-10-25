@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iono's Electrode JTG 48",
+   "4 Iono's Voltorb JTG 47",
+   "4 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "20 Lightning Energy MEE 4",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Iono's Electrode JTG 48",
+   "4 Iono's Voltorb JTG 47",
+   "4 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "20 Lightning Energy MEE 4",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iono's Electrode JTG 48",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thump-Thump Boom"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Mega Dragonite ex ASC 152"
+   ],
+   "cite": "card text: flip a coin. If heads, your opponent's Active Pokemon is Knocked Out"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Iono's Electrode JTG 48"
+   ],
+   "cite": "card text: this Pokemon does 100 damage to itself (100 HP: Knocked Out)"
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hippowdon POR 40",
+   "4 Hippopotas POR 39",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Tarragon POR 85",
+   "20 Fighting Energy MEE 6",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Hippowdon POR 40",
+   "4 Hippopotas POR 39",
+   "4 Mega Dragonite ex ASC 152",
+   "4 Tarragon POR 85",
+   "20 Fighting Energy MEE 6",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hippowdon POR 40",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "Tarragon POR 85"
+  ],
+  "discard": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Tarragon POR 85"
+  },
+  {
+   "a": "attack",
+   "name": "Twister Spewing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 3,
+   "cite": "card text: if you played Tarragon from your hand during this turn, discard the top 3 cards of your opponent's deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 80,
+   "cite": "card text: 80 damage"
+  }
+ ]
+}
