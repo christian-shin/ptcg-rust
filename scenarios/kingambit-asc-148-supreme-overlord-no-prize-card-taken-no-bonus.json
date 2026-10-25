@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Kingambit ASC 148",
+   "4 Pawniard ASC 146",
+   "2 Bisharp ASC 147",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "4 Kingambit ASC 148",
+   "4 Pawniard ASC 146",
+   "2 Bisharp ASC 147",
+   "2 Mega Dragonite ex ASC 152",
+   "20 Metal Energy MEE 8",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kingambit ASC 148",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Double-Edged Slash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 180,
+   "cite": "card text: no Prize card taken: 180"
+  }
+ ]
+}

@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
             EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack)])),
         ])),
         steps: &[
-            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::This), selection: EnergySelection::All { provided: false }, ..DiscardEnergySpec::DEFAULT })),
+            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::This), selection: EnergySelection::All { provided: false, kind: EnergyKind::Any }, ..DiscardEnergySpec::DEFAULT })),
             Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Tools(SlotExpr::This)), cards: CardSel::All, into: None })),
             Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Hand), top: false })),
         ],

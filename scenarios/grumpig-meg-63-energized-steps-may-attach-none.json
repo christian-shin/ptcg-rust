@@ -1,0 +1,62 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Grumpig MEG 63",
+   "1 Spoink MEG 62",
+   "1 Mega Dragonite ex ASC 152",
+   "30 Psychic Energy MEE 5",
+   "27 Grass Energy MEE 1"
+  ],
+  [
+   "1 Grumpig MEG 63",
+   "1 Spoink MEG 62",
+   "1 Mega Dragonite ex ASC 152",
+   "30 Psychic Energy MEE 5",
+   "27 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Spoink MEG 62",
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ],
+  "hand": [
+   "Grumpig MEG 63"
+  ],
+  "played": "earlier"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Grumpig MEG 63",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  [],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Grumpig MEG 63",
+   "energy": 0,
+   "cite": "card text: any number (0)"
+  }
+ ]
+}

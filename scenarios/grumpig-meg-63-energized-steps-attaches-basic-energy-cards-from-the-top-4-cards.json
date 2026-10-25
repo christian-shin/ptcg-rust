@@ -1,0 +1,87 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Grumpig MEG 63",
+   "1 Spoink MEG 62",
+   "1 Mega Dragonite ex ASC 152",
+   "30 Psychic Energy MEE 5",
+   "27 Grass Energy MEE 1"
+  ],
+  [
+   "1 Grumpig MEG 63",
+   "1 Spoink MEG 62",
+   "1 Mega Dragonite ex ASC 152",
+   "30 Psychic Energy MEE 5",
+   "27 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Spoink MEG 62",
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ],
+  "hand": [
+   "Grumpig MEG 63"
+  ],
+  "played": "earlier"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Grumpig MEG 63",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  [
+   {
+    "index": 0,
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "index": 3,
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    }
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Mega Dragonite ex ASC 152",
+   "energy": 1,
+   "cite": "card text: look at the top 4 cards of your deck and attach any number of Basic Energy cards you find there to your Pokemon in any way you like"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Grumpig MEG 63",
+   "energy": 1,
+   "cite": "card text"
+  }
+ ]
+}

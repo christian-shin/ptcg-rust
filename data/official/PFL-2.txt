@@ -1,0 +1,12 @@
+Gloom
+- Grass - 70 HP
+Pokémon
+- Stage 1
+- Evolves from
+Oddish
+G
+Disperse Drool 20
+This attack also does 20 damage to each Benched Pokémon (both yours and your opponent's) . (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fire
+Resistance: none
+Retreat: 1

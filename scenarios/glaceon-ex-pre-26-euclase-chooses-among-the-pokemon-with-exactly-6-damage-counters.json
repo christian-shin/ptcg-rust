@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Glaceon ex PRE 26",
+   "4 Eevee PRE 74",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Camerupt ASC 28",
+   "10 Water Energy MEE 3",
+   "8 Grass Energy MEE 1",
+   "8 Darkness Energy MEE 7",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Glaceon ex PRE 26",
+   "4 Eevee PRE 74",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Camerupt ASC 28",
+   "10 Water Energy MEE 3",
+   "8 Grass Energy MEE 1",
+   "8 Darkness Energy MEE 7",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Glaceon ex PRE 26",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "active_damage": 60,
+  "bench": [
+   {
+    "card": "Oddish PFL 1"
+   },
+   {
+    "card": "Camerupt ASC 28",
+    "damage": 60
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Euclase"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Camerupt ASC 28"
+   ],
+   "cite": "card text: the player chooses (the Benched Camerupt)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Dragonite ex ASC 152",
+   "damage": 60,
+   "cite": "card text: the Active Pokemon keeps its 6 damage counters"
+  }
+ ]
+}

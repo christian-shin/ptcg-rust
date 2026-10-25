@@ -1242,3 +1242,25 @@ Frosmoth MEG 43	FrosmothMEG
 Garganacl MEG 84	Garganacl
 Gengar POR 50	Gengar
 Gholdengo MEG 99	GholdengoMEG
+Gigalith WHT 48	Gigalith
+Glaceon ex PRE 26	GlaceonEx
+Gloom PFL 2	Gloom
+Golisopod CRI 26	Golisopod
+Gothitelle WHT 43	Gothitelle
+Gothorita WHT 42	Gothorita
+Gourgeist ex CRI 41	GourgeistEx
+Grafaiai MEG 92	Grafaiai
+Grumpig MEG 63	Grumpig
+Hippowdon DRI 106	HippowdonDRI
+Hippowdon POR 40	HippowdonPOR
+Hop's Corviknight JTG 108	HopsCorviknight
+Houndstone MEG 66	Houndstone
+Huntail DRI 55	Huntail
+Hydreigon ex WHT 67	HydreigonExWHT
+Iono's Electrode JTG 48	IonosElectrode
+Kingambit ASC 148	Kingambit
+Klinklang BLK 63	KlinklangBLK
+Krokorok BLK 58	KrokorokBLK
+Krookodile BLK 59	KrookodileBLK
+Krookodile PFL 66	KrookodilePFL
+Lapras ex SCR 32	LaprasEx

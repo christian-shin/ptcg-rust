@@ -1,0 +1,14 @@
+Klinklang
+- Metal - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Klang
+Ability:
+Gear Coating
+All of your Pokémon that have any [ M ] Energy attached take 20 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) .
+MCC
+Hammer In 120
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

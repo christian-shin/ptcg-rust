@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Glaceon ex PRE 26",
+   "4 Eevee PRE 74",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Camerupt ASC 28",
+   "10 Water Energy MEE 3",
+   "8 Grass Energy MEE 1",
+   "8 Darkness Energy MEE 7",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Glaceon ex PRE 26",
+   "4 Eevee PRE 74",
+   "2 Mega Dragonite ex ASC 152",
+   "2 Oddish PFL 1",
+   "2 Camerupt ASC 28",
+   "10 Water Energy MEE 3",
+   "8 Grass Energy MEE 1",
+   "8 Darkness Energy MEE 7",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Glaceon ex PRE 26",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "active_damage": 60,
+  "bench": [
+   {
+    "card": "Oddish PFL 1"
+   },
+   {
+    "card": "Camerupt ASC 28",
+    "damage": 50
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Euclase"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Mega Dragonite ex ASC 152"
+   ],
+   "cite": "card text: Knock Out 1 of your opponent's Pokemon that has exactly 6 damage counters on it (the Active Pokemon, the only one)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "not_contains": [
+    "Oddish PFL 1",
+    "Camerupt ASC 28"
+   ],
+   "cite": "card text: the others stay"
+  }
+ ]
+}

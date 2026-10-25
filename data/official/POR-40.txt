@@ -1,0 +1,14 @@
+Hippowdon
+- Fighting - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hippopotas
+FFC
+Twister Spewing 80
+If you played Tarragon from your hand during this turn, discard the top 3 cards of your opponent's deck.
+FFCC
+Heavy Impact 130
+Weakness: Grass
+Resistance: none
+Retreat: 4

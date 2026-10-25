@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lapras ex SCR 32",
+   "2 Mega Dragonite ex ASC 152",
+   "24 Water Energy MEE 3",
+   "8 Psychic Energy MEE 5",
+   "8 Metal Energy MEE 8",
+   "4 Grass Energy MEE 1",
+   "10 Water Energy MEE 3"
+  ],
+  [
+   "4 Lapras ex SCR 32",
+   "2 Mega Dragonite ex ASC 152",
+   "24 Water Energy MEE 3",
+   "8 Psychic Energy MEE 5",
+   "8 Metal Energy MEE 8",
+   "4 Grass Energy MEE 1",
+   "10 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Lapras ex SCR 32",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Larimar Rain"
+  },
+  []
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Lapras ex SCR 32",
+   "energy": 3,
+   "cite": "card text: any number (0)"
+  }
+ ]
+}

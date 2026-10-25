@@ -13548,5 +13548,225 @@
   "key": "Gholdengo MEG 99",
   "tier": "custom",
   "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "48",
+  "name": "Gigalith",
+  "type": "F Stage 2",
+  "reg": "I",
+  "key": "Gigalith WHT 48",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PRE",
+  "number": "26",
+  "name": "Glaceon ex",
+  "type": "W Stage 1",
+  "reg": "H",
+  "key": "Glaceon ex PRE 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "2",
+  "name": "Gloom",
+  "type": "G Stage 1",
+  "reg": "I",
+  "key": "Gloom PFL 2",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "26",
+  "name": "Golisopod",
+  "type": "W Stage 1",
+  "reg": "J",
+  "key": "Golisopod CRI 26",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "43",
+  "name": "Gothitelle",
+  "type": "P Stage 2",
+  "reg": "I",
+  "key": "Gothitelle WHT 43",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "42",
+  "name": "Gothorita",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Gothorita WHT 42",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "CRI",
+  "number": "41",
+  "name": "Gourgeist ex",
+  "type": "P Stage 1",
+  "reg": "J",
+  "key": "Gourgeist ex CRI 41",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "92",
+  "name": "Grafaiai",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Grafaiai MEG 92",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "63",
+  "name": "Grumpig",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Grumpig MEG 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "106",
+  "name": "Hippowdon",
+  "type": "F Stage 1",
+  "reg": "I",
+  "key": "Hippowdon DRI 106",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "POR",
+  "number": "40",
+  "name": "Hippowdon",
+  "type": "F Stage 1",
+  "reg": "J",
+  "key": "Hippowdon POR 40",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "108",
+  "name": "Hop's Corviknight",
+  "type": "M Stage 2",
+  "reg": "I",
+  "key": "Hop's Corviknight JTG 108",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "MEG",
+  "number": "66",
+  "name": "Houndstone",
+  "type": "P Stage 1",
+  "reg": "I",
+  "key": "Houndstone MEG 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "DRI",
+  "number": "55",
+  "name": "Huntail",
+  "type": "W Stage 1",
+  "reg": "I",
+  "key": "Huntail DRI 55",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "WHT",
+  "number": "67",
+  "name": "Hydreigon ex",
+  "type": "D Stage 2",
+  "reg": "I",
+  "key": "Hydreigon ex WHT 67",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "JTG",
+  "number": "48",
+  "name": "Iono's Electrode",
+  "type": "L Stage 1",
+  "reg": "I",
+  "key": "Iono's Electrode JTG 48",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "ASC",
+  "number": "148",
+  "name": "Kingambit",
+  "type": "M Stage 2",
+  "reg": "I",
+  "key": "Kingambit ASC 148",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "63",
+  "name": "Klinklang",
+  "type": "M Stage 2",
+  "reg": "I",
+  "key": "Klinklang BLK 63",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "58",
+  "name": "Krokorok",
+  "type": "D Stage 1",
+  "reg": "I",
+  "key": "Krokorok BLK 58",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "BLK",
+  "number": "59",
+  "name": "Krookodile",
+  "type": "D Stage 2",
+  "reg": "I",
+  "key": "Krookodile BLK 59",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "PFL",
+  "number": "66",
+  "name": "Krookodile",
+  "type": "D Stage 2",
+  "reg": "I",
+  "key": "Krookodile PFL 66",
+  "tier": "custom",
+  "print_match": "exact"
+ },
+ {
+  "set": "SCR",
+  "number": "32",
+  "name": "Lapras ex",
+  "type": "W Basic",
+  "reg": "H",
+  "key": "Lapras ex SCR 32",
+  "tier": "custom",
+  "print_match": "exact"
  }
 ]

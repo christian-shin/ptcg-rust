@@ -1,0 +1,14 @@
+Hippowdon
+- Fighting - 160 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hippopotas
+FF
+Ram 60
+FFC
+Super Sandstorm 150
+This attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's) . (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 4

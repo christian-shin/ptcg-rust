@@ -1,0 +1,15 @@
+Hop's Corviknight
+- Metal - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Hop's Corvisquire
+C
+Shoot Through 50
+This attack also does 50 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+MMC
+Steel Wing 150
+During your opponent's next turn, this Pokémon takes 60 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2

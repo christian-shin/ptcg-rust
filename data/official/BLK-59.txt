@@ -1,0 +1,15 @@
+Krookodile
+- Darkness - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Krokorok
+DC
+Tighten Up 60
+Your opponent discards 2 cards from their hand.
+DDC
+Cursed Slug 120+
+If your opponent has 3 or fewer cards in their hand, this attack does 120 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 3

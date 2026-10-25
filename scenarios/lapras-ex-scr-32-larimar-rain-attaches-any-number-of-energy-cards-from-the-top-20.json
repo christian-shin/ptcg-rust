@@ -1,0 +1,83 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lapras ex SCR 32",
+   "2 Mega Dragonite ex ASC 152",
+   "24 Water Energy MEE 3",
+   "8 Psychic Energy MEE 5",
+   "8 Metal Energy MEE 8",
+   "4 Grass Energy MEE 1",
+   "10 Water Energy MEE 3"
+  ],
+  [
+   "4 Lapras ex SCR 32",
+   "2 Mega Dragonite ex ASC 152",
+   "24 Water Energy MEE 3",
+   "8 Psychic Energy MEE 5",
+   "8 Metal Energy MEE 8",
+   "4 Grass Energy MEE 1",
+   "10 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Lapras ex SCR 32",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Mega Dragonite ex ASC 152"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Larimar Rain"
+  },
+  [
+   {
+    "index": 0,
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "index": 1,
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    }
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Mega Dragonite ex ASC 152",
+   "energy": 1,
+   "cite": "card text: look at the top 20 cards of your deck and attach any number of Energy cards you find there to your Pokemon in any way you like"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Lapras ex SCR 32",
+   "energy": 4,
+   "cite": "card text"
+  }
+ ]
+}

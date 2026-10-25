@@ -1,0 +1,12 @@
+Grafaiai
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Shroodle
+DC
+Miraculous Paint 90
+Flip a coin. If heads, choose a Special Condition. Your opponent's Active Pokémon is now affected by that Special Condition.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

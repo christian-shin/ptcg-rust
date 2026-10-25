@@ -1,0 +1,15 @@
+Hydreigon ex
+- Darkness - 330 HP
+Pokémon
+- Stage 2
+- Evolves from
+Zweilous
+Ability:
+Greedy Eater
+If your opponent's Basic Pokémon is Knocked Out by damage from an attack used by this Pokémon, take 1 more Prize card.
+DDDCC
+Dark Bite 200
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Grass
+Resistance: none
+Retreat: 3

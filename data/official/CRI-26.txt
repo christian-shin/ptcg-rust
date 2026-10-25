@@ -1,0 +1,15 @@
+Golisopod
+- Water - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Wimpod
+W
+Critical Slash 30
+If your opponent's Pokémon is Knocked Out by damage from this attack, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.
+CCC
+Boundless Power 150
+During your next turn, this Pokémon can't use attacks.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

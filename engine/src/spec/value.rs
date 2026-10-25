@@ -717,6 +717,8 @@ pub enum SlotPred {
     OneOf(&'static [SlotPred]),
     /// Has at least one damage counter.
     Damaged,
+    /// Has exactly this many damage counters ("a Pokémon that has exactly 6 damage counters on it").
+    DamageCounters(i32),
     IsActive,
     IsBench,
     /// The top Pokémon card satisfies the card predicate.
@@ -806,6 +808,7 @@ impl SlotPred {
             }
             SlotPred::Any
             | SlotPred::Damaged
+            | SlotPred::DamageCounters(_)
             | SlotPred::IsActive
             | SlotPred::IsBench
             | SlotPred::Top(_)
@@ -909,6 +912,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
             r
         }
         SlotPred::Damaged => slot.damage > 0,
+        SlotPred::DamageCounters(n) => slot.damage == *n * 10,
         SlotPred::IsActive => g.st.players[p].active == id,
         SlotPred::IsBench => g.st.players[p].active != id,
         SlotPred::Top(q) => g.st.slot_pokemon(p, id).map(|c| pred(g, c, q)).unwrap_or(false),
@@ -1066,6 +1070,15 @@ pub fn num_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, n: &Num
                 }
             }
             n
+        }
+        Num::DamageSum(sel, sp) => {
+            let mut total = 0;
+            for s in slots_m(g, me, f, sel)?.iter() {
+                if slot_pred_m(g, me, *s, sp)? {
+                    total += g.g().st.slot(s.p as usize, s.s).damage;
+                }
+            }
+            total
         }
         Num::EnergyOn(sel, unit) => {
             let mut total = 0;
@@ -1266,7 +1279,7 @@ pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Co
 /// Does the number need a checked read (`num_m`)?
 pub fn num_is_checked(n: &Num) -> bool {
     match n {
-        Num::SlotCount(..) | Num::EnergyOn(..) | Num::CostNow | Num::RetreatCostColorless(_) => true,
+        Num::SlotCount(..) | Num::DamageSum(..) | Num::EnergyOn(..) | Num::CostNow | Num::RetreatCostColorless(_) => true,
         Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num_is_checked(a) || num_is_checked(b),
         Num::If(_, a, b) => num_is_checked(a) || num_is_checked(b),
         _ => false,

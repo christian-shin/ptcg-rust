@@ -193,6 +193,9 @@ pub struct DamageDealtSpec {
     pub guard: Cond,
     /// Doesn't stack: only the first bonus of this kind per damage effect applies (Hop's Snorlax).
     pub nonstacking: bool,
+    /// The bonus is `amount` times this ("30 more damage for each Prize card your opponent has taken"); `Num::Lit(1)` for a
+    /// plain bonus. Read as the game checks it, for the declaring card's player.
+    pub times: Num,
 }
 
 impl DamageDealtSpec {
@@ -207,6 +210,7 @@ impl DamageDealtSpec {
         needs_printed_damage: false,
         guard: Cond::True,
         nonstacking: false,
+        times: Num::Lit(1),
     };
 }
 
@@ -1342,7 +1346,14 @@ fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDea
     if !ability_effect_reaches(g, me, origin, at.owner, source, false)? {
         return Ok(());
     }
-    *damage_now += d.amount;
+    let times = match d.times {
+        Num::Lit(n) => n,
+        _ => {
+            let fr = run::Frame::passive(g, me, at.owner, origin);
+            num_m(g, me, &fr, &d.times)?
+        }
+    };
+    *damage_now += d.amount * times;
     if d.nonstacking {
         *flags |= fx_flag::DAMAGE_INCREASED;
     }
@@ -3890,8 +3901,8 @@ mod prevent_marker_tests {
         // CW25: Bastiodon PBL 62's Ancient Bulwark (over the cause, guarded by the Bench); Carracosta BLK 23's Mighty Shell (over damage
         // and effects, by cause), Cetitan ex's Snow Camouflage (over the cause), Cinccino ex's Smooth Coat (coin), the Tera rule of
         // Cinderace ex, Drednaw's Impervious Shell (over Damage).
-        // CW26: the Tera rule of Flygon ex.
-        assert_eq!(n, 70);
+        // CW26: the Tera rule of Flygon ex, Glaceon ex and Lapras ex.
+        assert_eq!(n, 72);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
